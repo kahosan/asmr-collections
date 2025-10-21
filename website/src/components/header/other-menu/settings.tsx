@@ -39,7 +39,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-[90%] sm:max-w-lg" onOpenAutoFocus={e => e.preventDefault()}>
+      <DialogContent className="rounded-lg max-w-[90%] sm:max-w-lg" onInteractOutside={e => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>设置选项</DialogTitle>
         </DialogHeader>
