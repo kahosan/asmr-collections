@@ -48,7 +48,7 @@ pm2 start pnpm --name asmr-collections -- run server:build
 
 ### 本地库
 
-当没有启用本地库时，会从 asmr.one 获取作品数据，并支持在线播放
+当没有启用本地库时，会从 [asmr.one](https://asmr.one) 获取作品数据，并支持在线播放
 
 本地库功能需要在 `.env` 文件中填写本地库的路径与你部署的网站的域名
 
@@ -67,3 +67,7 @@ pm2 start pnpm --name asmr-collections -- run server:build
 - [ ] Docker 支持
 
 ...
+
+## 感谢
+
+- 非常感谢 [asmr.one](https://asmr.one) 的无私奉献
