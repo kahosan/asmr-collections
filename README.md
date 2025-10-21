@@ -36,3 +36,20 @@ pnpm run server:migration
 ```bash
 pm2 start pnpm --name asmr-collections -- run server:build
 ```
+
+## 使用提示
+
+> [!IMPORTANT]
+> 网站内的所有删除操作都只会操作数据库，不会删除本地内容
+
+本地库功能需要在 `.env` 文件中填写本地库的路径与你部署的网站的域名
+
+第一次使用时可以在网站右上角的菜单 -> 设置中打开「使用本地音声库」选项并点击「同步音声库」按钮
+
+此操作可以将所有本地音声库的作品同步到数据库中
+
+## TODO
+
+- [ ] Docker 支持
+
+...
