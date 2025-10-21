@@ -37,6 +37,10 @@ pnpm run server:migration
 pm2 start pnpm --name asmr-collections -- run server:build
 ```
 
+如果前端代码有更新，需要再运行一次 `pnpm run server:build`
+
+后续只需运行 `pnpm run server` 即可
+
 ## 使用提示
 
 > [!IMPORTANT]
