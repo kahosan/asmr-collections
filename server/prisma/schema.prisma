@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// Work Model
+model Work {
+  id               String                 @id
+  name             String
+  cover            String
+  intro            String
+  circleId         String
+  circle           Circle                 @relation(fields: [circleId], references: [id])
+  seriesId         String?
+  series           Series?                @relation(fields: [seriesId], references: [id])
+  artists          Artist[]
+  illustrators     Illustrator[]
+  ageCategory      Int
+  genres           Genre[]
+  price            Int
+  sales            Int
+  wishlistCount    Int
+  rate             Float
+  rateCount        Int
+  reviewCount      Int
+  originalId       String?
+  languageEditions Json[]
+  subtitles        Bytes?
+  embedding        Unsupported("vector")?
+  releaseDate      String
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+}
+
+model Circle {
+  id    String @id
+  name  String
+  works Work[]
+}
+
+model Series {
+  id    String @id
+  name  String
+  works Work[]
+}
+
+model Artist {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  works Work[]
+}
+
+model Illustrator {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  works Work[]
+}
+
+model Genre {
+  id    Int    @id
+  name  String
+  works Work[]
+}
