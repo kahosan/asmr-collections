@@ -24,22 +24,18 @@ cd asmr-collections && pnpm i # npm i
 
 把 postgres 的连接 URL 填入 `.env` 文件
 
-> [!WARNING]
-> 如果是第一次使用，需要运行一次下面的命令
-
-```bash
-pnpm run server:migration
-```
 
 使用 pm2 管理运行 app
 
 ```bash
-pm2 start pnpm --name asmr-collections -- run server:build
+pm2 start pnpm --name asmr-collections -- run server:build-start
 ```
 
-如果前端代码有更新，需要再运行一次 `pnpm run server:build`
+- `pnpm run server:build-start` 命令会重构建前端然后复制到 server 目录，并启动服务
+- `pnpm run server:build` 不会启动服务只会构建并复制
+- `pnpm run server` 只启动服务
 
-后续只需运行 `pnpm run server` 即可
+可根据需要自行选择，不过一般只使用 `server:build-start` 即可
 
 ## 使用提示
 
