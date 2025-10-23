@@ -4,6 +4,9 @@ import { twMerge } from 'tailwind-merge';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 
+import type { SubtitleInfo } from './subtitle-matcher';
+import type { Tracks } from '~/types/tracks';
+
 import { HTTPError } from './fetcher';
 
 export function cn(...inputs: ClassValue[]) {
@@ -46,6 +49,42 @@ export function notifyError(error: unknown, text: string, options?: ExternalToas
 }
 
 // 使用 >>> 0 处理无后缀情况：lastIndexOf 返回 -1 时转为超大正数
-export function extractFileExt(name?: string) {
-  return name?.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2);
+export function extractFileExt(name: string) {
+  return name.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2);
+}
+
+/**
+ * 收集字幕文件
+ * @param data - 轨道数据
+ * @param recursive - 是否递归收集子目录的字幕文件,默认为 false
+ * @returns 字幕信息数组
+ */
+export function collectSubtitles(data: Tracks | undefined, recursive = false): SubtitleInfo[] {
+  if (!data) return [];
+
+  const subtitles: SubtitleInfo[] = [];
+  const supportedExtensions = new Set(['srt', 'lrc', 'vtt']);
+
+  function processItem(item: Tracks[number]) {
+    if (item.type === 'text' && supportedExtensions.has(extractFileExt(item.title))) {
+      const url = item.mediaDownloadUrl;
+      if (url) {
+        subtitles.push({
+          title: item.title,
+          url
+        });
+      }
+    }
+  }
+
+  function traverse(items: Tracks) {
+    for (const item of items) {
+      processItem(item);
+      if (recursive && item.children)
+        traverse(item.children);
+    }
+  }
+
+  traverse(data);
+  return subtitles;
 }

@@ -15,7 +15,7 @@ import { extractFileExt } from '~/lib/utils';
 export default function MediaPlayer() {
   const [mediaState, setMediaState] = useAtom(mediaAtom);
 
-  const subtitleType = extractFileExt(mediaState.currentTrack?.subtitles?.src) as 'vtt';
+  const subtitleType = extractFileExt(mediaState.currentTrack?.subtitles?.src ?? '') as 'vtt';
 
   const changeTrack = useCallback((next = false) => {
     const currentIndex = mediaState.tracks?.findIndex(track => track.title === mediaState.currentTrack?.title);
