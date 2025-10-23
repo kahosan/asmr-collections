@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import type { RegisteredRouter } from '@tanstack/react-router';
 import { useSearch } from '@tanstack/react-router';
 
 import type { RootSearchParams } from '~/providers/router';
@@ -11,7 +12,9 @@ type IncludeReturn<I extends RootSearchParamsKeys> = { [Key in I]: RootSearchPar
 type ExcludeContain<E extends RootSearchParamsKeys> = IncludeContain<E>;
 type ExcludeReturn<E extends RootSearchParamsKeys> = { [Key in Exclude<RootSearchParamsKeys, E>]: RootSearchParams[Key] };
 
-export function useIndexGenerateSearch(from: '__root__' | '/' | '/work-details/$id' = '/') {
+type RouteIds = keyof RegisteredRouter['routesById'];
+
+export function useIndexGenerateSearch(from: RouteIds = '__root__') {
   const search = useSearch({ from });
 
   const include = useCallback(
