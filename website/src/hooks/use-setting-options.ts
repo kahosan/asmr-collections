@@ -4,6 +4,7 @@ import { atomWithStorage } from 'jotai/utils';
 export interface SettingOptions {
   kikoeru: string
   selectedCloseMenu: boolean
+  prioritizeDLsite: boolean
   useLocalVoiceLibrary: boolean
   showWorkDetail: boolean
   isUseLocalVLShowExistTag: boolean
@@ -12,6 +13,7 @@ export interface SettingOptions {
 export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__', {
   kikoeru: 'https://asmr.one/work',
   selectedCloseMenu: false,
+  prioritizeDLsite: true,
   useLocalVoiceLibrary: false,
   showWorkDetail: true,
   isUseLocalVLShowExistTag: false

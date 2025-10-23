@@ -56,6 +56,13 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
           </div>
           <Separator />
           <SettingItem
+            id="prioritize-dlsite"
+            checked={options.prioritizeDLsite}
+            onCheckedChange={checked => setOptions({ ...options, prioritizeDLsite: checked })}
+          >
+            优先使用 DLsite 数据源
+          </SettingItem>
+          <SettingItem
             id="selected-close-menu"
             checked={options.selectedCloseMenu}
             onCheckedChange={checked => setOptions({ ...options, selectedCloseMenu: checked })}

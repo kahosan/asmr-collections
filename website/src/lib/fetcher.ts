@@ -28,6 +28,8 @@ export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promis
       if (typeof data === 'object' && data.message) {
         if (typeof data.message === 'object') throw new HTTPError(data.message.name, res.status, data?.data);
         throw new HTTPError(data.message, res.status, data?.data);
+      } else if (typeof data === 'object' && data.error) {
+        throw new HTTPError(data.error, res.status, data?.data);
       } else {
         throw new HTTPError(`未知错误: ${JSON.stringify(data)}`, res.status);
       }

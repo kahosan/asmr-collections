@@ -1,271 +1,193 @@
-import { Table, TableBody, TableCell, TableRow } from '~/components/ui/table';
+import { Link, useParams, useSearch } from '@tanstack/react-router';
+import { ErrorBoundary } from 'react-error-boundary';
 
-import { FileImage, FileText, FolderClosed } from 'lucide-react';
+import { Activity, Suspense } from 'react';
 
-import IconLink from '~/components/icon-link';
-import FolderBreadcrumb from '../../components/breadcrumb/folder-breadcrumb';
+import { Card } from '~/components/ui/card';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Separator } from '~/components/ui/separator';
 
-import Details from './details';
-import VideoItem from './video-item';
-import AudioItem from './audio-item';
+import TracksTabale from './tracks-table';
+import TracksSkeleton from './tracks-skeleton';
 
+import { useAtomValue } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
-import { useParams, useSearch } from '@tanstack/react-router';
 
-import { useAtom, useAtomValue } from 'jotai';
-import { useMemo, useRef } from 'react';
-
-import { match } from 'ts-pattern';
-
-import { mediaAtom } from '~/hooks/use-media-state';
-
-import LightGallery from 'lightgallery/react';
-import type { LightGallery as LightGalleryType } from 'lightgallery/lightgallery';
-
-import lgZoom from 'lightgallery/plugins/zoom';
-import lgRotate from 'lightgallery/plugins/rotate';
-import lgThumbnail from 'lightgallery/plugins/thumbnail';
-
-import 'lightgallery/css/lg-zoom.css';
-import 'lightgallery/css/lg-rotate.css';
-import 'lightgallery/css/lightgallery.css';
-import 'lightgallery/css/lg-thumbnail.css';
-
-import { fetcher } from '~/lib/fetcher';
-import { extractFileExt, collectSubtitles } from '~/lib/utils';
-import { SubtitleMatcher } from '../../lib/subtitle-matcher';
-
-import type { MediaTrack } from '~/hooks/use-media-state';
+import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
+import { fetcher } from '~/lib/fetcher';
+import { cn, notifyError, writeClipboard } from '~/lib/utils';
+
 import type { Work } from '~/types/work';
-import type { Tracks } from '~/types/tracks';
 
 export default function WorkDetails() {
   const { id } = useParams({ from: '/work-details/$id' });
   const search = useSearch({ from: '/work-details/$id' });
 
+  const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
-  const [mediaState, setMediaState] = useAtom(mediaAtom);
 
-  const api = settings.useLocalVoiceLibrary
-    ? `/api/tracks/${id}`
-    : `/proxy/${encodeURIComponent(`https://api.asmr-200.com/api/tracks/${id.replace('RJ', '')}`)}`;
+  const WorkInfoApi = settings.prioritizeDLsite
+    ? `/api/work/info/${id}`
+    : `/api/work/${id}`;
 
-  const { data } = useSWRImmutable<Tracks>(
-    api,
+  const { data } = useSWRImmutable<Work>(
+    WorkInfoApi,
     fetcher,
-    { suspense: true }
-  );
-
-  const { data: workData } = useSWRImmutable<Work>(
-    `/api/work/${id}`,
-    fetcher,
-    { suspense: true }
-  );
-
-  const filterData = search.path?.reduce((acc, path) => {
-    return acc?.find(item => item.title === path)?.children ?? [];
-  }, data) ?? data;
-
-  const groupByType = useMemo(() => {
-    if (filterData) {
-      return Object.groupBy(
-        filterData,
-        item => match(item.type)
-          .when(type => type === 'audio' || type === 'text', () => 'media')
-          .with('folder', () => 'folder')
-          .with('image', () => 'image')
-          .otherwise(() => 'other')
-      );
+    {
+      onError: e => notifyError(e, '获取作品信息失败'),
+      suspense: true
     }
-  }, [filterData]);
+  );
 
-  const subtitleMatcher = useMemo(() => {
-    const currentDirSubtitles = collectSubtitles(groupByType?.media);
-    const allSubtitles = collectSubtitles(data, true);
-
-    return new SubtitleMatcher([currentDirSubtitles, allSubtitles]);
-  }, [data, groupByType?.media]);
-
-  const handlePlay = (track: MediaTrack, tracks?: MediaTrack[]) => {
-    setMediaState(state => ({
-      ...state,
-      work: workData,
-      open: true,
-      tracks: tracks?.map(item => ({
-        ...item,
-        subtitles: {
-          src: subtitleMatcher.find(item.title)?.url
-        }
-      })),
-      currentTrack: {
-        ...track,
-        subtitles: {
-          src: subtitleMatcher.find(track.title)?.url
-        }
-      }
-    }));
-  };
-
-  const enqueueTrack = (track: MediaTrack) => {
-    if (mediaState.tracks?.find(item => item.title === track.title)) return;
-
-    setMediaState(state => ({
-      ...state,
-      tracks: [
-        ...(state.tracks ?? []),
-        {
-          ...track,
-          subtitles: {
-            src: subtitleMatcher.find(track.title)?.url
-          }
-        }
-      ]
-    }));
-  };
-
-  const lightGalleryRef = useRef<LightGalleryType>(null);
-
-  const openGallery = (index: number) => {
-    if (lightGalleryRef.current)
-      lightGalleryRef.current.openGallery(index);
-  };
+  if (!data)
+    throw new Error('作品不存在');
 
   return (
     <>
-      {(workData && settings.showWorkDetail) && <Details work={workData} />}
-      {search.path?.length !== 0 && <FolderBreadcrumb path={search.path} id={id} />}
-
-      {
-        (groupByType?.image && groupByType.image.length > 0) && (
-          <div style={{ display: 'none' }}>
-            <LightGallery
-              onInit={detail => {
-                lightGalleryRef.current = detail.instance;
-              }}
-              speed={200}
-              plugins={[lgThumbnail, lgZoom, lgRotate]}
-              download
-              counter
-              dynamic
-              dynamicEl={groupByType.image.map(item => ({
-                src: item.mediaDownloadUrl,
-                alt: item.title,
-                thumb: item.mediaDownloadUrl,
-                subHtml: `<h4>${item.title}</h4>`
-              }))}
-            />
+      <Activity mode={settings.showWorkDetail ? 'visible' : 'hidden'}>
+        <Card className="md:flex-row flex-col gap-1 p-0 overflow-hidden">
+          <div className="w-full relative md:max-w-[40%] min-w-[40%] h-auto flex items-center">
+            <div className="pb-[75%]" />
+            <div className="bg-zinc-700 absolute inset-0 overflow-hidden">
+              <img
+                src={data.cover}
+                alt={data.name}
+                onLoad={e => { e.currentTarget.style.opacity = '1'; }}
+                className={cn(
+                  'object-cover object-center size-full opacity-0 transition-opacity',
+                  isHiddenImage && 'filter blur-xl'
+                )}
+              />
+              <Badge
+                className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default"
+                onClick={() => {
+                  writeClipboard(data.id, 'ID 已复制到剪贴板');
+                }}
+              >
+                {data.id}
+                {data.subtitles ? <span>带字幕</span> : null}
+              </Badge>
+            </div>
           </div>
-        )
-      }
 
-      <div className="mt-4 border rounded-md">
-        <Table className="table-fixed">
-          <TableBody>
+          <div className="flex flex-col gap-3 p-2">
+            <h2 className="sm:text-xl text-[20px] pt-2" title={data.name}>{data.name}</h2>
+            <div className="opacity-70">
+              <Link to="/" search={{ circleId: data.circleId }}>{data.circle.name}</Link>
+              {data.seriesId ? <Link to="/" search={{ seriesId: data.seriesId }} className="ml-2">「{data.series?.name}」系列</Link> : null}
+            </div>
+
+            <Separator />
+
+            <div className="text-sm">
+              <span className="font-bold">价格：</span>
+              <span>{data.price}<sup className="ml-1">JPY</sup></span>
+            </div>
+
+            <div className="text-sm">
+              <span className="font-bold">发行日期：</span>
+              <span>{data.releaseDate}</span>
+            </div>
+
             {
-              groupByType?.folder?.map(item => (
-                <TableRow key={item.title}>
-                  <TableCell className="p-0">
-                    <IconLink
-                      to="/work-details/$id"
-                      params={{ id }}
-                      search={{ path: (search.path ?? []).concat(item.title) }}
-                      icon={<FolderClosed className="min-w-6" color="#56CBFC" />}
-                    >
-                      {item.title}
-                    </IconLink>
-                  </TableCell>
-                </TableRow>
-              ))
+              data.artists.length > 0 && (
+                <div className="text-sm">
+                  <span className="font-bold">声优：</span>
+                  {
+                    data.artists.map(artist => (
+                      <Link
+                        key={artist.id}
+                        to="/"
+                        search={{ artistId: [artist.id] }}
+                        className="text-sm text-white ml-1 p-1 px-2 bg-green-500/80 rounded-md"
+                      >{artist.name}</Link>
+                    ))
+                  }
+                </div>
+              )
             }
 
             {
-              groupByType?.media?.map(item => {
-                const isCurrentTrack = mediaState.currentTrack?.title === item.title;
-                const isText = item.type === 'text';
-                const isVideo = extractFileExt(item.title) === 'mp4';
-                const tracks = groupByType.media?.filter(track => track.type === 'audio');
+              data.illustrators.length > 0 && (
+                <div className="text-sm">
+                  <span className="font-bold">画师：</span>
+                  {
+                    data.illustrators.map(illust => (
+                      <Link
+                        key={illust.id}
+                        to="/"
+                        search={{ illustratorId: illust.id }}
+                        className="text-sm text-white ml-1 p-1 px-2 bg-blue-500 rounded-md"
+                      >
+                        {illust.name}
+                      </Link>
+                    ))
+                  }
+                </div>
+              )
+            }
 
-                const textUrl = item.mediaStreamUrl;
+            <Separator className="opacity-0" />
 
-                return (
-                  <TableRow
-                    key={item.title}
-                    className={isCurrentTrack ? 'dark:bg-zinc-800 bg-slate-100' : ''}
+            <div className="inline-flex flex-wrap gap-1 mt-auto">
+              {
+                data.genres.map(genre => (
+                  <Link
+                    key={genre.id}
+                    to="/"
+                    search={{ genres: [genre.id] }}
+                    className="text-sm p-1 px-2 bg-zinc-200 dark:bg-zinc-700 rounded-md"
                   >
-                    <TableCell className="p-0">
-                      {
-                        isText
-                          ? (
-                            <IconLink
-                              to={textUrl}
-                              target="_blank"
-                              title={item.title}
-                              icon={<FileText className="min-w-6" color="#7CB920" />}
-                            >
-                              {item.title}
-                            </IconLink>
-                          )
-                          : (isVideo
-                            ? (
-                              <VideoItem
-                                track={item}
-                                tracks={tracks}
-                                work={workData}
-                              />
-                            )
-                            : (
-                              <AudioItem
-                                existCurrentTrack={!!mediaState.currentTrack}
-                                track={item}
-                                onPlay={() => handlePlay(item, tracks)}
-                                enqueueTrack={() => enqueueTrack(item)}
-                              />
-                            ))
-                      }
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            }
+                    {genre.name}
+                  </Link>
+                ))
+              }
+            </div>
 
-            {
-              groupByType?.image?.map((item, index) => (
-                <TableRow key={item.title}>
-                  <TableCell className="p-0">
-                    <button
-                      type="button"
-                      onClick={() => openGallery(index)}
-                      className="w-full flex gap-3 items-center p-3"
-                    >
-                      <FileImage className="min-w-6" color="#FF9800" />
-                      <p className="truncate">{item.title}</p>
-                    </button>
-                  </TableCell>
-                </TableRow>
-              ))
-            }
+            <Separator />
 
-            {
-              groupByType?.other?.map(item => (
-                <TableRow key={item.title}>
-                  <TableCell className="p-0">
-                    <IconLink
-                      to={item.mediaDownloadUrl}
-                      target="_blank"
-                      title={item.title}
-                      icon={<FileText className="min-w-6" color="#9E9E9E" />}
-                    >
-                      {item.title}
-                    </IconLink>
-                  </TableCell>
-                </TableRow>
-              ))
-            }
-          </TableBody>
-        </Table>
-      </div>
+            <div className="flex flex-wrap gap-2 [&>*]:px-1">
+              <Button asChild variant="link" size="sm" className="w-max">
+                <a href={`https://www.dlsite.com/maniax/work/=/product_id/${data.id}.html`} target="_blank" rel="noreferrer noopener">
+                  DLsite
+                </a>
+              </Button>
+
+              <Button asChild variant="link" size="sm" className="w-max">
+                <a href={`https://asmr.one/work/${data.id}`} target="_blank" rel="noreferrer noopener">
+                  ASMR.ONE
+                </a>
+              </Button>
+
+              {
+                data.languageEditions.map(edition => (
+                  edition.workId === data.id
+                    ? null
+                    : (
+                      <Button key={edition.workId} asChild variant="link" size="sm" className="w-max">
+                        <Link to="/work-details/$id" params={{ id: edition.workId }}>
+                          {edition.label}
+                        </Link>
+                      </Button>
+                    )
+                ))
+              }
+            </div>
+          </div>
+        </Card>
+        <div className="bg-current/8 p-2 rounded-md text-sm">
+          {data.intro}
+        </div>
+      </Activity>
+
+      <ErrorBoundary fallback={null}>
+        <Suspense fallback={<TracksSkeleton />}>
+          <TracksTabale work={data} search={search} settings={settings} />
+        </Suspense>
+      </ErrorBoundary>
     </>
   );
 }
