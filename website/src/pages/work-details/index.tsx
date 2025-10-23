@@ -15,6 +15,8 @@ import { useParams, useSearch } from '@tanstack/react-router';
 import { useAtom, useAtomValue } from 'jotai';
 import { useMemo, useRef } from 'react';
 
+import { match } from 'ts-pattern';
+
 import { mediaAtom } from '~/hooks/use-media-state';
 
 import LightGallery from 'lightgallery/react';
@@ -70,7 +72,11 @@ export default function WorkDetails() {
     if (filterData) {
       return Object.groupBy(
         filterData,
-        item => ((item.type === 'audio' || item.type === 'text') ? 'media' : item.type)
+        item => match(item.type)
+          .when(type => type === 'audio' || type === 'text', () => 'media')
+          .with('folder', () => 'folder')
+          .with('image', () => 'image')
+          .otherwise(() => 'other')
       );
     }
   }, [filterData]);
@@ -236,6 +242,23 @@ export default function WorkDetails() {
                       <FileImage className="min-w-6" color="#FF9800" />
                       <p className="truncate">{item.title}</p>
                     </button>
+                  </TableCell>
+                </TableRow>
+              ))
+            }
+
+            {
+              groupByType?.other?.map(item => (
+                <TableRow key={item.title}>
+                  <TableCell className="p-0">
+                    <IconLink
+                      to={item.mediaDownloadUrl}
+                      target="_blank"
+                      title={item.title}
+                      icon={<FileText className="min-w-6" color="#9E9E9E" />}
+                    >
+                      {item.title}
+                    </IconLink>
                   </TableCell>
                 </TableRow>
               ))
