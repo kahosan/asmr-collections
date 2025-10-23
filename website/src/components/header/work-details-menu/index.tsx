@@ -23,7 +23,7 @@ export function WorkDetailsMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline">
             菜单
           </Button>
         </DropdownMenuTrigger>
