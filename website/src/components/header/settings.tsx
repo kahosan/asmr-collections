@@ -43,17 +43,25 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
         <DialogHeader>
           <DialogTitle>设置选项</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="kikoeru">自建 Kikoeru 地址</Label>
-            <Input
-              id="kikoeru"
-              name="kikoeru"
-              placeholder="https://asmr.one/work/"
-              value={options.kikoeru}
-              onChange={e => setOptions({ ...options, kikoeru: e.target.value })}
-            />
-          </div>
+        <div className="flex flex-col gap-4.5 mt-4">
+          <SettingInput
+            id="kikoeru"
+            name="kikoeru"
+            placeholder={options.kikoeru}
+            value={options.kikoeru}
+            onChange={e => setOptions({ ...options, kikoeru: e.target.value })}
+          >
+            自建 Kikoeru 地址
+          </SettingInput>
+          <SettingInput
+            id="asmr-one-api"
+            name="asmr-one-api"
+            placeholder={options.asmrOneApi}
+            value={options.asmrOneApi}
+            onChange={e => setOptions({ ...options, asmrOneApi: e.target.value })}
+          >
+            ASMR.ONE API
+          </SettingInput>
           <Separator />
           <SettingItem
             id="prioritize-dlsite"
@@ -135,3 +143,15 @@ function SettingItem({ id, children, ...props }: React.ComponentPropsWithoutRef<
     </div>
   );
 }
+
+function SettingInput({ id, children, ...props }: React.ComponentPropsWithoutRef<typeof Input>) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={id}>{children}</Label>
+      <Input
+        id={id}
+        {...props}
+      />
+    </div>
+  );
+};

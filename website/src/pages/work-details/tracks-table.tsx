@@ -51,7 +51,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
 
   const tracksApi = settings.useLocalVoiceLibrary
     ? `/api/tracks/${id}`
-    : `/proxy/${encodeURIComponent(`https://api.asmr-200.com/api/tracks/${id.replace('RJ', '')}`)}`;
+    : `/proxy/${encodeURIComponent(`${settings.asmrOneApi}/api/tracks/${id.replace('RJ', '')}`)}`;
 
   const errorText = settings.useLocalVoiceLibrary
     ? '获取本地数据失败'
