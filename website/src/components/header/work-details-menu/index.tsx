@@ -38,6 +38,7 @@ export function WorkDetailsMenu() {
           <HiddenImage menuType="dropdown" />
           <DropdownMenuSeparator />
           <ThemeToggle menuType="dropdown" />
+          <DropdownMenuSeparator />
           <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSettingsDialog(p => !p)}>
             设置
           </DropdownMenuItem>
