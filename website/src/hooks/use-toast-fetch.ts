@@ -33,7 +33,7 @@ export function useToastFetch() {
 
         if (bodyData instanceof HTTPError) {
           let text = bodyData.message;
-          if ('data' in bodyData) {
+          if (bodyData.data) {
             text += ': ';
             text += typeof bodyData.data === 'object'
               ? Object.values(bodyData.data).join(', ')
