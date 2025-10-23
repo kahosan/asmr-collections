@@ -2,7 +2,6 @@ import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { Card, CardTitle } from '../ui/card';
 
-import { Activity } from 'react';
 import { Link } from '@tanstack/react-router';
 
 import Menu from './menu';
@@ -32,7 +31,11 @@ export default function WorkCard({ work }: Props) {
   const settings = useAtomValue(settingOptionsAtom);
   const { search, exclude, include } = useIndexGenerateSearch();
 
-  const { data } = useSWRImmutable<{ exist: boolean }>(`/api/library/exist/${work.id}`, fetcher, {
+  const existApi = settings.isUseLocalVLShowExistTag
+    ? `/api/library/exist/${work.id}`
+    : null;
+
+  const { data } = useSWRImmutable<{ exist: boolean }>(existApi, fetcher, {
     onError: error => notifyError(error, '检查是否存在于音声库时出错')
   });
 
@@ -76,14 +79,13 @@ export default function WorkCard({ work }: Props) {
           }
         </Badge>
         {
-          data?.exist ? null
-            : (
-              <Activity mode={settings.isUseLocalVLShowExistTag ? 'visible' : 'hidden'}>
-                <Badge className="absolute top-2 right-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default">
-                  不存在于本地库
-                </Badge>
-              </Activity>
+          data?.exist === false
+            ? (
+              <Badge className="absolute top-2 right-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default">
+                不存在于本地库
+              </Badge>
             )
+            : null
         }
         {
           work.seriesId
