@@ -7,11 +7,12 @@ import useSWR from 'swr';
 import { useSearch } from '@tanstack/react-router';
 
 import { fetcher } from '~/lib/fetcher';
-import type { WorksResponse } from '~/types/works';
 import { notifyError } from '~/lib/utils';
 
+import type { WorksResponse } from '~/types/works';
+
 export default function Works() {
-  const search = useSearch({ strict: false });
+  const search = useSearch({ from: '/' });
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(search))
