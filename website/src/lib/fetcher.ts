@@ -25,8 +25,8 @@ export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promis
       .otherwise(() => res.text());
 
     if (!res.ok) {
-      if (typeof data === 'object' && ('message' in data || 'data' in data)) {
-        if (typeof data.message === 'object') throw new HTTPError(data.message.name, res.status);
+      if (typeof data === 'object' && data.message) {
+        if (typeof data.message === 'object') throw new HTTPError(data.message.name, res.status, data?.data);
         throw new HTTPError(data.message, res.status, data?.data);
       } else {
         throw new HTTPError(`未知错误: ${JSON.stringify(data)}`, res.status);

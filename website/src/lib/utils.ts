@@ -21,20 +21,26 @@ export function writeClipboard(text: string, notifyText = '已复制到剪贴板
 }
 
 export function notifyError(error: unknown, text: string, options?: ExternalToast) {
+  let id: string | number = text;
+  if (options?.id)
+    id = options.id;
+
   if (error instanceof HTTPError) {
     let message = error.message;
-    if ('data' in error) {
+    if (error.data) {
       message += ': ';
       message += typeof error.data === 'object' ? Object.values(error.data).join(', ') : error.data;
     }
     toast.error(text, {
       ...options,
+      id,
       description: options?.description ?? message
     });
   }
 
   toast.error(text, {
     ...options,
+    id,
     description: error instanceof Error ? error.message : undefined
   });
 }
