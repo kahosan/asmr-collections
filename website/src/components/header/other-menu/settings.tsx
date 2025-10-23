@@ -14,7 +14,7 @@ import { useToastFetch } from '~/hooks/use-toast-fetch';
 
 export default function SettingsDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [_options, _handleSave] = useSettingOptions();
-  const { isLoading, toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const [options, setOptions] = useState(_options);
 

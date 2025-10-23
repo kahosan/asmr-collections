@@ -34,7 +34,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
 
   const controllerRef = useRef(new AbortController());
 
-  const { isLoading, toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const handleCreate = () => {
     if (isLoading) return;
@@ -55,7 +55,9 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         return `${id} 添加成功`;
       },
       error: `${id} 添加失败`,
-      finally: () => mutate(key => typeof key === 'string' && key.startsWith('/api/works'))
+      finally() {
+        mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+      }
     });
   };
 

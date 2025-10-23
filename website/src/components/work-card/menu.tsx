@@ -25,7 +25,7 @@ export default function Menu({ work }: Props) {
 
   const settingOptions = useAtomValue(settingOptionsAtom);
 
-  const { toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const refreshWork = () => {
     toastcher<Work>(
@@ -63,7 +63,7 @@ export default function Menu({ work }: Props) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={refreshWork} className="cursor-pointer">
+            <DropdownMenuItem disabled={isLoading} onClick={refreshWork} className="cursor-pointer">
               数据更新
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setOpenAlert(p => !p)} className="cursor-pointer">
@@ -147,7 +147,7 @@ export default function Menu({ work }: Props) {
 }
 
 function WorkDeleteAlertDialog({ workId, open, setOpen }: { workId: string, open: boolean, setOpen: (open: boolean) => void }) {
-  const { toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const handleClick = () => {
     toastcher<Work>(`/api/work/delete/${workId}`, { method: 'DELETE' }, {
@@ -172,7 +172,7 @@ function WorkDeleteAlertDialog({ workId, open, setOpen }: { workId: string, open
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>取消</AlertDialogCancel>
-          <AlertDialogAction onClick={handleClick}>
+          <AlertDialogAction onClick={handleClick} disabled={isLoading}>
             确定
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -182,7 +182,7 @@ function WorkDeleteAlertDialog({ workId, open, setOpen }: { workId: string, open
 }
 
 function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSubtitles: boolean, onClose: () => void }) {
-  const { toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const [open, setOpen] = useState(false);
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -199,7 +199,7 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
     const fileExt = extractFileExt(file.name);
     const fileSize = file.size;
 
-    if (!['zip', '7z', 'rar'].includes(fileExt ?? '') || fileSize > 1024 * 1024) {
+    if (!['zip', '7z', 'rar'].includes(fileExt) || fileSize > 1024 * 1024) {
       toast.error(
         <div>
           <p>文件格式仅支持 <code>7z zip rar</code></p>
@@ -249,7 +249,7 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
       <DropdownMenuSubTrigger>字幕</DropdownMenuSubTrigger>
       <DropdownMenuPortal>
         <DropdownMenuSubContent>
-          <DropdownMenuItem onSelect={e => e.preventDefault()}>
+          <DropdownMenuItem onSelect={e => e.preventDefault()} disabled={isLoading}>
             <input
               ref={inputFileRef}
               type="file"
@@ -261,7 +261,7 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
               上传字幕
             </Label>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDownload} className="cursor-pointer">
+          <DropdownMenuItem onClick={handleDownload} disabled={isLoading} className="cursor-pointer">
             下载字幕
           </DropdownMenuItem>
           <AlertDialog open={open} onOpenChange={setOpen}>
@@ -274,7 +274,10 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>取消</AlertDialogCancel>
-                <AlertDialogAction onClick={() => uploadSubtitles(inputFileRef.current?.files, true)}>
+                <AlertDialogAction
+                  onClick={() => uploadSubtitles(inputFileRef.current?.files, true)}
+                  disabled={isLoading}
+                >
                   确定
                 </AlertDialogAction>
               </AlertDialogFooter>

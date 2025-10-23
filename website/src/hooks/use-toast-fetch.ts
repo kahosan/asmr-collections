@@ -15,7 +15,7 @@ export function useToastFetch() {
       success?: string | React.ReactNode | ((data: T) => React.ReactNode | string)
       error?: string | React.ReactNode | ((error: Error) => React.ReactNode | string)
       description?: React.ReactNode | string
-      finally?: () => void
+      finally?: () => void | Promise<void>
     }
   ) => {
     setIsLoading(true);
@@ -42,16 +42,13 @@ export function useToastFetch() {
           return text;
         }
       },
-      finally() {
+      async finally() {
         // eslint-disable-next-line promise/valid-params -- not promise
-        data?.finally?.();
+        await data?.finally?.();
         setIsLoading(false);
       }
     });
   };
 
-  return {
-    isLoading,
-    toastcher
-  };
+  return [isLoading, toastcher] as const;
 }

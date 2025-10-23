@@ -83,7 +83,7 @@ export default function OtherMenu() {
 function WorkDetailsMenu() {
   const { id } = getRouteApi('/work-details/$id').useParams();
 
-  const { toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const update = () => {
     toastcher<Work>(
@@ -101,7 +101,7 @@ function WorkDetailsMenu() {
   };
 
   return (
-    <MenubarItem className="cursor-pointer" onClick={update}>
+    <MenubarItem disabled={isLoading} className="cursor-pointer" onClick={update}>
       更新此作品信息
     </MenubarItem>
   );
@@ -110,7 +110,7 @@ function WorkDetailsMenu() {
 function ConfirmDeleteDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const { id } = getRouteApi('/work-details/$id').useParams();
 
-  const { toastcher } = useToastFetch();
+  const [isLoading, toastcher] = useToastFetch();
 
   const onConfirm = () => {
     toastcher<Work>(`/api/work/delete/${id}`, { method: 'DELETE' }, {
@@ -134,7 +134,7 @@ function ConfirmDeleteDialog({ open, setOpen }: { open: boolean, setOpen: (open:
         </DialogHeader>
         <DialogFooter>
           <Button onClick={() => setOpen(false)}>取消</Button>
-          <Button onClick={onConfirm}>
+          <Button onClick={onConfirm} disabled={isLoading}>
             确定
           </Button>
         </DialogFooter>
