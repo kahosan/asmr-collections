@@ -6,7 +6,6 @@ import prisma from '~/lib/db';
 import { filterSubtitles, formatError, generateEmbedding } from '../utils';
 
 type FindManyWorksQuery = Parameters<typeof prisma.work.findMany>[0];
-type FindUniqueWorkQuery = Parameters<typeof prisma.work.findUnique>[0];
 
 export const worksApp = new Hono();
 
@@ -100,10 +99,10 @@ worksApp.get('/', async c => {
   };
 
   try {
-    function buildQuery(id: string) {
+    function buildQuery(ids: string[]) {
       return {
         where: {
-          id,
+          id: { in: ids },
           AND: AND.length > 0 ? AND : undefined,
           OR: OR.length > 0 ? OR : undefined,
           ageCategory: age ? { equals: Number.parseInt(age, 10) } : undefined,
@@ -119,7 +118,7 @@ worksApp.get('/', async c => {
           illustrators: true,
           genres: true
         }
-      } satisfies FindUniqueWorkQuery;
+      } satisfies FindManyWorksQuery;
     }
     if (embedding)
       return c.json(await queryWorksByEmbedding(embedding, buildQuery));
@@ -168,24 +167,32 @@ worksApp.get('/', async c => {
   }
 });
 
-async function queryWorksByEmbedding(text: string, buildQuery: (id: string) => FindUniqueWorkQuery) {
+async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) => FindManyWorksQuery) {
   if (!text)
     throw new Error('缺少查询文本');
 
   const embeddingText = await generateEmbedding(text);
-  const ids = await prisma.$queryRaw`SELECT id FROM "Work" ORDER BY embedding <=> ${embeddingText}::vector LIMIT 20;`;
+  if (embeddingText === undefined || embeddingText.length === 0)
+    throw new Error('无法生成文本向量');
 
-  if (!Array.isArray(ids))
+  const _i = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT id FROM "Work"
+    ORDER BY embedding <=> ${embeddingText}::vector
+    LIMIT 20;
+  `;
+
+  const ids = _i.map(item => item.id);
+
+  if (!Array.isArray(_i) || _i.length === 0)
     return { data: [] };
 
-  const works: unknown[] = [];
-  const promisesFns = ids.map(async (id: { id: string }) => {
-    const work = await prisma.work.findUnique(buildQuery(id.id));
-    if (work) works.push(work);
-  });
-  await Promise.all(promisesFns);
+  const works = await prisma.work.findMany(
+    buildQuery(_i.map(item => item.id))
+  );
+
+  const sortedWorks = works.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
 
   return {
-    data: filterSubtitles(works)
+    data: filterSubtitles(sortedWorks)
   };
 };

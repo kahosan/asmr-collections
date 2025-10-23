@@ -1,14 +1,21 @@
-import { IconInput } from '../icon-input';
-
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
-import { Toggle } from '../ui/toggle';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '../ui/input-group';
+import { Search, Zap, ZapOff } from 'lucide-react';
 
-export default function SearchBar() {
-  const [keyword, setKeyword] = useState('');
-  const [isEmbedding, setIsEmbedding] = useState(false);
+interface SearchBarProps {
+  search: {
+    keyword?: string
+    embedding?: string
+  }
+}
+
+export default function SearchBar({ search }: SearchBarProps) {
+  const [keyword, setKeyword] = useState(() => search.keyword);
+  const [isEmbedding, setIsEmbedding] = useState(() => !!search.embedding);
+
   const { include } = useIndexGenerateSearch('__root__');
   const navigate = useNavigate({ from: '/' });
 
@@ -22,24 +29,29 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="flex items-center gap-2 mx-2">
-      <Toggle
-        className="px-1"
-        variant="outline"
-        aria-label="use embedding search"
-        title="使用向量搜索"
-        onClick={() => setIsEmbedding(!isEmbedding)}
-        pressed={isEmbedding}
-      >
-        <div className="i-carbon-deployment-unit-execution cursor-pointer text-xl" />
-      </Toggle>
-      <IconInput
-        title="可以使用 ID 或者名称搜索"
-        icon={<div className="i-carbon-search cursor-pointer" onClick={onSearch} />}
+    <InputGroup className="max-w-52">
+      <InputGroupAddon align="inline-start">
+        <InputGroupButton
+          title="使用向量搜索"
+          onClick={() => setIsEmbedding(p => !p)}
+        >
+          {
+            isEmbedding ? <Zap className="text-accent-foreground" /> : <ZapOff />
+          }
+        </InputGroupButton>
+      </InputGroupAddon>
+      <InputGroupInput
+        name="search"
+        placeholder="Search..."
         value={keyword}
         onChange={e => setKeyword(e.target.value)}
         onKeyUp={e => e.key === 'Enter' && onSearch()}
       />
-    </div>
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton onClick={onSearch}>
+          <Search />
+        </InputGroupButton>
+      </InputGroupAddon>
+    </InputGroup>
   );
 }
