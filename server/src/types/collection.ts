@@ -17,12 +17,12 @@ export interface Work {
   } | null
   // 声优
   artists: Array<{
-    id: string
+    id: number
     name: string
   }>
   // 画师
   illustrators: Array<{
-    id: string
+    id: number
     name: string
   }>
   ageCategory: 1 | 2 | 3 // 1: 全年齢, 2: R15, 3: R18

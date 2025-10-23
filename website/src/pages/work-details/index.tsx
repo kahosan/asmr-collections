@@ -99,7 +99,8 @@ export default function WorkDetails() {
                   {
                     data.artists.map(artist => (
                       <Link
-                        key={artist.id}
+                        disabled={!artist.id}
+                        key={artist.name}
                         to="/"
                         search={{ artistId: [artist.id] }}
                         className="text-sm text-white ml-1 p-1 px-2 bg-green-500/80 rounded-md"
@@ -117,7 +118,8 @@ export default function WorkDetails() {
                   {
                     data.illustrators.map(illust => (
                       <Link
-                        key={illust.id}
+                        disabled={!illust.id}
+                        key={illust.name}
                         to="/"
                         search={{ illustratorId: illust.id }}
                         className="text-sm text-white ml-1 p-1 px-2 bg-blue-500 rounded-md"

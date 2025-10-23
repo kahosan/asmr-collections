@@ -14,6 +14,7 @@ import ErrorBoundary from '~/components/error-boundary';
 
 import App from '~/app';
 import WorkDetails from '~/pages/work-details';
+import WorkDetailsSkeleton from '~/pages/work-details/skeleton';
 
 import { z } from 'zod';
 
@@ -70,7 +71,7 @@ const workDetailsRoute = createRoute({
     const id = workDetailsRoute.useParams().id;
     return (
       <ErrorBoundary key={id}>
-        <Suspense fallback="Loading...">
+        <Suspense fallback={<WorkDetailsSkeleton />}>
           <WorkDetails />
         </Suspense>
       </ErrorBoundary>

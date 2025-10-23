@@ -1,8 +1,49 @@
 import { Hono } from 'hono';
+import prisma from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
 
 export const infoApp = new Hono();
+
+async function processArtists(names: string[]) {
+  if (!names.length)
+    return [];
+
+  const records = await prisma.artist.findMany({
+    where: { name: { in: names } }
+  });
+
+  const recordMap = new Map(
+    records.map(record => [record.name, record])
+  );
+
+  return names.map(name => {
+    const record = recordMap.get(name);
+    return record
+      ? { name: record.name, id: record.id }
+      : { name, id: null };
+  });
+}
+
+async function processIllustrators(names: string[]) {
+  if (!names.length)
+    return [];
+
+  const records = await prisma.illustrator.findMany({
+    where: { name: { in: names } }
+  });
+
+  const recordMap = new Map(
+    records.map(record => [record.name, record])
+  );
+
+  return names.map(name => {
+    const record = recordMap.get(name);
+    return record
+      ? { name: record.name, id: record.id }
+      : { name, id: null };
+  });
+}
 
 infoApp.get('/info/:id', async c => {
   const { id } = c.req.param();
@@ -13,6 +54,11 @@ infoApp.get('/info/:id', async c => {
     if (!data)
       return c.json({ message: 'DLsite 不存在此作品' }, 404);
 
+    const [artists, illustrators] = await Promise.all([
+      processArtists(data.artists ?? []),
+      processIllustrators(data.illustrators ?? [])
+    ]);
+
     const work = {
       id: data.id,
       name: data.name,
@@ -22,8 +68,8 @@ infoApp.get('/info/:id', async c => {
       circle: data.maker,
       seriesId: data.series?.id ?? null,
       series: data.series ?? null,
-      artists: data.artists ?? [],
-      illustrators: data.illustrators ?? [],
+      artists,
+      illustrators,
       ageCategory: data.age_category,
       genres: data.genres ?? [],
       price: data.price ?? 0,
