@@ -1,7 +1,8 @@
 import type { Tracks } from '~/types/tracks';
 import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
+import { extname, join } from 'node:path';
 import { Hono } from 'hono';
+import { match } from 'ts-pattern';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { exists, formatError } from '../utils';
 
@@ -49,9 +50,13 @@ async function generateTracks(path: string): Promise<Tracks> {
   }
 
   for (const file of files) {
-    const filePath = join(path, file.name);
-    const _ft = Bun.file(filePath).type.split('/')[0] as 'video' | 'audio' | 'image' | 'text';
-    const ft = _ft === 'video' ? 'audio' : _ft;
+    const _ft = extname(file.name);
+    const ft = match(_ft.toLowerCase())
+      .with('.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.opus', () => 'audio' as const)
+      .with('.mp4', '.mkv', '.avi', '.mov', () => 'audio' as const)
+      .with('.srt', '.vtt', '.lrc', () => 'text' as const)
+      .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
+      .otherwise(() => 'other' as const);
 
     const relativePath = path.replace(VOICE_LIBRARY!, '');
 
