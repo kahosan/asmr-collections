@@ -69,7 +69,20 @@ updateApp.put('/refresh/:id', async c => {
         rate: data.rating ?? 0,
         rateCount: data.rating_count ?? 0,
         reviewCount: data.review_count ?? 0,
-        originalId: data.id,
+        originalId: data.translation_info.original_workno,
+        translationInfo: {
+          update: {
+            isVolunteer: data.translation_info.is_volunteer,
+            isOriginal: data.translation_info.is_original,
+            isParent: data.translation_info.is_parent,
+            isChild: data.translation_info.is_child,
+            isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
+            originalWorkno: data.translation_info.original_workno,
+            parentWorkno: data.translation_info.parent_workno,
+            childWorknos: data.translation_info.child_worknos,
+            lang: data.translation_info.lang
+          }
+        },
         languageEditions: data.language_editions?.map(l => ({
           workId: l.work_id,
           label: l.label,

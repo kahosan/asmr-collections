@@ -1,3 +1,4 @@
+import type { WorkInfoResp } from '~/types/collection';
 import { Hono } from 'hono';
 import prisma from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
@@ -59,7 +60,7 @@ infoApp.get('/info/:id', async c => {
       processIllustrators(data.illustrators ?? [])
     ]);
 
-    const work = {
+    const work: WorkInfoResp = {
       id: data.id,
       name: data.name,
       cover: data.image_main,
@@ -77,9 +78,20 @@ infoApp.get('/info/:id', async c => {
       wishlistCount: data.wishlist_count ?? 0,
       rate: data.rating ?? 0,
       rateCount: data.rating_count ?? 0,
-      originalId: data.id,
+      originalId: data.translation_info.original_workno,
       reviewCount: data.review_count ?? 0,
       releaseDate: data.release_date,
+      translationInfo: {
+        isVolunteer: data.translation_info.is_volunteer,
+        isOriginal: data.translation_info.is_original,
+        isParent: data.translation_info.is_parent,
+        isChild: data.translation_info.is_child,
+        isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
+        originalWorkno: data.translation_info.original_workno,
+        parentWorkno: data.translation_info.parent_workno,
+        childWorknos: data.translation_info.child_worknos,
+        lang: data.translation_info.lang
+      },
       languageEditions: data.language_editions?.map(item => ({
         workId: item.work_id,
         label: item.label,

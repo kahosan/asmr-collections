@@ -36,9 +36,28 @@ export interface Work {
   wishlistCount: number
   rate: number
   rateCount: number
-  originalId: string
+  originalId: string | null
   reviewCount: number
   releaseDate: string
+  translationInfo: {
+    isVolunteer: boolean
+    // 日文原版
+    isOriginal: boolean
+    // 社团为 大家一起来翻译
+    isParent: boolean
+    // 社团为 翻译者的社团
+    isChild: boolean
+    // 包含特典或就是特典作品
+    isTranslationBonusChild: boolean
+    // 原版作品 ID
+    originalWorkno: string | null
+    // 原版作品对应的翻译版 ID
+    parentWorkno: string | null
+    // 多个不同译者的翻译版
+    childWorknos: string[]
+    // 翻译的语言
+    lang: string | null
+  }
   languageEditions: Array<{
     workId: string
     label: string
@@ -48,3 +67,14 @@ export interface Work {
   createdAt: string
   updatedAt: string
 }
+
+export type WorkInfoResp = Omit<Work, 'artists' | 'illustrators' | 'createdAt' | 'updatedAt'> & {
+  artists: Array<{
+    id: number | null
+    name: string
+  }>
+  illustrators: Array<{
+    id: number | null
+    name: string
+  }>
+};

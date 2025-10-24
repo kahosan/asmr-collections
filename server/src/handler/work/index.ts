@@ -27,7 +27,8 @@ workApp.get('/:id', async c => {
         series: true,
         artists: true,
         illustrators: true,
-        genres: true
+        genres: true,
+        translationInfo: true
       }
     });
 

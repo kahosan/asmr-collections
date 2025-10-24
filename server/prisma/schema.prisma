@@ -33,6 +33,7 @@ model Work {
   rateCount        Int
   reviewCount      Int
   originalId       String?
+  translationInfo  TranslationInfo?
   languageEditions Json[]
   subtitles        Bytes?
   embedding        Unsupported("vector")?
@@ -69,4 +70,18 @@ model Genre {
   id    Int    @id
   name  String
   works Work[]
+}
+
+model TranslationInfo {
+  workId                  String   @id
+  work                    Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  isVolunteer             Boolean
+  isOriginal              Boolean
+  isParent                Boolean
+  isChild                 Boolean
+  isTranslationBonusChild Boolean
+  originalWorkno          String?
+  parentWorkno            String?
+  childWorknos            String[]
+  lang                    String?
 }

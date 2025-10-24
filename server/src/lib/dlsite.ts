@@ -35,6 +35,7 @@ export async function fetchWorkInfo(id: string): Promise<WorkInfo | null> {
     rating: data.rate_average_2dp,
     rating_count: data.rate_count,
     review_count: data.review_count,
+    translation_info: data.translation_info,
     language_editions: data.dl_count_items?.map(item => ({
       lang: item.lang,
       work_id: item.workno,

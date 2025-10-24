@@ -35,6 +35,25 @@ export interface WorkInfo {
   }>
   review_count?: number
   release_date: string
+  translation_info: {
+    is_volunteer: boolean
+    // 日文原版
+    is_original: boolean
+    // 社团为 大家一起来翻译
+    is_parent: boolean
+    // 社团为 翻译者的社团
+    is_child: boolean
+    // 包含特典或就是特典作品
+    is_translation_bonus_child: boolean
+    // 原版作品 ID
+    original_workno: string | null
+    // 原版作品对应的翻译版 ID
+    parent_workno: string | null
+    // 多个不同译者的翻译版
+    child_worknos: string[]
+    // 翻译的语言
+    lang: string | null
+  }
   language_editions?: Array<{
     work_id: string
     label: string
@@ -60,6 +79,21 @@ export interface DLsiteResponse {
     count: number
     ratio: number
   }>
+  translation_info: {
+    is_translation_agree: boolean
+    is_volunteer: boolean
+    is_original: boolean
+    is_parent: boolean
+    is_child: boolean
+    is_translation_bonus_child: boolean
+    original_workno: string | null
+    parent_workno: string | null
+    child_worknos: string[]
+    lang: string | null
+    production_trade_price_rate: number
+    translation_bonus_langs: string[]
+    translation_status_for_translator: string[]
+  }
   dl_count_items?: Array<{
     workno: string
     label: string

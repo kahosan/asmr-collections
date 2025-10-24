@@ -94,8 +94,21 @@ createApp.post('/create/:id', async c => {
         wishlistCount: data.wishlist_count ?? 0,
         rate: data.rating ?? 0,
         rateCount: data.rating_count ?? 0,
-        originalId: data.id,
+        originalId: data.translation_info.original_workno,
         reviewCount: data.review_count ?? 0,
+        translationInfo: {
+          create: {
+            isVolunteer: data.translation_info.is_volunteer,
+            isOriginal: data.translation_info.is_original,
+            isParent: data.translation_info.is_parent,
+            isChild: data.translation_info.is_child,
+            isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
+            originalWorkno: data.translation_info.original_workno,
+            parentWorkno: data.translation_info.parent_workno,
+            childWorknos: data.translation_info.child_worknos,
+            lang: data.translation_info.lang
+          }
+        },
         languageEditions: data.language_editions?.map(l => ({
           workId: l.work_id,
           label: l.label,
@@ -108,7 +121,8 @@ createApp.post('/create/:id', async c => {
         series: true,
         artists: true,
         illustrators: true,
-        genres: true
+        genres: true,
+        translationInfo: true
       }
     });
 
