@@ -94,7 +94,7 @@ export default function WorkDetails() {
 
             {
               data.artists.length > 0 && (
-                <div className="text-sm">
+                <div className="text-sm inline-flex items-center flex-wrap gap-1">
                   <span className="font-bold">声优：</span>
                   {
                     data.artists.map(artist => (
@@ -103,7 +103,7 @@ export default function WorkDetails() {
                         key={artist.name}
                         to="/"
                         search={{ artistId: [artist.id] }}
-                        className="text-sm text-white ml-1 p-1 px-2 bg-green-500/80 rounded-md"
+                        className="text-sm ml-1 p-1 px-2 rounded-md transition-opacity text-white hover:text-white bg-green-500/90 hover:opacity-80"
                       >{artist.name}</Link>
                     ))
                   }
@@ -113,7 +113,7 @@ export default function WorkDetails() {
 
             {
               data.illustrators.length > 0 && (
-                <div className="text-sm">
+                <div className="text-sm inline-flex items-center flex-wrap gap-1">
                   <span className="font-bold">画师：</span>
                   {
                     data.illustrators.map(illust => (
@@ -122,7 +122,7 @@ export default function WorkDetails() {
                         key={illust.name}
                         to="/"
                         search={{ illustratorId: illust.id }}
-                        className="text-sm text-white ml-1 p-1 px-2 bg-blue-500 rounded-md"
+                        className="text-sm ml-1 p-1 px-2 rounded-md transition-opacity text-white hover:text-white bg-blue-500 hover:opacity-80"
                       >
                         {illust.name}
                       </Link>
@@ -134,14 +134,14 @@ export default function WorkDetails() {
 
             <Separator className="opacity-0" />
 
-            <div className="inline-flex flex-wrap gap-1 mt-auto">
+            <div className="inline-flex flex-wrap gap-2 mt-auto">
               {
                 data.genres.map(genre => (
                   <Link
                     key={genre.id}
                     to="/"
                     search={{ genres: [genre.id] }}
-                    className="text-sm p-1 px-2 bg-zinc-200 dark:bg-zinc-700 rounded-md"
+                    className="text-sm p-1 px-2 bg-zinc-200 dark:bg-zinc-700 rounded-md hover:opacity-80 transition-opacity"
                   >
                     {genre.name}
                   </Link>
@@ -152,13 +152,13 @@ export default function WorkDetails() {
             <Separator />
 
             <div className="flex flex-wrap gap-2 [&>*]:px-1">
-              <Button asChild variant="link" size="sm" className="w-max">
+              <Button asChild variant="link" size="sm" className="w-max hover:opacity-80">
                 <a href={`https://www.dlsite.com/maniax/work/=/product_id/${data.id}.html`} target="_blank" rel="noreferrer noopener">
                   DLsite
                 </a>
               </Button>
 
-              <Button asChild variant="link" size="sm" className="w-max">
+              <Button asChild variant="link" size="sm" className="w-max hover:opacity-80">
                 <a href={`https://asmr.one/work/${data.id}`} target="_blank" rel="noreferrer noopener">
                   ASMR.ONE
                 </a>
@@ -169,7 +169,7 @@ export default function WorkDetails() {
                   edition.workId === data.id
                     ? null
                     : (
-                      <Button key={edition.workId} asChild variant="link" size="sm" className="w-max">
+                      <Button key={edition.workId} asChild variant="link" size="sm" className="w-max hover:opacity-80">
                         <Link to="/work-details/$id" params={{ id: edition.workId }}>
                           {edition.label}
                         </Link>
