@@ -106,7 +106,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           <DialogDescription className="text-left">从 DLsite 添加作品</DialogDescription>
         </DialogHeader>
         <div className="flex gap-4">
-          <Input placeholder="RJ263712" onChange={e => setId(e.target.value)} onKeyUp={e => e.key === 'Enter' && handleCreate()} />
+          <Input placeholder="RJ263712" onChange={e => setId(e.target.value.trim())} onKeyUp={e => e.key === 'Enter' && handleCreate()} />
           <Button variant="outline" onClick={handleCreate} disabled={isLoading}>
             <Loading isLoading={isLoading} />
             添加

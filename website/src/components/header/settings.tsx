@@ -49,7 +49,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             name="kikoeru"
             placeholder={options.kikoeru}
             value={options.kikoeru}
-            onChange={e => setOptions({ ...options, kikoeru: e.target.value })}
+            onChange={e => setOptions({ ...options, kikoeru: e.target.value.trim() })}
           >
             自建 Kikoeru 地址
           </SettingInput>
@@ -58,7 +58,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             name="asmr-one-api"
             placeholder={options.asmrOneApi}
             value={options.asmrOneApi}
-            onChange={e => setOptions({ ...options, asmrOneApi: e.target.value })}
+            onChange={e => setOptions({ ...options, asmrOneApi: e.target.value.trim() })}
           >
             ASMR.ONE API
           </SettingInput>

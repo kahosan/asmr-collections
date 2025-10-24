@@ -8,13 +8,15 @@ import { formatError, workIsExist } from '../utils';
 import { createApp } from './create';
 import { deleteApp } from './delete';
 import { infoApp } from './info';
+import { similarApp } from './similar';
 import { updateApp } from './update';
 
 export const workApp = new Hono()
   .route('/', createApp)
   .route('/', deleteApp)
   .route('/', infoApp)
-  .route('/', updateApp);
+  .route('/', updateApp)
+  .route('/', similarApp);
 
 workApp.get('/:id', async c => {
   const { id } = c.req.param();
