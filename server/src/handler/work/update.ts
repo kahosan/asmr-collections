@@ -28,6 +28,18 @@ updateApp.put('/refresh/:id', async c => {
   if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
 
   try {
+    const translationInfo = {
+      isVolunteer: data.translation_info.is_volunteer,
+      isOriginal: data.translation_info.is_original,
+      isParent: data.translation_info.is_parent,
+      isChild: data.translation_info.is_child,
+      isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
+      originalWorkno: data.translation_info.original_workno,
+      parentWorkno: data.translation_info.parent_workno,
+      childWorknos: data.translation_info.child_worknos,
+      lang: data.translation_info.lang
+    };
+
     const work = await prisma.work.update({
       where: { id },
       data: {
@@ -71,16 +83,9 @@ updateApp.put('/refresh/:id', async c => {
         reviewCount: data.review_count ?? 0,
         originalId: data.translation_info.original_workno,
         translationInfo: {
-          update: {
-            isVolunteer: data.translation_info.is_volunteer,
-            isOriginal: data.translation_info.is_original,
-            isParent: data.translation_info.is_parent,
-            isChild: data.translation_info.is_child,
-            isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
-            originalWorkno: data.translation_info.original_workno,
-            parentWorkno: data.translation_info.parent_workno,
-            childWorknos: data.translation_info.child_worknos,
-            lang: data.translation_info.lang
+          upsert: {
+            create: translationInfo,
+            update: translationInfo
           }
         },
         languageEditions: data.language_editions?.map(l => ({
