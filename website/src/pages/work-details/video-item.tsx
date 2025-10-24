@@ -46,9 +46,9 @@ export default function VideoItem({ track, tracks, work }: VideoItemProps) {
 
   return (
     <Dialog>
-      <DialogTrigger className="flex gap-3 items-center p-3 w-full" title={track.title}>
-        <FileVideo className="min-w-6" color="#4B60D7" />
-        <p className="truncate">{track.title}</p>
+      <DialogTrigger className="flex gap-3 items-center p-3 w-full text-start" title={track.title}>
+        <FileVideo className="min-size-7" color="#4B60D7" />
+        <p className="line-clamp-2">{track.title}</p>
       </DialogTrigger>
       <DialogContent className="p-2" onInteractOutside={e => e.preventDefault()}>
         <DialogTitle className="text-md truncate w-[60%]" title={currentTrack.title}>

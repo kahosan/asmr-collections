@@ -2,7 +2,8 @@ import { Table, TableBody, TableCell, TableRow } from '~/components/ui/table';
 
 import { FileImage, FileText, FolderClosed } from 'lucide-react';
 
-import IconLink from '~/components/icon-link';
+import { Link } from '@tanstack/react-router';
+
 import FolderBreadcrumb from '../../components/breadcrumb/folder-breadcrumb';
 
 import VideoItem from './video-item';
@@ -13,6 +14,7 @@ import { Activity, useMemo, useRef } from 'react';
 
 import { match } from 'ts-pattern';
 
+import useSWRImmutable from 'swr/immutable';
 import { mediaAtom } from '~/hooks/use-media-state';
 
 import LightGallery from 'lightgallery/react';
@@ -27,16 +29,15 @@ import 'lightgallery/css/lg-rotate.css';
 import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-thumbnail.css';
 
-import { extractFileExt, collectSubtitles, notifyError } from '~/lib/utils';
+import { fetcher } from '~/lib/fetcher';
 import { SubtitleMatcher } from '../../lib/subtitle-matcher';
+import { extractFileExt, collectSubtitles, notifyError } from '~/lib/utils';
 
 import type { MediaTrack } from '~/hooks/use-media-state';
+import type { SettingOptions } from '~/hooks/use-setting-options';
 
 import type { Tracks } from '~/types/tracks';
 import type { Work } from '~/types/work';
-import type { SettingOptions } from '~/hooks/use-setting-options';
-import useSWRImmutable from 'swr/immutable';
-import { fetcher } from '~/lib/fetcher';
 
 interface TracksTableProps {
   work: Work
@@ -136,7 +137,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
 
   return (
     <>
-      <Activity mode={tracks ? 'visible' : 'hidden'}>
+      <Activity mode={tracks ? 'visible' : 'hidden'} name="tracks-table-breadcrumb">
         <FolderBreadcrumb path={search.path} id={id} />
       </Activity>
 
@@ -169,15 +170,16 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
             {
               groupByType?.folder?.map(item => (
                 <TableRow key={item.title}>
-                  <TableCell className="p-0">
-                    <IconLink
+                  <TableCell className="p-0 whitespace-normal">
+                    <Link
                       to="/work-details/$id"
                       params={{ id }}
                       search={{ path: (search.path ?? []).concat(item.title) }}
-                      icon={<FolderClosed className="min-w-6" color="#56CBFC" />}
+                      className="flex items-center gap-3 p-3"
                     >
-                      {item.title}
-                    </IconLink>
+                      <FolderClosed className="min-size-7" color="#56CBFC" />
+                      <p className="line-clamp-2">{item.title}</p>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))
@@ -199,18 +201,19 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                     key={item.title}
                     className={isCurrentTrack ? 'dark:bg-zinc-800 bg-slate-100' : ''}
                   >
-                    <TableCell className="p-0">
+                    <TableCell className="p-0 whitespace-normal">
                       {
                         match(mediaType)
                           .with('text', () => (
-                            <IconLink
+                            <Link
                               to={textUrl}
                               target="_blank"
                               title={item.title}
-                              icon={<FileText className="min-w-6" color="#7CB920" />}
+                              className="flex gap-3 items-center p-3"
                             >
-                              {item.title}
-                            </IconLink>
+                              <FileText className="min-size-7" color="#7CB920" />
+                              <p className="line-clamp-2">{item.title}</p>
+                            </Link>
                           ))
                           .with('video', () => (
                             <VideoItem
@@ -238,14 +241,14 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
             {
               groupByType?.image?.map((item, index) => (
                 <TableRow key={item.title}>
-                  <TableCell className="p-0">
+                  <TableCell className="p-0 whitespace-normal">
                     <button
                       type="button"
                       onClick={() => openGallery(index)}
-                      className="w-full flex gap-3 items-center p-3"
+                      className="w-full flex gap-3 items-center p-3 text-start"
                     >
-                      <FileImage className="min-w-6" color="#FF9800" />
-                      <p className="truncate">{item.title}</p>
+                      <FileImage className="min-size-7" color="#FF9800" />
+                      <p className="line-clamp-2">{item.title}</p>
                     </button>
                   </TableCell>
                 </TableRow>
@@ -255,15 +258,16 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
             {
               groupByType?.other?.map(item => (
                 <TableRow key={item.title}>
-                  <TableCell className="p-0">
-                    <IconLink
+                  <TableCell className="p-0 whitespace-normal">
+                    <Link
                       to={item.mediaDownloadUrl}
                       target="_blank"
                       title={item.title}
-                      icon={<FileText className="min-w-6" color="#9E9E9E" />}
+                      className="flex gap-3 items-center p-3"
                     >
-                      {item.title}
-                    </IconLink>
+                      <FileText className="min-size-7" color="#9E9E9E" />
+                      <p className="line-clamp-2">{item.title}</p>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

@@ -15,8 +15,8 @@ export default function AudioItem({ existCurrentTrack, track, onPlay, enqueueTra
   return (
     <ContextMenu>
       <ContextMenuTrigger className="flex gap-3 items-center p-3 w-full cursor-pointer" onClick={onPlay} title={track.title}>
-        <FileMusic className="min-w-6" color="#4083e7" />
-        <p className="truncate">{track.title}</p>
+        <FileMusic className="min-size-7" color="#4083e7" />
+        <p className="line-clamp-2">{track.title}</p>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuLabel>操作</ContextMenuLabel>
