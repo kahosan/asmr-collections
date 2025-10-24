@@ -13,9 +13,7 @@
   "dependencies": {
     "@dnd-kit/helpers": "^0.1.21",
     "@dnd-kit/react": "^0.1.21",
-    "@egoist/tailwindcss-icons": "^1.9.0",
     "@hookform/resolvers": "^5.2.2",
-    "@iconify-json/carbon": "^1.2.14",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",

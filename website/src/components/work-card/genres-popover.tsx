@@ -4,6 +4,8 @@ import { Button } from '../ui/button';
 import { Toggle } from '../ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
+import { Tag } from 'lucide-react';
+
 import { useState } from 'react';
 import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
 
@@ -41,7 +43,7 @@ export default function GenresPopover({ genres }: Props) {
                   setSelectedGenres(selectedGenres.filter(id => id !== genre.id));
               }}
             >
-              <div className="i-carbon-tag p-2" />
+              <Tag />
               {genre.name}
             </Toggle>
           ))}

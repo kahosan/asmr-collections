@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadio
 
 import SettingsMenu from './settings-menu';
 
-import { CircleX, StepBack, StepForward } from 'lucide-react';
+import { CircleX, ListMusic, StepBack, StepForward } from 'lucide-react';
 
 import { useAtom } from 'jotai';
 import { useTheme } from 'next-themes';
@@ -74,7 +74,7 @@ function MediaQueue() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button type="button" className="vds-button">
-          <div className="i-carbon-query-queue size-6 mt-[1px] vds-icon" />
+          <ListMusic className="max-size-6 vds-icon" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="text-sm">

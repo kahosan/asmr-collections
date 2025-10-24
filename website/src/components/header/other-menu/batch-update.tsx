@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 import Loading from '~/components/loading';
 
+import { Copy } from 'lucide-react';
+
 import useSWR from 'swr';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- 简单易用（
 import limit from 'p-limit';
@@ -120,7 +122,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
                 else toast.warning('失败列表为空');
               }}
             >
-              <div className="i-carbon-copy" />
+              <Copy />
             </Button>
             <div className="px-4 py-2">
               {failedIds.length === 0 && <div className="opacity-80">失败列表</div>}

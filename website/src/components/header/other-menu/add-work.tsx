@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 import Loading from '~/components/loading';
 
+import { Copy } from 'lucide-react';
+
 import { mutate } from 'swr';
 import { toast } from 'sonner';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- 简单易用（
@@ -148,7 +150,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
                 else toast.warning('失败列表为空');
               }}
             >
-              <div className="i-carbon-copy" />
+              <Copy />
             </Button>
             <div className="px-4 py-2">
               {failedIds.length === 0 && <div className="opacity-80">失败列表</div>}

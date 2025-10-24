@@ -3,6 +3,8 @@ import { Button } from '../ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
+import { MenuIcon } from 'lucide-react';
+
 import { mutate } from 'swr';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
@@ -54,7 +56,7 @@ export default function Menu({ work }: Props) {
             variant="outline"
             className="w-16"
           >
-            <div className="i-carbon-list p-2" />
+            <MenuIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" onInteractOutside={() => setOpen(false)}>

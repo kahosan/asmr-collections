@@ -4,6 +4,8 @@ import { Card, CardTitle } from '../ui/card';
 
 import { Link } from '@tanstack/react-router';
 
+import { Image, Mic } from 'lucide-react';
+
 import Menu from './menu';
 import BadgeMenu from './badge-menu';
 import GenresPopover from './genres-popover';
@@ -130,7 +132,7 @@ export default function WorkCard({ work }: Props) {
               key={artist.id}
               text={artist.name}
               search={exclude(['page', 'keyword'], { artistId: [artist.id] })}
-              icon={<div className="i-carbon-microphone-filled p-2" />}
+              icon={<Mic />}
               variant="green"
               isFilter={search.artistId?.includes(artist.id)}
             />
@@ -140,7 +142,8 @@ export default function WorkCard({ work }: Props) {
               key={illustrator.id}
               text={illustrator.name}
               search={exclude(['page', 'keyword'], { illustratorId: illustrator.id })}
-              icon={<div className="i-carbon-image p-2" />}
+              // eslint-disable-next-line jsx-a11y-minimal/alt-text -- icon only
+              icon={<Image />}
               variant="blue"
               isFilter={search.illustratorId === illustrator.id}
             />
