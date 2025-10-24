@@ -186,11 +186,13 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
             {
               groupByType?.media?.map(item => {
                 const isCurrentTrack = mediaState.currentTrack?.title === item.title;
-                const isText = item.type === 'text';
-                const isVideo = extractFileExt(item.title) === 'mp4';
+                const videoFt = ['mp4', 'mkv', 'avi', 'mov'];
+                const isVideo = videoFt.includes(extractFileExt(item.title).toLowerCase());
                 const tracks = groupByType.media?.filter(track => track.type === 'audio');
 
                 const textUrl = item.mediaStreamUrl;
+
+                const mediaType = item.type === 'text' ? 'text' : (isVideo ? 'video' : 'audio');
 
                 return (
                   <TableRow
@@ -199,8 +201,8 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                   >
                     <TableCell className="p-0">
                       {
-                        isText
-                          ? (
+                        match(mediaType)
+                          .with('text', () => (
                             <IconLink
                               to={textUrl}
                               target="_blank"
@@ -209,23 +211,23 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                             >
                               {item.title}
                             </IconLink>
-                          )
-                          : (isVideo
-                            ? (
-                              <VideoItem
-                                track={item}
-                                tracks={tracks}
-                                work={work}
-                              />
-                            )
-                            : (
-                              <AudioItem
-                                existCurrentTrack={!!mediaState.currentTrack}
-                                track={item}
-                                onPlay={() => handlePlay(item, tracks)}
-                                enqueueTrack={() => enqueueTrack(item)}
-                              />
-                            ))
+                          ))
+                          .with('video', () => (
+                            <VideoItem
+                              track={item}
+                              tracks={tracks}
+                              work={work}
+                            />
+                          ))
+                          .with('audio', () => (
+                            <AudioItem
+                              existCurrentTrack={!!mediaState.currentTrack}
+                              track={item}
+                              onPlay={() => handlePlay(item, tracks)}
+                              enqueueTrack={() => enqueueTrack(item)}
+                            />
+                          ))
+                          .exhaustive()
                       }
                     </TableCell>
                   </TableRow>
