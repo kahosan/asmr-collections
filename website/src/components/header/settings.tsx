@@ -110,6 +110,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             </TooltipContent>
           </Tooltip>
         </div>
+        <Separator />
         <DialogFooter>
           <Button onClick={handleSave}>
             保存
