@@ -21,6 +21,7 @@ export default function HiddenImage({ menuType }: HiddenImageProps) {
     .with('dropdown', () => (
       <DropdownMenuCheckboxItem checked={isHidden} onCheckedChange={() => setIsHidden(p => !p)}>
         无图模式
+        <MenubarShortcut>⌘K</MenubarShortcut>
       </DropdownMenuCheckboxItem>
     ))
     .exhaustive();

@@ -8,9 +8,17 @@ import SearchBar from './search-bar';
 import SortMenu from './sort-menu';
 import OtherMenu from './other-menu';
 import FilterMenu from './filter-menu';
+import { WorkDetailsMenu } from './work-details-menu';
+
+import SettingsDialog from './settings';
+
+import { useAtom, useSetAtom } from 'jotai';
 
 import { useIsRoute } from '~/hooks/use-is-route';
-import { WorkDetailsMenu } from './work-details-menu';
+import { useShortcut } from '~/hooks/use-shortcut';
+import { hiddenImageAtom } from '~/hooks/use-hidden-image';
+
+import { showSettingDialogAtom } from '~/lib/store';
 
 export default function Header() {
   const isIndexPage = useIsRoute('/');
@@ -18,34 +26,43 @@ export default function Header() {
 
   const search = useSearch({ from: '__root__' });
 
+  const setHiddenImage = useSetAtom(hiddenImageAtom);
+  useShortcut('k', () => setHiddenImage(p => !p));
+
+  const [showSettingsDialog, setShowSettingsDialog] = useAtom(showSettingDialogAtom);
+  useShortcut(',', () => setShowSettingsDialog(p => !p));
+
   return (
-    <div className="fixed top-0 w-[calc(100%-var(--removed-body-scroll-bar-size,0px))] z-10 bg-background">
-      <div className="max-w-7xl mx-auto flex justify-between items-center h-14 p-4 gap-2">
-        <Link className="font-bold text-lg" to="/" search={{ order: 'desc', sort: 'releaseDate', filterOp: 'and' }}>ASMR</Link>
-        <div className="flex items-center gap-2">
-          <SearchBar search={search} key={search.keyword} />
+    <>
+      <div className="fixed top-0 w-[calc(100%-var(--removed-body-scroll-bar-size,0px))] z-10 bg-background">
+        <div className="max-w-7xl mx-auto flex justify-between items-center h-14 p-4 gap-2">
+          <Link className="font-bold text-lg" to="/" search={{ order: 'desc', sort: 'releaseDate', filterOp: 'and' }}>ASMR</Link>
+          <div className="flex items-center gap-2">
+            <SearchBar search={search} key={search.keyword} />
 
-          {
-            isIndexPage
-              ? (
-                <Menubar className="min-w-max">
-                  <FilterMenu />
-                  <SortMenu />
-                  <OtherMenu />
-                </Menubar>
-              )
-              : null
-          }
+            {
+              isIndexPage
+                ? (
+                  <Menubar className="min-w-max">
+                    <FilterMenu />
+                    <SortMenu />
+                    <OtherMenu />
+                  </Menubar>
+                )
+                : null
+            }
 
-          {
-            isDetailsPage
-              ? <WorkDetailsMenu />
-              : null
-          }
+            {
+              isDetailsPage
+                ? <WorkDetailsMenu />
+                : null
+            }
 
+          </div>
         </div>
+        <Separator />
       </div>
-      <Separator />
-    </div>
+      <SettingsDialog key={Math.random()} open={showSettingsDialog} setOpen={setShowSettingsDialog} />
+    </>
   );
 }

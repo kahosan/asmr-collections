@@ -3,7 +3,6 @@ import { MenubarContent, MenubarMenu, MenubarTrigger, MenubarSeparator, MenubarI
 import AddWorkDialog from './add-work';
 import BatchUpdateDialog from './batch-update';
 
-import SettingsDialog from '../settings';
 import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
@@ -11,19 +10,16 @@ import { useState } from 'react';
 import { useSetAtom } from 'jotai';
 
 import { useShortcut } from '~/hooks/use-shortcut';
-import { hiddenImageAtom } from '~/hooks/use-hidden-image';
+import { showSettingDialogAtom } from '~/lib/store';
 
 export default function OtherMenu() {
   const [showBatchUpdateDialog, setShowBatchUpdateDialog] = useState(false);
   const [showAddWorkDialog, setShowAddWorkDialog] = useState(false);
-  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
-  const setHiddenImage = useSetAtom(hiddenImageAtom);
+  const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
 
-  useShortcut('k', () => setHiddenImage(p => !p));
   useShortcut('u', () => setShowBatchUpdateDialog(p => !p));
   useShortcut('i', () => setShowAddWorkDialog(p => !p));
-  useShortcut(',', () => setShowSettingsDialog(p => !p));
 
   return (
     <>
@@ -53,7 +49,6 @@ export default function OtherMenu() {
       </MenubarMenu>
       <BatchUpdateDialog key={Math.random()} open={showBatchUpdateDialog} setOpen={setShowBatchUpdateDialog} />
       <AddWorkDialog key={Math.random()} open={showAddWorkDialog} setOpen={setShowAddWorkDialog} />
-      <SettingsDialog key={Math.random()} open={showSettingsDialog} setOpen={setShowSettingsDialog} />
     </>
   );
 }
