@@ -2,7 +2,6 @@ import { MenubarContent, MenubarGroup, MenubarMenu, MenubarRadioGroup, MenubarRa
 
 import { useNavigate } from '@tanstack/react-router';
 import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
-import { useSettingOptions } from '~/hooks/use-setting-options';
 
 const sortOptions = [
   {
@@ -47,8 +46,6 @@ export default function SortMenu() {
   const { search, exclude } = useIndexGenerateSearch('__root__');
   const navigate = useNavigate({ from: '/' });
 
-  const [options] = useSettingOptions();
-
   return (
     <MenubarMenu>
       <MenubarTrigger>
@@ -63,7 +60,13 @@ export default function SortMenu() {
           }}
         >
           {([{ label: '正序', value: 'asc' }, { label: '倒序', value: 'desc' }]).map(({ label, value }) => (
-            <MenubarRadioItem key={value} value={value}>{label}</MenubarRadioItem>
+            <MenubarRadioItem
+              key={value}
+              value={value}
+              onSelect={e => e.preventDefault()}
+            >
+              {label}
+            </MenubarRadioItem>
           ))}
         </MenubarRadioGroup>
         <MenubarSeparator />
@@ -76,7 +79,7 @@ export default function SortMenu() {
             }}
           >
             {sortOptions.map(({ label, value }) => (
-              <MenubarRadioItem key={value} value={value} onSelect={e => !options.selectedCloseMenu && e.preventDefault()}>{label}</MenubarRadioItem>
+              <MenubarRadioItem key={value} value={value} onSelect={e => e.preventDefault()}>{label}</MenubarRadioItem>
             ))}
           </MenubarRadioGroup>
         </MenubarGroup>

@@ -7,7 +7,6 @@ import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
-import { useSettingOptions } from '~/hooks/use-setting-options';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
@@ -21,8 +20,6 @@ export default function ArtistsFilter() {
 
   const { search, exclude } = useIndexGenerateSearch();
   const navigate = useNavigate({ from: '/' });
-
-  const [options] = useSettingOptions();
 
   const handleSelect = useCallback((id: number) => {
     if (search.artistId?.includes(id)) {
@@ -53,7 +50,7 @@ export default function ArtistsFilter() {
                   else
                     navigate({ search: exclude(['page', 'keyword', 'artistCount']) });
                 }}
-                onSelect={e => !options.selectedCloseMenu && e.preventDefault()}
+                onSelect={e => e.preventDefault()}
               >
                 {count}
               </MenubarCheckboxItem>

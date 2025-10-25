@@ -71,13 +71,6 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             优先使用 DLsite 数据源
           </SettingItem>
           <SettingItem
-            id="selected-close-menu"
-            checked={options.selectedCloseMenu}
-            onCheckedChange={checked => setOptions({ ...options, selectedCloseMenu: checked })}
-          >
-            选择菜单项后关闭浮窗
-          </SettingItem>
-          <SettingItem
             id="use-local-voice-library"
             checked={options.useLocalVoiceLibrary}
             onCheckedChange={
