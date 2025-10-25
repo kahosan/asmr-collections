@@ -22,7 +22,9 @@ git clone git@github.com:kahosan/asmr-collections.git
 cd asmr-collections && pnpm i # npm i
 ```
 
-把 postgres 的连接 URL 填入 `.env` 文件
+从 [jina.ai](https://jina.ai) 白嫖一个免费的 key
+
+然后把 postgres 的连接 URL 和 jina 的 key 填入 `.env` 文件
 
 
 使用 pm2 管理运行 app
@@ -46,7 +48,7 @@ pm2 start pnpm --name asmr-collections -- run server:build-start
 
 当没有启用本地库时，会从 [asmr.one](https://asmr.one) 获取作品数据，并支持在线播放
 
-本地库功能需要在 `.env` 文件中填写本地库的路径与你部署的网站的域名
+本地库功能需要在 `.env` 文件中填写本地库的路径与你部署的网站的域名（默认是本地地址，如果你部署在局域网内的某部机器上并且没有配置反向代理，可以用 <机器 IP>:3000）
 
 本地库内的文件夹，都需要是以 RJ、VJ、BJ 号命名的文件夹，否则无法识别
 
