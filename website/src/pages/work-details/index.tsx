@@ -43,6 +43,15 @@ export default function WorkDetails() {
     }
   );
 
+  const { data: isExists } = useSWRImmutable<{ exists: boolean }>(
+    `/api/work/exists/${id}`,
+    fetcher,
+    {
+      onError: e => notifyError(e, '获取作品是否存在于数据中失败'),
+      suspense: true
+    }
+  );
+
   if (!data)
     throw new Error('作品不存在');
 
@@ -70,6 +79,7 @@ export default function WorkDetails() {
               >
                 {data.id}
                 {data.subtitles ? <span>带字幕</span> : null}
+                {isExists?.exists === false ? <span>未收藏</span> : null}
               </Badge>
             </div>
           </div>

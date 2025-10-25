@@ -5,7 +5,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 
 import type { Work } from '~/types/work';
 
-export default function ConfirmDeleteDialog({ open, setOpen, id }: { open: boolean, setOpen: (open: boolean) => void, id: string }) {
+interface ConfirmDeleteDialogProps {
+  open: boolean
+  setOpen: (open: boolean) => void
+  id: string
+  mutate: () => void
+}
+
+export default function ConfirmDeleteDialog({ open, setOpen, id, mutate }: ConfirmDeleteDialogProps) {
   const [isLoading, toastcher] = useToastFetch();
 
   const onConfirm = () => {
@@ -15,6 +22,7 @@ export default function ConfirmDeleteDialog({ open, setOpen, id }: { open: boole
       error: `${id} 删除失败`,
       finally() {
         setOpen(false);
+        mutate();
       }
     });
   };
