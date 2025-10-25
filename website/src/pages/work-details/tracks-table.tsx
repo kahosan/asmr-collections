@@ -176,6 +176,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                       params={{ id }}
                       search={{ path: (search.path ?? []).concat(item.title) }}
                       className="flex items-center gap-3 p-3"
+                      resetScroll={false}
                     >
                       <FolderClosed className="min-size-7" color="#56CBFC" />
                       <p className="line-clamp-2">{item.title}</p>
@@ -210,6 +211,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                               target="_blank"
                               title={item.title}
                               className="flex gap-3 items-center p-3"
+                              resetScroll={false}
                             >
                               <FileText className="min-size-7" color="#7CB920" />
                               <p className="line-clamp-2">{item.title}</p>
@@ -264,6 +266,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                       target="_blank"
                       title={item.title}
                       className="flex gap-3 items-center p-3"
+                      resetScroll={false}
                     >
                       <FileText className="min-size-7" color="#9E9E9E" />
                       <p className="line-clamp-2">{item.title}</p>
