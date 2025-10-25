@@ -8,6 +8,7 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 
+import SimilarWorks from './similar';
 import TracksTabale from './tracks-table';
 import TracksSkeleton from './tracks-skeleton';
 
@@ -188,6 +189,12 @@ export default function WorkDetails() {
       <ErrorBoundary fallback={null}>
         <Suspense fallback={<TracksSkeleton />}>
           <TracksTabale work={data} search={search} settings={settings} />
+        </Suspense>
+      </ErrorBoundary>
+
+      <ErrorBoundary fallback={<div className="mt-2 opacity-60">相似作品加载失败</div>}>
+        <Suspense>
+          <SimilarWorks work={data} />
         </Suspense>
       </ErrorBoundary>
     </>

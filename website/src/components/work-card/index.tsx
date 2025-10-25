@@ -26,14 +26,16 @@ import type { Work } from '~/types/work';
 
 interface Props {
   work: Work
+  showMenus?: boolean
+  showImageBadge?: boolean
 }
 
-export default function WorkCard({ work }: Props) {
+export default function WorkCard({ work, showMenus = true, showImageBadge = true }: Props) {
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
   const { search, exclude, include } = useIndexGenerateSearch();
 
-  const existApi = settings.isUseLocalVLShowExistTag
+  const existApi = settings.isUseLocalVLShowExistTag && showImageBadge
     ? `/api/library/exist/${work.id}`
     : null;
 
@@ -55,39 +57,45 @@ export default function WorkCard({ work }: Props) {
             )
           }
         />
-        <Badge
-          className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default"
-          onClick={() => {
-            writeClipboard(work.id, 'ID 已复制到剪贴板');
-          }}
-        >
-          {work.id}
-          {work.subtitles ? <span>带字幕</span> : null}
-        </Badge>
-        <Badge
-          className={cn(
-            'absolute top-10 left-2 dark:text-white shadow-md font-bold',
-            match(work.ageCategory)
-              .with(3, () => 'bg-red-500')
-              .with(2, () => 'bg-blue-500')
-              .otherwise(() => 'bg-emerald-500')
-          )}
-        >
-          {
-            match(work.ageCategory)
-              .with(1, () => '全年龄')
-              .with(2, () => 'R15')
-              .otherwise(() => 'R18')
-          }
-        </Badge>
         {
-          data?.exist === false
-            ? (
-              <Badge className="absolute top-2 right-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default">
-                不存在于本地库
+          showImageBadge ? (
+            <>
+              <Badge
+                className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default"
+                onClick={() => {
+                  writeClipboard(work.id, 'ID 已复制到剪贴板');
+                }}
+              >
+                {work.id}
+                {work.subtitles ? <span>带字幕</span> : null}
               </Badge>
-            )
-            : null
+              <Badge
+                className={cn(
+                  'absolute top-10 left-2 dark:text-white shadow-md font-bold',
+                  match(work.ageCategory)
+                    .with(3, () => 'bg-red-500')
+                    .with(2, () => 'bg-blue-500')
+                    .otherwise(() => 'bg-emerald-500')
+                )}
+              >
+                {
+                  match(work.ageCategory)
+                    .with(1, () => '全年龄')
+                    .with(2, () => 'R15')
+                    .otherwise(() => 'R18')
+                }
+              </Badge>
+              {
+                data?.exist === false
+                  ? (
+                    <Badge className="absolute top-2 right-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default">
+                      不存在于本地库
+                    </Badge>
+                  )
+                  : null
+              }
+            </>
+          ) : null
         }
         {
           work.seriesId
@@ -152,8 +160,16 @@ export default function WorkCard({ work }: Props) {
       </div>
       <div className="flex p-6 pt-0 px-2 pb-2 gap-2 items-end w-full">
         <GenresPopover genres={work.genres} />
-        <AuditionDrawer workId={work.id} originalId={work.originalId} />
-        <Menu work={work} />
+        {
+          showMenus
+            ? (
+              <>
+                <AuditionDrawer workId={work.id} originalId={work.originalId} />
+                <Menu work={work} />
+              </>
+            )
+            : null
+        }
       </div>
     </Card>
   );
