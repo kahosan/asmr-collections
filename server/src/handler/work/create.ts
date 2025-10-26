@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import prisma from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
+import { HTTPError } from '~/lib/fetcher';
 import { formatError, generateEmbedding, workIsExist } from '../utils';
 
 export const createApp = new Hono();
@@ -30,10 +31,16 @@ createApp.post('/create/:id', async c => {
     return c.json(formatError(e), 500);
   }
 
+  let embeddingError: HTTPError | null = null;
   try {
     embedding = await generateEmbedding(data);
   } catch (e) {
-    return c.json(formatError(e), 500);
+    if (e instanceof HTTPError)
+      embeddingError = e;
+    else if (e instanceof Error)
+      embeddingError = new HTTPError(e.message, 500);
+
+    console.error('生成向量失败:', e);
   }
 
   try {
@@ -126,9 +133,13 @@ createApp.post('/create/:id', async c => {
       }
     });
 
-    await prisma.$executeRaw`UPDATE "Work" SET embedding = ${embedding}::vector WHERE id = ${work.id}`;
+    if (embedding)
+      await prisma.$executeRaw`UPDATE "Work" SET embedding = ${embedding}::vector WHERE id = ${work.id}`;
 
-    return c.json(work);
+    return c.json({
+      data: work,
+      message: embeddingError ? `Jina API 生成向量失败: ${embeddingError.data?.detail ?? embeddingError.message}` : undefined
+    });
   } catch (e) {
     return c.json(formatError(e), 500);
   }

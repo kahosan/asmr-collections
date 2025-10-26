@@ -41,10 +41,13 @@ export function WorkDetailsMenu() {
   );
 
   const handleClick = () => {
-    toastcher(`/api/work/create/${id}`, { method: 'POST' }, {
+    toastcher<{ message?: string }>(`/api/work/create/${id}`, { method: 'POST' }, {
       loading: `${id} 添加中...`,
       success() {
         return `${id} 添加成功`;
+      },
+      description(data) {
+        return data.message;
       },
       error: `${id} 添加失败`,
       finally() {
@@ -69,13 +72,13 @@ export function WorkDetailsMenu() {
                   <>
                     <UpdateMenu id={id} />
                     <DropdownMenuItem className="cursor-pointer" onClick={() => setShowDeleteDialog(p => !p)}>
-                      删除此作品
+                      删除作品
                     </DropdownMenuItem>
                   </>
                 )
                 : (
                   <DropdownMenuItem className="cursor-pointer" onClick={handleClick} disabled={isLoading}>
-                    添加此作品
+                    添加作品
                   </DropdownMenuItem>
                 )
             }

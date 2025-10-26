@@ -19,14 +19,14 @@ export function workIsExist(id: string) {
   return prisma.work.findUnique({ where: { id }, select: { id: true } });
 }
 
-export function formatError(e: unknown) {
+export function formatError(e: unknown, text?: string) {
   if (e instanceof HTTPError)
-    return { message: e.message, data: e.data };
+    return { message: text ?? e.message, data: e.data };
 
   if (e instanceof Error)
-    return { message: e.message };
+    return { message: text + ': ' + e.message };
 
-  return { message: e };
+  return { message: text + ': ' + JSON.stringify(e) };
 }
 
 export function filterSubtitles<T>(data: T) {

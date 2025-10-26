@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import prisma from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, workIsExist } from '../utils';
+import { formatError, generateEmbedding, workIsExist } from '../utils';
 
 export const updateApp = new Hono();
 
@@ -134,5 +134,36 @@ updateApp.put('/upload/subtitles/:id', async c => {
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);
+  }
+});
+
+updateApp.put('/refresh/embedding/:id', async c => {
+  const { id } = c.req.param();
+
+  try {
+    if (!await workIsExist(id))
+      return c.json({ message: '收藏不存在' }, 400);
+  } catch (e) {
+    return c.json(formatError(e), 500);
+  }
+
+  let data: WorkInfo | null;
+
+  try {
+    data = await fetchWorkInfo(id);
+  } catch {
+    return c.json({ message: '获取作品信息失败' }, 500);
+  }
+
+  if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
+
+  try {
+    const embedding = await generateEmbedding(data);
+    if (embedding) await prisma.$executeRaw`UPDATE "Work" SET embedding = ${embedding}::vector WHERE id = ${id}`;
+
+    return c.json({ message: '向量更新成功' });
+  } catch (e) {
+    console.error(e);
+    return c.json(formatError(e, '生成向量失败'), 500);
   }
 });

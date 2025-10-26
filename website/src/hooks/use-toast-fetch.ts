@@ -14,7 +14,7 @@ export function useToastFetch() {
       loading?: string | React.ReactNode
       success?: string | React.ReactNode | ((data: T) => React.ReactNode | string)
       error?: string | React.ReactNode | ((error: Error) => React.ReactNode | string)
-      description?: React.ReactNode | string
+      description?: React.ReactNode | string | ((data: T) => React.ReactNode | string)
       finally?: () => void | Promise<void>
     }
   ) => {
@@ -27,9 +27,12 @@ export function useToastFetch() {
           return data.error(e);
         return data?.error || e.message;
       },
-      description<T>(bodyData: T) {
-        if (data?.description)
+      description(bodyData: T) {
+        if (data?.description) {
+          if (typeof data.description === 'function')
+            return data.description(bodyData);
           return data.description;
+        }
 
         if (bodyData instanceof HTTPError) {
           let text = bodyData.message;

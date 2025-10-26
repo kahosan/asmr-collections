@@ -22,8 +22,6 @@ import { useToastFetch } from '~/hooks/use-toast-fetch';
 import { fetcher } from '~/lib/fetcher';
 import { writeClipboard } from '~/lib/utils';
 
-import type { Work } from '~/types/work';
-
 const MAX_CONCURRENT = 10;
 
 export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
@@ -51,10 +49,13 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
       return;
     }
 
-    toastcher<Work>(`/api/work/create/${id}`, { method: 'POST' }, {
+    toastcher<{ message?: string }>(`/api/work/create/${id}`, { method: 'POST' }, {
       loading: `${id} 添加中...`,
       success() {
         return `${id} 添加成功`;
+      },
+      description(data) {
+        return data.message;
       },
       error: `${id} 添加失败`,
       finally() {
@@ -76,11 +77,11 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
       async () => {
         setAddIds(ids => [...ids, id]);
         try {
-          await fetcher(`/api/work/create/${id}`, {
+          const data = await fetcher<{ message?: string }>(`/api/work/create/${id}`, {
             method: 'POST',
             signal: controllerRef.current.signal
           });
-          toast.success(`${id} 添加成功`);
+          toast.success(`${id} 添加成功`, { description: data.message });
           setAddIds(ids => ids.filter(i => i !== id));
         } catch {
           setFailedIds(ids => [...ids, id]);
@@ -92,6 +93,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
       controllerRef.current = new AbortController();
       setAddIds([]);
       setStartBatchAdd(false);
+      mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
       if (failedIds.length === 0)
         toast.success('批量添加完成', { duration: 4000 });
       else
