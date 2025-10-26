@@ -22,6 +22,8 @@ export class SubtitleMatcher {
       ...this.options
     };
 
+    let resultItem: SubtitleInfo | undefined;
+
     if (this.subtitles.length > 0) {
       for (const subtitleGroup of this.subtitles) {
         const fuse = new Fuse(subtitleGroup, fuseOptions);
@@ -30,8 +32,17 @@ export class SubtitleMatcher {
         const result = results.at(0);
 
         if (result?.score && result.score < score)
-          return result.item;
+          resultItem = result.item;
+      }
+
+      // fallback
+      if (!resultItem) {
+        const fuse = new Fuse(this.subtitles.flat(), fuseOptions);
+        const results = fuse.search(trackTitle);
+        resultItem = results.at(0)?.item;
       }
     }
+
+    return resultItem;
   }
 }
