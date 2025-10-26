@@ -24,9 +24,10 @@ export function formatError(e: unknown, text?: string) {
     return { message: text ?? e.message, data: e.data };
 
   if (e instanceof Error)
-    return { message: text + ': ' + e.message };
+    return { message: text ? text + ': ' + e.message : e.message };
 
-  return { message: text + ': ' + JSON.stringify(e) };
+  const error = e ? JSON.stringify(e).replaceAll(/^"|"$/g, '') : undefined;
+  return { message: text ? (error ? text + ': ' + error : error) : error };
 }
 
 export function filterSubtitles<T>(data: T) {
