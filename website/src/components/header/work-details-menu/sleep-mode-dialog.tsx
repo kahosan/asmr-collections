@@ -18,16 +18,18 @@ export default function SleepModeDialog({ open, setOpen }: SleepModeDialogProps)
   const timer = useRef<number>(null);
 
   const onConfirm = (timestamp: number) => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-      timer.current = null;
-    }
+    if (timer.current) clearTimeout(timer.current);
 
     const now = new Date();
     const delay = timestamp - now.getTime();
 
     timer.current = window.setTimeout(() => {
       setMediaState(({ open: false }));
+      toast('已停止播放', {
+        duration: 4000,
+        icon: <Moon className="min-size-5 max-size-5" />
+      });
+      timer.current = null;
     }, delay);
 
     const target = new Date(timestamp);
