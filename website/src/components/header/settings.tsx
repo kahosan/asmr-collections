@@ -12,6 +12,8 @@ import { useCallback, useState } from 'react';
 import { useSettingOptions } from '~/hooks/use-setting-options';
 import { useToastFetch } from '~/hooks/use-toast-fetch';
 
+import { logger } from '~/lib/logger';
+
 export default function SettingsDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [_options, _handleSave] = useSettingOptions();
   const [isLoading, toastcher] = useToastFetch();
@@ -30,10 +32,12 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
         return data.message;
       },
       description(data) {
-        if (data.data.faileds.length > 0) {
-          console.log(data.data);
-          return '请查看控制台了解详情';
+        if (data.data.faileds.length !== 0 || data.data.successes.length !== 0) {
+          logger.info(data);
+          return '查看控制台了解详情';
         }
+
+        return data.message;
       },
       loading: '同步中...',
       error: '同步失败'

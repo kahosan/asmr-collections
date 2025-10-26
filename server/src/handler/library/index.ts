@@ -10,6 +10,7 @@ export const libraryApp = new Hono();
 libraryApp.post('/sync', async c => {
   if (!VOICE_LIBRARY || !HOST_URL)
     return c.json({ message: '本地音声库或域名没有配置' }, 500);
+
   try {
     const allLocalWorkIds = await readdir(VOICE_LIBRARY, { withFileTypes: true }).then(dir => {
       const ids = [];
@@ -57,6 +58,7 @@ libraryApp.post('/sync', async c => {
 
     return c.json({ message: text, data: { faileds: failedIds, successes: successIds } });
   } catch (e) {
+    console.error(e);
     return c.json(formatError(e), 500);
   }
 });

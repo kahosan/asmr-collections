@@ -28,12 +28,6 @@ export function useToastFetch() {
         return data?.error || e.message;
       },
       description(bodyData: T) {
-        if (data?.description) {
-          if (typeof data.description === 'function')
-            return data.description(bodyData);
-          return data.description;
-        }
-
         if (bodyData instanceof HTTPError) {
           let text = bodyData.message;
           if (bodyData.data) {
@@ -44,6 +38,14 @@ export function useToastFetch() {
           }
           return text;
         }
+
+        if (bodyData instanceof Error)
+          return bodyData.message;
+
+        if (typeof data?.description === 'function')
+          return data.description(bodyData);
+
+        return data?.description;
       },
       async finally() {
         // eslint-disable-next-line promise/valid-params -- not promise
