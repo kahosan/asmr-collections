@@ -39,7 +39,11 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="rounded-lg max-w-[90%] sm:max-w-lg" onInteractOutside={e => e.preventDefault()}>
+      <DialogContent
+        className="rounded-lg max-w-[90%] sm:max-w-lg"
+        onInteractOutside={e => e.preventDefault()}
+        onOpenAutoFocus={e => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>设置选项</DialogTitle>
         </DialogHeader>
@@ -71,6 +75,14 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             优先使用 DLsite 数据源
           </SettingItem>
           <SettingItem
+            id="show-work-details"
+            checked={options.showWorkDetail}
+            onCheckedChange={checked => setOptions({ ...options, showWorkDetail: checked })}
+          >
+            作品详情页显示详细信息
+          </SettingItem>
+          <Separator />
+          <SettingItem
             id="use-local-voice-library"
             checked={options.useLocalVoiceLibrary}
             onCheckedChange={
@@ -92,11 +104,12 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             当启用本地库时显示不存在于本地库的标签
           </SettingItem>
           <SettingItem
-            id="show-work-details"
-            checked={options.showWorkDetail}
-            onCheckedChange={checked => setOptions({ ...options, showWorkDetail: checked })}
+            id="fallback-to-asmrone-api"
+            checked={options.fallbackToAsmrOneApi}
+            onCheckedChange={checked => setOptions({ ...options, fallbackToAsmrOneApi: checked })}
+            disabled={!options.useLocalVoiceLibrary}
           >
-            作品详情页显示详细信息
+            无法在本地库中找到音声时使用 ASMR.ONE
           </SettingItem>
         </div>
         <Separator />

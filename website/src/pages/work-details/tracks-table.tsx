@@ -48,13 +48,27 @@ interface TracksTableProps {
 export default function TracksTabale({ work, search, settings }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaAtom);
 
-  const id = work.id;
+  const { data: isExists } = useSWRImmutable<{ exist: boolean }>(
+    settings.useLocalVoiceLibrary ? `/api/library/exist/${work.id}` : null,
+    fetcher,
+    {
+      onError: e => notifyError(e, '获取作品是否存在于本地库中失败'),
+      suspense: true
+    }
+  );
 
-  const tracksApi = settings.useLocalVoiceLibrary
-    ? `/api/tracks/${id}`
-    : `/proxy/${encodeURIComponent(`${settings.asmrOneApi}/api/tracks/${id.replace('RJ', '')}`)}`;
+  const asmrOneApi = `/proxy/${encodeURIComponent(`${settings.asmrOneApi}/api/tracks/${work.id.replace('RJ', '')}`)}`;
+  const localApi = `/api/tracks/${work.id}`;
 
-  const errorText = settings.useLocalVoiceLibrary
+  const tracksApi = match(settings.useLocalVoiceLibrary)
+    .when(v => v && isExists?.exist, () => localApi)
+    .when(v => v && isExists?.exist === false, () => {
+      return settings.fallbackToAsmrOneApi ? asmrOneApi : null;
+    })
+    .with(false, () => asmrOneApi)
+    .otherwise(() => null);
+
+  const errorText = tracksApi === localApi
     ? '获取本地数据失败'
     : '获取 ASMR.ONE 数据失败';
 
@@ -135,10 +149,18 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
       lightGalleryRef.current.openGallery(index);
   };
 
+  if (!tracksApi) {
+    return (
+      <p className="mt-2 text-sm opacity-65">
+        当前作品不在本地库中，且未启用回退 ASMR.ONE。
+      </p>
+    );
+  }
+
   return (
     <>
       <Activity mode={tracks ? 'visible' : 'hidden'} name="tracks-table-breadcrumb">
-        <FolderBreadcrumb path={search.path} id={id} />
+        <FolderBreadcrumb path={search.path} id={work.id} />
       </Activity>
 
       {
@@ -173,7 +195,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                   <TableCell className="p-0 whitespace-normal">
                     <Link
                       to="/work-details/$id"
-                      params={{ id }}
+                      params={{ id: work.id }}
                       search={{ path: (search.path ?? []).concat(item.title) }}
                       className="flex items-center gap-3 p-3"
                       resetScroll={false}

@@ -8,6 +8,7 @@ export interface SettingOptions {
   useLocalVoiceLibrary: boolean
   showWorkDetail: boolean
   isUseLocalVLShowExistTag: boolean
+  fallbackToAsmrOneApi: boolean
 }
 
 export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__', {
@@ -16,7 +17,8 @@ export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__'
   prioritizeDLsite: true,
   useLocalVoiceLibrary: false,
   showWorkDetail: true,
-  isUseLocalVLShowExistTag: false
-});
+  isUseLocalVLShowExistTag: false,
+  fallbackToAsmrOneApi: true
+}, undefined, { getOnInit: true });
 
 export const useSettingOptions = () => useAtom(settingOptionsAtom);

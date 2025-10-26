@@ -47,7 +47,7 @@ export default function WorkDetails() {
     `/api/work/exists/${id}`,
     fetcher,
     {
-      onError: e => notifyError(e, '获取作品是否存在于数据中失败'),
+      onError: e => notifyError(e, '获取作品是否存在于数据库中失败'),
       suspense: true
     }
   );
@@ -196,7 +196,12 @@ export default function WorkDetails() {
         </div>
       </Activity>
 
-      <ErrorBoundary fallback={null}>
+      <ErrorBoundary
+        FallbackComponent={e => {
+          const errorText = 'message' in e.error ? e.error.message : '未知错误';
+          return <div className="mt-2 opacity-60">{errorText}</div>;
+        }}
+      >
         <Suspense fallback={<TracksSkeleton />}>
           <TracksTabale work={data} search={search} settings={settings} />
         </Suspense>
