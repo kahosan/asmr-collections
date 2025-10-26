@@ -207,7 +207,7 @@ export default function WorkDetails() {
         </Suspense>
       </ErrorBoundary>
 
-      <ErrorBoundary fallback={<div className="mt-2 opacity-60">相似作品加载失败</div>}>
+      <ErrorBoundary fallback={<div className="mt-2 text-sm opacity-65">相似作品加载失败</div>}>
         <Suspense>
           <SimilarWorks work={data} />
         </Suspense>
