@@ -7,20 +7,18 @@ import { AnimatePresence } from 'framer-motion';
 
 export default function Providers({ children }: React.PropsWithChildren) {
   return (
-    <>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <Toaster position="top-right" />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <AnimatePresence>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </AnimatePresence>
-      </ThemeProvider>
-    </>
+      <AnimatePresence>
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
+      </AnimatePresence>
+    </ThemeProvider>
   );
 }

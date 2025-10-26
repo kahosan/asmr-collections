@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 
 import UpdateMenu from './update';
+import SleepModeDialog from './sleep-mode-dialog';
 import ConfirmDeleteDialog from './confirm-delete';
 
 import HiddenImage from '../hidden-image';
@@ -28,6 +29,7 @@ export function WorkDetailsMenu() {
 
   const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showSleepModeDialog, setShowSleepModeDialog] = useState(false);
 
   const { data: isExists, mutate } = useSWRImmutable<{ exists: boolean }>(
     `/api/work/exists/${id}`,
@@ -83,6 +85,9 @@ export function WorkDetailsMenu() {
           <DropdownMenuSeparator />
           <ThemeToggle menuType="dropdown" />
           <DropdownMenuSeparator />
+          <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSleepModeDialog(p => !p)}>
+            睡眠模式
+          </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSettingsDialog(p => !p)}>
             设置
             <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
@@ -90,6 +95,7 @@ export function WorkDetailsMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
       <ConfirmDeleteDialog open={showDeleteDialog} setOpen={setShowDeleteDialog} id={id} mutate={mutate} />
+      <SleepModeDialog open={showSleepModeDialog} setOpen={setShowSleepModeDialog} />
     </>
   );
 }
