@@ -27,13 +27,16 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
   const handleSync = useCallback(() => {
     toastcher<{ message: string, data: Record<'faileds' | 'successes', string[]> }>('/api/library/sync', { method: 'POST' }, {
       success(data) {
-        if (data.data.faileds.length > 0) {
-          console.log(data.data);
-          return data.message + ': 请查看控制台获取失败 ID';
-        }
         return data.message;
       },
-      loading: '同步中...'
+      description(data) {
+        if (data.data.faileds.length > 0) {
+          console.log(data.data);
+          return '请查看控制台了解详情';
+        }
+      },
+      loading: '同步中...',
+      error: '同步失败'
     });
   }, [toastcher]);
 
