@@ -71,8 +71,8 @@ worksApp.get('/', async c => {
   // 使用关键词搜索时，上面的条件会被忽略，因为不会携带其他参数了
   if (keyword && !embedding) {
     OR = OR.concat([
-      { id: { contains: keyword } },
-      { name: { contains: keyword } }
+      { id: { contains: keyword, mode: 'insensitive' } },
+      { name: { contains: keyword, mode: 'insensitive' } }
     ]);
   }
 
