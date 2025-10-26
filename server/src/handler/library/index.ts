@@ -27,10 +27,12 @@ libraryApp.post('/sync', async c => {
   const allCreateTask = [];
 
   const failedIds: string[] = [];
+  const successIds: string[] = [];
   for (const id of allLocalWorkIds) {
     if (!allDatabaseWorkIds.includes(id)) {
       allCreateTask.push(async () => {
         const res = await fetch(new URL(`/api/work/create/${id}`, HOST_URL), { method: 'POST' });
+        successIds.push(id);
 
         if (!res.ok)
           failedIds.push(id);
@@ -40,9 +42,18 @@ libraryApp.post('/sync', async c => {
 
   await Promise.all(allCreateTask.map(fn => fn()));
 
-  const text = failedIds.length > 0 ? '同步错误' : '同步成功';
+  let text: string;
+  if (successIds.length === 0) {
+    text = '没有需要同步的音声';
+    if (failedIds.length > 0)
+      text += `，但同步过程中有 ${failedIds.length} 个音声同步失败`;
+  } else {
+    text = `成功同步 ${successIds.length} 个音声`;
+    if (failedIds.length > 0)
+      text += `，但其中 ${failedIds.length} 个音声同步失败`;
+  }
 
-  return c.json({ message: text, data: failedIds });
+  return c.json({ message: text, data: { faileds: failedIds, successes: successIds } });
 });
 
 libraryApp.get('/exist/:id', async c => {

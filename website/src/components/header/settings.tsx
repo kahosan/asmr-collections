@@ -25,9 +25,9 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
   }, [_handleSave, options, setOpen]);
 
   const handleSync = useCallback(() => {
-    toastcher<{ message: string, data: string[] }>('/api/library/sync', { method: 'POST' }, {
+    toastcher<{ message: string, data: Record<'faileds' | 'successes', string[]> }>('/api/library/sync', { method: 'POST' }, {
       success(data) {
-        if (data.data.length > 0) {
+        if (data.data.faileds.length > 0) {
           console.log(data.data);
           return data.message + ': 请查看控制台获取失败 ID';
         }
