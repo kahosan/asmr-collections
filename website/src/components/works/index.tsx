@@ -26,17 +26,18 @@ export default function Works() {
   return (
     <>
       {data?.data.length === 0 && <div className="flex justify-center opacity-70 mt-[10%]">没有更多惹...</div>}
-      <motion.div
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4"
-      >
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4">
         {data?.data.map(work => (
-          <motion.div key={work.id} layout>
+          <motion.div
+            key={work.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+          >
             <WorkCard key={work.id} work={work} />
           </motion.div>
         ))}
-      </motion.div>
+      </div>
       <Pagination
         total={data?.total ?? 0}
         current={Number.parseInt(searchParams.get('page') ?? '1', 10)}
