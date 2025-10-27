@@ -55,8 +55,9 @@ export default function FolderBreadcrumb({ path, id }: { path?: string[], id: st
               </DropdownMenu>
             </BreadcrumbItem>
           )
-            : path?.map(item => (
-              <Fragment key={item}>
+            : path?.map((item, index) => (
+              // eslint-disable-next-line @eslint-react/no-array-index-key -- safe here since path items are unique
+              <Fragment key={`${index}-${item}`}>
                 <BreadcrumbItem key={item} className="min-w-0">
                   <BreadcrumbLink asChild>
                     <Link
