@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 
-import { useToastFetch } from '~/hooks/use-toast-fetch';
+import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
 import { extractFileExt } from '~/lib/utils';
@@ -27,13 +27,13 @@ export default function Menu({ work }: Props) {
 
   const settingOptions = useAtomValue(settingOptionsAtom);
 
-  const [isLoading, toastcher] = useToastFetch();
+  const [refreshAction, refreshIsMutating] = useToastMutation('refresh');
 
   const refreshWork = () => {
-    toastcher<Work>(
-      `/api/work/refresh/${work.id}`,
-      { method: 'PUT' },
-      {
+    refreshAction({
+      key: `/api/work/refresh/${work.id}`,
+      fetchOps: { method: 'PUT' },
+      toastOps: {
         loading: `${work.id} 数据更新中...`,
         success: `${work.id} 数据更新成功`,
         error: `${work.id} 数据更新失败`,
@@ -42,7 +42,7 @@ export default function Menu({ work }: Props) {
           mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
         }
       }
-    );
+    });
   };
 
   return (
@@ -65,7 +65,7 @@ export default function Menu({ work }: Props) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem disabled={isLoading} onClick={refreshWork} className="cursor-pointer">
+            <DropdownMenuItem disabled={refreshIsMutating} onClick={refreshWork} className="cursor-pointer">
               数据更新
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setOpenAlert(p => !p)} className="cursor-pointer">
@@ -149,16 +149,20 @@ export default function Menu({ work }: Props) {
 }
 
 function WorkDeleteAlertDialog({ workId, open, setOpen }: { workId: string, open: boolean, setOpen: (open: boolean) => void }) {
-  const [isLoading, toastcher] = useToastFetch();
+  const [deleteAction, deleteIsMutating] = useToastMutation('delete');
 
   const handleClick = () => {
-    toastcher<Work>(`/api/work/delete/${workId}`, { method: 'DELETE' }, {
-      loading: `${workId} 删除中...`,
-      success: `${workId} 删除成功`,
-      error: `${workId} 删除失败`,
-      finally() {
-        setOpen(false);
-        mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+    deleteAction({
+      key: `/api/work/delete/${workId}`,
+      fetchOps: { method: 'DELETE' },
+      toastOps: {
+        loading: `${workId} 删除中...`,
+        success: `${workId} 删除成功`,
+        error: `${workId} 删除失败`,
+        finally() {
+          setOpen(false);
+          mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+        }
       }
     });
   };
@@ -174,7 +178,7 @@ function WorkDeleteAlertDialog({ workId, open, setOpen }: { workId: string, open
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>取消</AlertDialogCancel>
-          <AlertDialogAction onClick={handleClick} disabled={isLoading}>
+          <AlertDialogAction onClick={handleClick} disabled={deleteIsMutating}>
             确定
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -184,7 +188,7 @@ function WorkDeleteAlertDialog({ workId, open, setOpen }: { workId: string, open
 }
 
 function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSubtitles: boolean, onClose: () => void }) {
-  const [isLoading, toastcher] = useToastFetch();
+  const [subtitlesAction, subtitlesIsMutating] = useToastMutation('subtitles');
 
   const [open, setOpen] = useState(false);
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -218,31 +222,34 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
       return;
     }
 
-    toastcher(
-      `/api/work/upload/subtitles/${id}`,
-      {
+    subtitlesAction({
+      key: `/api/work/upload/subtitles/${id}`,
+      fetchOps: {
         method: 'PUT',
         body: formdata
       },
-      {
+      toastOps: {
         loading: `${id} 字幕上传中...`,
         success: `${id} 字幕上传成功`,
         error: `${id} 字幕上传失败`,
         description: `上传的字幕名称为: ${file.name}`
       }
-    );
+    });
 
     // 选择文件后关闭菜单
     onClose();
   };
 
   const handleDownload = () => {
-    toastcher(`/api/work/subtitles/${id}`, {}, {
-      success() {
-        window.open(`/api/work/subtitles/${id}`);
-        return `${id} 字幕下载成功`;
-      },
-      error: `${id} 字幕下载失败`
+    subtitlesAction({
+      key: `/api/work/subtitles/${id}`,
+      toastOps: {
+        success() {
+          window.open(`/api/work/subtitles/${id}`);
+          return `${id} 字幕下载成功`;
+        },
+        error: `${id} 字幕下载失败`
+      }
     });
   };
 
@@ -251,7 +258,7 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
       <DropdownMenuSubTrigger>字幕</DropdownMenuSubTrigger>
       <DropdownMenuPortal>
         <DropdownMenuSubContent>
-          <DropdownMenuItem onSelect={e => e.preventDefault()} disabled={isLoading}>
+          <DropdownMenuItem onSelect={e => e.preventDefault()} disabled={subtitlesIsMutating}>
             <input
               ref={inputFileRef}
               type="file"
@@ -263,7 +270,7 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
               上传字幕
             </Label>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDownload} disabled={isLoading} className="cursor-pointer">
+          <DropdownMenuItem onClick={handleDownload} disabled={subtitlesIsMutating} className="cursor-pointer">
             下载字幕
           </DropdownMenuItem>
           <AlertDialog open={open} onOpenChange={setOpen}>
@@ -278,7 +285,7 @@ function SubtitlesSubMenu({ id, existSubtitles, onClose }: { id: string, existSu
                 <AlertDialogCancel>取消</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => uploadSubtitles(inputFileRef.current?.files, true)}
-                  disabled={isLoading}
+                  disabled={subtitlesIsMutating}
                 >
                   确定
                 </AlertDialogAction>

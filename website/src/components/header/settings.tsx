@@ -10,13 +10,16 @@ import { toast } from 'sonner';
 import { useCallback, useState } from 'react';
 
 import { useSettingOptions } from '~/hooks/use-setting-options';
-import { useToastFetch } from '~/hooks/use-toast-fetch';
+import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { logger } from '~/lib/logger';
 
 export default function SettingsDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [_options, _handleSave] = useSettingOptions();
-  const [isLoading, toastcher] = useToastFetch();
+  const [syncAction, syncIsMutating] = useToastMutation<{
+    message: string
+    data: Record<'faileds' | 'successes', string[]>
+  }>('sync');
 
   const [options, setOptions] = useState(_options);
 
@@ -27,22 +30,26 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
   }, [_handleSave, options, setOpen]);
 
   const handleSync = useCallback(() => {
-    toastcher<{ message: string, data: Record<'faileds' | 'successes', string[]> }>('/api/library/sync', { method: 'POST' }, {
-      success(data) {
-        return data.message;
-      },
-      description(data) {
-        if (data.data.faileds.length !== 0 || data.data.successes.length !== 0) {
-          logger.info(data);
-          return '查看控制台了解详情';
-        }
+    syncAction({
+      key: '/api/library/sync',
+      fetchOps: { method: 'POST' },
+      toastOps: {
+        success(data) {
+          return data.message;
+        },
+        description(data) {
+          if (data.data.faileds.length !== 0 || data.data.successes.length !== 0) {
+            logger.info(data);
+            return '查看控制台了解详情';
+          }
 
-        return data.message;
-      },
-      loading: '同步中...',
-      error: '同步失败'
+          return data.message;
+        },
+        loading: '同步中...',
+        error: '同步失败'
+      }
     });
-  }, [toastcher]);
+  }, [syncAction]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -123,7 +130,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
         <div>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" onClick={handleSync} disabled={isLoading || !options.useLocalVoiceLibrary}>同步音声库</Button>
+              <Button variant="outline" onClick={handleSync} disabled={syncIsMutating || !options.useLocalVoiceLibrary}>同步音声库</Button>
             </TooltipTrigger>
             <TooltipContent>
               当启用本地库时，点击此按钮可以将本地库内的作品同步到数据库中

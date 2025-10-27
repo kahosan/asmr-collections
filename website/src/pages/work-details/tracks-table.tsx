@@ -10,12 +10,14 @@ import VideoItem from './video-item';
 import AudioItem from './audio-item';
 
 import { useAtom } from 'jotai';
-import { Activity, useMemo, useRef } from 'react';
+import { Activity, useEffect, useMemo, useRef } from 'react';
 
 import { match } from 'ts-pattern';
 
 import useSWRImmutable from 'swr/immutable';
 import { mediaAtom } from '~/hooks/use-media-state';
+
+import { toast } from 'sonner';
 
 import LightGallery from 'lightgallery/react';
 import type { LightGallery as LightGalleryType } from 'lightgallery/lightgallery';
@@ -148,6 +150,15 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
     if (lightGalleryRef.current)
       lightGalleryRef.current.openGallery(index);
   };
+
+  useEffect(() => {
+    if (tracksApi === asmrOneApi && settings.fallbackToAsmrOneApi) {
+      toast.success(
+        '成功回退至 ASMR.ONE 获取数据',
+        { id: 'tracks-table-fallback-asmrone' }
+      );
+    }
+  }, [asmrOneApi, settings.fallbackToAsmrOneApi, tracksApi]);
 
   if (!tracksApi) {
     return (

@@ -17,7 +17,7 @@ import useSWRImmutable from 'swr/immutable';
 
 import { match } from 'ts-pattern';
 
-import { useToastFetch } from '~/hooks/use-toast-fetch';
+import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
@@ -27,7 +27,7 @@ export function WorkDetailsMenu() {
   const { useParams } = getRouteApi('/work-details/$id');
   const { id } = useParams();
 
-  const [isLoading, toastcher] = useToastFetch();
+  const [createAction, createIsMutating] = useToastMutation<{ message?: string }>('create');
 
   const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -42,17 +42,19 @@ export function WorkDetailsMenu() {
   );
 
   const handleClick = () => {
-    toastcher<{ message?: string }>(`/api/work/create/${id}`, { method: 'POST' }, {
-      loading: `${id} 添加中...`,
-      success() {
-        return `${id} 添加成功`;
-      },
-      description(data) {
-        return data.message;
-      },
-      error: `${id} 添加失败`,
-      finally() {
-        mutate();
+    createAction({
+      key: `/api/work/create/${id}`,
+      fetchOps: { method: 'POST' },
+      toastOps: {
+        loading: `${id} 添加中...`,
+        success() {
+          return `${id} 添加成功`;
+        },
+        description(data) {
+          return data.message;
+        },
+        error: `${id} 添加失败`,
+        finally() { mutate(); }
       }
     });
   };
@@ -78,7 +80,7 @@ export function WorkDetailsMenu() {
                   </>
                 ))
                 .with(false, () => (
-                  <DropdownMenuItem className="cursor-pointer" onClick={handleClick} disabled={isLoading}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleClick} disabled={createIsMutating}>
                     添加作品
                   </DropdownMenuItem>
                 ))

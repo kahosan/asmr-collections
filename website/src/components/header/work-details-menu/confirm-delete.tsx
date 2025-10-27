@@ -1,9 +1,7 @@
-import { useToastFetch } from '~/hooks/use-toast-fetch';
+import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { Button } from '~/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '~/components/ui/dialog';
-
-import type { Work } from '~/types/work';
 
 interface ConfirmDeleteDialogProps {
   open: boolean
@@ -13,16 +11,20 @@ interface ConfirmDeleteDialogProps {
 }
 
 export default function ConfirmDeleteDialog({ open, setOpen, id, mutate }: ConfirmDeleteDialogProps) {
-  const [isLoading, toastcher] = useToastFetch();
+  const [deleteAction, deleteIsMutating] = useToastMutation('delete');
 
   const onConfirm = () => {
-    toastcher<Work>(`/api/work/delete/${id}`, { method: 'DELETE' }, {
-      loading: `${id} 删除中...`,
-      success: `${id} 删除成功`,
-      error: `${id} 删除失败`,
-      finally() {
-        setOpen(false);
-        mutate();
+    deleteAction({
+      key: `/api/work/delete/${id}`,
+      fetchOps: { method: 'DELETE' },
+      toastOps: {
+        loading: `${id} 删除中...`,
+        success: `${id} 删除成功`,
+        error: `${id} 删除失败`,
+        finally() {
+          setOpen(false);
+          mutate();
+        }
       }
     });
   };
@@ -38,7 +40,7 @@ export default function ConfirmDeleteDialog({ open, setOpen, id, mutate }: Confi
         </DialogHeader>
         <DialogFooter>
           <Button onClick={() => setOpen(false)}>取消</Button>
-          <Button variant="secondary" onClick={onConfirm} disabled={isLoading}>
+          <Button variant="secondary" onClick={onConfirm} disabled={deleteIsMutating}>
             确定
           </Button>
         </DialogFooter>

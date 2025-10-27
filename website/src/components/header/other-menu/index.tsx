@@ -28,13 +28,13 @@ export default function OtherMenu() {
           菜单
         </MenubarTrigger>
         <MenubarContent align="end">
-          <MenubarItem onClick={() => setShowBatchUpdateDialog(p => !p)} className="cursor-pointer">
-            批量更新
-            <MenubarShortcut>⌘U</MenubarShortcut>
-          </MenubarItem>
           <MenubarItem onClick={() => setShowAddWorkDialog(p => !p)} className="cursor-pointer">
             添加作品
             <MenubarShortcut>⌘I</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem onClick={() => setShowBatchUpdateDialog(p => !p)} className="cursor-pointer">
+            批量更新
+            <MenubarShortcut>⌘U</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
           <HiddenImage menuType="menubar" />

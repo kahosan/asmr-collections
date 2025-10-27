@@ -70,7 +70,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
       open={open}
       onOpenChange={() => {
         if (updatingIds.length > 0) {
-          toast.info('请先终止更新', { position: 'bottom-right' });
+          toast.warning('请先终止更新', { position: 'bottom-right' });
           return;
         }
         setOpen(false);

@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import limit from 'p-limit';
 import { useRef, useState } from 'react';
 
-import { useToastFetch } from '~/hooks/use-toast-fetch';
+import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { fetcher } from '~/lib/fetcher';
 import { writeClipboard } from '~/lib/utils';
@@ -34,10 +34,10 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
 
   const controllerRef = useRef(new AbortController());
 
-  const [isLoading, toastcher] = useToastFetch();
+  const [createAction, createIsMutation] = useToastMutation<{ message?: string }>('create');
 
   const handleCreate = () => {
-    if (isLoading) return;
+    if (createIsMutation) return;
 
     if (!id) {
       toast.warning('请输入 ID');
@@ -49,23 +49,27 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
       return;
     }
 
-    toastcher<{ message?: string }>(`/api/work/create/${id}`, { method: 'POST' }, {
-      loading: `${id} 添加中...`,
-      success() {
-        return `${id} 添加成功`;
-      },
-      description(data) {
-        return data.message;
-      },
-      error: `${id} 添加失败`,
-      finally() {
-        mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+    createAction({
+      key: `/api/work/create/${id}`,
+      fetchOps: { method: 'POST' },
+      toastOps: {
+        loading: `${id} 添加中...`,
+        success() {
+          return `${id} 添加成功`;
+        },
+        description(data) {
+          return data.message;
+        },
+        error: `${id} 添加失败`,
+        finally() {
+          mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+        }
       }
     });
   };
 
   const batchAdd = () => {
-    if (isLoading || addIds.length < 0) return;
+    if (createIsMutation || addIds.length < 0) return;
     if (startBatchAdd) return;
     setStartBatchAdd(true);
 
@@ -111,8 +115,8 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         </DialogHeader>
         <div className="flex gap-4">
           <Input placeholder="RJ、BJ、VJ" onChange={e => setId(e.target.value.trim())} onKeyUp={e => e.key === 'Enter' && handleCreate()} />
-          <Button variant="outline" onClick={handleCreate} disabled={isLoading}>
-            <Loading isLoading={isLoading} />
+          <Button variant="outline" onClick={handleCreate} disabled={createIsMutation}>
+            <Loading isLoading={createIsMutation} />
             添加
           </Button>
         </div>
@@ -121,7 +125,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           <DialogTitle className="text-left">批量添加</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="default" disabled={isLoading || startBatchAdd} onClick={() => batchAdd()}>
+          <Button variant="default" disabled={createIsMutation || startBatchAdd} onClick={() => batchAdd()}>
             添加
           </Button>
           <Button
