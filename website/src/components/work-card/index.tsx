@@ -46,22 +46,24 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
   return (
     <Card className="bg-zinc-100 dark:bg-zinc-900 overflow-hidden grid grid-rows-[auto_auto_1fr] h-full py-0 gap-2">
       <div className="pb-[65%] relative bg-zinc-700 overflow-hidden">
-        <img
-          src={work.cover}
-          alt={work.name}
-          onLoad={e => { e.currentTarget.style.opacity = '1'; }}
-          className={
-            cn(
-              'object-cover object-center absolute top-0 left-0 right-0 bottom-0 w-full h-full opacity-0 transition-opacity',
-              isHiddenImage && 'filter blur-xl'
-            )
-          }
-        />
+        <Link to="/work-details/$id" params={{ id: work.id }} title={work.name}>
+          <img
+            src={work.cover}
+            alt={work.name}
+            onLoad={e => { e.currentTarget.style.opacity = '1'; }}
+            className={
+              cn(
+                'object-cover object-center absolute top-0 left-0 right-0 bottom-0 w-full h-full opacity-0 transition-opacity',
+                isHiddenImage && 'filter blur-xl'
+              )
+            }
+          />
+        </Link>
         {
           showImageBadge ? (
             <>
               <Badge
-                className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default"
+                className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-copy"
                 onClick={() => {
                   writeClipboard(work.id, 'ID 已复制到剪贴板');
                 }}

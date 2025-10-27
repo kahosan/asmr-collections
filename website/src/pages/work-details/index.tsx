@@ -72,7 +72,7 @@ export default function WorkDetails() {
                 )}
               />
               <Badge
-                className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default"
+                className="absolute top-2 left-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-copy"
                 onClick={() => {
                   writeClipboard(data.id, 'ID 已复制到剪贴板');
                 }}
