@@ -199,7 +199,7 @@ export default function WorkDetails() {
       <ErrorBoundary
         FallbackComponent={e => {
           const errorText = 'message' in e.error ? e.error.message : '未知错误';
-          return <div className="mt-2 opacity-60">{errorText}</div>;
+          return <div className="mt-2 text-sm opacity-65">{errorText}</div>;
         }}
       >
         <Suspense fallback={<TracksSkeleton />}>
