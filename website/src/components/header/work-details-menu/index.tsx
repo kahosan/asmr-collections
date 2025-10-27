@@ -15,6 +15,8 @@ import ThemeToggle from '../theme-toggle';
 import { useSetAtom } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
 
+import { match } from 'ts-pattern';
+
 import { useToastFetch } from '~/hooks/use-toast-fetch';
 
 import { fetcher } from '~/lib/fetcher';
@@ -31,12 +33,11 @@ export function WorkDetailsMenu() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showSleepModeDialog, setShowSleepModeDialog] = useState(false);
 
-  const { data: isExists, mutate } = useSWRImmutable<{ exists: boolean }>(
+  const { data: isExists, mutate, error } = useSWRImmutable<{ exists: boolean }>(
     `/api/work/exists/${id}`,
     fetcher,
     {
-      onError: e => notifyError(e, '获取作品是否存在于数据中失败'),
-      suspense: true
+      onError: e => notifyError(e, '获取作品是否存在于数据中失败')
     }
   );
 
@@ -67,20 +68,22 @@ export function WorkDetailsMenu() {
         <DropdownMenuContent className="w-46">
           <DropdownMenuGroup>
             {
-              isExists?.exists
-                ? (
+              match(isExists?.exists)
+                .with(true, () => (
                   <>
                     <UpdateMenu id={id} />
                     <DropdownMenuItem className="cursor-pointer" onClick={() => setShowDeleteDialog(p => !p)}>
                       删除作品
                     </DropdownMenuItem>
                   </>
-                )
-                : (
+                ))
+                .with(false, () => (
                   <DropdownMenuItem className="cursor-pointer" onClick={handleClick} disabled={isLoading}>
                     添加作品
                   </DropdownMenuItem>
-                )
+                ))
+                .when(() => error, () => <DropdownMenuItem disabled>菜单项加载失败</DropdownMenuItem>)
+                .otherwise(() => <DropdownMenuItem disabled>菜单项加载中...</DropdownMenuItem>)
             }
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
