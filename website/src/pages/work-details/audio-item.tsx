@@ -14,7 +14,7 @@ interface AudioItemProps {
 export default function AudioItem({ existCurrentTrack, track, onPlay, enqueueTrack }: AudioItemProps) {
   return (
     <ContextMenu>
-      <ContextMenuTrigger className="flex gap-3 items-center p-3 w-full cursor-pointer" onClick={onPlay} title={track.title}>
+      <ContextMenuTrigger className="flex gap-3 items-center p-3 w-full cursor-pointer select-none" onClick={onPlay} title={track.title}>
         <FileMusic className="min-size-7" color="#4083e7" />
         <p className="line-clamp-2">{track.title}</p>
       </ContextMenuTrigger>
