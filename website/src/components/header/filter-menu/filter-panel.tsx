@@ -2,6 +2,8 @@ import { CheckIcon } from 'lucide-react';
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command';
 
+import { motion } from 'framer-motion';
+
 import Loading from '~/components/loading';
 
 import { cn } from '~/lib/utils';
@@ -43,17 +45,27 @@ export default function FilterPanel<T extends string | number>({
               {error instanceof HTTPError && <div className="text-xs opacity-70">{error.message}</div>}
             </div>
             : null}
-          {data?.sort(sort).map(({ id, name }) => (
-            <CommandItem key={id} value={name} onSelect={() => handleSelect(id)}>
-              <div className="max-w-36 truncate">{name}</div>
-              <CheckIcon
-                className={cn(
-                  'ml-auto h-4 w-4',
-                  isCheck({ id, name }) ? 'opacity-100' : 'opacity-0'
-                )}
-              />
-            </CommandItem>
-          ))}
+          {data?.sort(sort).map(({ id, name }) => {
+            const checked = isCheck({ id, name });
+            return (
+              <motion.div
+                key={id}
+                layout
+                initial={{ opacity: checked ? 1 : 0.65 }}
+                animate={{ opacity: checked ? 1 : 0.65 }}
+              >
+                <CommandItem value={name} onSelect={() => handleSelect(id)}>
+                  <div className="max-w-36 truncate">{name}</div>
+                  <CheckIcon
+                    className={cn(
+                      'ml-auto h-4 w-4',
+                      checked ? 'opacity-100' : 'opacity-0'
+                    )}
+                  />
+                </CommandItem>
+              </motion.div>
+            );
+          })}
         </CommandGroup>
       </CommandList>
     </Command>

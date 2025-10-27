@@ -53,19 +53,53 @@ worksApp.get('/', async c => {
   if (filterOp === 'and') {
     if (genres && genres.length > 0)
       AND = AND.concat(genres.map(id => ({ genres: { some: { id } } })));
+
     if (artistId && artistId.length > 0)
       AND = AND.concat(artistId.map(id => ({ artists: { some: { id } } })));
+
     if (illustratorId)
       AND = AND.concat({ illustrators: { some: { id: illustratorId } } });
+
+    if (age)
+      AND = AND.concat({ ageCategory: { equals: Number.parseInt(age, 10) } });
+
+    if (seriesId)
+      AND = AND.concat({ series: { id: seriesId } });
+
+    if (circleId)
+      AND = AND.concat({ circle: { id: circleId } });
+
+    if (subtitles)
+      AND = AND.concat({ subtitles: { not: { equals: null } } });
+
+    if (multilingual)
+      AND = AND.concat({ languageEditions: { isEmpty: false } });
   }
 
   if (filterOp === 'or') {
     if (genres && genres.length > 0)
       OR = OR.concat(genres.map(id => ({ genres: { some: { id } } })));
+
     if (artistId && artistId.length > 0)
       OR = OR.concat(artistId.map(id => ({ artists: { some: { id } } })));
+
     if (illustratorId)
       OR = OR.concat({ illustrators: { some: { id: illustratorId } } });
+
+    if (age)
+      OR = OR.concat({ ageCategory: { equals: Number.parseInt(age, 10) } });
+
+    if (seriesId)
+      OR = OR.concat({ series: { id: seriesId } });
+
+    if (circleId)
+      OR = OR.concat({ circle: { id: circleId } });
+
+    if (subtitles)
+      OR = OR.concat({ subtitles: { not: { equals: null } } });
+
+    if (multilingual)
+      OR = OR.concat({ languageEditions: { isEmpty: false } });
   }
 
   // 使用关键词搜索时，上面的条件会被忽略，因为不会携带其他参数了
@@ -79,12 +113,7 @@ worksApp.get('/', async c => {
   const queryArgs: FindManyWorksQuery = {
     where: {
       AND: AND.length > 0 ? AND : undefined,
-      OR: OR.length > 0 ? OR : undefined,
-      ageCategory: age ? { equals: Number.parseInt(age, 10) } : undefined,
-      circle: circleId ? { id: circleId } : undefined,
-      series: seriesId ? { id: seriesId } : undefined,
-      subtitles: subtitles ? { not: { equals: null } } : undefined,
-      languageEditions: multilingual ? { isEmpty: false } : undefined
+      OR: OR.length > 0 ? OR : undefined
     },
     orderBy: {
       [sort]: order
@@ -105,12 +134,7 @@ worksApp.get('/', async c => {
         where: {
           id: { in: ids },
           AND: AND.length > 0 ? AND : undefined,
-          OR: OR.length > 0 ? OR : undefined,
-          ageCategory: age ? { equals: Number.parseInt(age, 10) } : undefined,
-          circle: circleId ? { id: circleId } : undefined,
-          series: seriesId ? { id: seriesId } : undefined,
-          subtitles: subtitles ? { not: { equals: null } } : undefined,
-          languageEditions: multilingual ? { isEmpty: false } : undefined
+          OR: OR.length > 0 ? OR : undefined
         },
         include: {
           circle: true,

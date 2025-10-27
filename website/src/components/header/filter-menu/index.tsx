@@ -34,7 +34,7 @@ export default function FilterMenu() {
             }}
             onSelect={e => e.preventDefault()}
           >
-            仅显示多语言
+            多语言
           </MenubarCheckboxItem>
           <MenubarCheckboxItem
             checked={search.subtitles}
@@ -46,15 +46,14 @@ export default function FilterMenu() {
             }}
             onSelect={e => e.preventDefault()}
           >
-            仅显示带字幕
+            带字幕
           </MenubarCheckboxItem>
           <MenubarSeparator />
           <MenubarRadioGroup
             value={search.filterOp}
             onValueChange={value => {
               if (search.filterOp === value) return;
-              navigate({
-                search: { ...exclude(['keyword', 'page']), filterOp: value as 'and' | 'or' } });
+              navigate({ search: exclude(['keyword', 'page'], { filterOp: value as 'and' | 'or' }) });
             }}
           >
             <MenubarRadioItem value="and" onSelect={e => e.preventDefault()}>
