@@ -155,10 +155,10 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
     if (tracksApi === asmrOneApi && settings.fallbackToAsmrOneApi) {
       toast.success(
         '成功回退至 ASMR.ONE 获取数据',
-        { id: 'tracks-table-fallback-asmrone' }
+        { id: work.id }
       );
     }
-  }, [asmrOneApi, settings.fallbackToAsmrOneApi, tracksApi]);
+  }, [asmrOneApi, settings.fallbackToAsmrOneApi, tracksApi, work.id]);
 
   if (!tracksApi) {
     return (
