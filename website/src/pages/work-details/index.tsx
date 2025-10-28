@@ -3,6 +3,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 import { Activity, Suspense } from 'react';
 
+import { ImageIcon, MicIcon } from 'lucide-react';
+
 import { Card } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -72,7 +74,7 @@ export default function WorkDetails() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 p-2">
+          <div className="flex flex-col gap-3 p-2 w-full">
             <h2 className="sm:text-xl text-[20px] pt-2" title={data.name}>{data.name}</h2>
             <div className="opacity-70">
               <Link to="/" search={{ circleId: data.circleId }}>{data.circle.name}</Link>
@@ -86,50 +88,45 @@ export default function WorkDetails() {
               <span>{data.price}<sup className="ml-1">JPY</sup></span>
             </div>
 
-            <div className="text-sm">
+            <div className="text-sm mb-2">
               <span className="font-bold">发行日期：</span>
               <span>{data.releaseDate}</span>
             </div>
 
-            {
-              data.artists.length > 0 && (
-                <div className="text-sm inline-flex items-center flex-wrap gap-1">
-                  <span className="font-bold">声优：</span>
-                  {
-                    data.artists.map(artist => (
-                      <Link
-                        disabled={!artist.id}
-                        key={artist.name}
-                        to="/"
-                        search={{ artistId: [artist.id] }}
-                        className="text-sm ml-1 p-1 px-2 rounded-md transition-opacity text-white hover:text-white bg-green-500/90 hover:opacity-80"
-                      >{artist.name}</Link>
-                    ))
-                  }
-                </div>
-              )
-            }
-
-            {
-              data.illustrators.length > 0 && (
-                <div className="text-sm inline-flex items-center flex-wrap gap-1">
-                  <span className="font-bold">画师：</span>
-                  {
-                    data.illustrators.map(illust => (
-                      <Link
-                        disabled={!illust.id}
-                        key={illust.name}
-                        to="/"
-                        search={{ illustratorId: illust.id }}
-                        className="text-sm ml-1 p-1 px-2 rounded-md transition-opacity text-white hover:text-white bg-blue-500 hover:opacity-80"
-                      >
-                        {illust.name}
-                      </Link>
-                    ))
-                  }
-                </div>
-              )
-            }
+            <div className="text-sm inline-flex items-center flex-wrap gap-2">
+              {
+                data.artists.map(artist => (
+                  <Button
+                    key={artist.name}
+                    asChild
+                    variant="green"
+                    size="sm"
+                    disabled={!artist.id}
+                  >
+                    <Link to="/" search={{ artistId: [artist.id] }}>
+                      <MicIcon />
+                      {artist.name}
+                    </Link>
+                  </Button>
+                ))
+              }
+              {
+                data.illustrators.map(illust => (
+                  <Button
+                    key={illust.name}
+                    asChild
+                    variant="blue"
+                    size="sm"
+                    disabled={!illust.id}
+                  >
+                    <Link to="/" search={{ illustratorId: illust.id }}>
+                      <ImageIcon />
+                      {illust.name}
+                    </Link>
+                  </Button>
+                ))
+              }
+            </div>
 
             <Separator className="opacity-0" />
 

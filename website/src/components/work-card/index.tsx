@@ -4,7 +4,7 @@ import { Card, CardTitle } from '../ui/card';
 
 import { Link } from '@tanstack/react-router';
 
-import { Image, Mic } from 'lucide-react';
+import { ImageIcon, MicIcon } from 'lucide-react';
 
 import Menu from './menu';
 import BadgeMenu from './badge-menu';
@@ -100,14 +100,23 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
             </>
           ) : null
         }
+        <div
+          className={cn(
+            'truncate block',
+            'p-2 py-1 absolute bottom-0 right-0 bg-zinc-800/80 rounded-none rounded-tl-md text-sm',
+            'text-gray-300 max-w-[70%] truncate'
+          )}
+        >
+          {work.releaseDate}
+        </div>
         {
           work.seriesId
             ? (
               <Link
                 className={cn(
                   'truncate block hover:underline underline-offset-4',
-                  'p-2 absolute bottom-0 right-0 bg-zinc-800 rounded-none rounded-tl-md text-sm',
-                  'text-gray-300 max-w-[70%] truncate'
+                  'p-2 py-1 absolute bottom-0 left-0 bg-zinc-800/80 rounded-none rounded-tr-md text-sm',
+                  'text-gray-300 max-w-[60%] truncate'
                 )}
                 to="/"
                 search={include(['sort', 'order', 'filterOp'], { seriesId: work.seriesId })}
@@ -125,7 +134,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
           </Link>
         </CardTitle>
         <Link
-          className="hover:underline underline-offset-4 opacity-60 flex-1"
+          className="hover:underline underline-offset-4 opacity-60 max-w-max"
           to="/"
           search={include(['sort', 'order', 'filterOp'], { circleId: work.circleId })}
         >
@@ -143,7 +152,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
               key={artist.id}
               text={artist.name}
               search={exclude(['page', 'keyword'], { artistId: [artist.id] })}
-              icon={<Mic />}
+              icon={<MicIcon />}
               variant="green"
               isFilter={search.artistId?.includes(artist.id)}
             />
@@ -153,8 +162,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
               key={illustrator.id}
               text={illustrator.name}
               search={exclude(['page', 'keyword'], { illustratorId: illustrator.id })}
-              // eslint-disable-next-line jsx-a11y-minimal/alt-text -- icon only
-              icon={<Image />}
+              icon={<ImageIcon />}
               variant="blue"
               isFilter={search.illustratorId === illustrator.id}
             />
