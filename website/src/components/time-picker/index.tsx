@@ -13,6 +13,7 @@ import { setSeconds } from 'date-fns/setSeconds';
 import { setMilliseconds } from 'date-fns/setMilliseconds';
 import { addHours } from 'date-fns/addHours';
 import { addMinutes } from 'date-fns/addMinutes';
+import { addDays } from 'date-fns/addDays';
 
 import { Button } from '~/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../ui/dialog';
@@ -20,6 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../ui/dia
 import { motion } from 'framer-motion';
 
 import { cn } from '~/lib/utils';
+import { logger } from '~/lib/logger';
 
 interface TimePickerProps {
   onConfirm: (timestamp: number) => void
@@ -404,16 +406,23 @@ export function TimePicker({ onConfirm, onCancelTimer, open, setOpen }: TimePick
             </Button>
             <Button
               onClick={() => {
-                let now = new Date();
+                const currentTime = new Date();
+                let targetTime = new Date();
 
                 const selectedHour24 = period === 'PM' ? (hour % 12) + 12 : hour % 12;
 
-                now = setHours(now, selectedHour24);
-                now = setMinutes(now, minute);
-                now = setSeconds(now, 0);
-                now = setMilliseconds(now, 0);
+                targetTime = setHours(targetTime, selectedHour24);
+                targetTime = setMinutes(targetTime, minute);
+                targetTime = setSeconds(targetTime, 0);
+                targetTime = setMilliseconds(targetTime, 0);
 
-                onConfirm(now.getTime());
+                // 如果设置的时间早于当前时间,则应该是明天的时间
+                if (targetTime.getTime() <= currentTime.getTime())
+                  targetTime = addDays(targetTime, 1);
+
+                logger.info(`TimePicker: Selected time: ${targetTime.toLocaleString()}`);
+
+                onConfirm(targetTime.getTime());
                 setOpen(false);
               }}
               size="sm"
