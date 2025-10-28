@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableRow } from '~/components/ui/table';
 
 import { FileImage, FileText, FolderClosed } from 'lucide-react';
 
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 import FolderBreadcrumb from '../../components/breadcrumb/folder-breadcrumb';
 
@@ -49,6 +49,7 @@ interface TracksTableProps {
 
 export default function TracksTabale({ work, search, settings }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaAtom);
+  const navigate = useNavigate({ from: '/work-details/$id' });
 
   const { data: isExists } = useSWRImmutable<{ exist: boolean }>(
     settings.voiceLibraryOptions.useLocalVoiceLibrary ? `/api/library/exist/${work.id}` : null,
@@ -79,7 +80,23 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
     fetcher,
     {
       onError: e => notifyError(e, errorText),
-      suspense: true
+      suspense: true,
+      onSuccess(data) {
+        if (
+          settings.smartPath.enable
+          && !search.path
+        ) {
+          const targetPath = findSmartPath(data, settings.smartPath.pattern);
+
+          if (targetPath && targetPath.length > 0) {
+            navigate({
+              params: { id: work.id },
+              search: { path: targetPath },
+              replace: true
+            });
+          }
+        }
+      }
     }
   );
 
@@ -313,4 +330,35 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
       </div>
     </>
   );
+}
+
+/**
+ * 查找包含目标文件类型的路径
+ * @param tracks - 轨道数据
+ * @param patterns - 文件扩展名模式数组（按优先级顺序）
+ * @returns 找到的路径数组,如果未找到则返回 undefined
+ */
+function findSmartPath(tracks: Tracks, patterns: string[]): string[] | undefined {
+  // 按优先级顺序查找每个格式
+  for (const pattern of patterns) {
+    const result = searchInTracksForPattern(tracks, pattern);
+    if (result)
+      return result;
+  }
+
+  function searchInTracksForPattern(items: Tracks, pattern: string, currentPath: string[] = []): string[] | undefined {
+    const item = items.find(i => i.type === 'audio');
+    const ext = extractFileExt(item?.title ?? '').toLowerCase();
+    if (ext === pattern)
+      return currentPath;
+
+    for (const item of items.filter(i => i.type === 'folder' && i.children)) {
+      const result = searchInTracksForPattern(
+        item.children!,
+        pattern,
+        [...currentPath, item.title]
+      );
+      if (result) return result;
+    }
+  }
 }

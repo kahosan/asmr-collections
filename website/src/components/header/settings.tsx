@@ -6,6 +6,8 @@ import { Separator } from '~/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 
+import { motion } from 'framer-motion';
+
 import { toast } from 'sonner';
 import { useCallback, useState } from 'react';
 
@@ -40,19 +42,41 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
     }));
   }, []);
 
+  const updateSmartPathOption = useCallback(<K extends keyof SettingOptions['smartPath']>(
+    key: K,
+    value: SettingOptions['smartPath'][K]
+  ) => {
+    setOptions(prev => ({
+      ...prev,
+      smartPath: {
+        ...prev.smartPath,
+        [key]: value
+      }
+    }));
+  }, []);
+
   const handleSave = useCallback(() => {
     toast.success('保存成功');
-    _handleSave(options);
+
+    const pattern = options.smartPath.pattern.reduce<string[]>((acc, cur) => {
+      const trimmed = cur.trim();
+      if (trimmed !== '') acc.push(trimmed);
+      return acc;
+    }, []);
+
+    _handleSave({
+      ...options,
+      smartPath: {
+        ...options.smartPath,
+        pattern
+      }
+    });
     setOpen(false);
   }, [_handleSave, options, setOpen]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        ref={e => {
-          const timer = requestAnimationFrame(() => e?.focus({ preventScroll: true }));
-          return () => cancelAnimationFrame(timer);
-        }}
         className="rounded-lg max-w-[90%] sm:max-w-lg"
         onInteractOutside={e => e.preventDefault()}
         onOpenAutoFocus={event => {
@@ -66,6 +90,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4.5 mt-4">
+
           <SettingInput
             id="kikoeru"
             name="kikoeru"
@@ -84,7 +109,9 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
           >
             ASMR.ONE API
           </SettingInput>
+
           <Separator />
+
           <SettingItem
             id="show-work-details"
             checked={options.showWorkDetail}
@@ -92,7 +119,11 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
           >
             作品详情页显示详细信息
           </SettingItem>
+
+          <SmartPathSettings options={options.smartPath} setOptions={updateSmartPathOption} />
+
           <Separator />
+
           <SettingItem
             id="use-local-voice-library"
             checked={voiceLibOps.useLocalVoiceLibrary}
@@ -120,10 +151,13 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
             无法在本地库中找到音声时使用 ASMR.ONE
           </SettingItem>
         </div>
+
         <Separator />
+
         <div>
           <LibrarySyncTooltip useLib={voiceLibOps.useLocalVoiceLibrary} />
         </div>
+
         <Separator />
         <div className="flex gap-2">
           <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 px-0">
@@ -218,5 +252,65 @@ function LibrarySyncTooltip({ useLib }: { useLib: boolean }) {
         当启用本地库时，点击此按钮可以将本地库内的作品同步到数据库中
       </TooltipContent>
     </Tooltip>
+  );
+}
+
+interface SmartPathSettingsProps {
+  options: SettingOptions['smartPath']
+  setOptions: <K extends keyof SettingOptions['smartPath']>(
+    key: K,
+    value: SettingOptions['smartPath'][K]
+  ) => void
+}
+
+function SmartPathSettings({ options, setOptions }: SmartPathSettingsProps) {
+  return (
+    <div>
+      <SettingItem
+        id="enable-smart-path"
+        checked={options.enable}
+        onCheckedChange={checked => setOptions('enable', checked)}
+      >
+        启用智能路径
+      </SettingItem>
+
+      <motion.div
+        className="mt-4 ml-4 overflow-hidden"
+        initial={false}
+        animate={
+          options.enable
+            ? {
+              height: 'auto',
+              opacity: 1,
+              transition: {
+                height: { duration: 0.2 },
+                opacity: { duration: 0.15, delay: 0.05 }
+              }
+            }
+            : {
+              height: 0,
+              opacity: 0,
+              marginTop: 0,
+              transition: {
+                height: { duration: 0.2, delay: 0.05 },
+                opacity: { duration: 0.15 }
+              }
+            }
+        }
+      >
+        <SettingInput
+          id="smart-path-pattern"
+          name="smart-path-pattern"
+          placeholder={options.pattern.join(',')}
+          value={options.pattern.join(',')}
+          onChange={e => {
+            const value = e.target.value;
+            setOptions('pattern', value.split(','));
+          }}
+        >
+          音频类型偏好
+        </SettingInput>
+      </motion.div>
+    </div>
   );
 }
