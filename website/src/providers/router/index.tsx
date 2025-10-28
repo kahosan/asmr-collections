@@ -79,9 +79,9 @@ export type WorkDetailsSearchParams = z.infer<typeof WorkDetailsSearchSchema>;
 const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/work-details/$id',
-  loader({ params, abortController }) {
+  loader({ params }) {
     const id = params.id;
-    preloadWorkDetails(id, abortController);
+    preloadWorkDetails(id);
   },
   component() {
     const id = workDetailsRoute.useParams().id;

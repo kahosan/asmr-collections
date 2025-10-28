@@ -32,7 +32,7 @@ function ErrorFallback({ error }: FallbackProps) {
               <AlertDialogTitle>错误详情</AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogDescription className={showDesc ? '' : 'sr-only'}>
-              <p>尝试清除网页数据后重试</p>
+              <span>尝试清除网页数据后重试</span>
             </AlertDialogDescription>
             <div className="font-mono text-sm opacity-60">{message}</div>
             <AlertDialogFooter>
