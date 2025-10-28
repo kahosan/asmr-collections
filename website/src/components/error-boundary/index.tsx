@@ -15,8 +15,10 @@ import { Button } from '~/components/ui/button';
 
 function ErrorFallback({ error }: FallbackProps) {
   const message = 'message' in error ? error.message : '未知错误';
+
+  const showDesc = typeof message === 'string' && message.includes('useLocalVoiceLibrary');
   return (
-    <div className="mt-24 space-y-4">
+    <div className="mt-24 space-y-4 px-4">
       <h2 className="font-bold text-3xl">遇到了一些问题</h2>
       <p className="opacity-60">请重试。如果问题依旧存在，请在 GitHub 创建一个 Issue 并提供详细信息。 </p>
       <div className="flex gap-4">
@@ -29,9 +31,10 @@ function ErrorFallback({ error }: FallbackProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>错误详情</AlertDialogTitle>
             </AlertDialogHeader>
-            <AlertDialogDescription className="font-mono text-sm">
-              {message}
+            <AlertDialogDescription className={showDesc ? '' : 'sr-only'}>
+              <p>尝试清除网页数据后重试</p>
             </AlertDialogDescription>
+            <div className="font-mono text-sm opacity-60">{message}</div>
             <AlertDialogFooter>
               <AlertDialogCancel>关闭</AlertDialogCancel>
             </AlertDialogFooter>

@@ -43,9 +43,11 @@ export type RootSearchParams = z.infer<typeof RootSearchSchema>;
 
 const rootRoute = createRootRoute({
   component: () => (
-    <Layout>
-      <Outlet />
-    </Layout>
+    <ErrorBoundary>
+      <Layout>
+        <Outlet />
+      </Layout>
+    </ErrorBoundary>
   ),
   validateSearch: RootSearchSchema
 });

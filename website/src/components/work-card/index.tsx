@@ -11,7 +11,7 @@ import BadgeMenu from './badge-menu';
 import GenresPopover from './genres-popover';
 import AuditionDrawer from './audition-drawer';
 
-import { settingOptionsAtom } from '~/hooks/use-setting-options';
+import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
 
 import { match } from 'ts-pattern';
 import { useAtomValue } from 'jotai';
@@ -32,10 +32,11 @@ interface Props {
 
 export default function WorkCard({ work, showMenus = true, showImageBadge = true }: Props) {
   const isHiddenImage = useAtomValue(hiddenImageAtom);
-  const settings = useAtomValue(settingOptionsAtom);
+  const options = useAtomValue(voiceLibraryOptionsAtom);
+
   const { search, exclude, include } = useIndexGenerateSearch();
 
-  const existsApi = settings.showMissingTagsInLocalVL && showImageBadge
+  const existsApi = options.showMissingTagsInLocalVL && showImageBadge
     ? `/api/library/exists/${work.id}`
     : null;
 

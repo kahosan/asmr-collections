@@ -50,8 +50,8 @@ interface TracksTableProps {
 export default function TracksTabale({ work, search, settings }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaAtom);
 
-  const { data: isExists } = useSWRImmutable<{ exists: boolean }>(
-    settings.useLocalVoiceLibrary ? `/api/library/exists/${work.id}` : null,
+  const { data: isExists } = useSWRImmutable<{ exist: boolean }>(
+    settings.voiceLibraryOptions.useLocalVoiceLibrary ? `/api/library/exist/${work.id}` : null,
     fetcher,
     {
       onError: e => notifyError(e, '获取作品是否存在于本地库中失败'),
@@ -62,10 +62,10 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   const asmrOneApi = `/proxy/${encodeURIComponent(`${settings.asmrOneApi}/api/tracks/${work.id.replace('RJ', '')}`)}`;
   const localApi = `/api/tracks/${work.id}`;
 
-  const tracksApi = match(settings.useLocalVoiceLibrary)
-    .when(v => v && isExists?.exists, () => localApi)
-    .when(v => v && isExists?.exists === false, () => {
-      return settings.fallbackToAsmrOneApi ? asmrOneApi : null;
+  const tracksApi = match(settings.voiceLibraryOptions.useLocalVoiceLibrary)
+    .when(v => v && isExists?.exist, () => localApi)
+    .when(v => v && isExists?.exist === false, () => {
+      return settings.voiceLibraryOptions.fallbackToAsmrOneApi ? asmrOneApi : null;
     })
     .with(false, () => asmrOneApi)
     .otherwise(() => null);
@@ -152,13 +152,13 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   };
 
   useEffect(() => {
-    if (tracksApi === asmrOneApi && settings.fallbackToAsmrOneApi) {
+    if (tracksApi === asmrOneApi && settings.voiceLibraryOptions.fallbackToAsmrOneApi) {
       toast.success(
         '成功回退至 ASMR.ONE 获取数据',
         { id: work.id }
       );
     }
-  }, [asmrOneApi, settings.fallbackToAsmrOneApi, tracksApi, work.id]);
+  }, [asmrOneApi, settings.voiceLibraryOptions.fallbackToAsmrOneApi, tracksApi, work.id]);
 
   if (!tracksApi) {
     return (
