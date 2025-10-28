@@ -39,10 +39,10 @@ export default function ConfirmDeleteDialog({ open, setOpen, id, mutate }: Confi
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={() => setOpen(false)}>取消</Button>
           <Button variant="secondary" onClick={onConfirm} disabled={deleteIsMutating}>
             确定
           </Button>
+          <Button onClick={() => setOpen(false)}>取消</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

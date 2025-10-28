@@ -4,7 +4,7 @@ import { Button } from '~/components/ui/button';
 import { Switch } from '~/components/ui/switch';
 import { Separator } from '~/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 
 import { toast } from 'sonner';
 import { useCallback, useState } from 'react';
@@ -54,12 +54,21 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
+        ref={e => {
+          const timer = requestAnimationFrame(() => e?.focus({ preventScroll: true }));
+          return () => cancelAnimationFrame(timer);
+        }}
         className="rounded-lg max-w-[90%] sm:max-w-lg"
         onInteractOutside={e => e.preventDefault()}
-        onOpenAutoFocus={e => e.preventDefault()}
+        onOpenAutoFocus={event => {
+          event.preventDefault();
+        }}
       >
         <DialogHeader>
           <DialogTitle>设置选项</DialogTitle>
+          <DialogDescription className="sr-only">
+            在此处配置设置选项
+          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4.5 mt-4">
           <SettingInput

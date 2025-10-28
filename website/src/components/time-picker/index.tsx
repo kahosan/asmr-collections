@@ -15,7 +15,7 @@ import { addHours } from 'date-fns/addHours';
 import { addMinutes } from 'date-fns/addMinutes';
 
 import { Button } from '~/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../ui/dialog';
 
 import { motion } from 'framer-motion';
 
@@ -190,10 +190,19 @@ export function TimePicker({ onConfirm, onCancelTimer, open, setOpen }: TimePick
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogHeader>
-        <DialogTitle />
-      </DialogHeader>
-      <DialogContent className="p-2 w-80" showCloseButton={false} onOpenAutoFocus={e => e.preventDefault()}>
+      <DialogContent
+        ref={e => {
+          const timer = requestAnimationFrame(() => e?.focus({ preventScroll: true }));
+          return () => cancelAnimationFrame(timer);
+        }}
+        className="p-2 w-80"
+        showCloseButton={false}
+        onOpenAutoFocus={e => e.preventDefault()}
+      >
+        <DialogTitle className="sr-only">选择时间</DialogTitle>
+        <DialogDescription className="sr-only">
+          选择一个时间以设置睡眠模式的停止播放时间
+        </DialogDescription>
         <div className="w-full mx-auto rounded-sm overflow-hidden select-none">
           {/* Header */}
           <div className="bg-[#1976D2] py-4 relative">

@@ -1,5 +1,5 @@
 import { Button } from '~/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '~/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '~/components/ui/dialog';
 
 import { FileVideo } from 'lucide-react';
 
@@ -54,6 +54,9 @@ export default function VideoItem({ track, tracks, work }: VideoItemProps) {
         <DialogTitle className="text-md truncate w-[60%]" title={currentTrack.title}>
           {currentTrack.title}
         </DialogTitle>
+        <DialogDescription className="sr-only">
+          视频播放器
+        </DialogDescription>
         <video
           controls
           src={currentTrack.mediaDownloadUrl}

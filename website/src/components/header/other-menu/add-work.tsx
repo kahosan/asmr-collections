@@ -110,8 +110,8 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
       <DialogTrigger />
       <DialogContent className="rounded-lg max-w-[90%] sm:max-w-md" onInteractOutside={e => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="text-left">添加作品</DialogTitle>
-          <DialogDescription className="text-left">从 DLsite 添加作品</DialogDescription>
+          <DialogTitle>添加作品</DialogTitle>
+          <DialogDescription>从 DLsite 添加作品</DialogDescription>
         </DialogHeader>
         <div className="flex gap-4">
           <Input placeholder="RJ、BJ、VJ" onChange={e => setId(e.target.value.trim())} onKeyUp={e => e.key === 'Enter' && handleCreate()} />
@@ -122,7 +122,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         </div>
         <Separator />
         <DialogHeader>
-          <DialogTitle className="text-left">批量添加</DialogTitle>
+          <DialogTitle>批量添加</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="default" disabled={createIsMutation || startBatchAdd} onClick={() => batchAdd()}>

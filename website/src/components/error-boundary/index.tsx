@@ -5,6 +5,7 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -28,7 +29,9 @@ function ErrorFallback({ error }: FallbackProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>错误详情</AlertDialogTitle>
             </AlertDialogHeader>
-            <div className="opacity-60 font-mono text-sm">{message}</div>
+            <AlertDialogDescription className="font-mono text-sm">
+              {message}
+            </AlertDialogDescription>
             <AlertDialogFooter>
               <AlertDialogCancel>关闭</AlertDialogCancel>
             </AlertDialogFooter>
