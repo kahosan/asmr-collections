@@ -50,8 +50,8 @@ interface TracksTableProps {
 export default function TracksTabale({ work, search, settings }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaAtom);
 
-  const { data: isExists } = useSWRImmutable<{ exist: boolean }>(
-    settings.useLocalVoiceLibrary ? `/api/library/exist/${work.id}` : null,
+  const { data: isExists } = useSWRImmutable<{ exists: boolean }>(
+    settings.useLocalVoiceLibrary ? `/api/library/exists/${work.id}` : null,
     fetcher,
     {
       onError: e => notifyError(e, '获取作品是否存在于本地库中失败'),
@@ -63,8 +63,8 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   const localApi = `/api/tracks/${work.id}`;
 
   const tracksApi = match(settings.useLocalVoiceLibrary)
-    .when(v => v && isExists?.exist, () => localApi)
-    .when(v => v && isExists?.exist === false, () => {
+    .when(v => v && isExists?.exists, () => localApi)
+    .when(v => v && isExists?.exists === false, () => {
       return settings.fallbackToAsmrOneApi ? asmrOneApi : null;
     })
     .with(false, () => asmrOneApi)

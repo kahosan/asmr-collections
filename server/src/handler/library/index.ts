@@ -63,14 +63,14 @@ libraryApp.post('/sync', async c => {
   }
 });
 
-libraryApp.get('/exist/:id', async c => {
+libraryApp.get('/exists/:id', async c => {
   const { id } = c.req.param();
   if (!VOICE_LIBRARY || !HOST_URL)
     return c.json({ message: '本地音声库或域名没有配置' }, 500);
 
   try {
-    const isExist = await exists(join(VOICE_LIBRARY, id));
-    return c.json({ exist: isExist });
+    const isExists = await exists(join(VOICE_LIBRARY, id));
+    return c.json({ exists: isExists });
   } catch (e) {
     return c.json(formatError(e), 500);
   }

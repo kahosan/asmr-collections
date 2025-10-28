@@ -234,3 +234,25 @@ body[data-scroll-locked] {
 body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 15px;
 }
+
+* {
+  scrollbar-color: var(--sidebar-border);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sidebar-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sidebar-border);
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  border-radius: 0px;
+}

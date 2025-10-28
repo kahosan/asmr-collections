@@ -35,11 +35,11 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
   const settings = useAtomValue(settingOptionsAtom);
   const { search, exclude, include } = useIndexGenerateSearch();
 
-  const existApi = settings.isUseLocalVLShowExistTag && showImageBadge
-    ? `/api/library/exist/${work.id}`
+  const existsApi = settings.showMissingTagsInLocalVL && showImageBadge
+    ? `/api/library/exists/${work.id}`
     : null;
 
-  const { data } = useSWRImmutable<{ exist: boolean }>(existApi, fetcher, {
+  const { data } = useSWRImmutable<{ exists: boolean }>(existsApi, fetcher, {
     onError: error => notifyError(error, '检查是否存在于音声库时出错')
   });
 
@@ -88,7 +88,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
                 }
               </Badge>
               {
-                data?.exist === false
+                data?.exists === false
                   ? (
                     <Badge className="absolute top-2 right-2 bg-[#795548] dark:text-white font-bold shadow-md cursor-default">
                       不存在于本地库

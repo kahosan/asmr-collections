@@ -1,4 +1,4 @@
-export interface Work {
+export type Work = {
   id: string
   name: string
   cover: string
@@ -51,6 +51,9 @@ export interface Work {
   }>
   createdAt: string
   updatedAt: string
-}
+} & {
+  // 以下都为非数据库字段
+  exists?: boolean // 是否已收藏
+};
 
 export interface Data<T extends string | number> { id: T, name: string }

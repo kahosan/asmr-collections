@@ -82,13 +82,6 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
           </SettingInput>
           <Separator />
           <SettingItem
-            id="prioritize-dlsite"
-            checked={options.prioritizeDLsite}
-            onCheckedChange={checked => setOptions({ ...options, prioritizeDLsite: checked })}
-          >
-            优先使用 DLsite 数据源
-          </SettingItem>
-          <SettingItem
             id="show-work-details"
             checked={options.showWorkDetail}
             onCheckedChange={checked => setOptions({ ...options, showWorkDetail: checked })}
@@ -103,7 +96,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
               checked => setOptions({
                 ...options,
                 useLocalVoiceLibrary: checked,
-                isUseLocalVLShowExistTag: false
+                showMissingTagsInLocalVL: false
               })
             }
           >
@@ -111,8 +104,8 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
           </SettingItem>
           <SettingItem
             id="is-use-local-vl-show-exist-tag"
-            checked={options.isUseLocalVLShowExistTag}
-            onCheckedChange={checked => setOptions({ ...options, isUseLocalVLShowExistTag: checked })}
+            checked={options.showMissingTagsInLocalVL}
+            onCheckedChange={checked => setOptions({ ...options, showMissingTagsInLocalVL: checked })}
             disabled={!options.useLocalVoiceLibrary}
           >
             当启用本地库时显示不存在于本地库的标签

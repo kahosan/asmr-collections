@@ -18,6 +18,8 @@ import WorkDetailsSkeleton from '~/pages/work-details/skeleton';
 
 import { z } from 'zod';
 
+import { preloadWorkDetails } from './preload';
+
 export const RootSearchSchema = z.object({
   page: z.number().optional(),
   limit: z.number().optional(),
@@ -51,6 +53,14 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  head: () => ({
+    links: [{
+      rel: 'preload',
+      href: '/api/works?order=desc&sort=releaseDate&filterOp=and',
+      as: 'fetch',
+      crossOrigin: 'anonymous'
+    }]
+  }),
   component: () => (
     <ErrorBoundary>
       <App />
@@ -67,6 +77,10 @@ export type WorkDetailsSearchParams = z.infer<typeof WorkDetailsSearchSchema>;
 const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/work-details/$id',
+  loader({ params, abortController }) {
+    const id = params.id;
+    preloadWorkDetails(id, abortController);
+  },
   component() {
     const id = workDetailsRoute.useParams().id;
     return (

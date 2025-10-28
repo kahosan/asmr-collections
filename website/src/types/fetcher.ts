@@ -6,12 +6,15 @@ export type WorkAPI =
   | 'work/info/:id'
   | 'work/:id'
   | 'work/upload/subtitles/:id'
-  | 'work/subtitles/:id';
+  | 'work/subtitles/:id'
+  | 'work/exists/:id';
 
 export type WorksAPI = 'works';
 export type FieldAPI = 'field/:field';
 export type TracksAPI = 'tracks/:id';
-export type LibraryAPI = 'library/sync';
+export type LibraryAPI =
+  | 'library/sync'
+  | 'library/exists/:id';
 
 export type FetcherKey =
   | `${Base}/${WorkAPI}`

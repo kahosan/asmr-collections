@@ -15,9 +15,9 @@ interface SimilarWorksProps {
 }
 
 export default function SimilarWorks({ work }: SimilarWorksProps) {
-  const { data } = useSWRImmutable<Work[]>(`/api/work/similar/${work.id}`, fetcher, {
-    onError: e => notifyError(e, '获取相似作品失败'),
-    suspense: true
+  // 这里是 undefined 因为成功用数据库里的数据时不会带 exists 字段
+  const { data } = useSWRImmutable<Work[]>(work.exists === undefined ? `/api/work/similar/${work.id}` : null, fetcher, {
+    onError: e => notifyError(e, '获取相似作品失败')
   });
 
   if (!data || data.length === 0)

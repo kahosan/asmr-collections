@@ -30,12 +30,9 @@ export default function WorkDetails() {
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
 
-  const WorkInfoApi = settings.prioritizeDLsite
-    ? `/api/work/info/${id}`
-    : `/api/work/${id}`;
-
+  // exists 在数据库中是否存在
   const { data } = useSWRImmutable<Work>(
-    WorkInfoApi,
+    `work-info-${id}`,
     fetcher,
     {
       onError: e => notifyError(e, '获取作品信息失败'),
@@ -43,17 +40,8 @@ export default function WorkDetails() {
     }
   );
 
-  const { data: isExists } = useSWRImmutable<{ exists: boolean }>(
-    `/api/work/exists/${id}`,
-    fetcher,
-    {
-      onError: e => notifyError(e, '获取作品是否存在于数据库中失败'),
-      suspense: true
-    }
-  );
-
   if (!data)
-    throw new Error('作品不存在');
+    throw new Error('作品数据请求失败，详情请查看控制台');
 
   return (
     <>
@@ -79,7 +67,7 @@ export default function WorkDetails() {
               >
                 {data.id}
                 {data.subtitles ? <span>带字幕</span> : null}
-                {isExists?.exists === false ? <span>未收藏</span> : null}
+                {data.exists === false ? <span>未收藏</span> : null}
               </Badge>
             </div>
           </div>
@@ -207,11 +195,7 @@ export default function WorkDetails() {
         </Suspense>
       </ErrorBoundary>
 
-      <ErrorBoundary fallback={<div className="mt-2 text-sm opacity-65">相似作品加载失败</div>}>
-        <Suspense>
-          <SimilarWorks work={data} />
-        </Suspense>
-      </ErrorBoundary>
+      <SimilarWorks work={data} />
     </>
   );
 }
