@@ -1,5 +1,7 @@
+import { Activity, useMemo, useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 
+import { Virtualized, VirtualizedVirtualizer } from '~/components/ui/virtualized';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command';
 
 import { motion } from 'framer-motion';
@@ -32,42 +34,68 @@ export default function FilterPanel<T extends string | number>({
   handleSelect,
   isCheck
 }: Props<T>) {
+  const [input, setInput] = useState('');
+
+  const filtered = useMemo(() => {
+    if (!input)
+      return data;
+    return data?.filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()));
+  }, [data, input]);
+
   return (
     <Command>
-      <CommandInput placeholder={placeholder} className="h-9" />
-      <CommandList className="h-48 no-scrollbar">
-        {(!error && !isLoading && (data?.length === 0)) && <CommandEmpty>无结果</CommandEmpty>}
-        <CommandGroup>
-          {isLoading && <Loading isLoading={isLoading} className="w-full mx-auto mt-[50%]" />}
-          {error
-            ? <div className="w-full mx-auto mt-[10%] text-center text-sm opacity-80">
-              {errorText}
-              {error instanceof HTTPError && <div className="text-xs opacity-70">{error.message}</div>}
-            </div>
-            : null}
-          {data?.sort(sort).map(({ id, name }) => {
-            const checked = isCheck({ id, name });
-            return (
-              <motion.div
-                key={id}
-                layout
-                initial={{ opacity: checked ? 1 : 0.65 }}
-                animate={{ opacity: checked ? 1 : 0.65 }}
-              >
-                <CommandItem value={name} onSelect={() => handleSelect(id)}>
-                  <div className="max-w-36 truncate">{name}</div>
-                  <CheckIcon
-                    className={cn(
-                      'ml-auto h-4 w-4',
-                      checked ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                </CommandItem>
-              </motion.div>
-            );
-          })}
-        </CommandGroup>
-      </CommandList>
+      <CommandInput
+        value={input}
+        onValueChange={setInput}
+        placeholder={placeholder}
+        className="h-9"
+      />
+      <Virtualized asChild>
+        <CommandList className="h-48 no-scrollbar">
+          <Activity mode={!error && !isLoading && (filtered?.length === 0) ? 'visible' : 'hidden'}>
+            <CommandEmpty>无结果</CommandEmpty>
+          </Activity>
+          <CommandGroup>
+            <Loading isLoading={isLoading} className="w-full mx-auto mt-[50%]" />
+            <ErrorComp error={error} text={errorText} />
+            <VirtualizedVirtualizer>
+              {
+                filtered?.sort(sort).map(({ id, name }) => {
+                  const checked = isCheck({ id, name });
+                  return (
+                    <motion.div
+                      key={id}
+                      layout
+                      initial={{ opacity: checked ? 1 : 0.65 }}
+                      animate={{ opacity: checked ? 1 : 0.65 }}
+                    >
+                      <CommandItem value={name} onSelect={() => handleSelect(id)}>
+                        <div className="max-w-36 truncate">{name}</div>
+                        <CheckIcon
+                          className={cn(
+                            'ml-auto h-4 w-4',
+                            checked ? 'opacity-100' : 'opacity-0'
+                          )}
+                        />
+                      </CommandItem>
+                    </motion.div>
+                  );
+                })
+              }
+            </VirtualizedVirtualizer>
+          </CommandGroup>
+        </CommandList>
+      </Virtualized>
     </Command>
+  );
+}
+
+function ErrorComp({ error, text }: { error: unknown, text: string }) {
+  if (!error) return null;
+  return (
+    <div className="w-full mx-auto mt-[10%] text-center text-sm opacity-80">
+      {text}
+      {error instanceof HTTPError && <div className="text-xs opacity-70">{error.message}</div>}
+    </div>
   );
 }
