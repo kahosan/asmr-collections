@@ -341,9 +341,22 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
 function findSmartPath(tracks: Tracks, patterns: string[]): string[] | undefined {
   // 按优先级顺序查找每个格式
   for (const pattern of patterns) {
-    const result = searchInTracksForPattern(tracks, pattern);
-    if (result)
-      return result;
+    // 先排序 tracks，确保匹配 pattern 的文件夹或文件优先被处理
+    const prioritizedTracks = tracks.sort((a, b) => {
+      // 先比较是否匹配 pattern
+      const aMatch = a.title.toLowerCase().includes(pattern) ? 0 : 1;
+      const bMatch = b.title.toLowerCase().includes(pattern) ? 0 : 1;
+
+      if (aMatch !== bMatch) return aMatch - bMatch;
+
+      // 相同匹配情况下，按数字排序
+      const aNum = Number.parseInt(a.title.replaceAll(/\D/g, ''), 10) || 0;
+      const bNum = Number.parseInt(b.title.replaceAll(/\D/g, ''), 10) || 0;
+      return aNum - bNum;
+    });
+
+    const result = searchInTracksForPattern(prioritizedTracks, pattern);
+    if (result) return result;
   }
 
   function searchInTracksForPattern(items: Tracks, pattern: string, currentPath: string[] = []): string[] | undefined {
@@ -352,9 +365,10 @@ function findSmartPath(tracks: Tracks, patterns: string[]): string[] | undefined
     if (ext === pattern)
       return currentPath;
 
-    for (const item of items.filter(i => i.type === 'folder' && i.children)) {
+    for (const item of items.filter(i => i.type === 'folder')) {
+      if (!item.children) continue;
       const result = searchInTracksForPattern(
-        item.children!,
+        item.children,
         pattern,
         [...currentPath, item.title]
       );
