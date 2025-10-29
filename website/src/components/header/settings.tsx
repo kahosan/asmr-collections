@@ -4,7 +4,7 @@ import { Button } from '~/components/ui/button';
 import { Switch } from '~/components/ui/switch';
 import { Separator } from '~/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog';
 
 import { motion } from 'framer-motion';
 
@@ -75,20 +75,19 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
   }, [_handleSave, options, setOpen]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent
         className="rounded-lg max-w-[90%] sm:max-w-lg"
-        onInteractOutside={e => e.preventDefault()}
         onOpenAutoFocus={event => {
           event.preventDefault();
         }}
       >
-        <DialogHeader>
-          <DialogTitle>设置选项</DialogTitle>
-          <DialogDescription className="sr-only">
+        <AlertDialogHeader>
+          <AlertDialogHeader>设置选项</AlertDialogHeader>
+          <AlertDialogDescription className="sr-only">
             在此处配置设置选项
-          </DialogDescription>
-        </DialogHeader>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
         <div className="flex flex-col gap-4.5 mt-4">
 
           <SettingInput
@@ -160,34 +159,28 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
 
         <Separator />
         <div className="flex gap-2">
-          <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 px-0">
-            <a href="https://github.com/kahosan/asmr-collections" target="_blank" rel="noreferrer noopener">
-              GitHub
-            </a>
-          </Button>
-          <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 px-0">
+          <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 p-1">
             <a href="https://asmr.one" target="_blank" rel="noreferrer noopener">
               ASMR.ONE
             </a>
           </Button>
-          <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 px-0">
+          <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 p-1">
+            <a href="https://github.com/kahosan/asmr-collections" target="_blank" rel="noreferrer noopener">
+              GitHub
+            </a>
+          </Button>
+          <Button asChild variant="link" size="sm" className="w-max hover:opacity-80 p-1">
             <a href="https://dlsite.com" target="_blank" rel="noreferrer noopener">
               DLsite
             </a>
           </Button>
         </div>
-        <DialogFooter>
-          <Button onClick={handleSave}>
-            保存
-          </Button>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              返回
-            </Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <AlertDialogFooter>
+          <AlertDialogCancel>返回</AlertDialogCancel>
+          <AlertDialogAction onClick={handleSave}>保存</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

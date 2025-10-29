@@ -41,7 +41,7 @@ const CallableConfirm = createCallable<ConfirmOptions, ConfirmResponse>(
         open={!call.ended}
         onOpenChange={(open) => !open && call.end(false)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="w-100">
           <AlertDialogHeader>
             <AlertDialogTitle>{options.title}</AlertDialogTitle>
           </AlertDialogHeader>
