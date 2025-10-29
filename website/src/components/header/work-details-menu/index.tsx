@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 
 import { Button } from '~/components/ui/button';
+import { confirm } from '~/components/ui/confirmer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 
 import UpdateMenu from './update';
 import SleepModeDialog from './sleep-mode-dialog';
-import ConfirmDeleteDialog from './confirm-delete';
 
 import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
@@ -28,9 +28,9 @@ export function WorkDetailsMenu() {
   const { id } = useParams();
 
   const [createAction, createIsMutating] = useToastMutation<{ message?: string }>('create');
+  const [deleteAction, deleteIsMutating] = useToastMutation('delete');
 
   const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showSleepModeDialog, setShowSleepModeDialog] = useState(false);
 
   const { data: isExists, mutate, error } = useSWRImmutable<{ exists: boolean }>(
@@ -41,7 +41,26 @@ export function WorkDetailsMenu() {
     }
   );
 
-  const handleClick = () => {
+  const handleDelete = async () => {
+    const yes = await confirm({
+      title: '确定要删除收藏吗?',
+      description: '认真考虑哦'
+    });
+    if (!yes) return;
+
+    deleteAction({
+      key: `/api/work/delete/${id}`,
+      fetchOps: { method: 'DELETE' },
+      toastOps: {
+        loading: `${id} 删除中...`,
+        success: `${id} 删除成功`,
+        error: `${id} 删除失败`,
+        finally() { mutate(); }
+      }
+    });
+  };
+
+  const handleCreate = () => {
     createAction({
       key: `/api/work/create/${id}`,
       fetchOps: { method: 'POST' },
@@ -74,13 +93,13 @@ export function WorkDetailsMenu() {
                 .with(true, () => (
                   <>
                     <UpdateMenu id={id} />
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => setShowDeleteDialog(p => !p)}>
+                    <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={deleteIsMutating}>
                       删除作品
                     </DropdownMenuItem>
                   </>
                 ))
                 .with(false, () => (
-                  <DropdownMenuItem className="cursor-pointer" onClick={handleClick} disabled={createIsMutating}>
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleCreate} disabled={createIsMutating}>
                     添加作品
                   </DropdownMenuItem>
                 ))
@@ -102,7 +121,6 @@ export function WorkDetailsMenu() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmDeleteDialog open={showDeleteDialog} setOpen={setShowDeleteDialog} id={id} mutate={mutate} />
       <SleepModeDialog open={showSleepModeDialog} setOpen={setShowSleepModeDialog} />
     </>
   );

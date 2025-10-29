@@ -4,7 +4,7 @@ import { Button } from '~/components/ui/button';
 import { Switch } from '~/components/ui/switch';
 import { Separator } from '~/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 
 import { motion } from 'framer-motion';
 
@@ -74,8 +74,18 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
     setOpen(false);
   }, [_handleSave, options, setOpen]);
 
+  const handleCancel = () => {
+    setOptions(_options);
+    setOpen(false);
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog
+      open={open}
+      onOpenChange={isOpen => {
+        if (!isOpen) handleCancel();
+      }}
+    >
       <AlertDialogContent
         className="rounded-lg max-w-[90%] sm:max-w-lg"
         onOpenAutoFocus={event => {
@@ -83,7 +93,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
         }}
       >
         <AlertDialogHeader>
-          <AlertDialogHeader>设置选项</AlertDialogHeader>
+          <AlertDialogTitle>设置选项</AlertDialogTitle>
           <AlertDialogDescription className="sr-only">
             在此处配置设置选项
           </AlertDialogDescription>

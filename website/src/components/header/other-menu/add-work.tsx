@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button';
 import { Textarea } from '~/components/ui/textarea';
 import { Separator } from '~/components/ui/separator';
 import { ScrollArea } from '~/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 
 import Loading from '~/components/loading';
 
@@ -19,6 +19,7 @@ import { useRef, useState } from 'react';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
+import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
 import { writeClipboard } from '~/lib/utils';
 
@@ -69,17 +70,24 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
   };
 
   const batchAdd = () => {
-    if (createIsMutation || addIds.length < 0) return;
-    if (startBatchAdd) return;
+    if (addIds.length === 0) {
+      toast.warning('添加列表为空');
+      return;
+    }
+
+    if (createIsMutation || startBatchAdd) {
+      toast.warning('正在操作，请稍后再试', { position: 'bottom-right' });
+      return;
+    };
+
     setStartBatchAdd(true);
 
     toast.info('开始批量添加');
     setFailedIds([]);
 
     const p = limit(MAX_CONCURRENT);
-    const addFns = addIds.sort((a, b) => a.length - b.length).map(id => p(
+    const addFns = addIds.map(id => p(
       async () => {
-        setAddIds(ids => [...ids, id]);
         try {
           const data = await fetcher<{ message?: string }>(`/api/work/create/${id}`, {
             method: 'POST',
@@ -87,12 +95,14 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           });
           toast.success(`${id} 添加成功`, { description: data.message });
           setAddIds(ids => ids.filter(i => i !== id));
-        } catch {
+        } catch (e) {
+          logger.error(e, '批量添加作品失败');
           setFailedIds(ids => [...ids, id]);
         }
       }
     ));
 
+    // TODO: 终止优化
     Promise.all(addFns).finally(() => {
       controllerRef.current = new AbortController();
       setAddIds([]);
@@ -101,13 +111,20 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
       if (failedIds.length === 0)
         toast.success('批量添加完成', { duration: 4000 });
       else
-        toast.error('批量添加失败', { duration: 4000 });
+        toast.error('存在失败的操作', { duration: 4000 });
     });
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger />
+    <Dialog
+      open={open}
+      onOpenChange={isOpen => {
+        if (createIsMutation || startBatchAdd)
+          toast.warning('请先终止操作', { position: 'bottom-right' });
+        else
+          setOpen(isOpen);
+      }}
+    >
       <DialogContent className="rounded-lg max-w-[90%] sm:max-w-md" onInteractOutside={e => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>添加作品</DialogTitle>
@@ -130,7 +147,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           </Button>
           <Button
             variant="outline"
-            disabled={addIds.length === 0 || !startBatchAdd}
+            disabled={!startBatchAdd}
             onClick={() => {
               controllerRef.current.abort();
               toast.info('批量添加已终止');

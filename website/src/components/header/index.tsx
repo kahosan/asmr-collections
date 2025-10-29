@@ -62,7 +62,7 @@ export default function Header() {
         </div>
         <Separator />
       </div>
-      <SettingsDialog key={Math.random()} open={showSettingsDialog} setOpen={setShowSettingsDialog} />
+      <SettingsDialog open={showSettingsDialog} setOpen={setShowSettingsDialog} />
     </>
   );
 }

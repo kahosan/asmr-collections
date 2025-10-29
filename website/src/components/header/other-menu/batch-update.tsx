@@ -14,6 +14,7 @@ import limit from 'p-limit';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 
+import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
 import { notifyError, writeClipboard } from '~/lib/utils';
 
@@ -27,15 +28,23 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
   const [updatingIds, setUpdatingIds] = useState<string[]>([]);
   const [failedIds, setFailedIds] = useState<string[]>([]);
 
+  const [startBatchUpdating, setStartBatchUpdating] = useState(false);
+
   const controllerRef = useRef(new AbortController());
 
   const batchUpdate = () => {
-    if (!data) {
-      toast.error('收藏 ID 列表不存在');
+    if (!data || data.length === 0) {
+      toast.error('收藏 ID 列表为空');
+      return;
+    }
+
+    if (startBatchUpdating) {
+      toast.warning('批量更新已在进行中', { position: 'bottom-right' });
       return;
     }
 
     toast.info('开始批量更新');
+    setStartBatchUpdating(true);
     setFailedIds([]);
 
     const p = limit(MAX_CONCURRENT);
@@ -49,31 +58,33 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
           });
           toast.success(`${id} 更新成功`);
           setUpdatingIds(ids => ids.filter(i => i !== id));
-        } catch {
+        } catch (e) {
+          logger.error(e, `更新 ${id} 信息失败`);
           setFailedIds(ids => [...ids, id]);
         }
       }
     ));
 
+    // TODO：优化终止逻辑，一下终止太多卡死了
     Promise.all(updateFns).finally(() => {
       controllerRef.current = new AbortController();
       setUpdatingIds([]);
+      setStartBatchUpdating(false);
       if (failedIds.length === 0)
         toast.success('批量更新完成', { duration: 4000 });
       else
-        toast.error('批量更新失败', { duration: 4000 });
+        toast.error('存在失败的操作', { duration: 4000 });
     });
   };
 
   return (
     <Dialog
       open={open}
-      onOpenChange={() => {
-        if (updatingIds.length > 0) {
+      onOpenChange={isOpen => {
+        if (startBatchUpdating)
           toast.warning('请先终止更新', { position: 'bottom-right' });
-          return;
-        }
-        setOpen(false);
+        else
+          setOpen(isOpen);
       }}
     >
       <DialogContent onInteractOutside={e => e.preventDefault()} className="rounded-lg max-w-[90%] sm:max-w-lg">
@@ -86,12 +97,12 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="default" disabled={isLoading || updatingIds.length > 0} onClick={() => batchUpdate()}>
+          <Button variant="default" disabled={isLoading || startBatchUpdating} onClick={() => batchUpdate()}>
             更新
           </Button>
           <Button
             variant="outline"
-            disabled={updatingIds.length === 0}
+            disabled={!startBatchUpdating}
             onClick={() => {
               controllerRef.current.abort();
               toast.info('批量更新已终止');
@@ -103,7 +114,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
         <div className="flex gap-2 text-sm">
           <ScrollArea className="w-full h-44 border rounded-lg">
             <div className="px-4 py-2 space-y-2">
-              {updatingIds.length === 0 && <div className="opacity-80">更新列表</div>}
+              {!startBatchUpdating && <div className="opacity-80">更新列表</div>}
               {updatingIds.map(id => (
                 <motion.div layout key={id} className="flex gap-2 p-2 rounded-md items-center dark:bg-zinc-900">
                   <Loading isLoading />
