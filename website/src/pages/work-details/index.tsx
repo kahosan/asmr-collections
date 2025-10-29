@@ -21,7 +21,7 @@ import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
 import { fetcher } from '~/lib/fetcher';
-import { cn, notifyError, writeClipboard } from '~/lib/utils';
+import { cn, writeClipboard } from '~/lib/utils';
 
 import type { Work } from '~/types/work';
 
@@ -32,14 +32,10 @@ export default function WorkDetails() {
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
 
-  // exists 在数据库中是否存在
   const { data } = useSWRImmutable<Work>(
     `work-info-${id}`,
     fetcher,
-    {
-      onError: e => notifyError(e, '获取作品信息失败'),
-      suspense: true
-    }
+    { suspense: true }
   );
 
   if (!data)
