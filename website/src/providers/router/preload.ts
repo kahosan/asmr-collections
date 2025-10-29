@@ -1,6 +1,7 @@
 import { preload } from 'swr';
 
 import { logger } from '~/lib/logger';
+import { notifyError } from '~/lib/utils';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 
 export function preloadWorkDetails(id: string) {
@@ -14,10 +15,12 @@ export function preloadWorkDetails(id: string) {
           const data = await fetcher<Record<string, string>>(`/api/work/info/${id}`);
           return { ...data, exists: false };
         } catch (e) {
+          notifyError(e, '获取作品信息失败');
           logger.error(e, '预加载作品信息失败');
           return null;
         }
       }
+      notifyError(e, '获取作品信息失败');
       logger.error(e, '预加载作品信息失败');
       return null;
     }
