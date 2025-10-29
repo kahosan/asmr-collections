@@ -1,9 +1,6 @@
 import { ThemeProvider } from './theme';
 
-import { Toaster } from '~/components/ui/sonner';
 import { TooltipProvider } from '~/components/ui/tooltip';
-
-import { AnimatePresence } from 'framer-motion';
 
 export default function Providers({ children }: React.PropsWithChildren) {
   return (
@@ -13,12 +10,9 @@ export default function Providers({ children }: React.PropsWithChildren) {
       enableSystem
       disableTransitionOnChange
     >
-      <Toaster position="top-right" />
-      <AnimatePresence>
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
-      </AnimatePresence>
+      <TooltipProvider>
+        {children}
+      </TooltipProvider>
     </ThemeProvider>
   );
 }

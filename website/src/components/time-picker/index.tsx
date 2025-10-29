@@ -271,7 +271,6 @@ export function TimePicker({ onConfirm, onCancelTimer, open, setOpen }: TimePick
               onTouchMove={handleMove}
               onTouchEnd={handleEnd}
               key={mode}
-              exit={{ scale: 0.5 }}
               initial={{ scale: 0.5 }}
               animate={{ scale: 1 }}
             >
