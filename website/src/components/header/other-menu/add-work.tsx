@@ -2,16 +2,20 @@ import { Input } from '~/components/ui/input';
 import { Button } from '~/components/ui/button';
 import { Textarea } from '~/components/ui/textarea';
 import { Separator } from '~/components/ui/separator';
+import { ScrollArea } from '~/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 
 import { mutate } from 'swr';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { CopyIcon } from 'lucide-react';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { logger } from '~/lib/logger';
 import type { BatchOperationResponse, WorkCreateResponse } from '~/types/work';
+import { writeClipboard } from '~/lib/utils';
 
 export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [id, setId] = useState<string>();
@@ -171,12 +175,28 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
             onChange={e => setAddIds(e.target.value.split(/[\s,]+/).filter(Boolean))}
             disabled={isMutating}
           />
-          <Textarea
-            className="w-full h-44 border rounded-lg resize-none placeholder:text-sm text-sm"
-            placeholder="失败列表"
-            readOnly
-            value={failedIds.join('\n')}
-          />
+          <ScrollArea className="w-full h-44 border rounded-lg relative">
+            <Button
+              size="icon"
+              variant="secondary"
+              title="复制失败列表"
+              className="absolute right-4 top-2 z-10"
+              onClick={() => {
+                if (failedIds.length > 0) writeClipboard(JSON.stringify(failedIds));
+                else toast.warning('失败列表为空');
+              }}
+            >
+              <CopyIcon />
+            </Button>
+            <div className="px-4 py-2">
+              {failedIds.length === 0 && <div className="opacity-80 text-sm">失败列表</div>}
+              {failedIds.map(id => (
+                <motion.div layout key={id}>
+                  {id}
+                </motion.div>
+              ))}
+            </div>
+          </ScrollArea>
         </div>
       </DialogContent>
     </Dialog>
