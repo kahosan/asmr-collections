@@ -10,7 +10,7 @@ import VideoItem from './video-item';
 import AudioItem from './audio-item';
 
 import { useAtom } from 'jotai';
-import { Activity, useEffect, useMemo, useRef } from 'react';
+import { Activity, useMemo, useRef } from 'react';
 
 import { match } from 'ts-pattern';
 
@@ -82,6 +82,13 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
       onError: e => notifyError(e, errorText),
       suspense: true,
       onSuccess(data) {
+        if (
+          tracksApi === asmrOneApi
+          && settings.voiceLibraryOptions.fallbackToAsmrOneApi
+          && isExists?.exists === false
+        )
+          toast.success('成功回退至 ASMR.ONE 获取数据');
+
         if (
           settings.smartPath.enable
           && !search.path
@@ -167,15 +174,6 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
     if (lightGalleryRef.current)
       lightGalleryRef.current.openGallery(index);
   };
-
-  useEffect(() => {
-    if (tracksApi === asmrOneApi && settings.voiceLibraryOptions.fallbackToAsmrOneApi) {
-      toast.success(
-        '成功回退至 ASMR.ONE 获取数据',
-        { id: work.id }
-      );
-    }
-  }, [asmrOneApi, settings.voiceLibraryOptions.fallbackToAsmrOneApi, tracksApi, work.id]);
 
   if (!tracksApi) {
     return (
