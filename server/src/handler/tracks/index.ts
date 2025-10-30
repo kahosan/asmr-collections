@@ -1,10 +1,13 @@
 import type { Tracks } from '~/types/tracks';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
+import { newQueue } from '@henrygd/queue';
 import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { formatError, workIsExistsInLocal } from '../utils';
+
+const queue = newQueue(50);
 
 export const tracksApp = new Hono();
 
@@ -20,7 +23,7 @@ tracksApp.get('/:id', async c => {
     if (!workIsExist)
       return c.json({ message: '作品不存在于本地音声库' }, 404);
 
-    const data = await generateTracks(workPath);
+    const data = await generateTracks(workPath, VOICE_LIBRARY);
 
     return c.json(data);
   } catch (e) {
@@ -28,7 +31,7 @@ tracksApp.get('/:id', async c => {
   }
 });
 
-async function generateTracks(path: string): Promise<Tracks> {
+async function generateTracks(path: string, basePath: string): Promise<Tracks> {
   const entries = await readdir(path, { withFileTypes: true });
 
   const folders = entries
@@ -41,13 +44,13 @@ async function generateTracks(path: string): Promise<Tracks> {
 
   const data: Tracks = [];
 
-  for (const folder of folders) {
-    data.push({
-      type: 'folder',
-      title: folder.name,
-      children: await generateTracks(join(path, folder.name))
-    });
-  }
+  const folderTracks = await queue.all(
+    folders
+      .map(folder => generateTracks(join(path, folder.name), basePath)
+        .then(children => ({ type: 'folder' as const, title: folder.name, children })))
+  );
+
+  data.push(...folderTracks);
 
   for (const file of files) {
     const _ft = extname(file.name);
@@ -58,7 +61,7 @@ async function generateTracks(path: string): Promise<Tracks> {
       .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
       .otherwise(() => 'other' as const);
 
-    const relativePath = path.replace(VOICE_LIBRARY!, '');
+    const relativePath = path.replace(basePath, '');
 
     data.push({
       type: ft,
