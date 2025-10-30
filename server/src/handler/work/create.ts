@@ -5,7 +5,7 @@ import prisma from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { formatError, generateEmbedding, workIsExist } from '../utils';
+import { formatError, generateEmbedding, workIsExistsInDB } from '../utils';
 
 export const createApp = new Hono();
 
@@ -25,7 +25,7 @@ createApp.post('/create/:id', async c => {
   if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
 
   try {
-    if (await workIsExist(id) || await workIsExist(data.id))
+    if (await workIsExistsInDB(id))
       return c.json({ message: '作品已收藏' }, 400);
   } catch (e) {
     return c.json(formatError(e), 500);

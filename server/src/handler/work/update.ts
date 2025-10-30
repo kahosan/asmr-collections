@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import prisma from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, generateEmbedding, workIsExist } from '../utils';
+import { formatError, generateEmbedding, workIsExistsInDB } from '../utils';
 
 export const updateApp = new Hono();
 
@@ -11,7 +11,7 @@ updateApp.put('/refresh/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExist(id))
+    if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 400);
   } catch (e) {
     return c.json(formatError(e), 500);
@@ -119,7 +119,7 @@ updateApp.put('/upload/subtitles/:id', async c => {
     return c.json({ message: '文件格式不正确' }, 400);
 
   try {
-    if (!await workIsExist(id))
+    if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 400);
 
     const work = await prisma.work.update({
@@ -141,7 +141,7 @@ updateApp.put('/refresh/embedding/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExist(id))
+    if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 400);
   } catch (e) {
     return c.json(formatError(e), 500);

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { Hono } from 'hono';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import prisma from '~/lib/db';
-import { exists, formatError } from '../utils';
+import { formatError, workIsExistsInLocal } from '../utils';
 
 export const libraryApp = new Hono();
 
@@ -69,7 +69,7 @@ libraryApp.get('/exists/:id', async c => {
     return c.json({ message: '本地音声库或域名没有配置' }, 500);
 
   try {
-    const isExists = await exists(join(VOICE_LIBRARY, id));
+    const isExists = await workIsExistsInLocal(join(VOICE_LIBRARY, id));
     return c.json({ exists: isExists });
   } catch (e) {
     return c.json(formatError(e), 500);

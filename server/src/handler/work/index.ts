@@ -3,7 +3,7 @@ import { fileTypeFromBuffer } from 'file-type';
 import { Hono } from 'hono';
 
 import prisma from '~/lib/db';
-import { formatError, workIsExist } from '../utils';
+import { formatError, workIsExistsInDB } from '../utils';
 
 import { createApp } from './create';
 import { deleteApp } from './delete';
@@ -47,7 +47,7 @@ workApp.get('/subtitles/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExist(id))
+    if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 404);
 
     const work = await prisma.work.findUnique({
@@ -72,7 +72,7 @@ workApp.get('/exists/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    const exists = await workIsExist(id);
+    const exists = await workIsExistsInDB(id);
     return c.json({ exists: !!exists });
   } catch (e) {
     return c.json(formatError(e), 500);

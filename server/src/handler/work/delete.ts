@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import prisma from '~/lib/db';
-import { formatError, workIsExist } from '../utils';
+import { formatError, workIsExistsInDB } from '../utils';
 
 export const deleteApp = new Hono();
 
@@ -9,7 +9,7 @@ deleteApp.delete('/delete/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExist(id))
+    if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 404);
 
     await prisma.work.delete({ where: { id } });

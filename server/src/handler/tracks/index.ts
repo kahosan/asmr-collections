@@ -4,7 +4,7 @@ import { extname, join } from 'node:path';
 import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
-import { exists, formatError } from '../utils';
+import { formatError, workIsExistsInLocal } from '../utils';
 
 export const tracksApp = new Hono();
 
@@ -16,7 +16,7 @@ tracksApp.get('/:id', async c => {
       return c.json({ message: '本地音声库或域名没有配置' }, 500);
 
     const workPath = join(VOICE_LIBRARY, id);
-    const workIsExist = await exists(workPath);
+    const workIsExist = await workIsExistsInLocal(workPath);
     if (!workIsExist)
       return c.json({ message: '作品不存在于本地音声库' }, 404);
 
