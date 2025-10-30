@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import prisma from '~/lib/db';
 import { formatError, workIsExistsInDB } from '../utils';
 
+import { batchApp } from './batch';
 import { createApp } from './create';
 import { deleteApp } from './delete';
 import { infoApp } from './info';
@@ -16,7 +17,8 @@ export const workApp = new Hono()
   .route('/', deleteApp)
   .route('/', infoApp)
   .route('/', updateApp)
-  .route('/', similarApp);
+  .route('/', similarApp)
+  .route('/', batchApp);
 
 workApp.get('/:id', async c => {
   const { id } = c.req.param();
