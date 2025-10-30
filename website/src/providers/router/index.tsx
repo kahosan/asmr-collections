@@ -36,7 +36,8 @@ export const RootSearchSchema = z.object({
   order: z.enum(['asc', 'desc']).optional().default('desc'),
   sort: z.string().optional().default('releaseDate'),
   filterOp: z.enum(['and', 'or']).optional().default('and'),
-  subtitles: z.boolean().optional()
+  subtitles: z.boolean().optional(),
+  existsLocal: z.enum(['only', 'exclude']).optional()
 });
 
 export type RootSearchParams = z.infer<typeof RootSearchSchema>;

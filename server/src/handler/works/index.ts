@@ -1,9 +1,11 @@
 import type { Prisma } from '@prisma/client';
 import type { Work } from '~/types/collection';
-import { Hono } from 'hono';
+import { join } from 'node:path';
 
+import { Hono } from 'hono';
+import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import prisma from '~/lib/db';
-import { filterSubtitles, formatError, generateEmbedding } from '../utils';
+import { filterSubtitles, formatError, generateEmbedding, workIsExistsInLocal } from '../utils';
 
 type FindManyWorksQuery = Parameters<typeof prisma.work.findMany>[0];
 
@@ -30,7 +32,8 @@ worksApp.get('/', async c => {
     subtitles,
     keyword,
     age,
-    filterOp = 'and'
+    filterOp = 'and',
+    existsLocal
   } = c.req.query();
 
   // sort
@@ -128,6 +131,28 @@ worksApp.get('/', async c => {
     }
   };
 
+  if (existsLocal) {
+    if (!VOICE_LIBRARY || !HOST_URL)
+      return c.json({ message: '本地音声库或域名没有配置' }, 500);
+
+    try {
+      const { existsIds, noExistsIds } = await getLocalWorkIds(VOICE_LIBRARY);
+      if (existsLocal === 'only') {
+        queryArgs.where = {
+          ...queryArgs.where,
+          id: { in: existsIds }
+        };
+      } else if (existsLocal === 'exclude') {
+        queryArgs.where = {
+          ...queryArgs.where,
+          id: { in: noExistsIds }
+        };
+      }
+    } catch (e) {
+      return c.json(formatError(e), 500);
+    }
+  }
+
   try {
     function buildQuery(ids: string[]) {
       return {
@@ -222,3 +247,27 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
     data: filterSubtitles(sortedWorks)
   };
 };
+
+async function getLocalWorkIds(voiceLibrary: string) {
+  const ids = await prisma.work.findMany({ select: { id: true } });
+
+  const results = await Promise.all(
+    ids.map(async ({ id }) => ({
+      id,
+      exists: await workIsExistsInLocal(join(voiceLibrary, id))
+    }))
+  );
+
+  const { existsIds, noExistsIds } = results.reduce<Record<'existsIds' | 'noExistsIds', string[]>>(
+    (acc, { id, exists }) => {
+      if (exists)
+        acc.existsIds.push(id);
+      else
+        acc.noExistsIds.push(id);
+      return acc;
+    },
+    { existsIds: [], noExistsIds: [] }
+  );
+
+  return { existsIds, noExistsIds };
+}
