@@ -1,6 +1,12 @@
 {
   "name": "@asmr/server",
+  "version": "0.2.3",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
   "scripts": {
     "dev": "dotenv -e ../.env -- bun run --hot src/index.ts",
     "lint": "eslint .",
