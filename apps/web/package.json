@@ -1,5 +1,5 @@
 {
-  "name": "@asmr/website",
+  "name": "@asmr-collections/web",
   "version": "0.2.3",
   "private": true,
   "type": "module",

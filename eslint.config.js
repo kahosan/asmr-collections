@@ -5,14 +5,14 @@ export default kaho(
     react: true,
     ignores: {
       customGlobs: [
-        'website/src/components/ui/*.tsx',
-        'website/tailwind.config.js'
+        'apps/web/src/components/ui/*.tsx',
+        'apps/web/tailwind.config.js'
       ]
     }
   },
   {
     ...sorting,
-    files: ['server/**/*.ts'],
+    files: ['apps/server/**/*.ts'],
     rules: {
       ...sorting.rules,
       'no-console': 'off'

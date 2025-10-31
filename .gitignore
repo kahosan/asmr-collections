@@ -27,6 +27,6 @@ dist-ssr
 .env.development
 .env.production
 
-website/stats.html
+stats.html
 
 query
