@@ -6,6 +6,8 @@ import Providers from './providers/index.tsx';
 import './globals.css';
 import RouterProvider from './providers/router/index.tsx';
 
+import '~build/console';
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Providers>

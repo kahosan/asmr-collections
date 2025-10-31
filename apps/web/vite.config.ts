@@ -2,13 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tailwindcss from '@tailwindcss/vite';
 
+import info from 'unplugin-info/vite';
+
 import { visualizer } from 'rollup-plugin-visualizer';
 
 import path from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), info()],
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './src')
@@ -38,6 +40,8 @@ export default defineConfig({
     drop: ['console', 'debugger']
   },
   build: {
+    minify: true,
+    cssMinify: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       plugins: [visualizer({ open: false })],
