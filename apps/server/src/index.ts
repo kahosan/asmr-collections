@@ -2,14 +2,22 @@ import path, { join } from 'node:path';
 
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
+import { logger } from 'hono/logger';
 import { formatError } from './handler/utils';
 import { VOICE_LIBRARY } from './lib/constant';
 import { api } from './router/api';
 import { proxyApp } from './router/proxy';
 
-const root = path.resolve(import.meta.dirname, '../dist');
+const CLIENT_DIST = path.resolve(import.meta.dirname, '../../web/dist');
 
 export const app = new Hono();
+
+app.use(
+  '*',
+  logger((message, ...rest) => {
+    return console.info(message, ...rest);
+  })
+);
 
 app.route('/api', api);
 app.route('/proxy', proxyApp);
@@ -59,13 +67,13 @@ app.on('GET', ['/download/*', '/stream/*'], c => {
 
 // web
 app.use('/work-details/*', serveStatic({
-  root,
+  root: CLIENT_DIST,
   rewriteRequestPath: p => p.replace(/work-details\/.*/, '')
 }));
 
 app
-  .use('/assets/*', serveStatic({ root }))
-  .use('/*', serveStatic({ root }));
+  .use('/assets/*', serveStatic({ root: CLIENT_DIST }))
+  .use('/*', serveStatic({ root: CLIENT_DIST }));
 
 const port = process.env.PORT || 3000;
 console.info(`Server listening on port ${port}`);
