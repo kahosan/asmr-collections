@@ -19,19 +19,13 @@
     "postinstall": "npx simple-git-hooks"
   },
   "devDependencies": {
-    "@eslint-sukka/react": "7.3.5",
     "@types/node": "^24.8.1",
     "@vitejs/plugin-react-swc": "^3.10.2",
     "eslint": "^9.33.0",
-    "eslint-config-kaho": "3.7.7",
+    "eslint-config-kaho": "4.0.0",
     "lint-staged": "^16.1.2",
     "simple-git-hooks": "^2.13.0",
     "typescript": "^5.8.3"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@vidstack/react@1.12.11": "patches/@vidstack__react@1.12.11.patch"
-    }
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged && pnpm typecheck"
