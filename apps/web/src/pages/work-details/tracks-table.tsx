@@ -124,12 +124,13 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
     }
   }, [filterData]);
 
+  const allSubtitles = useMemo(() => collectSubtitles(tracks, true), [tracks]);
+
   const subtitleMatcher = useMemo(() => {
     const currentDirSubtitles = collectSubtitles(groupByType?.media);
-    const allSubtitles = collectSubtitles(tracks, true);
 
     return new SubtitleMatcher([currentDirSubtitles, allSubtitles]);
-  }, [tracks, groupByType?.media]);
+  }, [groupByType?.media, allSubtitles]);
 
   const handlePlay = (track: MediaTrack, tracks?: MediaTrack[]) => {
     const currentSubtitle = subtitleMatcher.find(track.title);
@@ -137,6 +138,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
       ...state,
       work,
       open: true,
+      allSubtitles,
       tracks: tracks?.map(item => {
         const subtitle = subtitleMatcher.find(item.title);
         return {

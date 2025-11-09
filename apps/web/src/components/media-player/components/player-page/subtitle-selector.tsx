@@ -1,7 +1,10 @@
 import { useMediaPlayer, TextTrack } from '@vidstack/react';
-import { useAtom, useAtomValue } from 'jotai';
-import { focusAtom } from 'jotai-optics';
+
 import { useMemo } from 'react';
+import { focusAtom } from 'jotai-optics';
+import { useAtom, useAtomValue } from 'jotai';
+import { mediaStateAtom } from '~/hooks/use-media-state';
+
 import {
   Select,
   SelectContent,
@@ -9,40 +12,34 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/ui/select';
-import type { SubtitleInfo } from '~/hooks/use-media-state';
-import { mediaStateAtom } from '~/hooks/use-media-state';
+
 import { fetchTextTrackContent } from '../../utils';
 
 const currentTrackAtom = focusAtom(mediaStateAtom, optic => optic.prop('currentTrack'));
-const tracksAtom = focusAtom(mediaStateAtom, optic => optic.prop('tracks'));
+const allSubtitlesAtom = focusAtom(mediaStateAtom, optic => optic.prop('allSubtitles'));
 
 export default function SubtitleSelector() {
   const [currentTrack, setCurrentTrack] = useAtom(currentTrackAtom);
-  const tracks = useAtomValue(tracksAtom);
+  const allSubtitles = useAtomValue(allSubtitlesAtom);
 
   const player = useMediaPlayer();
 
   const currentSubtitle = currentTrack?.subtitles;
 
   const subtitles = useMemo(() => {
-    if (!tracks) return [];
-    return tracks.reduce<SubtitleInfo[]>((acc, track) => {
-      const subtitle = track.subtitles;
-      if (subtitle) acc.push(subtitle);
-      return acc;
-    }, []);
-  }, [tracks]);
+    return allSubtitles?.sort((a, b) => a.title.localeCompare(b.title));
+  }, [allSubtitles]);
 
   const handleChange = async (title: string) => {
-    const track = tracks?.find(track => track.subtitles?.title === title);
+    const subtitles = allSubtitles?.find(subtitle => subtitle.title === title);
 
-    if (track && currentSubtitle && player) {
+    if (subtitles && currentSubtitle && player) {
       setCurrentTrack({
         ...currentTrack,
-        subtitles: track.subtitles
+        subtitles
       });
 
-      const content = await fetchTextTrackContent(track.subtitles?.url);
+      const content = await fetchTextTrackContent(subtitles.url);
       const textTrack = new TextTrack({
         content,
         id: currentTrack.title,
@@ -61,8 +58,8 @@ export default function SubtitleSelector() {
       <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
-        {subtitles.map(subtitle => (
+      <SelectContent className="max-h-120">
+        {subtitles?.map(subtitle => (
           <SelectItem key={subtitle.title} value={subtitle.title}>
             {subtitle.title}
           </SelectItem>

@@ -15,6 +15,7 @@ export interface MediaState {
   open: boolean
   tracks?: MediaTrack[]
   currentTrack?: MediaTrack
+  allSubtitles?: SubtitleInfo[]
   work?: Work
 }
 
