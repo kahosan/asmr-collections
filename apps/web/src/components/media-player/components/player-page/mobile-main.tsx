@@ -14,7 +14,7 @@ export default function PlayerPageMain() {
   return (
     <div className="w-full flex flex-col gap-6">
       <div id="track-info" className="text-center mt-8">
-        <div id="track-title" className="font-semibold">
+        <div id="track-title" className="font-semibold line-clamp-2">
           {title}
         </div>
         <div id="work-title" className="mt-2 text-sm opacity-60 line-clamp-2">
