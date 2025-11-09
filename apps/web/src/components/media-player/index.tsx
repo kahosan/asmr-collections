@@ -44,6 +44,7 @@ export default function MediaPlayer() {
 
   const onLoadStart = useCallback(async (e: MediaPlayingEvent) => {
     const content = await fetchTextTrackContent(mediaState.currentTrack?.subtitles?.url);
+    if (!content) return;
 
     const track = new TextTrack({
       content,

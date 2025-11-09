@@ -72,15 +72,19 @@ function SortableItem(props: { current?: Track, track: Track, index: number, onC
         current?.title === track.title && 'bg-accent'
       )}
       title={track.title}
+      onClick={onChange}
     >
-      <div className="max-w-64 truncate" onClick={onChange}>
+      <div className="max-w-64 truncate">
         {track.title}
       </div>
       <Button
         type="button"
         variant="ghost"
         size="icon-sm"
-        onClick={removeTrack}
+        onClick={e => {
+          e.stopPropagation();
+          removeTrack();
+        }}
       >
         <X />
       </Button>

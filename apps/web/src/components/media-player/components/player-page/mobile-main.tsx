@@ -12,16 +12,16 @@ export default function PlayerPageMain() {
   const workTitle = mediaState.work?.name || '未知作品';
 
   return (
-    <div className="mt-20 w-full">
+    <div className="w-full flex flex-col gap-6">
       <div id="track-info" className="text-center mt-8">
         <div id="track-title" className="font-semibold">
           {title}
         </div>
-        <div id="work-title" className="mt-2 text-sm opacity-60">
+        <div id="work-title" className="mt-2 text-sm opacity-60 line-clamp-2">
           {workTitle}
         </div>
       </div>
-      <div id="progress-bar" className="mt-4">
+      <div id="progress-bar">
         <TimeSlider.Root className="group relative w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden before:absolute before:inset-0 before:-top-2 before:-bottom-2 before:content-['']">
           <TimeSlider.Preview offset={5} className="opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-data-[dragging]:opacity-100">
             <TimeSlider.Value className="px-2 py-1 bg-background/80 backdrop-blur-sm text-xs rounded-md border border-border/50" />
@@ -37,10 +37,10 @@ export default function PlayerPageMain() {
           <Time className="time" type="duration" />
         </div>
       </div>
-      <div id="actions" className="flex justify-center items-center mt-10">
+      <div id="actions" className="flex justify-center items-center">
         <PlayerPageActions />
       </div>
-      <div id="volume-slider" className="w-full mt-10 flex justify-center items-center gap-2">
+      <div id="volume-slider" className="w-full flex justify-center items-center gap-2">
         <div className="w-[95%] flex items-center gap-2">
           <Volume1Icon className="min-max-size-6" />
           <VolumeSlider.Root className="group relative mx-[7.5px] h-1 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">

@@ -21,10 +21,10 @@ export default function MiddleControls() {
         />
       </div>
       <div id="track-info">
-        <div id="track-title" className="font-medium truncate text-sm max-sm:w-3/4">
+        <div id="track-title" className="font-medium truncate text-sm max-sm:w-42">
           {mediaState.currentTrack?.title || '未知曲目'}
         </div>
-        <div id="track-artist" className="text-xs opacity-60">
+        <div id="track-artist" className="text-xs opacity-60 max-sm:w-42">
           {mediaState.work?.artists.map(artist => artist.name).join('、') || '未知艺术家'}
         </div>
       </div>

@@ -55,7 +55,7 @@ export default function PlayerPage() {
     <AnimatePresence>
       {expand && (
         <motion.div
-          className="absolute right-0 w-full h-[100vh] rounded-md bg-card pt-18 pb-20 bottom-0 max-sm:pt-5 max-sm:pb-0"
+          className="fixed right-0 w-full h-[100dvh] rounded-md bg-card pt-18 pb-20 bottom-0 max-sm:pt-5 max-sm:pb-0"
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
@@ -88,48 +88,60 @@ export default function PlayerPage() {
                 ? (
                   <motion.div
                     key="main-content"
-                    className="flex flex-col items-center w-full"
+                    className="flex flex-col items-center w-full justify-between h-full"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
                     <PlayerPageActionsAbove />
-                    <div className="w-full flex flex-col items-center justify-between">
+                    <div className="w-full flex flex-col items-center">
                       <PlayerCover />
                       <PlayerPageMain />
                       <Button className="mt-10" variant="secondary">
                         <BackToWorkDetails />
                       </Button>
+                      <motion.div className="w-full mt-10">
+                        <PlayerSidePanel
+                          key={activeTab}
+                          onTabChange={handleTabChange}
+                          activeTab={activeTab}
+                          classNames={{
+                            scrollArea: 'hidden'
+                          }}
+                        />
+                      </motion.div>
                     </div>
                   </motion.div>
                 )
                 : (
-                  <motion.div
-                    key="controls"
-                    className="w-full flex justify-between"
-                    onClick={handleMainClick}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  >
-                    <MiddleControls />
-                    <div onClick={e => e.stopPropagation()}>
-                      <RightPlayControls />
-                    </div>
-                  </motion.div>
+                  <>
+                    <motion.div
+                      key="controls"
+                      className="w-full flex justify-between"
+                      onClick={handleMainClick}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    >
+                      <MiddleControls />
+                      <div onClick={e => e.stopPropagation()}>
+                        <RightPlayControls />
+                      </div>
+                    </motion.div>
+                    <motion.div className="w-full mt-10">
+                      <PlayerSidePanel
+                        key={activeTab}
+                        onTabChange={handleTabChange}
+                        activeTab={activeTab}
+                        classNames={{
+                          scrollArea: 'max-md:h-[calc(100dvh-10rem)]'
+                        }}
+                      />
+                    </motion.div>
+                  </>
                 )}
-              <motion.div className="w-full mt-auto">
-                <PlayerSidePanel
-                  key={activeTab}
-                  onTabChange={handleTabChange}
-                  activeTab={activeTab}
-                  classNames={{
-                    scrollArea: `max-md:h-[calc(100vh-10rem)] ${mainExpand ? 'hidden' : ''}`
-                  }}
-                />
-              </motion.div>
             </AnimatePresence>
           </div>
         </motion.div>

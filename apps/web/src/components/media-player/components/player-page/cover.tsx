@@ -11,7 +11,7 @@ export default function PlayerCover() {
   const data = mediaState.work;
 
   return (
-    <div className="w-full relative max-w-[60%] h-auto flex items-center self-center max-sm:self-auto max-sm:mt-20 max-sm:max-w-full">
+    <div className="w-full relative max-w-[60%] h-auto flex items-center self-center max-sm:self-auto max-sm:max-w-full">
       <div className="pb-[75%]" />
       <div className="bg-zinc-700 absolute inset-0 overflow-hidden rounded-xl">
         <img
