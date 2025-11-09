@@ -1,21 +1,16 @@
-import { Separator } from '~/components/ui/separator';
-
+import { MediaPlayer as VidstackPlayer, MediaProvider, MEDIA_KEY_SHORTCUTS, TextTrack } from '@vidstack/react';
 import type { MediaPlayingEvent } from '@vidstack/react';
-import { MediaPlayer as VidstackPlayer, MediaProvider, TextTrack, MEDIA_KEY_SHORTCUTS } from '@vidstack/react';
 
 import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 
-import { mediaAtom } from '~/hooks/use-media-state';
+import { mediaStateAtom } from '~/hooks/use-media-state';
 
-import { PlayerLayout } from './layout';
-
-import { extractFileExt } from '~/lib/utils';
+import { AudioPlayerLayout } from './layout';
+import { fetchTextTrackContent } from './utils';
 
 export default function MediaPlayer() {
-  const [mediaState, setMediaState] = useAtom(mediaAtom);
-
-  const subtitleType = extractFileExt(mediaState.currentTrack?.subtitles?.src ?? '') as 'vtt';
+  const [mediaState, setMediaState] = useAtom(mediaStateAtom);
 
   const changeTrack = useCallback((next = false) => {
     const currentIndex = mediaState.tracks?.findIndex(track => track.title === mediaState.currentTrack?.title);
@@ -29,7 +24,7 @@ export default function MediaPlayer() {
     setMediaState(state => ({ ...state, currentTrack: nextTrack }));
   }, [mediaState.currentTrack?.title, mediaState.tracks, setMediaState]);
 
-  const onPlaying = useCallback((e: MediaPlayingEvent) => {
+  const onPlaying = useCallback(() => {
     if ('mediaSession' in navigator) {
       const currentTrack = mediaState.currentTrack;
 
@@ -45,38 +40,39 @@ export default function MediaPlayer() {
       navigator.mediaSession.setActionHandler('previoustrack', () => changeTrack());
       navigator.mediaSession.setActionHandler('nexttrack', () => changeTrack(true));
     }
+  }, [changeTrack, mediaState.currentTrack, mediaState.work?.artists, mediaState.work?.cover, mediaState.work?.name]);
+
+  const onLoadStart = useCallback(async (e: MediaPlayingEvent) => {
+    const content = await fetchTextTrackContent(mediaState.currentTrack?.subtitles?.url);
 
     const track = new TextTrack({
-      src: mediaState.currentTrack?.subtitles?.src,
+      content,
       id: mediaState.currentTrack?.title,
       kind: 'subtitles',
-      type: subtitleType,
       label: 'Chinese',
       default: true
     });
 
-    e.target.textTracks.clear();
     e.target.textTracks.add(track);
-    e.target.textTracks.getById(track.id)?.setMode('showing');
-  }, [changeTrack, mediaState.currentTrack, mediaState.work?.artists, mediaState.work?.cover, mediaState.work?.name, subtitleType]);
+    track.setMode('showing');
+  }, [mediaState.currentTrack?.subtitles?.url, mediaState.currentTrack?.title]);
 
   if (!mediaState.open) return null;
 
   return (
-    <div className="relative h-16">
+    <div className="relative h-20 max-sm:z-10">
       <div className="fixed bottom-0 w-full">
-        <Separator />
         <VidstackPlayer
           autoPlay
           src={mediaState.currentTrack?.mediaStreamUrl}
-          onPlaying={e => onPlaying(e)}
+          onLoadStart={onLoadStart}
+          onPlaying={onPlaying}
           onEnded={() => changeTrack(true)}
           keyTarget="document"
           keyShortcuts={MEDIA_KEY_SHORTCUTS}
         >
           <MediaProvider />
-          <PlayerLayout
-            workId={mediaState.work?.id ?? ''}
+          <AudioPlayerLayout
             prev={() => changeTrack()}
             next={() => changeTrack(true)}
           />
