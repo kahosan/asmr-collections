@@ -3,12 +3,16 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { playerExpandAtom } from '../../hooks/use-player-expand';
 
+import { Button } from '~/components/ui/button';
+
 import PlayerCover from './cover';
 import PlayerSidePanel from './side-panel';
 import PlayerPageMain from './mobile-main';
 import MiddleControls from '../middle-controls';
 import PlayerPageActionsAbove from './actions-above';
 import RightPlayControls from '../right-controls/right-play';
+
+import BackToWorkDetails from '../settings-menu/back-to-work-details';
 
 type ActiveTab = 'playlist' | 'subtitles' | 'similar' | '';
 
@@ -74,7 +78,7 @@ export default function PlayerPage() {
             return () => window.removeEventListener('resize', checkMobile);
           }}
         >
-          <div className="mx-auto max-w-6xl flex px-10 h-full max-md:flex-col items-start gap-10 max-sm:hidden">
+          <div className="mx-auto max-w-7xl flex px-10 h-full max-md:flex-col items-start gap-10 max-sm:hidden">
             <PlayerCover />
             <PlayerSidePanel />
           </div>
@@ -94,6 +98,9 @@ export default function PlayerPage() {
                     <div className="w-full flex flex-col items-center justify-between">
                       <PlayerCover />
                       <PlayerPageMain />
+                      <Button className="mt-10" variant="secondary">
+                        <BackToWorkDetails />
+                      </Button>
                     </div>
                   </motion.div>
                 )
