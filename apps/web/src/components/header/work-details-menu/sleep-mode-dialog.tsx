@@ -5,7 +5,7 @@ import { Moon } from 'lucide-react';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 import { TimePicker } from '~/components/time-picker';
-import { mediaAtom } from '~/hooks/use-media-state';
+import { mediaStateAtom } from '~/hooks/use-media-state';
 
 interface SleepModeDialogProps {
   open: boolean
@@ -13,7 +13,7 @@ interface SleepModeDialogProps {
 }
 
 export default function SleepModeDialog({ open, setOpen }: SleepModeDialogProps) {
-  const setMediaState = useSetAtom(mediaAtom);
+  const setMediaState = useSetAtom(mediaStateAtom);
 
   const timer = useRef<number>(null);
 

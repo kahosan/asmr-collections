@@ -218,6 +218,13 @@ body {
   max-height: calc(var(--spacing) * --value(integer));
 }
 
+@utility min-max-size-* {
+  min-width: calc(var(--spacing) * --value(integer));
+  min-height: calc(var(--spacing) * --value(integer));
+  max-width: calc(var(--spacing) * --value(integer));
+  max-height: calc(var(--spacing) * --value(integer));
+}
+
 body[data-scroll-locked] {
   overflow: hidden !important;
   overscroll-behavior: contain;

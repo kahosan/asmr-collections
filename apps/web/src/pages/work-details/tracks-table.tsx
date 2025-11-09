@@ -15,7 +15,7 @@ import { Activity, useMemo, useRef } from 'react';
 import { match } from 'ts-pattern';
 
 import useSWRImmutable from 'swr/immutable';
-import { mediaAtom } from '~/hooks/use-media-state';
+import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { toast } from 'sonner';
 
@@ -48,7 +48,7 @@ interface TracksTableProps {
 }
 
 export default function TracksTabale({ work, search, settings }: TracksTableProps) {
-  const [mediaState, setMediaState] = useAtom(mediaAtom);
+  const [mediaState, setMediaState] = useAtom(mediaStateAtom);
   const navigate = useNavigate({ from: '/work-details/$id' });
 
   const { data: isExists } = useSWRImmutable<{ exists: boolean }>(
@@ -132,21 +132,31 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   }, [tracks, groupByType?.media]);
 
   const handlePlay = (track: MediaTrack, tracks?: MediaTrack[]) => {
+    const currentSubtitle = subtitleMatcher.find(track.title);
     setMediaState(state => ({
       ...state,
       work,
       open: true,
-      tracks: tracks?.map(item => ({
-        ...item,
-        subtitles: {
-          src: subtitleMatcher.find(item.title)?.url
-        }
-      })),
+      tracks: tracks?.map(item => {
+        const subtitle = subtitleMatcher.find(item.title);
+        return {
+          ...item,
+          subtitles: subtitle
+            ? {
+              title: subtitle.title,
+              url: subtitle.url
+            }
+            : undefined
+        };
+      }),
       currentTrack: {
         ...track,
-        subtitles: {
-          src: subtitleMatcher.find(track.title)?.url
-        }
+        subtitles: currentSubtitle
+          ? {
+            title: currentSubtitle.title,
+            url: currentSubtitle.url
+          }
+          : undefined
       }
     }));
   };
@@ -154,15 +164,19 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   const enqueueTrack = (track: MediaTrack) => {
     if (mediaState.tracks?.find(item => item.title === track.title)) return;
 
+    const subtitle = subtitleMatcher.find(track.title);
     setMediaState(state => ({
       ...state,
       tracks: [
         ...(state.tracks ?? []),
         {
           ...track,
-          subtitles: {
-            src: subtitleMatcher.find(track.title)?.url
-          }
+          subtitles: subtitle
+            ? {
+              title: subtitle.title,
+              url: subtitle.url
+            }
+            : undefined
         }
       ]
     }));

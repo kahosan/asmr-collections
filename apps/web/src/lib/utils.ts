@@ -4,8 +4,8 @@ import { twMerge } from 'tailwind-merge';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 
-import type { SubtitleInfo } from './subtitle-matcher';
 import type { Tracks } from '~/types/tracks';
+import type { SubtitleInfo } from '~/hooks/use-media-state';
 
 import { HTTPError } from './fetcher';
 

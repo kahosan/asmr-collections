@@ -1,10 +1,6 @@
 import Fuse from 'fuse.js';
 import type { IFuseOptions } from 'fuse.js';
-
-export interface SubtitleInfo {
-  title: string
-  url: string
-}
+import type { SubtitleInfo } from '~/hooks/use-media-state';
 
 export class SubtitleMatcher {
   constructor(
