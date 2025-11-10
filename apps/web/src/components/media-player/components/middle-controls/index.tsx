@@ -26,10 +26,10 @@ export default function MiddleControls() {
         />
       </div>
       <div id="track-info" className="flex-1">
-        <div id="track-title" className="font-medium truncate max-sm:w-42 max-lg:w-48 w-70" title={title}>
+        <div id="track-title" className="font-medium truncate max-sm:w-42 max-lg:max-w-48 max-w-70" title={title}>
           {title || '未知曲目'}
         </div>
-        <div id="track-artist" className="opacity-60 text-sm max-sm:w-42 max-lg:w-48 w-70 truncate">
+        <div id="track-artist" className="opacity-60 text-sm max-sm:w-42 max-lg:max-w-48 max-w-70 truncate">
           {mediaState.work?.artists.map((artist, index, array) => (
             <Fragment key={artist.name}>
               <Link
