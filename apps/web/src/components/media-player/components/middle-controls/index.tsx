@@ -1,8 +1,11 @@
+import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { MenuIcon } from 'lucide-react';
 import BackToWorkDetails from '../settings-menu/back-to-work-details';
+
+import { Link } from '@tanstack/react-router';
 
 import { Button } from '~/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
@@ -10,9 +13,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export default function MiddleControls() {
   const mediaState = useAtomValue(mediaStateAtom);
 
+  const title = mediaState.currentTrack?.title;
+
   return (
     <div id="middle-controls" className="flex items-center justify-center gap-2">
-      <div id="thumbnail-wrapper" className="w-12 h-12 bg-zinc-800 rounded-md overflow-hidden max-md:hidden max-sm:block">
+      <div id="thumbnail-wrapper" className="size-10 bg-zinc-800 rounded-md overflow-hidden max-md:hidden max-sm:block">
         <img
           id="thumbnail"
           className="w-full h-full object-cover"
@@ -20,12 +25,24 @@ export default function MiddleControls() {
           alt="Thumbnail"
         />
       </div>
-      <div id="track-info">
-        <div id="track-title" className="font-medium truncate text-sm max-sm:w-42">
-          {mediaState.currentTrack?.title || '未知曲目'}
+      <div id="track-info" className="flex-1">
+        <div id="track-title" className="font-medium truncate max-sm:w-42 max-lg:w-48 w-70" title={title}>
+          {title || '未知曲目'}
         </div>
-        <div id="track-artist" className="text-xs opacity-60 max-sm:w-42">
-          {mediaState.work?.artists.map(artist => artist.name).join('、') || '未知艺术家'}
+        <div id="track-artist" className="opacity-60 text-sm max-sm:w-42 max-lg:w-48 w-70 truncate">
+          {mediaState.work?.artists.map((artist, index, array) => (
+            <Fragment key={artist.name}>
+              <Link
+                to="/"
+                search={{ artistId: [artist.id] }}
+                disabled={!artist.id}
+                className="hover:underline underline-offset-4 mr-1"
+              >
+                {artist.name}
+              </Link>
+              {index < array.length - 1 && '、'}
+            </Fragment>
+          ))}
         </div>
       </div>
       <DropdownMenu modal={false}>
