@@ -61,7 +61,7 @@ export default function SubtitleSelector() {
       <SelectTrigger>
         <SelectValue />
       </SelectTrigger>
-      <SelectContent className="max-h-120">
+      <SelectContent className="max-h-120 max-w-80">
         {subtitles.map(subtitle => (
           <SelectItem key={subtitle.title} value={subtitle.title}>
             {subtitle.title}
