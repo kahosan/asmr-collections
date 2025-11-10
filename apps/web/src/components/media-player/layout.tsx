@@ -96,7 +96,9 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
                 <LeftControls />
               </div>
             </div>
-            <MiddleControls />
+            <div className="max-sm:pl-4">
+              <MiddleControls />
+            </div>
             <div className="flex-1 flex justify-end pr-4">
               <div onClick={e => e.stopPropagation()}>
                 <RightControls />

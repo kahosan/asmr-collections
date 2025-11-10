@@ -16,7 +16,7 @@ export default function MiddleControls() {
   const title = mediaState.currentTrack?.title;
 
   return (
-    <div id="middle-controls" className="flex items-center justify-center gap-2 max-sm:pl-4">
+    <div id="middle-controls" className="flex items-center justify-center gap-2">
       <div id="thumbnail-wrapper" className="size-10 bg-zinc-800 rounded-md overflow-hidden max-md:hidden max-sm:block">
         <img
           id="thumbnail"
