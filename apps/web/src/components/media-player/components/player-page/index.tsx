@@ -22,6 +22,8 @@ export default function PlayerPage() {
 
   const [mainExpand, setMainExpand] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('');
+  const [isAnimating, setIsAnimating] = useState(false);
+
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined')
       return window.innerWidth < 640;
@@ -61,13 +63,18 @@ export default function PlayerPage() {
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          drag={mainExpand && isMobile ? 'y' : false}
+          drag={mainExpand && isMobile && !isAnimating ? 'y' : false}
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0, bottom: 0.5 }}
           onDragEnd={(_, info) => {
             // 如果向下拖动超过 100px 或速度超过 300,则关闭
             if ((info.offset.y > 100 || info.velocity.y > 300) && (mainExpand && isMobile))
               setExpand(false);
+          }}
+          onAnimationStart={() => setIsAnimating(true)}
+          onAnimationComplete={() => setIsAnimating(false)}
+          style={{
+            pointerEvents: isAnimating ? 'none' : 'auto'
           }}
           ref={() => {
             const checkMobile = () => {

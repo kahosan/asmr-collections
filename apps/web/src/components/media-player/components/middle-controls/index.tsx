@@ -36,7 +36,7 @@ export default function MiddleControls() {
                 to="/"
                 search={{ artistId: [artist.id] }}
                 disabled={!artist.id}
-                className="hover:underline underline-offset-4 mr-1"
+                className="hover:underline underline-offset-4 mr-1 max-sm:pointer-events-none"
               >
                 {artist.name}
               </Link>
