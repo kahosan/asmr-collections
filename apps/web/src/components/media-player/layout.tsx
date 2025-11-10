@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+import { useShortcut } from '~/hooks/use-shortcut';
 import { usePlayerExpand } from './hooks/use-player-expand';
 
 import { MediaActionsContext } from './context/media-actions';
@@ -27,6 +29,10 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
   const handleClick = () => {
     setExpand(p => !p);
   };
+
+  useShortcut('Escape', () => {
+    setExpand(false);
+  }, true);
 
   return (
     <MediaActionsContext value={mediaActions}>
