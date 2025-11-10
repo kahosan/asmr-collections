@@ -30,7 +30,9 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const remote = useMediaRemote();
   const textTrackState = useMediaState('textTrack');
   const currentTime = useMediaState('currentTime');
+
   const targetRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<Element | null>(null);
 
   const [autoScroll, setAutoScroll] = useState(true);
 
@@ -53,23 +55,32 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
     remote.seek(startTime + 0.5);
   };
 
+  const handleAutoScrollChange = () => {
+    setAutoScroll(p => !p);
+
+    if (viewportRef.current && activeCueIndex) {
+      if (!targetRef.current) return;
+      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+  };
+
   const isAutoScroll = useEffectEvent(() => {
     return autoScroll;
   });
 
   useEffect(() => {
-    const viewport = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]');
-
     // 自动滚动
-    if (viewport && activeCueIndex) {
+    if (viewportRef.current && activeCueIndex) {
       if (!isAutoScroll() || !targetRef.current) return;
       targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [activeCueIndex, scrollAreaRef]);
+  }, [activeCueIndex]);
 
   useEffect(() => {
     if (!textTrackState) return;
-    const viewport = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]');
+
+    viewportRef.current = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]') ?? null;
+    const viewport = viewportRef.current;
 
     const onLoad = () => {
       // 为什么要自建一个 state，因为用 useMediaState 取出来的 TextTrack 对象不会更新渲染
@@ -106,7 +117,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
           variant="secondary"
           size="icon-sm"
           className="text-sm"
-          onClick={() => setAutoScroll(!autoScroll)}
+          onClick={handleAutoScrollChange}
         >
           {autoScroll ? <RefreshCwIcon /> : <RefreshCwOffIcon />}
         </Button>
