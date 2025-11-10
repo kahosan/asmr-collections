@@ -40,7 +40,7 @@ export default function PlayerSidePanel({ activeTab = 'playlist', onTabChange, c
       ]}
     >
       <ScrollArea
-        className={cn('max-md:h-60 h-[calc(100dvh-20rem)]', classNames?.scrollArea)}
+        className={cn('max-md:h-60 h-[calc(100dvh-17rem)]', classNames?.scrollArea)}
         ref={scrollAreaRef}
       >
         <TabsContent value="playlist">
