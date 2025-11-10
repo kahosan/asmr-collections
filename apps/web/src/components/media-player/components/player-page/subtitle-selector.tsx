@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { focusAtom } from 'jotai-optics';
 import { useAtom, useAtomValue } from 'jotai';
 import { mediaStateAtom } from '~/hooks/use-media-state';
+import type { SubtitleInfo } from '~/hooks/use-media-state';
 
 import {
   Select,
@@ -26,8 +27,10 @@ export default function SubtitleSelector() {
 
   const currentSubtitle = currentTrack?.subtitles;
 
+  // 去重字幕名称一致的，然后排序
   const subtitles = useMemo(() => {
-    return allSubtitles?.sort((a, b) => a.title.localeCompare(b.title));
+    return Array.from<SubtitleInfo>(allSubtitles?.reduce((map, item) => map.set(item.title, item), new Map()).values() || [])
+      .sort((a, b) => a.title.localeCompare(b.title));
   }, [allSubtitles]);
 
   const handleChange = async (title: string) => {
@@ -59,7 +62,7 @@ export default function SubtitleSelector() {
         <SelectValue />
       </SelectTrigger>
       <SelectContent className="max-h-120">
-        {subtitles?.map(subtitle => (
+        {subtitles.map(subtitle => (
           <SelectItem key={subtitle.title} value={subtitle.title}>
             {subtitle.title}
           </SelectItem>

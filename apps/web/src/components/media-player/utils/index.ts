@@ -8,7 +8,9 @@ export async function fetchTextTrackContent(src?: string) {
   const fileType = extractFileExt(src).toLowerCase();
 
   try {
-    const text = await fetcher<string>(src);
+    const data = await fetcher<string | ArrayBuffer>(src);
+    const text = typeof data === 'string' ? data : new TextDecoder('utf-8').decode(data);
+
     if (fileType !== 'lrc')
       return text;
 
@@ -19,6 +21,9 @@ export async function fetchTextTrackContent(src?: string) {
     for (const line of lines) {
       const timeTagMatch = /\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?]/.exec(line);
       if (timeTagMatch) {
+        const content = line.replace(timeTagMatch[0], '').trim();
+        if (!content) continue;
+
         const minutes = Number.parseInt(timeTagMatch[1], 10);
         const seconds = Number.parseInt(timeTagMatch[2], 10);
         const milliseconds = timeTagMatch[3] ? Number.parseInt(timeTagMatch[3].padEnd(3, '0'), 10) : 0;
@@ -29,7 +34,6 @@ export async function fetchTextTrackContent(src?: string) {
         const adjustedEndSeconds = endSeconds % 60;
         const endTime = `${String(endMinutes).padStart(2, '0')}:${String(adjustedEndSeconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
 
-        const content = line.replace(timeTagMatch[0], '').trim();
         vttLines.push(`${startTime} --> ${endTime}\n${content}\n`);
       }
     }

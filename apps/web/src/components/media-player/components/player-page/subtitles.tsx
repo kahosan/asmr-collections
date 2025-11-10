@@ -1,7 +1,7 @@
 import { useMediaRemote, useMediaState } from '@vidstack/react';
 import type { TextTrack } from '@vidstack/react';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 
 import { Button } from '~/components/ui/button';
 import SubtitleSelector from './subtitle-selector';
@@ -33,11 +33,6 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const targetRef = useRef<HTMLDivElement>(null);
 
   const [autoScroll, setAutoScroll] = useState(true);
-  const autoScrollRef = useRef(autoScroll);
-
-  useEffect(() => {
-    autoScrollRef.current = autoScroll;
-  }, [autoScroll]);
 
   const [textTrack, setTextTrack] = useState<TextTrack | null>(textTrackState);
 
@@ -55,19 +50,26 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   }, [textTrack, currentTime]);
 
   const handleCueClick = (startTime: number) => {
-    remote.seek(startTime);
+    remote.seek(startTime + 0.5);
   };
+
+  const isAutoScroll = useEffectEvent(() => {
+    return autoScroll;
+  });
+
+  useEffect(() => {
+    const viewport = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]');
+
+    // 自动滚动
+    if (viewport && activeCueIndex) {
+      if (!isAutoScroll() || !targetRef.current) return;
+      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activeCueIndex, scrollAreaRef]);
 
   useEffect(() => {
     if (!textTrackState) return;
     const viewport = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]');
-
-    const handleScroll = () => {
-      if (viewport && activeCueIndex) {
-        if (!autoScrollRef.current || !targetRef.current) return;
-        targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    };
 
     const onLoad = () => {
       // 为什么要自建一个 state，因为用 useMediaState 取出来的 TextTrack 对象不会更新渲染
@@ -78,12 +80,9 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
     textTrackState.addEventListener('load', onLoad);
 
     const onUserScroll = () => {
-      if (!autoScrollRef.current) return;
+      if (!isAutoScroll()) return;
       setAutoScroll(false);
     };
-
-    // 当活动 cue 变化时滚动
-    handleScroll();
 
     viewport?.addEventListener('wheel', onUserScroll);
     viewport?.addEventListener('touchmove', onUserScroll);
@@ -94,7 +93,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
       viewport?.removeEventListener('wheel', onUserScroll);
       viewport?.removeEventListener('touchmove', onUserScroll);
     };
-  }, [textTrackState, scrollAreaRef, activeCueIndex]);
+  }, [scrollAreaRef, textTrackState]);
 
   if (!textTrack)
     return <div className="w-full my-8 text-center">暂无字幕</div>;
@@ -119,7 +118,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
             <div
               ref={isActive ? targetRef : null}
               data-active={isActive}
-              key={cue.id}
+              key={cue.text + cue.startTime}
               onClick={() => handleCueClick(cue.startTime)}
               className={cn(
                 isActive && 'bg-accent',

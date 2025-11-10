@@ -87,7 +87,6 @@ export default function PlayerPage() {
               {mainExpand
                 ? (
                   <motion.div
-                    key="main-content"
                     className="flex flex-col items-center w-full justify-between h-full"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -117,7 +116,6 @@ export default function PlayerPage() {
                 : (
                   <>
                     <motion.div
-                      key="controls"
                       className="w-full flex justify-between"
                       onClick={handleMainClick}
                       initial={{ opacity: 0, scale: 0.95 }}
