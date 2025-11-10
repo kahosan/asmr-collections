@@ -55,7 +55,8 @@ export default function PlayerPage() {
     <AnimatePresence>
       {expand && (
         <motion.div
-          className="fixed right-0 w-full h-[100dvh] rounded-md bg-card pt-18 pb-20 bottom-0 max-sm:pt-5 max-sm:pb-0"
+          key="player-page"
+          className="fixed inset-0 w-full rounded-md bg-card pt-18 pb-20 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]"
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
@@ -87,6 +88,7 @@ export default function PlayerPage() {
               {mainExpand
                 ? (
                   <motion.div
+                    key="main-content"
                     className="flex flex-col items-center w-full justify-between h-full"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -116,6 +118,7 @@ export default function PlayerPage() {
                 : (
                   <>
                     <motion.div
+                      key="controls"
                       className="w-full flex justify-between"
                       onClick={handleMainClick}
                       initial={{ opacity: 0, scale: 0.95 }}

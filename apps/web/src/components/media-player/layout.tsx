@@ -39,6 +39,7 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
       <PlayerPage />
 
       <motion.div
+        key="desktop-controls"
         className="max-sm:hidden w-full h-20 flex items-center bg-zinc-50 dark:bg-zinc-900 relative z-10"
         onClick={handleClick}
         initial={{ y: 100 }}
@@ -65,6 +66,7 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
       <AnimatePresence>
         {!expand && (
           <motion.div
+            key="mobile-controls"
             onClick={handleClick}
             initial={{ y: 100 }}
             animate={{ y: 0 }}
