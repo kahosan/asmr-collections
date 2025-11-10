@@ -20,7 +20,7 @@ export interface SettingOptions {
 
 export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__', {
   kikoeru: 'https://asmr.one/work',
-  asmrOneApi: 'https://api.asmr-200.com',
+  asmrOneApi: 'https://api.asmr.one',
   showWorkDetail: true,
   voiceLibraryOptions: {
     useLocalVoiceLibrary: false,
