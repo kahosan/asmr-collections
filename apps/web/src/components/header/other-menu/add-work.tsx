@@ -5,7 +5,6 @@ import { Separator } from '~/components/ui/separator';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 
-import { mutate } from 'swr';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -14,8 +13,10 @@ import { CopyIcon } from 'lucide-react';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { logger } from '~/lib/logger';
-import type { BatchOperationResponse, WorkCreateResponse } from '~/types/work';
 import { writeClipboard } from '~/lib/utils';
+import { mutateWorks } from '~/lib/mutation';
+
+import type { BatchOperationResponse, WorkCreateResponse } from '~/types/work';
 
 export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [id, setId] = useState<string>();
@@ -58,7 +59,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           return `${id} 添加失败`;
         },
         finally() {
-          mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+          mutateWorks();
         }
       }
     });
@@ -95,7 +96,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           }
         },
         finally() {
-          mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+          mutateWorks();
         }
       }
     });

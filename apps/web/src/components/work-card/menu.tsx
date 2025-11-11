@@ -5,7 +5,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 
 import { MenuIcon } from 'lucide-react';
 
-import { mutate } from 'swr';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -13,6 +12,7 @@ import { useAtomValue } from 'jotai';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
+import { mutateWorks } from '~/lib/mutation';
 import { extractFileExt } from '~/lib/utils';
 
 import type { Work } from '~/types/work';
@@ -38,7 +38,7 @@ export default function Menu({ work }: Props) {
         error: `${work.id} 数据更新失败`,
         finally() {
           setOpen(false);
-          mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+          mutateWorks();
         }
       }
     });
@@ -62,7 +62,7 @@ export default function Menu({ work }: Props) {
         error: `${work.id} 删除失败`,
         finally() {
           setOpen(false);
-          mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+          mutateWorks();
         }
       }
     });

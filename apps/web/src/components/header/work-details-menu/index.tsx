@@ -21,6 +21,7 @@ import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
+import { mutateWorkInfo } from '~/lib/mutation';
 import { showSettingDialogAtom } from '~/lib/store';
 
 export function WorkDetailsMenu() {
@@ -55,7 +56,10 @@ export function WorkDetailsMenu() {
         loading: `${id} 删除中...`,
         success: `${id} 删除成功`,
         error: `${id} 删除失败`,
-        finally() { mutate(); }
+        finally() {
+          mutate();
+          mutateWorkInfo(id);
+        }
       }
     });
   };
@@ -73,7 +77,10 @@ export function WorkDetailsMenu() {
           return data.message;
         },
         error: `${id} 添加失败`,
-        finally() { mutate(); }
+        finally() {
+          mutate();
+          mutateWorkInfo(id);
+        }
       }
     });
   };

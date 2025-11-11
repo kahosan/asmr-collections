@@ -1,8 +1,8 @@
-import { mutate } from 'swr';
-
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
+
+import { mutateWorkInfo } from '~/lib/mutation';
 
 export default function UpdateMenu({ id }: { id: string }) {
   const [refreshAction, refreshIsMutating] = useToastMutation('refresh');
@@ -16,7 +16,7 @@ export default function UpdateMenu({ id }: { id: string }) {
         success: `${id} 数据更新成功`,
         error: `${id} 数据更新失败`,
         finally() {
-          mutate(key => typeof key === 'string' && key.startsWith('/api/work'));
+          mutateWorkInfo(id);
         }
       }
     });
@@ -31,7 +31,7 @@ export default function UpdateMenu({ id }: { id: string }) {
         success: `${id} 向量信息更新成功`,
         error: `${id} 向量信息更新失败`,
         finally() {
-          mutate(key => typeof key === 'string' && key.startsWith('/api/work'));
+          mutateWorkInfo(id);
         }
       }
     });
