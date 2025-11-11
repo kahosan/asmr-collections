@@ -1,15 +1,15 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { cn } from '~/lib/utils';
-import { playerExpandAtom } from '../../hooks/use-player-expand';
+import { usePlayerExpand } from '../../hooks/use-player-expand';
 
 export default function PlayerCover({ ...rest }: React.HTMLAttributes<HTMLDivElement>) {
   const mediaState = useAtomValue(mediaStateAtom);
   const isHiddenImage = useAtomValue(hiddenImageAtom);
-  const setPlayerExpand = useSetAtom(playerExpandAtom);
+  const setPlayerExpand = usePlayerExpand()[1];
 
   const navigate = useNavigate();
 

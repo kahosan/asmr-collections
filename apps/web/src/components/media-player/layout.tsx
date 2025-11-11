@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useShortcut } from '~/hooks/use-shortcut';
@@ -33,22 +33,6 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
   useShortcut('Escape', () => {
     setExpand(false);
   }, true);
-
-  useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      e.preventDefault();
-      setExpand(false);
-      window.history.pushState(null, '', window.location.href);
-    };
-
-    // 添加一个历史记录条目，以便拦截返回
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [setExpand]);
 
   return (
     <MediaActionsContext value={mediaActions}>

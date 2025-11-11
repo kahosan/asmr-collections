@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
-import { playerExpandAtom } from '../../hooks/use-player-expand';
+import { usePlayerExpand } from '../../hooks/use-player-expand';
 
 import PlayerCover from './cover';
 import PlayerSidePanel from './side-panel';
@@ -13,8 +12,7 @@ import RightPlayControls from '../right-controls/right-play';
 type ActiveTab = 'playlist' | 'subtitles' | 'similar' | '';
 
 export default function PlayerPage() {
-  const expand = useAtomValue(playerExpandAtom);
-  const setExpand = useSetAtom(playerExpandAtom);
+  const [expand, setExpand] = usePlayerExpand();
 
   const [mainExpand, setMainExpand] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('');
