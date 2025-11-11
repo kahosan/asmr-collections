@@ -1,4 +1,4 @@
-import { PauseIcon, PlayIcon, RotateCcwIcon, RotateCwIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
+import { Loader2Icon, PauseIcon, PlayIcon, RotateCcwIcon, RotateCwIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { SeekButton, Time, useMediaRemote, useMediaState } from '@vidstack/react';
@@ -8,10 +8,13 @@ import { useMediaActions } from '../../context/media-actions';
 export default function PlayerPageActions() {
   const actions = useMediaActions();
   const playing = useMediaState('playing');
+  const canPlay = useMediaState('canPlay');
 
   const remote = useMediaRemote();
 
   const handlePlayPause = () => {
+    if (!canPlay) return;
+
     if (playing)
       remote.pause();
     else
@@ -27,7 +30,7 @@ export default function PlayerPageActions() {
         className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors"
         seconds={-10}
       >
-        <RotateCcwIcon className="min-max-size-9 cursor-pointer" />
+        <RotateCcwIcon className="min-max-size-8 cursor-pointer" />
       </SeekButton>
       <motion.div
         className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors"
@@ -41,9 +44,11 @@ export default function PlayerPageActions() {
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.1, ease: 'easeInOut' }}
           >
-            {playing
-              ? <PauseIcon className="min-max-size-15 cursor-pointer" fill="currentColor" />
-              : <PlayIcon className="min-max-size-15 cursor-pointer" fill="currentColor" />}
+            {canPlay
+              ? (playing
+                ? <PauseIcon className="min-max-size-13 cursor-pointer" fill="currentColor" strokeWidth={0} />
+                : <PlayIcon className="min-max-size-13 cursor-pointer" fill="currentColor" strokeWidth={0} />)
+              : <Loader2Icon className="min-max-size-13 cursor-pointer animate-spin" />}
           </motion.div>
         </AnimatePresence>
       </motion.div>
@@ -51,7 +56,7 @@ export default function PlayerPageActions() {
         className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors"
         seconds={10}
       >
-        <RotateCwIcon className="min-max-size-9 cursor-pointer" />
+        <RotateCwIcon className="min-max-size-8 cursor-pointer" />
       </SeekButton>
       <div className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors">
         <SkipForwardIcon className="min-max-size-6 cursor-pointer" fill="currentColor" onClick={() => actions?.nextTrack()} />

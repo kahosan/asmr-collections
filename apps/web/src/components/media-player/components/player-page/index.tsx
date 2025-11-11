@@ -3,16 +3,12 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { playerExpandAtom } from '../../hooks/use-player-expand';
 
-import { Button } from '~/components/ui/button';
-
 import PlayerCover from './cover';
 import PlayerSidePanel from './side-panel';
 import PlayerPageMain from './mobile-main';
 import MiddleControls from '../middle-controls';
 import PlayerPageActionsAbove from './actions-above';
 import RightPlayControls from '../right-controls/right-play';
-
-import BackToWorkDetails from '../settings-menu/back-to-work-details';
 
 type ActiveTab = 'playlist' | 'subtitles' | 'similar' | '';
 
@@ -94,17 +90,14 @@ export default function PlayerPage() {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
                     <PlayerPageActionsAbove />
+                    <PlayerCover onPointerDown={e => dragControls.start(e)} />
                     <div
                       className="w-full flex flex-col items-center touch-auto"
                       onPointerDown={e => {
                         e.stopPropagation();
                       }}
                     >
-                      <PlayerCover onPointerDown={e => dragControls.start(e)} />
                       <PlayerPageMain />
-                      <Button className="mt-10" variant="secondary">
-                        <BackToWorkDetails />
-                      </Button>
                       <motion.div className="w-full mt-10">
                         <PlayerSidePanel
                           key={activeTab}

@@ -1,4 +1,4 @@
-import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
+import { Loader2Icon, PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { Time, useMediaRemote, useMediaState } from '@vidstack/react';
@@ -8,10 +8,13 @@ import { useMediaActions } from '../../context/media-actions';
 export default function LeftControls() {
   const actions = useMediaActions();
   const playing = useMediaState('playing');
+  const canPlay = useMediaState('canPlay');
 
   const remote = useMediaRemote();
 
   const handlePlayPause = () => {
+    if (!canPlay) return;
+
     if (playing)
       remote.pause();
     else
@@ -35,9 +38,11 @@ export default function LeftControls() {
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.1, ease: 'easeInOut' }}
           >
-            {playing
-              ? <PauseIcon className="min-max-size-9 cursor-pointer" fill="currentColor" />
-              : <PlayIcon className="min-max-size-9 cursor-pointer" fill="currentColor" />}
+            {canPlay
+              ? (playing
+                ? <PauseIcon className="min-max-size-9 cursor-pointer" fill="currentColor" strokeWidth={0} />
+                : <PlayIcon className="min-max-size-9 cursor-pointer" fill="currentColor" strokeWidth={0} />)
+              : <Loader2Icon className="min-max-size-9 cursor-pointer animate-spin" />}
           </motion.div>
         </AnimatePresence>
       </motion.div>
