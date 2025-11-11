@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@henrygd/queue": "^1.1.1",
+    "@prisma/adapter-neon": "^6.19.0",
     "@prisma/client": "^6.17.1",
     "cheerio": "^1.1.2",
     "dotenv-cli": "^8.0.0",

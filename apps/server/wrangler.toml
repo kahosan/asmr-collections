@@ -1,0 +1,8 @@
+name = "asmr-collections"
+main = "cloudflare/index.ts"
+compatibility_date = "2025-04-01"
+compatibility_flags = [ "nodejs_compat", "nodejs_compat_populate_process_env" ]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
