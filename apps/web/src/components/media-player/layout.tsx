@@ -88,7 +88,7 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
             animate={{ y: 0 }}
             exit={{ y: 100 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="sm:hidden w-full h-20 flex items-center bg-zinc-50 dark:bg-zinc-900 absolute bottom-0"
+            className="sm:hidden w-full h-15 flex items-center bg-zinc-50 dark:bg-zinc-900 absolute bottom-0 pb-[env(safe-area-inset-bottom)]"
           >
             <ProgressSlider onClick={e => e.stopPropagation()} />
             <div className="flex-1 flex max-sm:hidden pl-4">
