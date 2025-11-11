@@ -7,10 +7,10 @@ import {
 
 import useSWR from 'swr';
 import { useState } from 'react';
-import fetchp from 'fetch-jsonp';
+import { fetchJsonp } from 'foxact/fetch-jsonp';
 
 async function fetcher<T>(key: string) {
-  return fetchp(key, { referrerPolicy: 'no-referrer-when-downgrade' }).then(res => res.json() as Promise<T>);
+  return fetchJsonp<T>(callbackName => `${key}&callback=${callbackName}`);
 }
 
 interface Embed {
@@ -20,7 +20,7 @@ interface Embed {
 export default function AuditionDrawer({ workId, originalId }: { workId: string, originalId?: string }) {
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useSWR<Embed>(
-    open ? `https://chobit.cc/api/v1/dlsite/embed?workno=${originalId ?? workId}&callback=onloadChobitCallback` : null,
+    open ? `https://chobit.cc/api/v1/dlsite/embed?workno=${originalId ?? workId}` : null,
     fetcher
   );
 
