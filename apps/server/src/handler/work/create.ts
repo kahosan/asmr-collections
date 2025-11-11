@@ -48,8 +48,10 @@ createApp.post('/create/:id', async c => {
   try {
     const work = await createWork(data, id);
 
-    if (embedding)
-      await prisma.$executeRaw`UPDATE "Work" SET embedding = ${embedding}::vector WHERE id = ${work.id}`;
+    if (embedding) {
+      const vectorString = `[${embedding.join(',')}]`;
+      await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${work.id}`;
+    }
 
     return c.json({
       data: work,

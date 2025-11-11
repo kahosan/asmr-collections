@@ -89,7 +89,10 @@ updateApp.put('/refresh/embedding/:id', async c => {
 
   try {
     const embedding = await generateEmbedding(data);
-    if (embedding) await prisma.$executeRaw`UPDATE "Work" SET embedding = ${embedding}::vector WHERE id = ${id}`;
+    if (embedding) {
+      const vectorString = `[${embedding.join(',')}]`;
+      await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
+    }
 
     return c.json({ message: '向量更新成功' });
   } catch (e) {

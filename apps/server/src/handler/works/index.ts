@@ -228,11 +228,12 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
   if (embeddingText === undefined || embeddingText.length === 0)
     throw new Error('无法生成文本向量');
 
+  const vectorString = `[${embeddingText.join(',')}]`;
   const prisma = getPrisma();
 
   const _i = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM "Work"
-    ORDER BY embedding <=> ${embeddingText}::vector
+    ORDER BY embedding <=> ${vectorString}::vector
     LIMIT 20;
   `;
 
