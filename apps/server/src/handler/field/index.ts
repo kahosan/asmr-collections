@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { formatError } from '../utils';
 
 const modelFields = new Set(['genre', 'work', 'artist', 'circle', 'series', 'illustrator']);
@@ -8,6 +8,7 @@ export const fieldApp = new Hono();
 
 fieldApp.get('/:field', async c => {
   const { field } = c.req.param();
+  const prisma = getPrisma();
 
   try {
     if (modelFields.has(field)) {

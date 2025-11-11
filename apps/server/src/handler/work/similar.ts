@@ -1,12 +1,14 @@
 import type { Work } from '~/types/collection';
 import { Hono } from 'hono';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { filterSubtitles, formatError } from '../utils';
 
 export const similarApp = new Hono();
 
 similarApp.get('/similar/:id', async c => {
   const { id } = c.req.param();
+
+  const prisma = getPrisma();
 
   try {
     const similarWorks = await prisma.$queryRaw<Work[]>`

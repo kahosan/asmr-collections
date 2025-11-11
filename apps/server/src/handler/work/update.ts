@@ -1,6 +1,6 @@
 import type { WorkInfo } from '~/types/source';
 import { Hono } from 'hono';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { formatError, generateEmbedding, workIsExistsInDB } from '../utils';
@@ -48,6 +48,8 @@ updateApp.put('/upload/subtitles/:id', async c => {
     if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 400);
 
+    const prisma = getPrisma();
+
     const work = await prisma.work.update({
       where: { id },
       data: {
@@ -83,6 +85,8 @@ updateApp.put('/refresh/embedding/:id', async c => {
 
   if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
 
+  const prisma = getPrisma();
+
   try {
     const embedding = await generateEmbedding(data);
     if (embedding) await prisma.$executeRaw`UPDATE "Work" SET embedding = ${embedding}::vector WHERE id = ${id}`;
@@ -106,6 +110,8 @@ export async function updateWork(data: WorkInfo, id: string) {
     childWorknos: data.translation_info.child_worknos,
     lang: data.translation_info.lang
   };
+
+  const prisma = getPrisma();
 
   await prisma.work.update({
     where: { id },

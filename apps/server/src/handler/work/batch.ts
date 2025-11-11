@@ -1,7 +1,7 @@
 import type { WorkInfo } from '~/types/source';
 import { newQueue } from '@henrygd/queue';
 import { Hono } from 'hono';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
 import { generateEmbedding, workIsExistsInDB } from '../utils';
@@ -85,6 +85,8 @@ batchApp.post('/batch/create', async c => {
   const illustrators = validData
     .flatMap(({ data }) => data.illustrators?.map(name => ({ name })) || []);
 
+  const prisma = getPrisma();
+
   // 步骤 3: 批量预创建所有关联数据（避免 connectOrCreate 的并发问题）
   try {
     // 创建 circles
@@ -167,6 +169,8 @@ batchApp.post('/batch/create', async c => {
 });
 
 batchApp.post('/batch/refresh', async c => {
+  const prisma = getPrisma();
+
   const targetIds = await prisma.work.findMany({ select: { id: true } })
     .then(works => works.map(w => w.id));
 

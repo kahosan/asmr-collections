@@ -1,7 +1,7 @@
 import type { WorkInfo } from '~/types/source';
 
 import { Hono } from 'hono';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
@@ -43,6 +43,8 @@ createApp.post('/create/:id', async c => {
     console.error(`${id} 生成向量失败:`, e);
   }
 
+  const prisma = getPrisma();
+
   try {
     const work = await createWork(data, id);
 
@@ -59,6 +61,8 @@ createApp.post('/create/:id', async c => {
 });
 
 export function createWork(data: WorkInfo, id: string) {
+  const prisma = getPrisma();
+
   return prisma.work.create({
     data: {
       id,

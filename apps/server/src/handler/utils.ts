@@ -3,7 +3,7 @@ import type { WorkInfo } from '~/types/source';
 
 import * as fs from 'node:fs/promises';
 
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 
 export async function workIsExistsInLocal(path: PathLike): Promise<boolean> {
@@ -16,6 +16,7 @@ export async function workIsExistsInLocal(path: PathLike): Promise<boolean> {
 }
 
 export function workIsExistsInDB(id: string) {
+  const prisma = getPrisma();
   return prisma.work.findUnique({ where: { id }, select: { id: true } });
 }
 

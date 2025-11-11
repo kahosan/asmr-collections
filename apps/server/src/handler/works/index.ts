@@ -1,13 +1,13 @@
-import type { Prisma } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { Work } from '~/types/collection';
 import { join } from 'node:path';
 
 import { Hono } from 'hono';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { filterSubtitles, formatError, generateEmbedding, workIsExistsInLocal } from '../utils';
 
-type FindManyWorksQuery = Parameters<typeof prisma.work.findMany>[0];
+type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
 export const worksApp = new Hono();
 
@@ -177,6 +177,8 @@ worksApp.get('/', async c => {
     return c.json(formatError(e), 500);
   }
 
+  const prisma = getPrisma();
+
   try {
     if (artistCount) {
       const works = await prisma.work.findMany(queryArgs)
@@ -226,6 +228,8 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
   if (embeddingText === undefined || embeddingText.length === 0)
     throw new Error('无法生成文本向量');
 
+  const prisma = getPrisma();
+
   const _i = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM "Work"
     ORDER BY embedding <=> ${embeddingText}::vector
@@ -249,6 +253,8 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
 };
 
 async function getLocalWorkIds(voiceLibrary: string) {
+  const prisma = getPrisma();
+
   const ids = await prisma.work.findMany({ select: { id: true } });
 
   const results = await Promise.all(

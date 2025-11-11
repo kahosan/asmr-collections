@@ -2,7 +2,7 @@ import { fileTypeFromBuffer } from 'file-type';
 
 import { Hono } from 'hono';
 
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { formatError, workIsExistsInDB } from '../utils';
 
 import { batchApp } from './batch';
@@ -22,6 +22,8 @@ export const workApp = new Hono()
 
 workApp.get('/:id', async c => {
   const { id } = c.req.param();
+
+  const prisma = getPrisma();
 
   try {
     const work = await prisma.work.findUnique({
@@ -51,6 +53,8 @@ workApp.get('/subtitles/:id', async c => {
   try {
     if (!await workIsExistsInDB(id))
       return c.json({ message: '收藏不存在' }, 404);
+
+    const prisma = getPrisma();
 
     const work = await prisma.work.findUnique({
       where: { id },

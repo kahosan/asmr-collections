@@ -2,7 +2,7 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Hono } from 'hono';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { formatError, workIsExistsInLocal } from '../utils';
 
 export const libraryApp = new Hono();
@@ -21,6 +21,8 @@ libraryApp.post('/sync', async c => {
 
       return ids;
     });
+
+    const prisma = getPrisma();
 
     const allDatabaseWorkIds = await prisma.work.findMany({ select: { id: true } })
       .then(ids => ids.map(id => id.id));

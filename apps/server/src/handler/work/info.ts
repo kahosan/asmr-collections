@@ -1,6 +1,6 @@
 import type { WorkInfoResp } from '~/types/collection';
 import { Hono } from 'hono';
-import prisma from '~/lib/db';
+import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
 
@@ -9,6 +9,8 @@ export const infoApp = new Hono();
 async function processArtists(names: string[]) {
   if (!names.length)
     return [];
+
+  const prisma = getPrisma();
 
   const records = await prisma.artist.findMany({
     where: { name: { in: names } }
@@ -29,6 +31,8 @@ async function processArtists(names: string[]) {
 async function processIllustrators(names: string[]) {
   if (!names.length)
     return [];
+
+  const prisma = getPrisma();
 
   const records = await prisma.illustrator.findMany({
     where: { name: { in: names } }
