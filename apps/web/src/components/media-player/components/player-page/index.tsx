@@ -17,6 +17,12 @@ export default function PlayerPage() {
   const [mainExpand, setMainExpand] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('');
 
+  if (!expand && !mainExpand) {
+    setMainExpand(true);
+    if (activeTab !== '')
+      setActiveTab('');
+  }
+
   const dragControls = useDragControls();
 
   const isMobile = window.innerWidth < 640;
