@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { usePlayerExpand } from '../../hooks/use-player-expand';
 
@@ -38,6 +38,29 @@ export default function PlayerPage() {
     setMainExpand(p => !p);
     setActiveTab('');
   };
+
+  const hasPushedState = useRef(false);
+
+  useEffect(() => {
+    if (expand && !hasPushedState.current) {
+      window.history.pushState(null, '', window.location.href);
+      hasPushedState.current = true;
+    } else if (!expand && hasPushedState.current) {
+      window.history.back();
+      hasPushedState.current = false;
+    }
+
+    const handlePopState = () => {
+      hasPushedState.current = false;
+      setExpand(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [expand, setExpand]);
 
   return (
     <AnimatePresence>
