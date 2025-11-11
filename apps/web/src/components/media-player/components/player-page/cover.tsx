@@ -4,14 +4,14 @@ import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { cn } from '~/lib/utils';
 
-export default function PlayerCover() {
+export default function PlayerCover({ ...rest }: React.HTMLAttributes<HTMLDivElement>) {
   const mediaState = useAtomValue(mediaStateAtom);
   const isHiddenImage = useAtomValue(hiddenImageAtom);
 
   const data = mediaState.work;
 
   return (
-    <div className="w-full relative max-w-[60%] h-auto flex items-center self-center max-sm:self-auto max-sm:max-w-full">
+    <div {...rest} className="w-full relative max-w-[60%] h-auto flex items-center self-center max-sm:self-auto max-sm:max-w-full">
       <div className="pb-[75%]" />
       <div className="bg-zinc-700 absolute inset-0 overflow-hidden rounded-md">
         <img

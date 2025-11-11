@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { playerExpandAtom } from '../../hooks/use-player-expand';
 
 import { Button } from '~/components/ui/button';
@@ -22,13 +22,10 @@ export default function PlayerPage() {
 
   const [mainExpand, setMainExpand] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('');
-  const [isAnimating, setIsAnimating] = useState(false);
 
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined')
-      return window.innerWidth < 640;
-    return false;
-  });
+  const dragControls = useDragControls();
+
+  const isMobile = window.innerWidth < 640;
 
   const handleTabChange = (tab: string) => {
     if (tab !== '')
@@ -42,55 +39,49 @@ export default function PlayerPage() {
     setActiveTab('');
   };
 
-  useEffect(() => {
-    if (expand)
-      document.body.style.overflow = 'hidden';
-    else
-      document.body.style.overflow = '';
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [expand]);
-
   return (
     <AnimatePresence>
       {expand && (
         <motion.div
+          data-player-page={expand}
           key="player-page"
           className="fixed inset-0 w-full rounded-md bg-card pt-18 pb-20 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]"
           initial={{ y: '100%' }}
-          animate={{ y: 0 }}
+          animate={{ y: '0%' }}
           exit={{ y: '100%' }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          drag={mainExpand && isMobile && !isAnimating ? 'y' : false}
+          drag={mainExpand && isMobile ? 'y' : false}
+          dragControls={dragControls}
+          dragListener={false}
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0, bottom: 0.5 }}
           onDragEnd={(_, info) => {
             // 如果向下拖动超过 100px 或速度超过 300,则关闭
-            if ((info.offset.y > 100 || info.velocity.y > 300) && (mainExpand && isMobile))
+            if ((info.offset.y > 100 || info.velocity.y > 300) && mainExpand)
               setExpand(false);
           }}
-          onAnimationStart={() => setIsAnimating(true)}
-          onAnimationComplete={() => setIsAnimating(false)}
-          style={{
-            pointerEvents: isAnimating ? 'none' : 'auto'
-          }}
-          ref={() => {
-            const checkMobile = () => {
-              const mobile = window.innerWidth < 640; // 640px 是 Tailwind 的 sm 断点
-              setIsMobile(mobile);
+          ref={el => {
+            if (!el) return;
+
+            // eslint-disable-next-line sukka/unicorn/consistent-function-scoping -- preventDefault in touchmove to avoid overscroll on mobile
+            const handleTouchMove = (e: TouchEvent) => {
+              e.preventDefault();
             };
 
-            window.addEventListener('resize', checkMobile);
-            return () => window.removeEventListener('resize', checkMobile);
+            el.addEventListener('touchmove', handleTouchMove, { passive: false });
+            return () => {
+              el.removeEventListener('touchmove', handleTouchMove);
+            };
           }}
         >
           <div className="mx-auto max-w-7xl flex px-10 h-full max-md:flex-col items-start gap-10 max-sm:hidden">
             <PlayerCover />
             <PlayerSidePanel />
           </div>
-          <div className="h-full px-6 hidden max-sm:flex flex-col items-center">
+          <div
+            className="h-full px-6 hidden max-sm:flex flex-col items-center touch-none"
+            onPointerDown={e => dragControls.start(e)}
+          >
             <AnimatePresence mode="wait">
               {mainExpand
                 ? (
@@ -103,8 +94,13 @@ export default function PlayerPage() {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
                     <PlayerPageActionsAbove />
-                    <div className="w-full flex flex-col items-center">
-                      <PlayerCover />
+                    <div
+                      className="w-full flex flex-col items-center touch-auto"
+                      onPointerDown={e => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <PlayerCover onPointerDown={e => dragControls.start(e)} />
                       <PlayerPageMain />
                       <Button className="mt-10" variant="secondary">
                         <BackToWorkDetails />

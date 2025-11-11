@@ -225,6 +225,10 @@ body {
   max-height: calc(var(--spacing) * --value(integer));
 }
 
+body:has(div[data-player-page="true"]) {
+  overflow: hidden;
+}
+
 body[data-scroll-locked] {
   overflow: hidden !important;
   overscroll-behavior: contain;
