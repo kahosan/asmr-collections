@@ -1,5 +1,7 @@
+import { useRouter } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+
 import { usePlayerExpand } from '../../hooks/use-player-expand';
 
 import PlayerCover from './cover';
@@ -13,6 +15,7 @@ type ActiveTab = 'playlist' | 'subtitles' | 'similar' | '';
 
 export default function PlayerPage() {
   const [expand, setExpand] = usePlayerExpand();
+  const router = useRouter();
 
   const [mainExpand, setMainExpand] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('');
@@ -43,10 +46,10 @@ export default function PlayerPage() {
 
   useEffect(() => {
     if (expand && !hasPushedState.current) {
-      window.history.pushState(null, '', window.location.href);
+      router.history.push(router.state.location.href);
       hasPushedState.current = true;
     } else if (!expand && hasPushedState.current) {
-      window.history.back();
+      router.history.back();
       hasPushedState.current = false;
     }
 
@@ -60,7 +63,7 @@ export default function PlayerPage() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [expand, setExpand]);
+  }, [expand, router.history, router.state.location.href, setExpand]);
 
   return (
     <AnimatePresence>
