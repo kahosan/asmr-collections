@@ -189,7 +189,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
             >
               <CopyIcon />
             </Button>
-            <div className="px-4 py-2">
+            <div className="px-4 py-2 text-sm">
               {failedIds.length === 0 && <div className="opacity-80 text-sm">失败列表</div>}
               {failedIds.map(id => (
                 <motion.div layout key={id}>
