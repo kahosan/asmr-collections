@@ -100,8 +100,7 @@ const workDetailsRoute = createRoute({
 const router = createRouter({
   routeTree: rootRoute.addChildren([indexRoute, workDetailsRoute]),
   defaultNotFoundComponent: NotFound,
-  defaultPreload: 'intent',
-  scrollRestoration: true
+  defaultPreload: 'intent'
 });
 
 declare module '@tanstack/react-router' {

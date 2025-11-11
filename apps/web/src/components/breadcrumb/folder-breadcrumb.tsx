@@ -16,13 +16,13 @@ import {
   DropdownMenuTrigger
 } from '~/components/ui/dropdown-menu';
 
-export default function FolderBreadcrumb({ path, id }: { path?: string[], id: string }) {
+export default function FolderBreadcrumb({ path}: { path?: string[] }) {
   return (
     <Breadcrumb>
       <BreadcrumbList className="flex-nowrap">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/work-details/$id" params={{ id }} search={{ path: undefined }} resetScroll={false}>/</Link>
+            <Link from="/work-details/$id" search={{ path: undefined }} resetScroll={false}>/</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -40,8 +40,7 @@ export default function FolderBreadcrumb({ path, id }: { path?: string[], id: st
                       <DropdownMenuItem key={item}>
                         <BreadcrumbLink asChild>
                           <Link
-                            to="/work-details/$id"
-                            params={{ id }}
+                            from="/work-details/$id"
                             search={{ path: path.slice(0, path.indexOf(item) + 1) }}
                             className="w-full"
                             resetScroll={false}
@@ -62,8 +61,7 @@ export default function FolderBreadcrumb({ path, id }: { path?: string[], id: st
                 <BreadcrumbItem key={item} className="min-w-0">
                   <BreadcrumbLink asChild>
                     <Link
-                      to="/work-details/$id"
-                      params={{ id }}
+                      from="/work-details/$id"
                       search={{ path: path.slice(0, path.indexOf(item) + 1) }}
                       className="w-full"
                       resetScroll={false}

@@ -97,7 +97,6 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
 
           if (targetPath && targetPath.length > 0) {
             navigate({
-              params: { id: work.id },
               search: { path: targetPath },
               replace: true
             });
@@ -202,7 +201,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   return (
     <>
       <Activity mode={tracks ? 'visible' : 'hidden'} name="tracks-table-breadcrumb">
-        <FolderBreadcrumb path={search.path} id={work.id} />
+        <FolderBreadcrumb path={search.path} />
       </Activity>
 
       {
@@ -236,8 +235,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                 <TableRow key={item.title}>
                   <TableCell className="p-0 whitespace-normal">
                     <Link
-                      to="/work-details/$id"
-                      params={{ id: work.id }}
+                      from="/work-details/$id"
                       search={{ path: (search.path ?? []).concat(item.title) }}
                       className="flex items-center gap-3 p-3"
                       resetScroll={false}
