@@ -43,11 +43,11 @@ import type { Work } from '~/types/work';
 
 interface TracksTableProps {
   work: Work
-  search: { path?: string[] }
+  searchPath?: string[]
   settings: SettingOptions
 }
 
-export default function TracksTabale({ work, search, settings }: TracksTableProps) {
+export default function TracksTabale({ work, searchPath, settings }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);
   const navigate = useNavigate({ from: '/work-details/$id' });
 
@@ -91,7 +91,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
 
         if (
           settings.smartPath.enable
-          && !search.path
+          && !searchPath
         ) {
           const targetPath = findSmartPath(data, settings.smartPath.pattern);
 
@@ -106,7 +106,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
     }
   );
 
-  const filterData = search.path?.reduce((acc, path) => {
+  const filterData = searchPath?.reduce((acc, path) => {
     return acc?.find(item => item.title === path)?.children ?? [];
   }, tracks) ?? tracks;
 
@@ -201,7 +201,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
   return (
     <>
       <Activity mode={tracks ? 'visible' : 'hidden'} name="tracks-table-breadcrumb">
-        <FolderBreadcrumb path={search.path} />
+        <FolderBreadcrumb path={searchPath} />
       </Activity>
 
       {
@@ -236,7 +236,7 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                   <TableCell className="p-0 whitespace-normal">
                     <Link
                       from="/work-details/$id"
-                      search={{ path: (search.path ?? []).concat(item.title) }}
+                      search={{ path: (searchPath ?? []).concat(item.title) }}
                       className="flex items-center gap-3 p-3"
                       resetScroll={false}
                     >
@@ -273,7 +273,6 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                               target="_blank"
                               title={item.title}
                               className="flex gap-3 items-center p-3"
-                              resetScroll={false}
                             >
                               <FileText className="min-size-7" color="#7CB920" />
                               <p className="line-clamp-2">{item.title}</p>
@@ -328,7 +327,6 @@ export default function TracksTabale({ work, search, settings }: TracksTableProp
                       target="_blank"
                       title={item.title}
                       className="flex gap-3 items-center p-3"
-                      resetScroll={false}
                     >
                       <FileText className="min-size-7" color="#9E9E9E" />
                       <p className="line-clamp-2">{item.title}</p>

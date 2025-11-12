@@ -7,6 +7,7 @@ import {
   createRoute,
   createRouter
 } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import Layout from '~/layout';
 import NotFound from '~/components/not-found';
@@ -47,6 +48,7 @@ const rootRoute = createRootRoute({
     <ErrorBoundary>
       <Layout>
         <Outlet />
+        <TanStackRouterDevtools position="bottom-right" />
       </Layout>
     </ErrorBoundary>
   ),
@@ -100,7 +102,8 @@ const workDetailsRoute = createRoute({
 const router = createRouter({
   routeTree: rootRoute.addChildren([indexRoute, workDetailsRoute]),
   defaultNotFoundComponent: NotFound,
-  defaultPreload: 'intent'
+  defaultPreload: 'intent',
+  scrollRestoration: true
 });
 
 declare module '@tanstack/react-router' {

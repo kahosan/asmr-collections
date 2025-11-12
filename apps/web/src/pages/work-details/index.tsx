@@ -1,4 +1,4 @@
-import { Link, useParams, useSearch } from '@tanstack/react-router';
+import { getRouteApi, Link } from '@tanstack/react-router';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { Activity, Suspense } from 'react';
@@ -25,9 +25,11 @@ import { cn, writeClipboard } from '~/lib/utils';
 
 import type { Work } from '~/types/work';
 
+const route = getRouteApi('/work-details/$id');
+
 export default function WorkDetails() {
-  const { id } = useParams({ from: '/work-details/$id' });
-  const search = useSearch({ from: '/work-details/$id' });
+  const { id } = route.useParams();
+  const searchPath = route.useSearch({ select: ({ path }) => path });
 
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
@@ -184,7 +186,7 @@ export default function WorkDetails() {
         }}
       >
         <Suspense fallback={<TracksSkeleton />}>
-          <TracksTabale work={data} search={search} settings={settings} />
+          <TracksTabale work={data} searchPath={searchPath} settings={settings} />
         </Suspense>
       </ErrorBoundary>
 
