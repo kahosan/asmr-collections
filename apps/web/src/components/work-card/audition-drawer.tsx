@@ -2,6 +2,9 @@ import { Button } from '~/components/ui/button';
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
   DrawerTrigger
 } from '~/components/ui/drawer';
 
@@ -32,6 +35,10 @@ export default function AuditionDrawer({ workId, originalId }: { workId: string,
         <Button variant="outline" size="lg">试听</Button>
       </DrawerTrigger>
       <DrawerContent>
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>试听</DrawerTitle>
+          <DrawerDescription>试听DLsite作品音频</DrawerDescription>
+        </DrawerHeader>
         <div className="w-full flex justify-center mt-4">
           {
             isLoading
