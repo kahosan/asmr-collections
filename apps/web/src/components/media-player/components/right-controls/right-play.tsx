@@ -1,7 +1,7 @@
 import { Loader2Icon, PauseIcon, PlayIcon, SkipForwardIcon } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Time, useMediaRemote, useMediaState } from '@vidstack/react';
+import { useMediaRemote, useMediaState } from '@vidstack/react';
 
 import { useMediaActions } from '../../context/media-actions';
 
@@ -46,11 +46,6 @@ export default function RightPlayControls() {
       </motion.div>
       <div className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors">
         <SkipForwardIcon className="min-max-size-6 cursor-pointer" fill="currentColor" onClick={() => actions?.nextTrack()} />
-      </div>
-      <div className="flex items-center text-xs font-medium opacity-60 max-md:hidden">
-        <Time className="time" type="current" />
-        <div className="mx-1">/</div>
-        <Time className="time" type="duration" />
       </div>
     </div>
   );
