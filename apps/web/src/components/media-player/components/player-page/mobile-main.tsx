@@ -5,11 +5,15 @@ import { mediaStateAtom } from '~/hooks/use-media-state';
 import { Volume1Icon, Volume2 } from 'lucide-react';
 import { Time, TimeSlider, VolumeSlider } from '@vidstack/react';
 
+import { isIOSSafari } from '../../utils';
+
 export default function PlayerPageMain() {
   const mediaState = useAtomValue(mediaStateAtom);
 
   const title = mediaState.currentTrack?.title || '未知曲目';
   const workTitle = mediaState.work?.name || '未知作品';
+
+  const showVolumeSlider = !isIOSSafari();
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -40,18 +44,20 @@ export default function PlayerPageMain() {
       <div id="actions" className="flex justify-center items-center">
         <PlayerPageActions />
       </div>
-      <div id="volume-slider" className="w-full flex justify-center items-center gap-2">
-        <div className="w-[95%] flex items-center gap-2">
-          <Volume1Icon className="min-max-size-6" />
-          <VolumeSlider.Root className="group relative mx-[7.5px] h-1 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
-            <VolumeSlider.Track className="relative ring-white z-0 h-1 w-full rounded-sm bg-white/30 group-data-[focus]:ring-[1px]">
-              <VolumeSlider.TrackFill className="bg-white/70 absolute h-full w-[var(--slider-fill)] rounded-sm will-change-[width]" />
-            </VolumeSlider.Track>
-            <VolumeSlider.Thumb className="absolute left-[var(--slider-fill)] top-1/2 z-20 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white ring-white/40 transition-opacity group-data-[dragging]:ring-4 will-change-[left]" />
-          </VolumeSlider.Root>
-          <Volume2 className="min-max-size-6" />
+      {showVolumeSlider && (
+        <div id="volume-slider" className="w-full flex justify-center items-center gap-2">
+          <div className="w-[95%] flex items-center gap-2">
+            <Volume1Icon className="min-max-size-6" />
+            <VolumeSlider.Root className="group relative mx-[7.5px] h-1 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
+              <VolumeSlider.Track className="relative ring-white z-0 h-1 w-full rounded-sm bg-white/30 group-data-[focus]:ring-[1px]">
+                <VolumeSlider.TrackFill className="bg-white/70 absolute h-full w-[var(--slider-fill)] rounded-sm will-change-[width]" />
+              </VolumeSlider.Track>
+              <VolumeSlider.Thumb className="absolute left-[var(--slider-fill)] top-1/2 z-20 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white ring-white/40 transition-opacity group-data-[dragging]:ring-4 will-change-[left]" />
+            </VolumeSlider.Root>
+            <Volume2 className="min-max-size-6" />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

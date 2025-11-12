@@ -60,3 +60,12 @@ export async function fetchTextTrackContent(src?: string) {
     logger.error(e, `获取字幕文本失败: ${src}`);
   }
 }
+
+export function isIOSSafari() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+  const isWebkit = ua.includes('WebKit');
+  const isNotChrome = !/CriOS|FxiOS|EdgiOS/.test(ua);
+
+  return isIOS && isWebkit && isNotChrome;
+}
