@@ -2,6 +2,25 @@ import { fetcher } from '~/lib/fetcher';
 import { logger } from '~/lib/logger';
 import { extractFileExt } from '~/lib/utils';
 
+function decodeText(data: ArrayBuffer): string {
+  const encodings = ['gbk', 'gb2312', 'gb18030', 'utf-8'];
+
+  for (const encoding of encodings) {
+    try {
+      const decoder = new TextDecoder(encoding, { fatal: true });
+      const text = decoder.decode(data);
+      // 检查是否有乱码(包含大量替换字符)
+      const replacementCharCount = (text.match(/�/g) || []).length;
+      if (replacementCharCount / text.length < 0.1)
+        return text;
+    } catch {
+      continue;
+    }
+  }
+
+  return new TextDecoder('utf-8').decode(data);
+}
+
 export async function fetchTextTrackContent(src?: string) {
   if (!src) return;
 
@@ -9,7 +28,7 @@ export async function fetchTextTrackContent(src?: string) {
 
   try {
     const data = await fetcher<string | ArrayBuffer>(src);
-    const text = typeof data === 'string' ? data : new TextDecoder('utf-8').decode(data);
+    const text = typeof data === 'string' ? data : decodeText(data);
 
     if (fileType !== 'lrc')
       return text;
