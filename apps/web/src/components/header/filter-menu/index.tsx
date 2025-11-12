@@ -26,7 +26,7 @@ export default function FilterMenu() {
       <MenubarTrigger>
         筛选
       </MenubarTrigger>
-      <MenubarContent>
+      <MenubarContent className="max-[400px]:min-w-40">
         <MenubarGroup>
           <AgeCategory />
           <MenubarShortcut />

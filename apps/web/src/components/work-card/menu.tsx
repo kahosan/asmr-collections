@@ -81,7 +81,7 @@ export default function Menu({ work }: Props) {
           <MenuIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" onInteractOutside={() => setOpen(false)}>
+      <DropdownMenuContent className="w-56 max-[400px]:w-40" onInteractOutside={() => setOpen(false)}>
         <DropdownMenuLabel>
           作品菜单
         </DropdownMenuLabel>

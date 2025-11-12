@@ -4,11 +4,10 @@ import { CheckIcon } from 'lucide-react';
 import { Virtualized, VirtualizedVirtualizer } from '~/components/ui/virtualized';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import Loading from '~/components/loading';
 
-import { cn } from '~/lib/utils';
 import { HTTPError } from '~/lib/fetcher';
 
 import type { Data } from '~/types/work';
@@ -43,7 +42,7 @@ export default function FilterPanel<T extends string | number>({
   }, [data, input]);
 
   return (
-    <Command>
+    <Command className="max-[400px]:max-w-36">
       <CommandInput
         value={input}
         onValueChange={setInput}
@@ -68,15 +67,23 @@ export default function FilterPanel<T extends string | number>({
                       layout
                       initial={{ opacity: checked ? 1 : 0.65 }}
                       animate={{ opacity: checked ? 1 : 0.65 }}
+                      whileHover={{ opacity: 1 }}
                     >
                       <CommandItem value={name} onSelect={() => handleSelect(id)}>
-                        <div className="max-w-36 truncate">{name}</div>
-                        <CheckIcon
-                          className={cn(
-                            'ml-auto h-4 w-4',
-                            checked ? 'opacity-100' : 'opacity-0'
+                        <div className="truncate">{name}</div>
+                        <AnimatePresence>
+                          {checked && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{ duration: 0.1, ease: 'easeInOut' }}
+                              className="ml-auto"
+                            >
+                              <CheckIcon />
+                            </motion.div>
                           )}
-                        />
+                        </AnimatePresence>
                       </CommandItem>
                     </motion.div>
                   );
