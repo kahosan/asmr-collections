@@ -19,7 +19,8 @@ export default function PlayerCover({ ...rest }: React.HTMLAttributes<HTMLDivEle
     if (data?.id) {
       navigate({
         to: '/work-details/$id',
-        params: { id: data.id }
+        params: { id: data.id },
+        ignoreBlocker: true
       });
       setPlayerExpand(false);
     }
