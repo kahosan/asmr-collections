@@ -1,11 +1,11 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { mediaStateAtom } from '~/hooks/use-media-state';
-import { usePlayerExpand } from '../../hooks/use-player-expand';
+import { playerExpandAtom } from '../../hooks/use-player-expand';
 
 export default function BackToWorkDetails() {
   const mediaState = useAtomValue(mediaStateAtom);
-  const setPlayerExpand = usePlayerExpand()[1];
+  const setPlayerExpand = useSetAtom(playerExpandAtom);
   const workId = mediaState.work?.id ?? '';
 
   const navigate = useNavigate();
