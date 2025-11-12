@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 import WorkCard from '../work-card';
 import Pagination from '../pagination';
 
@@ -28,13 +26,9 @@ export default function Works() {
       {data?.data.length === 0 && <div className="flex justify-center opacity-70 mt-[10%]">没有更多惹...</div>}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4">
         {data?.data.map(work => (
-          <motion.div
-            key={work.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
+          <div key={work.id}>
             <WorkCard key={work.id} work={work} />
-          </motion.div>
+          </div>
         ))}
       </div>
       <Pagination
