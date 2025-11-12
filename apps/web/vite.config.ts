@@ -41,7 +41,7 @@ export default defineConfig({
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      plugins: [visualizer({ open: true })],
+      plugins: [visualizer({ open: false })],
       output: {
         manualChunks(id) {
           const chunks = ['vidstack', '@dnd-kit', 'lightgallery'];
