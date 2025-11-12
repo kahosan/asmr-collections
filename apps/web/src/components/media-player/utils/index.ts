@@ -18,8 +18,11 @@ export async function fetchTextTrackContent(src?: string) {
     const lines = text.split('\n');
     const vttLines = ['WEBVTT\n'];
 
+    const matchReg = /\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?]/;
+
     for (const line of lines) {
-      const timeTagMatch = /\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?]/.exec(line);
+      const timeTagMatch = matchReg.exec(line);
+
       if (timeTagMatch) {
         const content = line.replace(timeTagMatch[0], '').trim();
         if (!content) continue;
@@ -28,6 +31,20 @@ export async function fetchTextTrackContent(src?: string) {
         const seconds = Number.parseInt(timeTagMatch[2], 10);
         const milliseconds = timeTagMatch[3] ? Number.parseInt(timeTagMatch[3].padEnd(3, '0'), 10) : 0;
         const startTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+
+        const nextLine = lines.at(lines.indexOf(line) + 1);
+        if (nextLine) {
+          const nextTimeTagMatch = matchReg.exec(nextLine);
+          if (nextTimeTagMatch) {
+            const nextMinutes = Number.parseInt(nextTimeTagMatch[1], 10);
+            const nextSeconds = Number.parseInt(nextTimeTagMatch[2], 10);
+            const nextMilliseconds = nextTimeTagMatch[3] ? Number.parseInt(nextTimeTagMatch[3].padEnd(3, '0'), 10) : 0;
+            const endTime = `${String(nextMinutes).padStart(2, '0')}:${String(nextSeconds).padStart(2, '0')}.${String(nextMilliseconds).padStart(3, '0')}`;
+
+            vttLines.push(`${startTime} --> ${endTime}\n${content}\n`);
+            continue;
+          }
+        }
 
         const endSeconds = seconds + 5;
         const endMinutes = minutes + Math.floor(endSeconds / 60);
