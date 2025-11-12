@@ -9,6 +9,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import SubtitleSelector from './subtitle-selector';
 import { RefreshCwIcon, RefreshCwOffIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { cn } from '~/lib/utils';
 
@@ -126,7 +127,17 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
           className="text-sm"
           onClick={handleAutoScrollChange}
         >
-          {autoScroll ? <RefreshCwIcon /> : <RefreshCwOffIcon />}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={autoScroll ? 'on' : 'off'}
+              initial={{ scale: 0, opacity: 0, rotate: -180 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0, opacity: 0, rotate: 180 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              {autoScroll ? <RefreshCwIcon /> : <RefreshCwOffIcon />}
+            </motion.div>
+          </AnimatePresence>
         </Button>
       </div>
       <div className="pt-4 space-y-2">
