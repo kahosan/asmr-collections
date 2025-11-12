@@ -1,6 +1,9 @@
 import { useMediaRemote, useMediaState } from '@vidstack/react';
 import type { TextTrack } from '@vidstack/react';
 
+import { focusAtom } from 'jotai-optics';
+import { useAtomValue } from 'jotai/react';
+import { mediaStateAtom } from '~/hooks/use-media-state';
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 
 import { Button } from '~/components/ui/button';
@@ -22,6 +25,8 @@ function formatTime(seconds: number) {
   return `${mins}:${secs}.${ms}`;
 }
 
+const allSubtitlesAtom = focusAtom(mediaStateAtom, optic => optic.prop('allSubtitles'));
+
 interface SubtitlesProps {
   scrollAreaRef: React.RefObject<HTMLDivElement | null>
 }
@@ -30,6 +35,8 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const remote = useMediaRemote();
   const textTrackState = useMediaState('textTrack');
   const currentTime = useMediaState('currentTime');
+
+  const allSubtitles = useAtomValue(allSubtitlesAtom);
 
   const targetRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<Element | null>(null);
@@ -106,7 +113,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
     };
   }, [scrollAreaRef, textTrackState]);
 
-  if (!textTrack)
+  if (allSubtitles?.length === 0)
     return <div className="w-full my-8 text-center">暂无字幕</div>;
 
   return (
@@ -123,7 +130,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
         </Button>
       </div>
       <div className="pt-4 space-y-2">
-        {textTrack.cues.map((cue, index) => {
+        {textTrack?.cues.map((cue, index) => {
           const isActive = index === activeCueIndex;
           return (
             <div

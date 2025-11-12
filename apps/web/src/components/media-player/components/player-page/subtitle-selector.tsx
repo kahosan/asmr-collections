@@ -6,13 +6,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 import type { SubtitleInfo } from '~/hooks/use-media-state';
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '~/components/ui/select';
+import { NativeSelect, NativeSelectOption } from '~/components/ui/native-select';
 
 import { fetchTextTrackContent } from '../../utils';
 
@@ -36,7 +30,7 @@ export default function SubtitleSelector() {
   const handleChange = async (title: string) => {
     const subtitles = allSubtitles?.find(subtitle => subtitle.title === title);
 
-    if (subtitles && currentSubtitle && player) {
+    if (subtitles && currentTrack && player) {
       setCurrentTrack({
         ...currentTrack,
         subtitles
@@ -57,17 +51,22 @@ export default function SubtitleSelector() {
   };
 
   return (
-    <Select value={currentSubtitle?.title} onValueChange={handleChange}>
-      <SelectTrigger>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent className="max-h-120 max-w-80">
-        {subtitles.map(subtitle => (
-          <SelectItem key={subtitle.title} value={subtitle.title}>
-            {subtitle.title}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <NativeSelect
+      title="字幕选择"
+      id="subtitle-selector"
+      value={currentSubtitle?.title || ''}
+      onChange={e => handleChange(e.target.value)}
+      className="truncate"
+      classNames={{
+        wrapper: 'max-w-[60%]'
+      }}
+    >
+      <NativeSelectOption value="">选择字幕</NativeSelectOption>
+      {subtitles.map(subtitle => (
+        <NativeSelectOption key={subtitle.title} value={subtitle.title}>
+          {subtitle.title}
+        </NativeSelectOption>
+      ))}
+    </NativeSelect>
   );
 }
