@@ -41,12 +41,14 @@ export default defineConfig({
     cssMinify: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      plugins: [visualizer({ open: false })],
+      plugins: [visualizer({ open: true })],
       output: {
         manualChunks(id) {
-          if (id.includes('vidstack'))
-            return;
-          if (id.includes('node_modules/'))
+          const chunks = ['vidstack', '@dnd-kit', 'lightgallery'];
+          if (chunks.some(chunk => id.includes(chunk)))
+            return chunks.find(chunk => id.includes(chunk));
+
+          if (id.includes('node_modules'))
             return 'vendor';
         }
       }
