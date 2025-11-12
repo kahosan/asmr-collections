@@ -9,6 +9,7 @@ export default function PlayerPageActions() {
   const actions = useMediaActions();
   const playing = useMediaState('playing');
   const canPlay = useMediaState('canPlay');
+  const waiting = useMediaState('waiting');
 
   const remote = useMediaRemote();
 
@@ -44,7 +45,7 @@ export default function PlayerPageActions() {
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.1, ease: 'easeInOut' }}
           >
-            {canPlay
+            {canPlay && !waiting
               ? (playing
                 ? <PauseIcon className="min-max-size-13 cursor-pointer" fill="currentColor" strokeWidth={0} />
                 : <PlayIcon className="min-max-size-13 cursor-pointer" fill="currentColor" strokeWidth={0} />)
