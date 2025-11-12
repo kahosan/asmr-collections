@@ -91,7 +91,10 @@ export default function PlayerPage() {
 
             // eslint-disable-next-line sukka/unicorn/consistent-function-scoping -- preventDefault in touchmove to avoid overscroll on mobile
             const handleTouchMove = (e: TouchEvent) => {
-              e.preventDefault();
+              // 只阻止非 touch-auto 元素的触摸移动
+              const target = e.target as HTMLElement;
+              if (!target.closest('.touch-auto'))
+                e.preventDefault();
             };
 
             el.addEventListener('touchmove', handleTouchMove, { passive: false });
