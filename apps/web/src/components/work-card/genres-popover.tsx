@@ -4,9 +4,10 @@ import { Button } from '../ui/button';
 import { Toggle } from '../ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
-import { Tag } from 'lucide-react';
+import { CheckIcon, Tag } from 'lucide-react';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
 
 import type { Data } from '~/types/work';
@@ -23,6 +24,12 @@ export default function GenresPopover({ genres }: Props) {
   // 路由更新后，弹出框不受影响啊，只改了 search
   const [forceClose, setForceClose] = useState<number>();
 
+  const genresSorted = useMemo(() => {
+    return genres.sort((a, b) => (a.name.length > b.name.length ? 1 : -1));
+  }, [genres]);
+
+  const isActive = (id: number) => selectedGenres.includes(id);
+
   return (
     <Popover key={forceClose}>
       <PopoverTrigger asChild>
@@ -30,12 +37,12 @@ export default function GenresPopover({ genres }: Props) {
       </PopoverTrigger>
       <PopoverContent>
         <div className="flex flex-wrap gap-2 mb-2">
-          {genres.sort((a, b) => (a.name.length > b.name.length ? 1 : -1)).map(genre => (
+          {genresSorted.map(genre => (
             <Toggle
               variant="outline"
               size="sm"
               key={genre.id}
-              pressed={selectedGenres.includes(genre.id)}
+              pressed={isActive(genre.id)}
               onPressedChange={pressed => {
                 if (pressed)
                   setSelectedGenres([...selectedGenres, genre.id]);
@@ -45,6 +52,18 @@ export default function GenresPopover({ genres }: Props) {
             >
               <Tag />
               {genre.name}
+              <AnimatePresence>
+                {isActive(genre.id) && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.1, ease: 'easeInOut' }}
+                  >
+                    <CheckIcon />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Toggle>
           ))}
         </div>
