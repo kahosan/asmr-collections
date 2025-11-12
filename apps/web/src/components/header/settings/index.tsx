@@ -9,7 +9,7 @@ export default function SettingsDialog({ open, setOpen }: { open: boolean, setOp
       onOpenChange={setOpen}
     >
       <AlertDialogContent
-        className="rounded-lg max-w-[90%] sm:max-w-lg"
+        className="rounded-lg max-w-[95%] sm:max-w-lg px-0"
         onOpenAutoFocus={event => {
           event.preventDefault();
         }}
