@@ -99,6 +99,8 @@ export default function FloatingCaptions() {
     setDragStart({ x: touch.clientX, y: touch.clientY });
   };
 
+  if (!textTrackState) return null;
+
   return (
     <div
       ref={captionRef}
