@@ -10,7 +10,7 @@ import VideoItem from './video-item';
 import AudioItem from './audio-item';
 
 import { useAtom } from 'jotai';
-import { Activity, useMemo, useRef } from 'react';
+import { Activity, useMemo, useRef, useCallback } from 'react';
 
 import { match } from 'ts-pattern';
 
@@ -75,34 +75,32 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
     ? '获取本地数据失败'
     : '获取 ASMR.ONE 数据失败';
 
+  const handleOnSuccess = useCallback((data: Tracks) => {
+    if (
+      tracksApi === asmrOneApi
+      && settings.voiceLibraryOptions.fallbackToAsmrOneApi
+      && isExists?.exists === false
+    )
+      toast.success('成功回退至 ASMR.ONE 获取数据');
+
+    if (
+      settings.smartPath.enable
+      && !searchPath
+    ) {
+      const targetPath = findSmartPath(data, settings.smartPath.pattern);
+
+      if (targetPath && targetPath.length > 0)
+        navigate({ search: { path: targetPath }, replace: true });
+    }
+  }, [asmrOneApi, isExists?.exists, navigate, searchPath, settings.smartPath.enable, settings.smartPath.pattern, settings.voiceLibraryOptions.fallbackToAsmrOneApi, tracksApi]);
+
   const { data: tracks } = useSWRImmutable<Tracks>(
     tracksApi,
     fetcher,
     {
       onError: e => notifyError(e, errorText),
       suspense: true,
-      onSuccess(data) {
-        if (
-          tracksApi === asmrOneApi
-          && settings.voiceLibraryOptions.fallbackToAsmrOneApi
-          && isExists?.exists === false
-        )
-          toast.success('成功回退至 ASMR.ONE 获取数据');
-
-        if (
-          settings.smartPath.enable
-          && !searchPath
-        ) {
-          const targetPath = findSmartPath(data, settings.smartPath.pattern);
-
-          if (targetPath && targetPath.length > 0) {
-            navigate({
-              search: { path: targetPath },
-              replace: true
-            });
-          }
-        }
-      }
+      onSuccess: handleOnSuccess
     }
   );
 
