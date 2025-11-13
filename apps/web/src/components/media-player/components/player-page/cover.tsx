@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { mediaStateAtom } from '~/hooks/use-media-state';
@@ -12,16 +12,19 @@ export default function PlayerCover({ ...rest }: React.HTMLAttributes<HTMLDivEle
   const setPlayerExpand = useSetAtom(playerExpandAtom);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const data = mediaState.work;
 
   const handleClick = () => {
     if (data?.id) {
-      navigate({
-        to: '/work-details/$id',
-        params: { id: data.id },
-        ignoreBlocker: true
-      });
+      if (location.pathname !== `/work-details/${data.id}`) {
+        navigate({
+          to: '/work-details/$id',
+          params: { id: data.id },
+          ignoreBlocker: true
+        });
+      }
       setPlayerExpand(false);
     }
   };
