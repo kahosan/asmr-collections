@@ -1,5 +1,5 @@
 import { useMediaState } from '@vidstack/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '~/lib/utils';
 
 export default function FloatingCaptions() {
@@ -10,23 +10,19 @@ export default function FloatingCaptions() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const captionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!textTrackState) return;
 
     const onCueChange = () => {
       const cues = textTrackState.activeCues;
-      let first: VTTCue | undefined;
-      if (cues.at(0))
-        first = cues.at(0) as VTTCue;
-
-      setActiveCue(p => first || p);
+      const cue = cues.at(0) as VTTCue | undefined;
+      if (cue) setActiveCue(cue);
     };
 
     const onLoad = () => {
       const cues = textTrackState.cues;
-      const cue = cues.at(0) as VTTCue | undefined;
+      const cue = cues.find(cue => cue.text) as VTTCue | undefined;
       setActiveCue(cue);
     };
 
@@ -103,7 +99,6 @@ export default function FloatingCaptions() {
 
   return (
     <div
-      ref={captionRef}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       style={{

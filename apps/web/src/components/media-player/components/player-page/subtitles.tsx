@@ -1,15 +1,17 @@
-import { useMediaRemote, useMediaState } from '@vidstack/react';
-import type { TextTrack } from '@vidstack/react';
+import { useMediaContext, useMediaRemote, useMediaState } from '@vidstack/react';
+
+import { useEffect, useEffectEvent, useState } from 'react';
 
 import { focusAtom } from 'jotai-optics';
 import { useAtomValue } from 'jotai/react';
+import { motion, AnimatePresence } from 'framer-motion';
+
 import { mediaStateAtom } from '~/hooks/use-media-state';
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 
 import { Button } from '~/components/ui/button';
-import SubtitleSelector from './subtitle-selector';
 import { RefreshCwIcon, RefreshCwOffIcon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import SubtitleSelector from './subtitle-selector';
 
 import { cn } from '~/lib/utils';
 
@@ -34,30 +36,15 @@ interface SubtitlesProps {
 
 export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const remote = useMediaRemote();
-  const textTrackState = useMediaState('textTrack');
-  const currentTime = useMediaState('currentTime');
+  const media = useMediaContext();
+  const textTrack = useMediaState('textTrack');
+
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [activeCue, setActiveCue] = useState<VTTCue | null>(null);
 
   const allSubtitles = useAtomValue(allSubtitlesAtom);
 
-  const targetRef = useRef<HTMLDivElement>(null);
-  const viewportRef = useRef<Element | null>(null);
-
-  const [autoScroll, setAutoScroll] = useState(true);
-
-  const [textTrack, setTextTrack] = useState<TextTrack | null>(textTrackState);
-
-  const activeCueIndex = useMemo(() => {
-    const cues = textTrack?.cues as VTTCue[] | undefined;
-    if (!cues) return -1;
-
-    return cues.findIndex((cue, index) => {
-      if (currentTime >= cue.startTime && currentTime <= cue.endTime)
-        return true;
-      const nextCue = cues.at(index + 1);
-      if (!nextCue) return false;
-      return currentTime <= nextCue.startTime && currentTime >= cue.endTime;
-    });
-  }, [textTrack, currentTime]);
+  const currentTime = media.$state.currentTime();
 
   const handleCueClick = (startTime: number) => {
     remote.seek(startTime + 0.5);
@@ -65,39 +52,33 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
 
   const handleAutoScrollChange = () => {
     setAutoScroll(p => !p);
-
-    if (viewportRef.current && activeCueIndex) {
-      if (!targetRef.current) return;
-      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    };
   };
 
-  const isAutoScroll = useEffectEvent(() => {
-    return autoScroll;
+  useEffect(() => {
+    if (!textTrack) return;
+
+    const onCueChange = () => {
+      const cues = textTrack.activeCues;
+      const cue = cues.at(0) as VTTCue | undefined;
+      if (cue) setActiveCue(cue);
+    };
+
+    textTrack.addEventListener('cue-change', onCueChange);
+
+    return () => {
+      textTrack.removeEventListener('cue-change', onCueChange);
+    };
+  }, [textTrack]);
+
+  const isAutoScroll = useEffectEvent(() => autoScroll);
+  const getViewport = useEffectEvent(() => {
+    return scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]') ?? null;
   });
 
   useEffect(() => {
-    // 自动滚动
-    if (viewportRef.current && activeCueIndex) {
-      if (!isAutoScroll() || !targetRef.current) return;
-      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [activeCueIndex]);
+    const viewport = getViewport();
 
-  useEffect(() => {
-    if (!textTrackState) return;
-
-    viewportRef.current = scrollAreaRef.current?.querySelector('[data-slot="scroll-area-viewport"]') ?? null;
-    const viewport = viewportRef.current;
-
-    const onLoad = () => {
-      // 为什么要自建一个 state，因为用 useMediaState 取出来的 TextTrack 对象不会更新渲染
-      setTextTrack(textTrackState);
-      viewport?.scrollTo({ top: 0 });
-    };
-
-    textTrackState.addEventListener('load', onLoad);
-
+    // TODO: 当惯性滚动时 点击自动滚动切换按钮，会把 autoScroll 重置为 false 导致切换失败
     const onUserScroll = () => {
       if (!isAutoScroll()) return;
       setAutoScroll(false);
@@ -107,12 +88,10 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
     viewport?.addEventListener('touchmove', onUserScroll);
 
     return () => {
-      textTrackState.removeEventListener('load', onLoad);
-
       viewport?.removeEventListener('wheel', onUserScroll);
       viewport?.removeEventListener('touchmove', onUserScroll);
     };
-  }, [scrollAreaRef, textTrackState]);
+  }, []);
 
   if (allSubtitles?.length === 0)
     return <div className="w-full my-8 text-center">暂无字幕</div>;
@@ -141,11 +120,19 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
         </Button>
       </div>
       <div className="pt-4 space-y-2">
-        {textTrack?.cues.map((cue, index) => {
-          const isActive = index === activeCueIndex;
+        {textTrack?.cues.map(cue => {
+          let isActive = false;
+          if (activeCue)
+            isActive = cue.startTime === activeCue.startTime;
+          else
+            isActive = cue.startTime <= currentTime && cue.endTime >= currentTime;
+
           return (
             <div
-              ref={isActive ? targetRef : null}
+              ref={el => {
+                if (!el || !isActive || !autoScroll) return;
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
               data-active={isActive}
               key={cue.text + cue.startTime}
               onClick={() => handleCueClick(cue.startTime)}
