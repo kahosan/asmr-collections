@@ -236,7 +236,6 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                       from="/work-details/$id"
                       search={{ path: (searchPath ?? []).concat(item.title) }}
                       className="flex items-center gap-3 p-3"
-                      resetScroll={false}
                     >
                       <FolderClosed className="min-size-7" color="#56CBFC" />
                       <p className="line-clamp-2">{item.title}</p>

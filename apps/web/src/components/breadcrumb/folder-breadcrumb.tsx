@@ -22,7 +22,7 @@ export default function FolderBreadcrumb({ path}: { path?: string[] }) {
       <BreadcrumbList className="flex-nowrap">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link from="/work-details/$id" search={{ path: undefined }} resetScroll={false}>/</Link>
+            <Link from="/work-details/$id" search={{ path: undefined }}>/</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -43,7 +43,6 @@ export default function FolderBreadcrumb({ path}: { path?: string[] }) {
                             from="/work-details/$id"
                             search={{ path: path.slice(0, path.indexOf(item) + 1) }}
                             className="w-full"
-                            resetScroll={false}
                           >
                             <p className="max-w-86 max-[400px]:max-w-64 line-clamp-2">{item}</p>
                           </Link>
@@ -64,7 +63,6 @@ export default function FolderBreadcrumb({ path}: { path?: string[] }) {
                       from="/work-details/$id"
                       search={{ path: path.slice(0, path.indexOf(item) + 1) }}
                       className="w-full"
-                      resetScroll={false}
                     >
                       <p className="truncate">{item}</p>
                     </Link>

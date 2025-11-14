@@ -103,7 +103,13 @@ const router = createRouter({
   routeTree: rootRoute.addChildren([indexRoute, workDetailsRoute]),
   defaultNotFoundComponent: NotFound,
   defaultPreload: 'intent',
-  scrollRestoration: true
+  scrollRestoration: true,
+  getScrollRestorationKey(location) {
+    // work-details/$id 页面更改 path 时共享滚动位置
+    return location.pathname.startsWith('/work-details/')
+      ? location.pathname
+      : location.state.__TSR_key!;
+  }
 });
 
 declare module '@tanstack/react-router' {
