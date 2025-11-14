@@ -1,7 +1,7 @@
 import { MenubarContent, MenubarGroup, MenubarMenu, MenubarRadioGroup, MenubarRadioItem, MenubarSeparator, MenubarTrigger } from '~/components/ui/menubar';
 
 import { useNavigate } from '@tanstack/react-router';
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 const sortOptions = [
   {
@@ -43,8 +43,8 @@ const sortOptions = [
 ];
 
 export default function SortMenu() {
-  const { search, exclude } = useIndexGenerateSearch('__root__');
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   return (
     <MenubarMenu>
@@ -56,7 +56,7 @@ export default function SortMenu() {
           value={search.order}
           onValueChange={value => {
             if (search.order === value) return;
-            navigate({ search: exclude(['page'], { order: (value as 'asc' | 'desc') }) });
+            navigate({ to: '/', search: exclude(['page', 'keyword'], { order: (value as 'asc' | 'desc') }) });
           }}
         >
           {([{ label: '正序', value: 'asc' }, { label: '倒序', value: 'desc' }]).map(({ label, value }) => (
@@ -75,7 +75,7 @@ export default function SortMenu() {
             value={search.sort}
             onValueChange={value => {
               if (search.sort === value) return;
-              navigate({ search: exclude(['page'], { sort: value }) });
+              navigate({ to: '/', search: exclude(['page', 'keyword'], { sort: value }) });
             }}
           >
             {sortOptions.map(({ label, value }) => (

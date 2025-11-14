@@ -17,7 +17,7 @@ import { match } from 'ts-pattern';
 import { useAtomValue } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
 import { hiddenImageAtom } from '~/hooks/use-hidden-image';
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 import { fetcher } from '~/lib/fetcher';
 import { cn, notifyError, writeClipboard } from '~/lib/utils';
@@ -34,7 +34,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const options = useAtomValue(voiceLibraryOptionsAtom);
 
-  const { search, exclude, include } = useIndexGenerateSearch();
+  const { search, exclude, include } = useGenerateSearch();
 
   const existsApi = options.showMissingTagsInLocalVL && showImageBadge
     ? `/api/library/exists/${work.id}`
@@ -170,7 +170,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
         </div>
       </div>
       <div className="flex p-6 pt-0 px-2 pb-2 gap-2 items-end w-full">
-        <GenresPopover genres={work.genres} />
+        <GenresPopover genres={work.genres} searchGenres={search.genres} key={search.genres?.join('')} />
         {
           showMenus
             ? (

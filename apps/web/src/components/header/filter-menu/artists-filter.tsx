@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
@@ -18,15 +18,22 @@ export default function ArtistsFilter() {
     onError: error => notifyError(error, '获取声优列表失败')
   });
 
-  const { search, exclude } = useIndexGenerateSearch();
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   const handleSelect = useCallback((id: number) => {
     if (search.artistId?.includes(id)) {
-      navigate({ search: exclude(['keyword', 'page', 'seriesId'], { artistId: search.artistId.filter(_id => _id !== id) }) });
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { artistId: search.artistId.filter(_id => _id !== id) })
+      });
       return;
     }
-    navigate({ search: exclude(['keyword', 'page', 'seriesId'], { artistId: [...search.artistId ?? [], id] }) });
+
+    navigate({
+      to: '/',
+      search: exclude(['keyword', 'page'], { artistId: [...search.artistId ?? [], id] })
+    });
   }, [exclude, navigate, search.artistId]);
 
   return (
@@ -46,9 +53,9 @@ export default function ArtistsFilter() {
                 checked={search.artistCount === count}
                 onCheckedChange={checked => {
                   if (checked)
-                    navigate({ search: exclude(['page', 'keyword'], { artistCount: count }) });
+                    navigate({ to: '/', search: exclude(['page', 'keyword'], { artistCount: count }) });
                   else
-                    navigate({ search: exclude(['page', 'keyword', 'artistCount']) });
+                    navigate({ to: '/', search: exclude(['page', 'keyword', 'artistCount']) });
                 }}
                 onSelect={e => e.preventDefault()}
               >

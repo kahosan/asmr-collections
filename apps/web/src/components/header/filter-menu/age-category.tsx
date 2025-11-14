@@ -1,11 +1,11 @@
 import { MenubarCheckboxItem, MenubarSub, MenubarSubContent, MenubarSubTrigger } from '~/components/ui/menubar';
 
 import { useNavigate } from '@tanstack/react-router';
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 export default function AgeCategory() {
-  const { search, exclude } = useIndexGenerateSearch();
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   return (
     <MenubarSub>
@@ -20,9 +20,9 @@ export default function AgeCategory() {
               checked={search.age === value}
               onCheckedChange={checked => {
                 if (checked)
-                  navigate({ search: exclude(['page', 'keyword'], { age: value }) });
+                  navigate({ to: '/', search: exclude(['page', 'keyword'], { age: value }) });
                 else
-                  navigate({ search: exclude(['page', 'keyword', 'age']) });
+                  navigate({ to: '/', search: exclude(['page', 'keyword', 'age']) });
               }}
               onSelect={e => e.preventDefault()}
             >

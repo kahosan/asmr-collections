@@ -1,29 +1,33 @@
 import { useCallback } from 'react';
-import type { RegisteredRouter } from '@tanstack/react-router';
+
 import { useSearch } from '@tanstack/react-router';
+import type { RegisteredRouter } from '@tanstack/react-router';
 
-import type { RootSearchParams } from '~/providers/router';
+type RouterById = RegisteredRouter['routesById'];
+type RouteIds = keyof RouterById;
 
-type RootSearchParamsKeys = keyof RootSearchParams;
+type UnionToIntersection<U> =
+  (U extends unknown ? (k: U) => void : never) extends
+  (k: infer I) => void ? I : never;
 
-type IncludeContain<I extends RootSearchParamsKeys> = { [Key in Exclude<RootSearchParamsKeys, I>]?: RootSearchParams[Key] };
-type IncludeReturn<I extends RootSearchParamsKeys> = { [Key in I]: RootSearchParams[Key] };
+type FullSearchParams = UnionToIntersection<
+  RouterById[RouteIds]['types']['fullSearchSchema']
+>;
 
-type ExcludeContain<E extends RootSearchParamsKeys> = IncludeContain<E>;
-type ExcludeReturn<E extends RootSearchParamsKeys> = { [Key in Exclude<RootSearchParamsKeys, E>]: RootSearchParams[Key] };
+export function useGenerateSearch<TFrom extends RouteIds = '__root__'>(from?: TFrom) {
+  const search = useSearch<RegisteredRouter, TFrom>({ from: from ?? '__root__' });
 
-type RouteIds = keyof RegisteredRouter['routesById'];
+  type SearchParams = TFrom extends '__root__'
+    ? FullSearchParams
+    : RouterById[TFrom]['types']['fullSearchSchema'];
 
-/**
- * 生成搜索参数的自定义 Hook
- * 用于在路由跳转时生成新的搜索参数，支持包含或排除特定参数
- *
- * @param from - 路由 ID
- * @default '__root__'
- * @returns 返回包含当前搜索参数和两个生成方法的对象
- */
-export function useIndexGenerateSearch(from: RouteIds = '__root__') {
-  const search = useSearch({ from });
+  type SearchParamsKey = keyof SearchParams;
+
+  type IncludeContain<I extends SearchParamsKey> = { [K in Exclude<SearchParamsKey, I>]?: SearchParams[K] };
+  type IncludeReturn<I extends SearchParamsKey> = { [K in I]: SearchParams[K] };
+
+  type ExcludeContain<E extends SearchParamsKey> = IncludeContain<E>;
+  type ExcludeReturn<E extends SearchParamsKey> = { [K in Exclude<SearchParamsKey, E>]: SearchParams[K] };
 
   /**
    * 包含模式：只保留指定的参数
@@ -42,32 +46,28 @@ export function useIndexGenerateSearch(from: RouteIds = '__root__') {
    * const newSearch = include(['keyword'], { sort: 'popularity' });
    */
   const include = useCallback(
-    <I extends RootSearchParamsKeys>(
+    <I extends SearchParamsKey>(
       params: I[],
       contain?: IncludeContain<I>
     ): IncludeReturn<I> => {
-      // 初始化默认搜索参数
-      const _params: RootSearchParams = {
-        sort: 'releaseDate',
-        order: 'desc',
-        filterOp: 'and'
-      };
+      const result: Record<string, unknown> = {};
 
       // 从当前搜索参数中提取指定的参数
       for (const key of params) {
-        if (!search[key]) continue;
-        _params[key] = search[key];
+        const searchKey = key as keyof typeof search;
+        if (search[searchKey] === undefined) continue;
+        result[key as string] = search[searchKey];
       }
 
       // 添加额外的参数
       if (contain) {
         for (const [key, value] of Object.entries(contain)) {
           if (!value) continue;
-          _params[key as keyof IncludeContain<I>] = value as RootSearchParams[keyof IncludeContain<I>];
+          result[key] = value;
         }
       }
 
-      return _params;
+      return result as IncludeReturn<I>;
     }, [search]
   );
 
@@ -88,37 +88,31 @@ export function useIndexGenerateSearch(from: RouteIds = '__root__') {
    * const newSearch = exclude(['page'], { sort: 'popularity' });
    */
   const exclude = useCallback(
-    <E extends RootSearchParamsKeys>(
+    <E extends SearchParamsKey>(
       params: E[],
       contain?: ExcludeContain<E>
     ): ExcludeReturn<E> => {
-      // 初始化默认搜索参数
-      const _params: RootSearchParams = {
-        sort: 'releaseDate',
-        order: 'desc',
-        filterOp: 'and'
-      };
+      const result: Record<string, unknown> = {};
 
       // 保留除了指定参数外的所有参数
       for (const key in search) {
-        if (!search[key as E]) continue;
-        if (Object.hasOwn(search, key)) {
-          const _key = key as E;
-          // 如果当前键不在排除列表中，则保留
-          if (!params.includes(_key))
-            _params[_key] = search[_key];
-        }
+        if (!Object.hasOwn(search, key)) continue;
+        const searchKey = key as keyof typeof search;
+        if (search[searchKey] === undefined) continue;
+        // 如果当前键不在排除列表中，则保留
+        if (!params.includes(key as any))
+          result[key] = search[searchKey];
       }
 
       // 添加额外的参数
       if (contain) {
         for (const [key, value] of Object.entries(contain)) {
           if (!value) continue;
-          _params[key as keyof ExcludeContain<E>] = value as RootSearchParams[keyof ExcludeContain<E>];
+          result[key] = value;
         }
       }
 
-      return _params;
+      return result as ExcludeReturn<E>;
     }, [search]
   );
 

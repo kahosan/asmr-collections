@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
@@ -18,15 +18,16 @@ export default function CircleFilter() {
     onError: error => notifyError(error, '获取社团列表失败')
   });
 
-  const { search, exclude } = useIndexGenerateSearch();
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   const handleSelect = useCallback((id: string) => {
     if (search.circleId === id) {
-      navigate({ search: exclude(['keyword', 'page', 'seriesId', 'circleId']) });
+      navigate({ to: '/', search: exclude(['keyword', 'page', 'circleId']) });
       return;
     }
-    navigate({ search: exclude(['keyword', 'page', 'seriesId'], { circleId: id }) });
+
+    navigate({ to: '/', search: exclude(['keyword', 'page'], { circleId: id }) });
   }, [exclude, navigate, search.circleId]);
 
   return (

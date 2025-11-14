@@ -8,18 +8,16 @@ import { CheckIcon, Tag } from 'lucide-react';
 
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
 
 import type { Data } from '~/types/work';
 
 interface Props {
   genres: Array<Data<number>>
+  searchGenres?: number[]
 }
 
-export default function GenresPopover({ genres }: Props) {
-  const { search, exclude } = useIndexGenerateSearch();
-
-  const [selectedGenres, setSelectedGenres] = useState(search.genres ?? []);
+export default function GenresPopover({ genres, searchGenres }: Props) {
+  const [selectedGenres, setSelectedGenres] = useState(searchGenres ?? []);
 
   // 路由更新后，弹出框不受影响啊，只改了 search
   const [forceClose, setForceClose] = useState<number>();
@@ -70,7 +68,7 @@ export default function GenresPopover({ genres }: Props) {
         <Button variant="outline" className="w-full" asChild>
           <Link
             to="/"
-            search={exclude(['keyword', 'page'], { genres: selectedGenres })}
+            search={prev => ({ ...prev, genres: selectedGenres, page: undefined, keyword: undefined })}
             onClick={() => setForceClose(Math.random())}
           >
             筛选

@@ -12,12 +12,12 @@ import { MinusIcon } from 'lucide-react';
 import { Activity } from 'react';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from '@tanstack/react-router';
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
 
 export default function FilterMenu() {
-  const { search, exclude } = useIndexGenerateSearch('__root__');
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   const settings = useAtomValue(voiceLibraryOptionsAtom);
 
@@ -35,9 +35,9 @@ export default function FilterMenu() {
             checked={search.multilingual}
             onCheckedChange={checked => {
               if (checked)
-                navigate({ search: exclude(['keyword', 'page'], { multilingual: true }) });
+                navigate({ to: '/', search: exclude(['keyword', 'page'], { multilingual: true }) });
               else
-                navigate({ search: exclude(['keyword', 'page', 'multilingual']) });
+                navigate({ to: '/', search: exclude(['keyword', 'page', 'multilingual']) });
             }}
             onSelect={e => e.preventDefault()}
           >
@@ -47,9 +47,9 @@ export default function FilterMenu() {
             checked={search.subtitles}
             onCheckedChange={checked => {
               if (checked)
-                navigate({ search: exclude(['keyword', 'page'], { subtitles: true }) });
+                navigate({ to: '/', search: exclude(['keyword', 'page'], { subtitles: true }) });
               else
-                navigate({ search: exclude(['keyword', 'page', 'subtitles']) });
+                navigate({ to: '/', search: exclude(['keyword', 'page', 'subtitles']) });
             }}
             onSelect={e => e.preventDefault()}
           >
@@ -60,11 +60,11 @@ export default function FilterMenu() {
               checked={search.existsLocal === 'only'}
               onCheckedChange={() => {
                 if (!search.existsLocal)
-                  navigate({ search: exclude(['keyword', 'page'], { existsLocal: 'only' }) });
+                  navigate({ to: '/', search: exclude(['keyword', 'page'], { existsLocal: 'only' }) });
                 else if (search.existsLocal === 'only')
-                  navigate({ search: exclude(['keyword', 'page'], { existsLocal: 'exclude' }) });
+                  navigate({ to: '/', search: exclude(['keyword', 'page'], { existsLocal: 'exclude' }) });
                 else
-                  navigate({ search: exclude(['keyword', 'page', 'existsLocal']) });
+                  navigate({ to: '/', search: exclude(['keyword', 'page', 'existsLocal']) });
               }}
               onSelect={e => e.preventDefault()}
             >
@@ -81,7 +81,7 @@ export default function FilterMenu() {
             value={search.filterOp}
             onValueChange={value => {
               if (search.filterOp === value) return;
-              navigate({ search: exclude(['keyword', 'page'], { filterOp: value as 'and' | 'or' }) });
+              navigate({ to: '/', search: exclude(['keyword', 'page'], { filterOp: value as 'and' | 'or' }) });
             }}
           >
             <MenubarRadioItem value="and" onSelect={e => e.preventDefault()}>

@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
@@ -18,15 +18,22 @@ export default function SeriesFilter() {
     onError: error => notifyError(error, '获取系列列表失败')
   });
 
-  const { search, exclude } = useIndexGenerateSearch();
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   const handleSelect = useCallback((id: string) => {
     if (search.seriesId === id) {
-      navigate({ search: exclude(['keyword', 'page', 'circleId', 'seriesId', 'artistId', 'illustratorId', 'genres', 'artistCount']) });
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page', 'seriesId'])
+      });
       return;
     }
-    navigate({ search: exclude(['keyword', 'page', 'circleId', 'artistId', 'illustratorId', 'genres', 'artistCount'], { seriesId: id }) });
+
+    navigate({
+      to: '/',
+      search: exclude(['keyword', 'page'], { seriesId: id })
+    });
   }, [exclude, navigate, search.seriesId]);
 
   return (

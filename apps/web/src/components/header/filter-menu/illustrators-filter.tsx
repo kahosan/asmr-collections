@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useIndexGenerateSearch } from '~/hooks/use-generate-search';
+import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 import { fetcher } from '~/lib/fetcher';
 import { notifyError } from '~/lib/utils';
@@ -18,15 +18,16 @@ export default function IllustratorsFilter() {
     onError: error => notifyError(error, '获取画师列表失败')
   });
 
-  const { search, exclude } = useIndexGenerateSearch();
-  const navigate = useNavigate({ from: '/' });
+  const { search, exclude } = useGenerateSearch();
+  const navigate = useNavigate();
 
   const handleSelect = useCallback((id: number) => {
     if (search.illustratorId === id) {
-      navigate({ search: exclude(['keyword', 'page', 'illustratorId', 'seriesId']) });
+      navigate({ to: '/', search: exclude(['keyword', 'page', 'illustratorId']) });
       return;
     }
-    navigate({ search: exclude(['keyword', 'page', 'seriesId'], { illustratorId: id }) });
+
+    navigate({ to: '/', search: exclude(['keyword', 'page'], { illustratorId: id }) });
   }, [exclude, navigate, search.illustratorId]);
 
   return (
