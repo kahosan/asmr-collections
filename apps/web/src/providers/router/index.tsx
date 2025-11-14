@@ -7,6 +7,8 @@ import {
   createRoute,
   createRouter
 } from '@tanstack/react-router';
+import type { InferFullSearchSchema } from '@tanstack/react-router';
+
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
 import Layout from '~/layout';
@@ -21,9 +23,8 @@ import { z } from 'zod';
 
 import { preloadWorkDetails } from './preload';
 
+export type RootSearchParams = InferFullSearchSchema<typeof rootRoute>;
 export const RootSearchSchema = z.object({
-  page: z.number().optional(),
-  limit: z.number().optional(),
   circleId: z.string().optional(),
   seriesId: z.string().optional(),
   illustratorId: z.number().optional(),
@@ -41,8 +42,6 @@ export const RootSearchSchema = z.object({
   existsLocal: z.enum(['only', 'exclude']).optional()
 });
 
-export type RootSearchParams = z.infer<typeof RootSearchSchema>;
-
 const rootRoute = createRootRoute({
   component: () => (
     <ErrorBoundary>
@@ -55,7 +54,14 @@ const rootRoute = createRootRoute({
   validateSearch: RootSearchSchema
 });
 
+export type IndexSearchParams = InferFullSearchSchema<typeof indexRoute>;
+export const IndexSearchSchema = z.object({
+  page: z.number().optional(),
+  limit: z.number().optional()
+});
+
 const indexRoute = createRoute({
+  validateSearch: IndexSearchSchema,
   getParentRoute: () => rootRoute,
   path: '/',
   head: () => ({
@@ -73,11 +79,10 @@ const indexRoute = createRoute({
   )
 });
 
+export type WorkDetailsSearchParams = InferFullSearchSchema<typeof workDetailsRoute>;
 export const WorkDetailsSearchSchema = z.object({
   path: z.array(z.string()).optional()
 });
-
-export type WorkDetailsSearchParams = z.infer<typeof WorkDetailsSearchSchema>;
 
 const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
