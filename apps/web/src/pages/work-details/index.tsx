@@ -82,6 +82,11 @@ export default function WorkDetails() {
             <Separator />
 
             <div className="text-sm">
+              <span className="font-bold">销量：</span>
+              <span>{data.sales}</span>
+            </div>
+
+            <div className="text-sm">
               <span className="font-bold">价格：</span>
               <span>{data.price}<sup className="ml-1">JPY</sup></span>
             </div>
@@ -145,7 +150,7 @@ export default function WorkDetails() {
 
             <Separator />
 
-            <div className="flex flex-wrap gap-2 [&>*]:px-1">
+            <div className="flex flex-wrap gap-2 *:px-1">
               <Button asChild variant="link" size="sm" className="w-max hover:opacity-80">
                 <a href={`https://www.dlsite.com/maniax/work/=/product_id/${data.id}.html`} target="_blank" rel="noreferrer noopener">
                   DLsite
