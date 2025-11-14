@@ -108,15 +108,11 @@ export default function PlayerPage() {
                   >
                     <PlayerPageActionsAbove />
                     <PlayerCover onPointerDown={e => dragControls.start(e)} />
-                    <div
-                      className="w-full flex flex-col items-center touch-auto"
-                      onPointerDown={e => {
-                        e.stopPropagation();
-                      }}
-                    >
+                    <div className="w-full flex flex-col items-center">
                       <PlayerPageMain />
                       <motion.div className="w-full mt-10">
                         <PlayerSidePanel
+                          onPointerDown={e => e.stopPropagation()}
                           key={activeTab}
                           onTabChange={handleTabChange}
                           activeTab={activeTab}

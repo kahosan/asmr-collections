@@ -30,7 +30,7 @@ export default function PlayerSidePanel({ activeTab = 'playlist', onTabChange, c
   return (
     <Tabs
       {...rest}
-      className="ml-10 max-md:ml-0"
+      className="ml-10 max-md:ml-0 touch-auto"
       value={tab}
       onValueChange={handleTabChange}
       tabs={[

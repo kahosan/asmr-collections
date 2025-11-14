@@ -25,7 +25,7 @@ export default function PlayerPageMain() {
           {workTitle}
         </div>
       </div>
-      <div id="progress-bar">
+      <div id="progress-bar" onPointerDown={e => e.stopPropagation()} className="touch-auto">
         <TimeSlider.Root className="group relative w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden before:absolute before:inset-0 before:-top-2 before:-bottom-2 before:content-['']">
           <TimeSlider.Preview offset={5} className="opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-data-dragging:opacity-100">
             <TimeSlider.Value className="px-2 py-1 bg-background/80 backdrop-blur-sm text-xs rounded-md border border-border/50" />
@@ -45,7 +45,7 @@ export default function PlayerPageMain() {
         <PlayerPageActions />
       </div>
       {showVolumeSlider && (
-        <div id="volume-slider" className="w-full flex justify-center items-center gap-2">
+        <div id="volume-slider" className="w-full flex justify-center items-center gap-2 touch-auto" onPointerDown={e => e.stopPropagation()}>
           <div className="w-[95%] flex items-center gap-2">
             <Volume1Icon className="min-max-size-6" />
             <VolumeSlider.Root className="group relative mx-[7.5px] h-1 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
