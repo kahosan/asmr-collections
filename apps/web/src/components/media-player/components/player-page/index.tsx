@@ -43,12 +43,10 @@ export default function PlayerPage() {
 
   useBlocker({
     shouldBlockFn() {
-      if (expand) {
-        setExpand(false);
-        return true;
-      }
-      return false;
-    }
+      setExpand(false);
+      return true;
+    },
+    disabled: !expand
   });
 
   return (
