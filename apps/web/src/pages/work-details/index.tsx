@@ -176,6 +176,16 @@ export default function WorkDetails() {
                     )
                 ))
               }
+
+              {
+                data.translationInfo.childWorknos.map(childId => (
+                  <Button key={childId} asChild variant="link" size="sm" className="w-max hover:opacity-80">
+                    <Link to="/work-details/$id" params={{ id: childId }}>
+                      译者版
+                    </Link>
+                  </Button>
+                ))
+              }
             </div>
           </div>
         </Card>
