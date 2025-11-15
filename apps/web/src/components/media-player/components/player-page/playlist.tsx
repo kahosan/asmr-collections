@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 
 import { useAtom } from 'jotai';
+import { motion } from 'framer-motion';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { arrayMove } from '@dnd-kit/helpers';
@@ -42,18 +43,23 @@ export default function Playlist() {
           }
         }}
       >
-        {
-          tracks?.map((track, index) => (
-            <SortableItem
-              key={track.title}
-              current={current}
-              onChange={() => onChange(track.title)}
-              track={track}
-              index={index}
-              removeTrack={() => removeTrack(track)}
-            />
-          ))
-        }
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          {
+            tracks?.map((track, index) => (
+              <SortableItem
+                key={track.title}
+                current={current}
+                onChange={() => onChange(track.title)}
+                track={track}
+                index={index}
+                removeTrack={() => removeTrack(track)}
+              />
+            ))
+          }
+        </motion.div>
       </DragDropProvider>
     </div>
   );
