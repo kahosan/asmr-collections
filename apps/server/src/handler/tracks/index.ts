@@ -1,13 +1,15 @@
-import type { Tracks } from '~/types/tracks';
+import type { Track, Tracks } from '~/types/tracks';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { newQueue } from '@henrygd/queue';
 import { Hono } from 'hono';
+import { parseFile } from 'music-metadata';
 import { match } from 'ts-pattern';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { formatError, workIsExistsInLocal } from '../utils';
 
-const queue = newQueue(50);
+const folderQueue = newQueue(50);
+const fileQueue = newQueue(50);
 
 export const tracksApp = new Hono();
 
@@ -42,40 +44,55 @@ async function generateTracks(path: string, basePath: string): Promise<Tracks> {
     .filter(e => e.isFile())
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-  const data: Tracks = [];
+  const relativePath = path.replace(basePath, '');
 
-  const folderTracks = await queue.all(
-    folders
-      .map(folder => generateTracks(join(path, folder.name), basePath)
-        .then(children => ({ type: 'folder' as const, title: folder.name, children })))
-  );
+  const [folderTracks, fileTracks] = await Promise.all([
+    folderQueue.all(
+      folders
+        .map(folder => generateTracks(join(path, folder.name), basePath)
+          .then(children => ({ type: 'folder' as const, title: folder.name, children })))
+    ),
+    fileQueue.all(
+      files.map(async file => {
+        const _ft = extname(file.name);
+        const ft = match(_ft.toLowerCase())
+          .with('.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.opus', () => 'audio' as const)
+          .with('.mp4', '.mkv', '.avi', '.mov', () => 'audio' as const)
+          .with('.srt', '.vtt', '.lrc', () => 'text' as const)
+          .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
+          .otherwise(() => 'other' as const);
 
-  data.push(...folderTracks);
+        const item: Track = {
+          type: ft,
+          title: file.name,
+          mediaDownloadUrl: new URL(
+            `/download${relativePath}/${encodeURIComponent(file.name)}`,
+            HOST_URL
+          ).toString(),
+          mediaStreamUrl: new URL(
+            `/stream${relativePath}/${encodeURIComponent(file.name)}`,
+            HOST_URL
+          ).toString()
+        };
 
-  for (const file of files) {
-    const _ft = extname(file.name);
-    const ft = match(_ft.toLowerCase())
-      .with('.mp3', '.wav', '.flac', '.aac', '.m4a', '.ogg', '.opus', () => 'audio' as const)
-      .with('.mp4', '.mkv', '.avi', '.mov', () => 'audio' as const)
-      .with('.srt', '.vtt', '.lrc', () => 'text' as const)
-      .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
-      .otherwise(() => 'other' as const);
+        if (ft === 'audio') {
+          try {
+            const metadata = await parseFile(join(path, file.name), {
+              skipCovers: true,
+              duration: true
+            });
+            const duration = metadata.format.duration;
+            if (duration)
+              item.duration = duration;
+          } catch (e) {
+            console.warn(`无法解析音频文件元数据: ${join(path, file.name)}, 错误信息: ${(e as Error).message}`);
+          }
+        }
 
-    const relativePath = path.replace(basePath, '');
+        return item;
+      })
+    )
+  ]);
 
-    data.push({
-      type: ft,
-      title: file.name,
-      mediaDownloadUrl: new URL(
-        `/download${relativePath}/${encodeURIComponent(file.name)}`,
-        HOST_URL
-      ).toString(),
-      mediaStreamUrl: new URL(
-        `/stream${relativePath}/${encodeURIComponent(file.name)}`,
-        HOST_URL
-      ).toString()
-    });
-  }
-
-  return data;
+  return [...folderTracks, ...fileTracks];
 }

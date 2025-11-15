@@ -23,6 +23,7 @@
     "dotenv-cli": "^8.0.0",
     "file-type": "^21.0.0",
     "hono": "^4.10.0",
+    "music-metadata": "^11.10.0",
     "prisma": "^6.17.1",
     "ts-pattern": "^5.8.0"
   },
