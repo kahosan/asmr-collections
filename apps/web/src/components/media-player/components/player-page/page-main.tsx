@@ -16,16 +16,16 @@ export default function PlayerPageMain() {
   const showVolumeSlider = !isIOSSafari();
 
   return (
-    <div className="w-full flex flex-col gap-6">
-      <div id="track-info" className="text-center mt-8">
-        <div id="track-title" className="font-semibold line-clamp-2">
+    <div className="w-full flex flex-col sm:gap-2 gap-6">
+      <div id="track-info" className="text-center">
+        <div id="track-title" className="font-semibold sm:text-sm line-clamp-2">
           {title}
         </div>
         <div id="work-title" className="mt-2 text-xs opacity-60 line-clamp-2">
           {workTitle}
         </div>
       </div>
-      <div id="progress-bar" onPointerDown={e => e.stopPropagation()} className="touch-auto">
+      <div id="progress-bar" onPointerDown={e => e.stopPropagation()} className="touch-auto sm:mt-4">
         <TimeSlider.Root className="group relative w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden before:absolute before:inset-0 before:-top-2 before:-bottom-2 before:content-['']">
           <TimeSlider.Preview offset={5} className="opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-data-dragging:opacity-100">
             <TimeSlider.Value className="px-2 py-1 bg-background/80 backdrop-blur-sm text-xs rounded-md border border-border/50" />
@@ -46,13 +46,13 @@ export default function PlayerPageMain() {
       </div>
       {showVolumeSlider && (
         <div id="volume-slider" className="w-full flex justify-center items-center gap-2 touch-auto" onPointerDown={e => e.stopPropagation()}>
-          <div className="w-[95%] flex items-center gap-2">
+          <div className="w-[95%] flex items-center gap-1">
             <Volume1Icon className="min-max-size-6" />
-            <VolumeSlider.Root className="group relative mx-[7.5px] h-1 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
-              <VolumeSlider.Track className="relative ring-white z-0 h-1 w-full rounded-sm bg-white/30 group-data-focus:ring-[1px]">
-                <VolumeSlider.TrackFill className="bg-white/70 absolute h-full w-(--slider-fill) rounded-sm will-change-[width]" />
+            <VolumeSlider.Root className="group relative mr-3 h-1 w-full cursor-pointer touch-none select-none items-center outline-none aria-hidden:hidden">
+              <VolumeSlider.Track className="relative ring-white z-0 h-1 w-full rounded-sm bg-foreground/20 group-data-focus:ring-[1px]">
+                <VolumeSlider.TrackFill className="bg-blue-400 absolute h-full w-(--slider-fill) rounded-sm will-change-[width]" />
               </VolumeSlider.Track>
-              <VolumeSlider.Thumb className="absolute left-(--slider-fill) top-1/2 z-20 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white ring-white/40 transition-opacity group-data-dragging:ring-4 will-change-[left]" />
+              <VolumeSlider.Thumb className="absolute left-(--slider-fill) top-1/2 z-20 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white transition-opacity will-change-[left]" />
             </VolumeSlider.Root>
             <Volume2 className="min-max-size-6" />
           </div>

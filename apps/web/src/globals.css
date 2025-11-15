@@ -225,8 +225,11 @@ body {
   max-height: calc(var(--spacing) * --value(integer));
 }
 
-body:has(div[data-player-page="true"]) {
-  overflow: hidden;
+/* Lock scroll when player page is opened on small screens 640px */
+@media (width < 40rem) {
+  body:has(div[data-player-page="true"]) {
+    overflow: hidden;
+  }
 }
 
 body[data-scroll-locked] {

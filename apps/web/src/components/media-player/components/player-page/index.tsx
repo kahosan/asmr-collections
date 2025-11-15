@@ -6,8 +6,8 @@ import { usePlayerExpand } from '../../hooks/use-player-expand';
 
 import PlayerCover from './cover';
 import PlayerSidePanel from './side-panel';
-import PlayerPageMain from './mobile-main';
-import MiddleControls from '../middle-controls';
+import PlayerPageMain from './page-main';
+import TrackInfo from '../track-info';
 import PlayerPageActionsAbove from './actions-above';
 import RightPlayControls from '../right-controls/right-play';
 
@@ -27,8 +27,6 @@ export default function PlayerPage() {
 
   const dragControls = useDragControls();
 
-  const isMobile = window.innerWidth < 640;
-
   const handleTabChange = (tab: string) => {
     if (tab !== '')
       setMainExpand(false);
@@ -41,12 +39,14 @@ export default function PlayerPage() {
     setActiveTab('');
   };
 
+  const isMobile = window.innerWidth <= 640;
+
   useBlocker({
     shouldBlockFn() {
       setExpand(false);
       return true;
     },
-    disabled: !expand
+    disabled: !expand || !isMobile
   });
 
   return (
@@ -55,12 +55,12 @@ export default function PlayerPage() {
         <motion.div
           data-player-page={expand}
           key="player-page"
-          className="fixed inset-0 w-full rounded-md bg-card pt-18 pb-20 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]"
+          className="fixed overflow-hidden rounded-md bg-card sm:w-85 sm:h-145 sm:bottom-5 sm:right-5 max-sm:inset-0 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]"
           initial={{ y: '100%' }}
           animate={{ y: '0%' }}
           exit={{ y: '100%' }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          drag={mainExpand && isMobile ? 'y' : false}
+          drag={mainExpand ? 'y' : false}
           dragControls={dragControls}
           dragListener={false}
           dragConstraints={{ top: 0, bottom: 0 }}
@@ -87,12 +87,8 @@ export default function PlayerPage() {
             };
           }}
         >
-          <div className="mx-auto max-w-7xl flex px-10 h-full max-md:flex-col items-start gap-10 max-sm:hidden">
-            <PlayerCover />
-            <PlayerSidePanel />
-          </div>
           <div
-            className="h-full px-6 hidden max-sm:flex flex-col items-center touch-none"
+            className="h-full px-6 flex flex-col items-center touch-none"
             onPointerDown={e => dragControls.start(e)}
           >
             <AnimatePresence mode="wait">
@@ -108,9 +104,9 @@ export default function PlayerPage() {
                   >
                     <PlayerPageActionsAbove />
                     <PlayerCover onPointerDown={e => dragControls.start(e)} />
-                    <div className="w-full flex flex-col items-center">
+                    <div className="w-full flex flex-col items-center max-sm:mt-8">
                       <PlayerPageMain />
-                      <motion.div className="w-full mt-10">
+                      <motion.div className="w-full max-sm:mt-10 mt-4">
                         <PlayerSidePanel
                           onPointerDown={e => e.stopPropagation()}
                           key={activeTab}
@@ -128,19 +124,19 @@ export default function PlayerPage() {
                   <>
                     <motion.div
                       key="controls"
-                      className="w-full flex justify-between"
+                      className="w-full flex justify-between sm:mt-2 cursor-pointer"
                       onClick={handleMainClick}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
-                      <MiddleControls />
+                      <TrackInfo mainExpand={mainExpand} />
                       <div onClick={e => e.stopPropagation()}>
-                        <RightPlayControls />
+                        <RightPlayControls mainExpand={mainExpand} />
                       </div>
                     </motion.div>
-                    <motion.div className="w-full mt-10">
+                    <motion.div className="w-full mt-10 sm:mt-2">
                       <PlayerSidePanel
                         key={activeTab}
                         onTabChange={handleTabChange}

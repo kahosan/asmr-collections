@@ -41,6 +41,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
 
   const [autoScroll, setAutoScroll] = useState(true);
   const [activeCue, setActiveCue] = useState<VTTCue | null>(null);
+  const [loaded, setLoaded] = useState('');
 
   const allSubtitles = useAtomValue(allSubtitlesAtom);
 
@@ -63,9 +64,15 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
       if (cue) setActiveCue(cue);
     };
 
+    const onLoad = () => {
+      setLoaded(textTrack.id);
+    };
+
+    textTrack.addEventListener('load', onLoad);
     textTrack.addEventListener('cue-change', onCueChange);
 
     return () => {
+      textTrack.removeEventListener('load', onLoad);
       textTrack.removeEventListener('cue-change', onCueChange);
     };
   }, [textTrack]);
@@ -98,7 +105,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
 
   return (
     <div className="relative">
-      <div className="sticky top-0 bg-card w-full z-1 flex items-center justify-between p-2 border-b border-r border-l">
+      <div className="sticky top-0 bg-card w-full z-1 flex items-center justify-between p-2 border-b border-r border-l rounded-b-lg">
         <SubtitleSelector />
         <Button
           variant="secondary"
@@ -119,7 +126,12 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
           </AnimatePresence>
         </Button>
       </div>
-      <div className="pt-4 space-y-2">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="pt-4 space-y-2"
+        key={loaded}
+      >
         {textTrack?.cues.map(cue => {
           let isActive = false;
           if (activeCue)
@@ -146,7 +158,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
             </div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 };

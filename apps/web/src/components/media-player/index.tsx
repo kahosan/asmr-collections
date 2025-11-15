@@ -61,7 +61,7 @@ export default function MediaPlayer() {
   if (!mediaState.open) return null;
 
   return (
-    <div className="relative h-20 max-sm:z-10">
+    <div className="relative h-15 max-sm:z-10">
       <div className="fixed bottom-0 w-full">
         <VidstackPlayer
           autoPlay

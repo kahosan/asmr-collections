@@ -5,7 +5,11 @@ import { useMediaRemote, useMediaState } from '@vidstack/react';
 
 import { useMediaActions } from '../../context/media-actions';
 
-export default function RightPlayControls() {
+interface RightPlayControlsProps {
+  mainExpand?: boolean
+}
+
+export default function RightPlayControls({ mainExpand }: RightPlayControlsProps) {
   const actions = useMediaActions();
   const playing = useMediaState('playing');
   const canPlay = useMediaState('canPlay');
@@ -23,7 +27,7 @@ export default function RightPlayControls() {
   };
 
   return (
-    <div className="hidden items-center h-full gap-3 max-sm:flex">
+    <div className={`${mainExpand === undefined ? 'hidden' : 'flex'} items-center h-full gap-3 max-sm:flex`}>
       <motion.div
         className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors"
         onClick={handlePlayPause}
@@ -38,8 +42,8 @@ export default function RightPlayControls() {
           >
             {canPlay && !waiting
               ? (playing
-                ? <PauseIcon className="min-max-size-7 cursor-pointer" fill="currentColor" strokeWidth={0} />
-                : <PlayIcon className="min-max-size-7 cursor-pointer" fill="currentColor" strokeWidth={0} />)
+                ? <PauseIcon className="min-max-size-6 cursor-pointer" fill="currentColor" strokeWidth={0} />
+                : <PlayIcon className="min-max-size-6 cursor-pointer" fill="currentColor" />)
               : <Loader2Icon className="min-max-size-6 cursor-pointer animate-spin" />}
           </motion.div>
         </AnimatePresence>

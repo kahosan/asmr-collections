@@ -30,7 +30,7 @@ export default function PlayerSidePanel({ activeTab = 'playlist', onTabChange, c
   return (
     <Tabs
       {...rest}
-      className="ml-10 max-md:ml-0 touch-auto"
+      className="touch-auto -mb-px"
       value={tab}
       onValueChange={handleTabChange}
       tabs={[
@@ -40,8 +40,9 @@ export default function PlayerSidePanel({ activeTab = 'playlist', onTabChange, c
       ]}
     >
       <ScrollArea
-        className={cn('max-md:h-60 h-[calc(100dvh-17rem)] touch-auto', classNames?.scrollArea)}
+        className={cn('h-115 max-sm:h-[calc(100dvh-10rem)] touch-auto', classNames?.scrollArea)}
         ref={scrollAreaRef}
+        type="auto"
       >
         <TabsContent value="playlist">
           <Playlist />

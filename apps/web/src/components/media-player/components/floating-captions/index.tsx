@@ -7,7 +7,7 @@ export default function FloatingCaptions() {
 
   const [activeCue, setActiveCue] = useState<VTTCue>();
 
-  const [position, setPosition] = useState({ x: 0, y: 800 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef({ startX: 0, startY: 0 });
 
@@ -82,7 +82,7 @@ export default function FloatingCaptions() {
       style={{
         position: 'fixed',
         left: 0,
-        top: 0,
+        bottom: 100,
         transform: `translate(${position.x}px, ${position.y}px)`,
         cursor: isDragging ? 'grabbing' : 'grab',
         touchAction: 'none'
