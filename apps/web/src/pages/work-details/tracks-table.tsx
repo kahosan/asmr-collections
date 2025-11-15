@@ -33,7 +33,8 @@ import 'lightgallery/css/lg-thumbnail.css';
 
 import { fetcher } from '~/lib/fetcher';
 import { SubtitleMatcher } from '../../lib/subtitle-matcher';
-import { extractFileExt, collectSubtitles, notifyError } from '~/lib/utils';
+
+import { extractFileExt, collectSubtitles, notifyError } from '~/utils';
 
 import type { MediaTrack } from '~/hooks/use-media-state';
 import type { SettingOptions } from '~/hooks/use-setting-options';
@@ -231,14 +232,17 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
             {
               groupByType?.folder?.map(item => (
                 <TableRow key={item.title}>
-                  <TableCell className="p-0 whitespace-normal">
+                  <TableCell className="p-0 whitespace-normal h-12.5">
                     <Link
                       from="/work-details/$id"
                       search={{ path: (searchPath ?? []).concat(item.title) }}
-                      className="flex items-center gap-3 p-3"
+                      className="flex items-center"
                     >
-                      <FolderClosed className="min-size-7" color="#56CBFC" />
-                      <p className="line-clamp-2">{item.title}</p>
+                      <FolderClosed className="min-size-8 mx-4" color="#56CBFC" />
+                      <div>
+                        <p className="line-clamp-2">{item.title}</p>
+                        <small className="opacity-70">{item.children?.length ?? 0} 项目</small>
+                      </div>
                     </Link>
                   </TableCell>
                 </TableRow>
@@ -261,7 +265,7 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                     key={item.title}
                     className={isCurrentTrack ? 'dark:bg-zinc-800 bg-slate-100' : ''}
                   >
-                    <TableCell className="p-0 whitespace-normal">
+                    <TableCell className="p-0 whitespace-normal h-12.5">
                       {
                         match(mediaType)
                           .with('text', () => (
@@ -269,9 +273,9 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                               to={textUrl}
                               target="_blank"
                               title={item.title}
-                              className="flex gap-3 items-center p-3"
+                              className="flex items-center"
                             >
-                              <FileText className="min-size-7" color="#7CB920" />
+                              <FileText className="min-size-8 mx-4" color="#7CB920" />
                               <p className="line-clamp-2">{item.title}</p>
                             </Link>
                           ))
@@ -301,13 +305,13 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
             {
               groupByType?.image?.map((item, index) => (
                 <TableRow key={item.title}>
-                  <TableCell className="p-0 whitespace-normal">
+                  <TableCell className="p-0 whitespace-normal h-12.5">
                     <button
                       type="button"
                       onClick={() => openGallery(index)}
-                      className="w-full flex gap-3 items-center p-3 text-start"
+                      className="w-full flex items-center text-start"
                     >
-                      <FileImage className="min-size-7" color="#FF9800" />
+                      <FileImage className="min-size-8 mx-4" color="#FF9800" />
                       <p className="line-clamp-2">{item.title}</p>
                     </button>
                   </TableCell>
@@ -318,14 +322,14 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
             {
               groupByType?.other?.map(item => (
                 <TableRow key={item.title}>
-                  <TableCell className="p-0 whitespace-normal">
+                  <TableCell className="p-0 whitespace-normal h-12.5">
                     <Link
                       to={item.mediaDownloadUrl}
                       target="_blank"
                       title={item.title}
-                      className="flex gap-3 items-center p-3"
+                      className="flex items-center"
                     >
-                      <FileText className="min-size-7" color="#9E9E9E" />
+                      <FileText className="min-size-8 mx-4" color="#9E9E9E" />
                       <p className="line-clamp-2">{item.title}</p>
                     </Link>
                   </TableCell>

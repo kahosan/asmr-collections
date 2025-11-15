@@ -81,3 +81,18 @@ export function collectSubtitles(data: Tracks | undefined, recursive = false): S
   traverse(data);
   return subtitles;
 }
+
+function formatTimeUnit(unit: number) {
+  return String(unit).padStart(2, '0');
+}
+
+export function formatDuration(seconds: number) {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  if (hrs > 0)
+    return `${formatTimeUnit(hrs)}:${formatTimeUnit(mins)}:${formatTimeUnit(secs)}`;
+
+  return `${formatTimeUnit(mins)}:${formatTimeUnit(secs)}`;
+}

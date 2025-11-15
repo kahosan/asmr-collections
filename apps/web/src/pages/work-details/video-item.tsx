@@ -5,6 +5,8 @@ import { FileVideo } from 'lucide-react';
 
 import { useCallback, useState } from 'react';
 
+import { formatDuration } from '~/utils';
+
 import type { Work } from '~/types/work';
 import type { Track, Tracks } from '~/types/tracks';
 
@@ -46,9 +48,12 @@ export default function VideoItem({ track, tracks, work }: VideoItemProps) {
 
   return (
     <Dialog>
-      <DialogTrigger className="flex gap-3 items-center p-3 w-full text-start" title={track.title}>
-        <FileVideo className="min-size-7" color="#4B60D7" />
-        <p className="line-clamp-2">{track.title}</p>
+      <DialogTrigger className="flex items-center w-full text-start" title={track.title}>
+        <FileVideo className="min-size-8 mx-4" color="#4B60D7" />
+        <div>
+          <p className="line-clamp-2">{track.title}</p>
+          {track.duration ? <small className="opacity-70">{formatDuration(track.duration)}</small> : null}
+        </div>
       </DialogTrigger>
       <DialogContent className="p-2" onInteractOutside={e => e.preventDefault()}>
         <DialogTitle className="text-md truncate w-[60%]" title={currentTrack.title}>

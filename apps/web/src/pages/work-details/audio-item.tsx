@@ -2,6 +2,8 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, Con
 
 import { FileMusic } from 'lucide-react';
 
+import { formatDuration } from '~/utils';
+
 import type { MediaTrack } from '~/hooks/use-media-state';
 
 interface AudioItemProps {
@@ -14,9 +16,12 @@ interface AudioItemProps {
 export default function AudioItem({ existCurrentTrack, track, onPlay, enqueueTrack }: AudioItemProps) {
   return (
     <ContextMenu>
-      <ContextMenuTrigger className="flex gap-3 items-center p-3 w-full cursor-pointer select-none" onClick={onPlay} title={track.title}>
-        <FileMusic className="min-size-7" color="#4083e7" />
-        <p className="line-clamp-2">{track.title}</p>
+      <ContextMenuTrigger className="flex items-center w-full cursor-pointer select-none" onClick={onPlay} title={track.title}>
+        <FileMusic className="min-size-8 mx-4" color="#4083e7" />
+        <div>
+          <p className="line-clamp-2">{track.title}</p>
+          {track.duration ? <small className="opacity-70">{formatDuration(track.duration)}</small> : null}
+        </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuLabel>操作</ContextMenuLabel>
