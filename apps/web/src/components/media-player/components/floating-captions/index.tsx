@@ -1,5 +1,5 @@
 import { useMediaState } from '@vidstack/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '~/lib/utils';
 
 export default function FloatingCaptions() {
@@ -7,9 +7,9 @@ export default function FloatingCaptions() {
 
   const [activeCue, setActiveCue] = useState<VTTCue>();
 
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 0, y: 800 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const dragRef = useRef({ startX: 0, startY: 0 });
 
   useEffect(() => {
     if (!textTrackState) return;
@@ -35,87 +35,69 @@ export default function FloatingCaptions() {
     };
   }, [textTrackState]);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
-
-      setPosition(prev => ({
-        x: prev.x + deltaX,
-        y: prev.y + deltaY
-      }));
-
-      setDragStart({ x: e.clientX, y: e.clientY });
+  const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragRef.current = {
+      startX: clientX - position.x,
+      startY: clientY - position.y
     };
+  }, [position.x, position.y]);
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isDragging) return;
-
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStart.x;
-      const deltaY = touch.clientY - dragStart.y;
-
-      setPosition(prev => ({
-        x: prev.x + deltaX,
-        y: prev.y + deltaY
-      }));
-
-      setDragStart({ x: touch.clientX, y: touch.clientY });
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-    };
-
+  const handleMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleEnd);
-      document.addEventListener('touchmove', handleTouchMove);
-      document.addEventListener('touchend', handleEnd);
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      setPosition({
+        x: clientX - dragRef.current.startX,
+        y: clientY - dragRef.current.startY
+      });
     }
+  }, [isDragging]);
 
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleEnd);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleEnd);
-    };
-  }, [isDragging, dragStart]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+  const handleEnd = () => {
+    setIsDragging(false);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setDragStart({ x: touch.clientX, y: touch.clientY });
-  };
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('mouseup', handleEnd);
+      window.addEventListener('touchmove', handleMove);
+      window.addEventListener('touchend', handleEnd);
+      return () => {
+        window.removeEventListener('mousemove', handleMove);
+        window.removeEventListener('mouseup', handleEnd);
+        window.removeEventListener('touchmove', handleMove);
+        window.removeEventListener('touchend', handleEnd);
+      };
+    }
+  }, [handleMove, isDragging]);
 
   if (!textTrackState) return null;
 
   return (
     <div
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
       style={{
-        position: 'relative',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        cursor: isDragging ? 'grabbing' : 'grab'
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        cursor: isDragging ? 'grabbing' : 'grab',
+        touchAction: 'none'
       }}
+      className="select-none z-5"
+      onMouseDown={handleStart}
+      onTouchStart={handleStart}
     >
       <div
         id="floating-captions"
         className={cn(
           'bg-gray-400/60 text-blue-600 dark:bg-accent/70 dark:text-blue-400',
-          'rounded-sm min-w-full text-center min-h-8 px-4 py-1',
+          'rounded-sm min-w-dvw text-center min-h-8 px-4 py-1',
           'text-xl touch-none',
-          'flex flex-wrap items-center justify-center',
-          'absolute bottom-20'
+          'flex flex-wrap items-center justify-center'
         )}
       >
         <span>{activeCue?.text}</span>
