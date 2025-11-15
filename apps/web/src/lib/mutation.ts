@@ -2,7 +2,7 @@ import { mutate } from 'swr';
 import { fetcher, HTTPError } from './fetcher';
 
 import { logger } from './logger';
-import { notifyError } from './utils';
+import { notifyError } from '../utils';
 
 export function mutateWorkInfo(id: string) {
   mutate(`work-info-${id}`, async () => {

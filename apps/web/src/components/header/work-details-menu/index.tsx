@@ -19,8 +19,8 @@ import { match } from 'ts-pattern';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
+import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
-import { notifyError } from '~/lib/utils';
 import { mutateWorkInfo } from '~/lib/mutation';
 import { showSettingDialogAtom } from '~/lib/store';
 

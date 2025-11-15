@@ -4,8 +4,8 @@ import Pagination from '../pagination';
 import useSWR from 'swr';
 import { useSearch } from '@tanstack/react-router';
 
+import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
-import { notifyError } from '~/lib/utils';
 
 import type { WorksResponse } from '~/types/works';
 

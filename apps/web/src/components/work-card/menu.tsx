@@ -12,8 +12,8 @@ import { useAtomValue } from 'jotai';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
+import { extractFileExt } from '~/utils';
 import { mutateWorks } from '~/lib/mutation';
-import { extractFileExt } from '~/lib/utils';
 
 import type { Work } from '~/types/work';
 

@@ -5,8 +5,10 @@ import Autoplay from 'embla-carousel-autoplay';
 
 import useSWRImmutable from 'swr/immutable';
 
+import { notifyError } from '~/utils';
+
+import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
-import { cn, notifyError } from '~/lib/utils';
 
 import type { Work } from '~/types/work';
 

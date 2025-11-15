@@ -1,7 +1,8 @@
 import { preload } from 'swr';
 
+import { notifyError } from '~/utils';
+
 import { logger } from '~/lib/logger';
-import { notifyError } from '~/lib/utils';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 
 export function preloadWorkDetails(id: string) {

@@ -8,8 +8,8 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { useGenerateSearch } from '~/hooks/use-generate-search';
 
+import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
-import { notifyError } from '~/lib/utils';
 
 import type { Data } from '~/types/work';
 

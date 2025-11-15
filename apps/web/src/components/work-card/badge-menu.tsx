@@ -10,7 +10,7 @@ import {
 
 import { useState } from 'react';
 
-import { writeClipboard } from '~/lib/utils';
+import { writeClipboard } from '~/utils';
 import type { RootSearchParams } from '~/providers/router';
 
 interface Props {

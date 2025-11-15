@@ -1,6 +1,7 @@
 import { fetcher } from '~/lib/fetcher';
 import { logger } from '~/lib/logger';
-import { extractFileExt } from '~/lib/utils';
+
+import { extractFileExt } from '~/utils';
 
 function decodeText(data: ArrayBuffer): string {
   const encodings = ['gbk', 'gb2312', 'gb18030', 'utf-8'];

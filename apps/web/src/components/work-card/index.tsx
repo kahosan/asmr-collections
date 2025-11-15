@@ -19,8 +19,10 @@ import useSWRImmutable from 'swr/immutable';
 import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { useGenerateSearch } from '~/hooks/use-generate-search';
 
+import { notifyError, writeClipboard } from '~/utils';
+
+import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
-import { cn, notifyError, writeClipboard } from '~/lib/utils';
 
 import type { Work } from '~/types/work';
 

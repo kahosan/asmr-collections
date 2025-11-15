@@ -10,8 +10,9 @@ import { CopyIcon } from 'lucide-react';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
+import { writeClipboard } from '~/utils';
+
 import { logger } from '~/lib/logger';
-import { writeClipboard } from '~/lib/utils';
 
 import type { BatchOperationResponse } from '~/types/work';
 
