@@ -5,11 +5,16 @@ import { newQueue } from '@henrygd/queue';
 import { Hono } from 'hono';
 import { parseFile } from 'music-metadata';
 import { match } from 'ts-pattern';
+import { createCachified, ttl } from '~/lib/cachified';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { formatError, workIsExistsInLocal } from '../utils';
 
 const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
+
+const [tracksCache, clearTracksCache] = createCachified<Tracks>({
+  ttl: ttl(120)
+});
 
 export const tracksApp = new Hono();
 
@@ -25,9 +30,27 @@ tracksApp.get('/:id', async c => {
     if (!workIsExist)
       return c.json({ message: '作品不存在于本地音声库' }, 404);
 
-    const data = await generateTracks(workPath, VOICE_LIBRARY);
+    const data = await tracksCache({
+      cacheKey: `tracks-${id}`,
+      getFreshValue: () => generateTracks(workPath, VOICE_LIBRARY!),
+      ctx: c
+    });
 
     return c.json(data);
+  } catch (e) {
+    return c.json(formatError(e), 500);
+  }
+});
+
+tracksApp.post('/:id/cache/clear', async c => {
+  const { id } = c.req.param();
+
+  try {
+    if (!VOICE_LIBRARY || !HOST_URL)
+      return c.json({ message: '本地音声库或域名没有配置' }, 500);
+
+    await clearTracksCache(`tracks-${id}`);
+    return c.json({ message: `${id} 缓存已清除` });
   } catch (e) {
     return c.json(formatError(e), 500);
   }

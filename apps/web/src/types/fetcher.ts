@@ -14,7 +14,9 @@ export type WorkAPI =
 
 export type WorksAPI = 'works';
 export type FieldAPI = 'field/:field';
-export type TracksAPI = 'tracks/:id';
+export type TracksAPI =
+  | 'tracks/:id'
+  | 'tracks/:id/cache/clear';
 export type LibraryAPI =
   | 'library/sync'
   | 'library/exists/:id';

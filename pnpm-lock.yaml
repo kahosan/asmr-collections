@@ -32,6 +32,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@epic-web/cachified':
+        specifier: ^5.6.0
+        version: 5.6.0
       '@henrygd/queue':
         specifier: ^1.1.1
         version: 1.1.1
@@ -53,6 +56,9 @@ importers:
       hono:
         specifier: ^4.10.0
         version: 4.10.0
+      lru-cache:
+        specifier: ^11.2.2
+        version: 11.2.2
       music-metadata:
         specifier: ^11.10.0
         version: 11.10.0
@@ -447,6 +453,9 @@ packages:
 
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
+
+  '@epic-web/cachified@5.6.0':
+    resolution: {integrity: sha512-mr/MmnDm3dUaCe0lHWwAour1s8E8Pn7i03W9vdA4g7AwB2l2bMFfVc6Ofb7kczL62O8UY289u2NOuv9Ac+ksyg==}
 
   '@esbuild/aix-ppc64@0.23.1':
     resolution: {integrity: sha512-6VhYk1diRqrhBAqpJEdjASR/+WVRtfjpqKuNw11cLiaWpAT/Uu+nokB+UJnevzy/P9C/ty6AOe0dwueMrGh/iQ==}
@@ -3386,6 +3395,10 @@ packages:
     resolution: {integrity: sha512-9ie8ItPR6tjY5uYJh8K/Zrv/RMZ5VOlOWvtZdEHYSTFKZfIBPQa9tOAEeAWhd+AnIneLJ22w5fjOYtoutpWq5w==}
     engines: {node: '>=18'}
 
+  lru-cache@11.2.2:
+    resolution: {integrity: sha512-F9ODfyqML2coTIsQpSkRHnLSZMtkU8Q+mSfcaIyKwy58u+8k5nvAYeiNhsyMARvzNcXJ9QfWVrcPsC9e9rAxtg==}
+    engines: {node: 20 || >=22}
+
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
@@ -4491,6 +4504,8 @@ snapshots:
     dependencies:
       tslib: 2.7.0
     optional: true
+
+  '@epic-web/cachified@5.6.0': {}
 
   '@esbuild/aix-ppc64@0.23.1':
     optional: true
@@ -7375,6 +7390,8 @@ snapshots:
       slice-ansi: 7.1.0
       strip-ansi: 7.1.0
       wrap-ansi: 9.0.0
+
+  lru-cache@11.2.2: {}
 
   lru-cache@5.1.1:
     dependencies:

@@ -7,6 +7,7 @@ import { confirm } from '~/components/ui/confirmer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 
 import UpdateMenu from './update';
+import ClearCacheMenu from './clear-cache';
 import SleepModeDialog from './sleep-mode-dialog';
 
 import HiddenImage from '../hidden-image';
@@ -100,6 +101,7 @@ export function WorkDetailsMenu() {
                 .with(true, () => (
                   <>
                     <UpdateMenu id={id} />
+                    <ClearCacheMenu id={id} />
                     <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={deleteIsMutating}>
                       删除作品
                     </DropdownMenuItem>
