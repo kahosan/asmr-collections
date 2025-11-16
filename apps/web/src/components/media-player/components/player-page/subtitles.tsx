@@ -132,12 +132,18 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
         className="pt-4 space-y-2"
         key={loaded}
       >
-        {textTrack?.cues.map(cue => {
+        {textTrack?.cues.map((cue, index, arr) => {
           let isActive = false;
-          if (activeCue)
+          if (activeCue) {
             isActive = cue.startTime === activeCue.startTime;
-          else
+          } else {
             isActive = cue.startTime <= currentTime && cue.endTime >= currentTime;
+            const nextCue = arr.at(index + 1);
+            if (!isActive && nextCue) {
+              // 处理当前时间在两个 cue 之间的情况
+              isActive = cue.endTime < currentTime && nextCue.startTime > currentTime;
+            }
+          }
 
           return (
             <div
