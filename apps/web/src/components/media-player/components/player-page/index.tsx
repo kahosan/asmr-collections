@@ -11,6 +11,8 @@ import TrackInfo from '../track-info';
 import PlayerPageActionsAbove from './actions-above';
 import RightPlayControls from '../right-controls/right-play';
 
+import { cn } from '~/lib/utils';
+
 type ActiveTab = 'playlist' | 'subtitles' | 'similar' | '';
 
 export default function PlayerPage() {
@@ -55,7 +57,12 @@ export default function PlayerPage() {
         <motion.div
           data-player-page={expand}
           key="player-page"
-          className="fixed overflow-hidden rounded-md bg-card sm:w-85 sm:h-145 sm:bottom-5 sm:right-5 max-sm:inset-0 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]"
+          className={cn(
+            'fixed overflow-hidden rounded-md bg-card',
+            'sm:w-85 sm:h-145 sm:bottom-5 sm:right-5',
+            'max-sm:inset-0 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]',
+            'border border-border shadow-lg'
+          )}
           initial={{ y: '100%' }}
           animate={{ y: '0%' }}
           exit={{ y: '100%' }}
