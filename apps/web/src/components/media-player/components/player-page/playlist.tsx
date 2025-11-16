@@ -67,32 +67,34 @@ export default function Playlist() {
 
 function SortableItem(props: { current?: Track, track: Track, index: number, onChange: () => void, removeTrack: () => void }) {
   const { current, track, index, onChange, removeTrack } = props;
-  const { ref, isDragging } = useSortable({ id: track.title, index });
+  const { ref } = useSortable({ id: track.title, index });
+
+  const isActive = current?.title === track.title;
 
   return (
     <div
       ref={ref}
       className={cn(
-        'flex items-center justify-between px-2 py-1 text-sm mb-2 rounded-sm hover:bg-accent/50 transition-colors',
-        isDragging && 'bg-accent',
-        current?.title === track.title && 'bg-accent'
+        'flex items-center justify-between px-2 py-1 text-sm mb-2 rounded-sm transition-colors',
+        'hover:bg-accent',
+        isActive && 'bg-blue-500 text-white hover:bg-blue-500'
       )}
       title={track.title}
       onClick={onChange}
     >
-      <div className="max-w-64 truncate">
+      <div className="max-w-64 sm:max-w-60.5 truncate">
         {track.title}
       </div>
       <Button
         type="button"
-        variant="ghost"
+        variant="link"
         size="icon-sm"
         onClick={e => {
           e.stopPropagation();
           removeTrack();
         }}
       >
-        <X />
+        <X className={isActive ? 'text-white' : 'text-black dark:text-white'} />
       </Button>
     </div>
 
