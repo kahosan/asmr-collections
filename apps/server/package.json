@@ -20,6 +20,7 @@
     "@henrygd/queue": "^1.1.1",
     "@prisma/adapter-neon": "^6.19.0",
     "@prisma/client": "^6.17.1",
+    "cachified-redis-adapter": "^2.0.2",
     "cheerio": "^1.1.2",
     "dotenv-cli": "^8.0.0",
     "file-type": "^21.0.0",
@@ -27,6 +28,7 @@
     "lru-cache": "^11.2.2",
     "music-metadata": "^11.10.0",
     "prisma": "^6.17.1",
+    "redis": "^5.9.0",
     "ts-pattern": "^5.8.0"
   },
   "devDependencies": {
