@@ -232,6 +232,11 @@ body {
   }
 }
 
+/* Lock scroll when lg-on */
+html.lg-on body {
+  overflow: hidden;
+}
+
 body[data-scroll-locked] {
   overflow: hidden !important;
   overscroll-behavior: contain;
