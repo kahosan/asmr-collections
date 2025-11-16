@@ -101,7 +101,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   }, []);
 
   if (allSubtitles?.length === 0)
-    return <div className="w-full my-8 text-center">暂无字幕</div>;
+    return <div className="w-full my-8 text-center text-sm">暂无字幕</div>;
 
   return (
     <div className="relative">

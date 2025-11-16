@@ -52,7 +52,7 @@ export default function PlayerSidePanel({ activeTab = 'playlist', onTabChange, c
           <Subtitles scrollAreaRef={scrollAreaRef} />
         </TabsContent>
         <TabsContent value="similar">
-          <div className="p-4">相似推荐内容</div>
+          <div className="p-4 text-sm">相似推荐内容</div>
         </TabsContent>
       </ScrollArea>
     </Tabs>
