@@ -48,7 +48,7 @@ export default function VideoItem({ track, tracks, work }: VideoItemProps) {
 
   return (
     <Dialog>
-      <DialogTrigger className="flex items-center w-full text-start" title={track.title}>
+      <DialogTrigger className="flex items-center w-full py-1 text-start" title={track.title}>
         <FileVideo className="min-size-8 mx-4" color="#4B60D7" />
         <div>
           <p className="line-clamp-2">{track.title}</p>

@@ -236,7 +236,7 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                     <Link
                       from="/work-details/$id"
                       search={{ path: (searchPath ?? []).concat(item.title) }}
-                      className="flex items-center"
+                      className="flex items-center py-1"
                     >
                       <FolderClosed className="min-size-8 mx-4" color="#56CBFC" />
                       <div>
@@ -273,7 +273,7 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                               to={textUrl}
                               target="_blank"
                               title={item.title}
-                              className="flex items-center"
+                              className="flex items-center py-1"
                             >
                               <FileText className="min-size-8 mx-4" color="#7CB920" />
                               <p className="line-clamp-2">{item.title}</p>
@@ -309,7 +309,7 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                     <button
                       type="button"
                       onClick={() => openGallery(index)}
-                      className="w-full flex items-center text-start"
+                      className="w-full flex items-center py-1 text-start"
                     >
                       <FileImage className="min-size-8 mx-4" color="#FF9800" />
                       <p className="line-clamp-2">{item.title}</p>
@@ -327,7 +327,7 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
                       to={item.mediaDownloadUrl}
                       target="_blank"
                       title={item.title}
-                      className="flex items-center"
+                      className="flex items-center py-1"
                     >
                       <FileText className="min-size-8 mx-4" color="#9E9E9E" />
                       <p className="line-clamp-2">{item.title}</p>
