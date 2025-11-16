@@ -23,6 +23,8 @@ import { z } from 'zod';
 
 import { preloadWorkDetails } from './preload';
 
+import { getStoredValue } from './utils';
+
 export type RootSearchParams = InferFullSearchSchema<typeof rootRoute>;
 export const RootSearchSchema = z.object({
   circleId: z.string().optional(),
@@ -35,11 +37,15 @@ export const RootSearchSchema = z.object({
   embedding: z.string().optional(),
   multilingual: z.boolean().optional(),
   age: z.number().optional(),
-  order: z.enum(['asc', 'desc']).optional().default('desc'),
-  sort: z.string().optional().default('releaseDate'),
-  filterOp: z.enum(['and', 'or']).optional().default('and'),
   subtitles: z.boolean().optional(),
-  existsLocal: z.enum(['only', 'exclude']).optional()
+  existsLocal: z.enum(['only', 'exclude']).optional(),
+
+  order: z.enum(['asc', 'desc'])
+    .default(() => getStoredValue('__sort-options__')?.order ?? 'desc'),
+  sort: z.string()
+    .default(() => getStoredValue('__sort-options__')?.sortBy ?? 'releaseDate'),
+  filterOp: z.enum(['and', 'or'])
+    .default('and')
 });
 
 const rootRoute = createRootRoute({

@@ -3,6 +3,8 @@ import { MenubarContent, MenubarGroup, MenubarMenu, MenubarRadioGroup, MenubarRa
 import { useNavigate } from '@tanstack/react-router';
 import { useGenerateSearch } from '~/hooks/use-generate-search';
 
+import { setStoredValue } from '~/providers/router/utils';
+
 const sortOptions = [
   {
     label: '售价',
@@ -56,7 +58,9 @@ export default function SortMenu() {
           value={search.order}
           onValueChange={value => {
             if (search.order === value) return;
-            navigate({ to: '/', search: exclude(['page', 'keyword'], { order: (value as 'asc' | 'desc') }) });
+            const newValue = value as 'asc' | 'desc';
+            navigate({ to: '/', search: exclude(['page', 'keyword'], { order: newValue }) });
+            setStoredValue('__sort-options__', { order: newValue, sortBy: search.sort });
           }}
         >
           {([{ label: '正序', value: 'asc' }, { label: '倒序', value: 'desc' }]).map(({ label, value }) => (
@@ -76,6 +80,7 @@ export default function SortMenu() {
             onValueChange={value => {
               if (search.sort === value) return;
               navigate({ to: '/', search: exclude(['page', 'keyword'], { sort: value }) });
+              setStoredValue('__sort-options__', { order: search.order, sortBy: value });
             }}
           >
             {sortOptions.map(({ label, value }) => (
