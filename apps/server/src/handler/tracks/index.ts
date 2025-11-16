@@ -5,7 +5,7 @@ import { newQueue } from '@henrygd/queue';
 import { Hono } from 'hono';
 import { parseFile } from 'music-metadata';
 import { match } from 'ts-pattern';
-import { createCachified, ttl } from '~/lib/cachified';
+import { createCachified } from '~/lib/cachified';
 import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { formatError, workIsExistsInLocal } from '../utils';
 
@@ -13,7 +13,7 @@ const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
 
 const [tracksCache, clearTracksCache] = createCachified<Tracks>({
-  ttl: ttl(120)
+  ttl: Infinity
 });
 
 export const tracksApp = new Hono();

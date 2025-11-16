@@ -5,7 +5,7 @@ import { logger } from './logger';
 import { notifyError } from '../utils';
 
 export function mutateWorkInfo(id: string) {
-  mutate(`work-info-${id}`, async () => {
+  return mutate(`work-info-${id}`, async () => {
     try {
       return await fetcher(`/api/work/${id}`);
     } catch (e) {
@@ -28,5 +28,9 @@ export function mutateWorkInfo(id: string) {
 }
 
 export function mutateWorks() {
-  mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+  return mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+}
+
+export function mutateTracks(id: string) {
+  return mutate(`/api/tracks/${id}`);
 }
