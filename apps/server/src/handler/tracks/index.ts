@@ -6,8 +6,8 @@ import { Hono } from 'hono';
 import { parseFile } from 'music-metadata';
 import { match } from 'ts-pattern';
 import { createCachified } from '~/lib/cachified';
-import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
-import { formatError, workIsExistsInLocal } from '../utils';
+import { HOST_URL } from '~/lib/constant';
+import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
 
 const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
@@ -22,8 +22,7 @@ tracksApp.get('/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!VOICE_LIBRARY || !HOST_URL)
-      return c.json({ message: '本地音声库或域名没有配置' }, 500);
+    const { VOICE_LIBRARY } = getVoiceLibraryEnv();
 
     const workPath = join(VOICE_LIBRARY, id);
     const workIsExist = await workIsExistsInLocal(workPath);
@@ -32,7 +31,7 @@ tracksApp.get('/:id', async c => {
 
     const data = await tracksCache({
       cacheKey: `tracks-${id}`,
-      getFreshValue: () => generateTracks(workPath, VOICE_LIBRARY!),
+      getFreshValue: () => generateTracks(workPath, VOICE_LIBRARY),
       ctx: c
     });
 
@@ -46,8 +45,8 @@ tracksApp.post('/:id/cache/clear', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!VOICE_LIBRARY || !HOST_URL)
-      return c.json({ message: '本地音声库或域名没有配置' }, 500);
+    // check voice library env
+    getVoiceLibraryEnv();
 
     await clearTracksCache(`tracks-${id}`);
     return c.json({ message: `${id} 缓存已清除` });

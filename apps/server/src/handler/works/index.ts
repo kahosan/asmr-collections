@@ -3,9 +3,8 @@ import type { Work } from '~/types/collection';
 import { join } from 'node:path';
 
 import { Hono } from 'hono';
-import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
-import { filterSubtitles, formatError, generateEmbedding, workIsExistsInLocal } from '../utils';
+import { filterSubtitles, formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -132,10 +131,9 @@ worksApp.get('/', async c => {
   };
 
   if (existsLocal) {
-    if (!VOICE_LIBRARY || !HOST_URL)
-      return c.json({ message: '本地音声库或域名没有配置' }, 500);
-
     try {
+      const { VOICE_LIBRARY } = getVoiceLibraryEnv();
+
       const { existsIds, noExistsIds } = await getLocalWorkIds(VOICE_LIBRARY);
       if (existsLocal === 'only') {
         queryArgs.where = {

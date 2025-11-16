@@ -3,6 +3,7 @@ import type { WorkInfo } from '~/types/source';
 
 import * as fs from 'node:fs/promises';
 
+import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 
@@ -88,3 +89,14 @@ export async function generateEmbedding(d: WorkInfo | string) {
 
   return data?.data.at(0)?.embedding;
 }
+
+/**
+ * Get VOICE_LIBRARY and HOST_URL from environment variables, throw error if not configured
+ * @returns VOICE_LIBRARY and HOST_URL
+ */
+export function getVoiceLibraryEnv() {
+  if (!VOICE_LIBRARY || !HOST_URL)
+    throw new Error('本地音声库或域名没有配置');
+
+  return { VOICE_LIBRARY, HOST_URL };
+};

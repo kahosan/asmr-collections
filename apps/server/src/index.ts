@@ -3,8 +3,7 @@ import path, { join } from 'node:path';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { logger } from 'hono/logger';
-import { formatError } from './handler/utils';
-import { VOICE_LIBRARY } from './lib/constant';
+import { formatError, getVoiceLibraryEnv } from './handler/utils';
 import { api } from './router/api';
 import { proxyApp } from './router/proxy';
 
@@ -24,14 +23,13 @@ app.route('/proxy', proxyApp);
 
 // voice files
 app.on('GET', ['/download/*', '/stream/*'], c => {
-  if (!VOICE_LIBRARY)
-    return c.json({ message: '本地音声库没有配置' }, 500);
-
   const reqPath = c.req.path
     .replace('stream', '')
     .replace('download', '');
 
   try {
+    const { VOICE_LIBRARY } = getVoiceLibraryEnv();
+
     const filePath = join(VOICE_LIBRARY, decodeURIComponent(reqPath));
     const file = Bun.file(filePath);
 
