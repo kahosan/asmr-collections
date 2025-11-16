@@ -58,10 +58,10 @@ export default function PlayerPage() {
           data-player-page={expand}
           key="player-page"
           className={cn(
-            'fixed overflow-hidden rounded-md bg-card',
+            'fixed overflow-hidden bg-card',
             'sm:w-85 sm:h-145 sm:bottom-5 sm:right-5',
-            'max-sm:inset-0 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]',
-            'border border-border shadow-lg'
+            'sm:rounded-md sm:border sm:border-border sm:shadow-lg',
+            'max-sm:inset-0 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]'
           )}
           initial={{ y: '100%' }}
           animate={{ y: '0%' }}
