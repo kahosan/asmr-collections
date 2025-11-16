@@ -32,8 +32,11 @@ interface CreateCachifiedOptions<T> extends Omit<CachifiedOptions<T>, 'cache' | 
   }
 }
 
+type CacheKey =
+  | `tracks-${string}`;
+
 interface CachifiedParams<T> {
-  cacheKey: string
+  cacheKey: CacheKey
   getFreshValue: GetFreshValue<T>
   ctx: Context
   ttl?: number
@@ -101,7 +104,7 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
     }, verboseReporter());
   };
 
-  const clearCache = async (cacheKey: string) => softPurge({ cache, key: cacheKey });
+  const clearCache = async (cacheKey: CacheKey) => softPurge({ cache, key: cacheKey });
 
   return [cached, clearCache] as const;
 }
