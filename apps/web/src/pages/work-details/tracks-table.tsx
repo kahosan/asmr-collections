@@ -32,9 +32,9 @@ import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-thumbnail.css';
 
 import { fetcher } from '~/lib/fetcher';
-import { SubtitleMatcher } from '../../lib/subtitle-matcher';
+import { SubtitleMatcher, collectSubtitles } from '../../lib/subtitle-matcher';
 
-import { extractFileExt, collectSubtitles, notifyError } from '~/utils';
+import { extractFileExt, notifyError } from '~/utils';
 
 import type { MediaTrack } from '~/hooks/use-media-state';
 import type { SettingOptions } from '~/hooks/use-setting-options';

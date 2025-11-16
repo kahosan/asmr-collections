@@ -1,9 +1,6 @@
 import type { ExternalToast } from 'sonner';
 import { toast } from 'sonner';
 
-import type { Tracks } from '~/types/tracks';
-import type { SubtitleInfo } from '~/hooks/use-media-state';
-
 import { HTTPError } from '~/lib/fetcher';
 
 export function writeClipboard(text: string, notifyText = '已复制到剪贴板') {
@@ -44,42 +41,6 @@ export function notifyError(error: unknown, text: string, options?: ExternalToas
 // 使用 >>> 0 处理无后缀情况：lastIndexOf 返回 -1 时转为超大正数
 export function extractFileExt(name: string) {
   return name.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2);
-}
-
-/**
- * 收集字幕文件
- * @param data - 轨道数据
- * @param recursive - 是否递归收集子目录的字幕文件,默认为 false
- * @returns 字幕信息数组
- */
-export function collectSubtitles(data: Tracks | undefined, recursive = false): SubtitleInfo[] {
-  if (!data) return [];
-
-  const subtitles: SubtitleInfo[] = [];
-  const supportedExtensions = new Set(['srt', 'lrc', 'vtt']);
-
-  function processItem(item: Tracks[number]) {
-    if (item.type === 'text' && supportedExtensions.has(extractFileExt(item.title))) {
-      const url = item.mediaDownloadUrl;
-      if (url) {
-        subtitles.push({
-          title: item.title,
-          url
-        });
-      }
-    }
-  }
-
-  function traverse(items: Tracks) {
-    for (const item of items) {
-      processItem(item);
-      if (recursive && item.children)
-        traverse(item.children);
-    }
-  }
-
-  traverse(data);
-  return subtitles;
 }
 
 function formatTimeUnit(unit: number) {
