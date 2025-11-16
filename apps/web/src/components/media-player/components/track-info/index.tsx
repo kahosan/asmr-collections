@@ -1,8 +1,6 @@
-import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
-import { Link } from '@tanstack/react-router';
 import { cn } from '~/lib/utils';
 
 interface MiddleControlsProps {
@@ -32,19 +30,7 @@ export default function TrackInfo({ mainExpand }: MiddleControlsProps) {
           {title || '未知曲目'}
         </div>
         <div id="track-artist" className="opacity-60 text-xs max-sm:w-42 w-30 truncate">
-          {mediaState.work?.artists.map((artist, index, array) => (
-            <Fragment key={artist.name}>
-              <Link
-                to="/"
-                search={{ artistId: [artist.id] }}
-                disabled={!artist.id}
-                className="hover:underline underline-offset-4 mr-1 max-sm:pointer-events-none"
-              >
-                {artist.name}
-              </Link>
-              {index < array.length - 1 && '、'}
-            </Fragment>
-          ))}
+          {mediaState.work?.artists.map(artist => artist.name).join('、') || '未知艺术家'}
         </div>
       </div>
     </div>
