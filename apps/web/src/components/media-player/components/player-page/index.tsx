@@ -131,7 +131,7 @@ export default function PlayerPage() {
                   <>
                     <motion.div
                       key="controls"
-                      className="w-full flex justify-between sm:mt-2 cursor-pointer"
+                      className="w-full flex justify-between sm:mt-4 cursor-pointer p-2 bg-accent rounded-sm"
                       onClick={handleMainClick}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -143,7 +143,7 @@ export default function PlayerPage() {
                         <RightPlayControls mainExpand={mainExpand} />
                       </div>
                     </motion.div>
-                    <motion.div className="w-full mt-10 sm:mt-2">
+                    <motion.div className="w-full mt-6 sm:mt-2">
                       <PlayerSidePanel
                         key={activeTab}
                         onTabChange={handleTabChange}
