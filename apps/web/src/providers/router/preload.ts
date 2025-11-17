@@ -26,7 +26,7 @@ interface PreloadWorkDetailsResult {
   error?: Error
 }
 
-export function preloadWorkDetails(id: string) {
+export function preloadWorkDetails(id: string, mutateType?: 'info' | 'tracks') {
   const settings = store.get(settingOptionsAtom);
   const voiceLibrary = settings.voiceLibraryOptions;
   const enableLibrary = voiceLibrary.useLocalVoiceLibrary;
@@ -48,10 +48,14 @@ export function preloadWorkDetails(id: string) {
           logger.error(e, '预加载作品信息失败');
           return { error: new WorkDetailsError('作品不存在于数据库中，且 DLsite 获取失败', e) };
         }
+      } else {
+        logger.error(e, '预加载作品信息失败');
+        return { error: new WorkDetailsError('获取作品信息失败', e) };
       }
-      logger.error(e, '预加载作品信息失败');
-      return { error: new WorkDetailsError('获取作品信息失败', e) };
     }
+
+    if (mutateType === 'info')
+      return { info: workInfo };
 
     let tracksApi: string | null = null;
     let exists: boolean | null = null;
@@ -101,6 +105,9 @@ export function preloadWorkDetails(id: string) {
       };
     }
   }
+
+  if (mutateType)
+    return preloadFetcher();
 
   preload(`work-details-${id}`, preloadFetcher);
 }
