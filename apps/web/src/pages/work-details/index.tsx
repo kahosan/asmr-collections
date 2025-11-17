@@ -67,6 +67,7 @@ export default function WorkDetails() {
 
     if (tracks?.fallback) {
       toast.success('成功回退至 ASMR.ONE 获取数据', {
+        duration: 2000,
         description: `${info.id} 不存在于本地库中`,
         id: `work-tracks-fallback-${info.id}`
       });
@@ -119,6 +120,17 @@ export default function WorkDetails() {
                 {info.subtitles ? <span>带字幕</span> : null}
                 {info.exists === false ? <span>未收藏</span> : null}
               </Badge>
+              {tracks?.existsInLocal === false && (
+                <div
+                  className={cn(
+                    'truncate block',
+                    'p-2 py-1 absolute bottom-0 right-0 bg-zinc-800/80 rounded-none rounded-tl-md text-sm',
+                    'text-gray-300 max-w-[70%] truncate'
+                  )}
+                >
+                  不存在于本地库
+                </div>
+              )}
             </div>
           </div>
 
