@@ -5,7 +5,8 @@ import {
   Outlet,
   createRootRoute,
   createRoute,
-  createRouter
+  createRouter,
+  stripSearchParams
 } from '@tanstack/react-router';
 import type { InferFullSearchSchema } from '@tanstack/react-router';
 
@@ -19,34 +20,12 @@ import App from '~/app';
 import WorkDetails from '~/pages/work-details';
 import WorkDetailsSkeleton from '~/pages/work-details/skeleton';
 
-import { z } from 'zod';
-
 import { preloadWorkDetails } from './preload';
+import { RootSearchSchema, IndexSearchSchema, WorkDetailsSearchSchema } from './schemas';
 
-import { getStoredValue } from './utils';
+import { ROOT_DEFAULT_SEARCH_VALUES } from './constants';
 
 export type RootSearchParams = InferFullSearchSchema<typeof rootRoute>;
-export const RootSearchSchema = z.object({
-  circleId: z.string().optional(),
-  seriesId: z.string().optional(),
-  illustratorId: z.number().optional(),
-  artistId: z.array(z.number()).optional(),
-  artistCount: z.number().optional(),
-  genres: z.array(z.number()).optional(),
-  keyword: z.string().optional(),
-  embedding: z.string().optional(),
-  multilingual: z.boolean().optional(),
-  age: z.number().optional(),
-  subtitles: z.boolean().optional(),
-  existsLocal: z.enum(['only', 'exclude']).optional(),
-
-  order: z.enum(['asc', 'desc'])
-    .default(() => getStoredValue('__sort-options__')?.order ?? 'desc'),
-  sort: z.string()
-    .default(() => getStoredValue('__sort-options__')?.sortBy ?? 'releaseDate'),
-  filterOp: z.enum(['and', 'or'])
-    .default('and')
-});
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -57,14 +36,13 @@ const rootRoute = createRootRoute({
       </Layout>
     </ErrorBoundary>
   ),
-  validateSearch: RootSearchSchema
+  validateSearch: RootSearchSchema,
+  search: {
+    middlewares: [stripSearchParams(ROOT_DEFAULT_SEARCH_VALUES)]
+  }
 });
 
 export type IndexSearchParams = InferFullSearchSchema<typeof indexRoute>;
-export const IndexSearchSchema = z.object({
-  page: z.number().optional(),
-  limit: z.number().optional()
-});
 
 const indexRoute = createRoute({
   validateSearch: IndexSearchSchema,
@@ -86,9 +64,6 @@ const indexRoute = createRoute({
 });
 
 export type WorkDetailsSearchParams = InferFullSearchSchema<typeof workDetailsRoute>;
-export const WorkDetailsSearchSchema = z.object({
-  path: z.array(z.string()).optional()
-});
 
 const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,

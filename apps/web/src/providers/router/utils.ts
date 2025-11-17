@@ -5,9 +5,9 @@ export interface SortOptions {
   order: 'asc' | 'desc'
 }
 
+type StorageKey = '__sort-options__';
 type StoredValue<T extends StorageKey> = T extends '__sort-options__' ? SortOptions : never;
 
-type StorageKey = '__sort-options__';
 export function getStoredValue<T extends StorageKey>(key: T): StoredValue<T> | null {
   try {
     const itemValue = localStorage.getItem(key);

@@ -59,8 +59,9 @@ export default function SortMenu() {
           onValueChange={value => {
             if (search.order === value) return;
             const newValue = value as 'asc' | 'desc';
-            navigate({ to: '/', search: exclude(['page', 'keyword'], { order: newValue }) });
+            // 得在更新 url 之前存储，之后的话路由获取的就是旧值
             setStoredValue('__sort-options__', { order: newValue, sortBy: search.sort });
+            navigate({ to: '/', search: exclude(['page', 'keyword'], { order: newValue }) });
           }}
         >
           {([{ label: '正序', value: 'asc' }, { label: '倒序', value: 'desc' }]).map(({ label, value }) => (
@@ -79,8 +80,8 @@ export default function SortMenu() {
             value={search.sort}
             onValueChange={value => {
               if (search.sort === value) return;
-              navigate({ to: '/', search: exclude(['page', 'keyword'], { sort: value }) });
               setStoredValue('__sort-options__', { order: search.order, sortBy: value });
+              navigate({ to: '/', search: exclude(['page', 'keyword'], { sort: value }) });
             }}
           >
             {sortOptions.map(({ label, value }) => (
