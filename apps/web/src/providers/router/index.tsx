@@ -69,9 +69,9 @@ const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/work-details/$id',
   staleTime: Infinity,
-  loader({ params }) {
+  loader({ params, cause }) {
     const id = params.id;
-    preloadWorkDetails(id);
+    preloadWorkDetails(id, cause);
   },
   component() {
     const id = workDetailsRoute.useParams().id;

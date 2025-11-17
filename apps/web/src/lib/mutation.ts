@@ -3,11 +3,11 @@ import { mutate } from 'swr';
 import { preloadWorkDetails } from '~/providers/router/preload';
 
 export function mutateWorkInfo(id: string) {
-  return mutate(`work-details-${id}`, async prev => {
-    const data = await preloadWorkDetails(id, 'info');
-
-    return { ...prev, info: data?.info ?? prev?.info };
-  }, { revalidate: false });
+  return mutate(
+    `work-info-${id}`,
+    () => preloadWorkDetails(id, 'enter', true),
+    { revalidate: false }
+  );
 }
 
 export function mutateWorks() {
@@ -15,7 +15,6 @@ export function mutateWorks() {
 }
 
 export function mutateTracks(id: string) {
-  return mutate(`work-details-${id}`, () => {
-    return preloadWorkDetails(id, 'tracks');
-  }, { revalidate: false });
+  mutate(`work-tracks-${id}`);
+  mutate(`work-tracks-local-${id}`);
 }
