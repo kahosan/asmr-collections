@@ -1,6 +1,6 @@
 {
   "name": "@asmr-collections/server",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "type": "module",
   "scripts": {
     "dev": "dotenv -e ../../.env -- bun run --hot src/index.ts",

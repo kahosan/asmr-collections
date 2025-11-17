@@ -1,6 +1,6 @@
 {
   "name": "asmr-collections",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "type": "module",
   "scripts": {
     "dev": "pnpm -r dev",
@@ -16,6 +16,7 @@
     "server:migration:dev": "pnpm --filter @asmr-collections/server migration:dev",
     "server:status": "pnpm --filter @asmr-collections/server status",
     "typecheck": "pnpm -r typecheck",
+    "release": "pnpx bumpp --no-push -r",
     "postinstall": "npx simple-git-hooks"
   },
   "devDependencies": {
