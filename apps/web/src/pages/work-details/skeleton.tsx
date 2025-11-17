@@ -1,6 +1,7 @@
 import { Card } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Separator } from '~/components/ui/separator';
+import TracksSkeleton from './tracks-skeleton';
 
 export default function WorkDetailsSkeleton() {
   return (
@@ -45,7 +46,9 @@ export default function WorkDetailsSkeleton() {
         </div>
       </Card>
 
-      <Skeleton className="bg-current/8 h-8 rounded-md" />
+      <Skeleton className="bg-current/8 h-12 rounded-md" />
+
+      <TracksSkeleton />
     </>
   );
 }

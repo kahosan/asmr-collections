@@ -5,9 +5,9 @@ export default function TracksSkeleton() {
   return (
     <>
       <div className="flex items-center gap-2 mb-4">
-        <Skeleton className="h-5 w-20" />
         <Skeleton className="h-5 w-4" />
-        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-10" />
+        <Skeleton className="h-5 w-15" />
       </div>
 
       <div className="mt-4 border rounded-md">
