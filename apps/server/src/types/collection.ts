@@ -63,7 +63,10 @@ export interface Work {
     label: string
     lang: string
   }>
-  subtitles?: File
+  subtitles: boolean
+  subtitlesData?: {
+    data: File
+  }
   createdAt: string
   updatedAt: string
 }

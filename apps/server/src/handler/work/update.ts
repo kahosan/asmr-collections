@@ -50,15 +50,22 @@ updateApp.put('/upload/subtitles/:id', async c => {
 
     const prisma = getPrisma();
 
-    const work = await prisma.work.update({
+    const newSubtitlesData = Buffer.from(await subtitles.arrayBuffer());
+
+    await prisma.work.update({
       where: { id },
       data: {
-        subtitles: Buffer.from(await subtitles.arrayBuffer())
-      },
-      select: { id: true }
+        subtitles: true,
+        subtitlesData: {
+          upsert: {
+            create: { data: newSubtitlesData },
+            update: { data: newSubtitlesData }
+          }
+        }
+      }
     });
 
-    return c.json(work);
+    return c.json({ id });
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);

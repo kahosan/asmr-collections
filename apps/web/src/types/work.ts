@@ -25,6 +25,9 @@ export type Work = {
   originalId?: string // 如果是不同语言的版本，此为原版 ID
   releaseDate: string
   subtitles: boolean
+  subtitlesData?: {
+    data: File
+  }
   translationInfo: {
     isVolunteer: boolean
     // 日文原版

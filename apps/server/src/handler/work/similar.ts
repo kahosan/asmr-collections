@@ -1,7 +1,7 @@
 import type { Work } from '~/types/collection';
 import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
-import { filterSubtitles, formatError } from '../utils';
+import { formatError } from '../utils';
 
 export const similarApp = new Hono();
 
@@ -138,7 +138,7 @@ similarApp.get('/similar/:id', async c => {
         : work.translationInfo
     }));
 
-    return c.json(filterSubtitles(data));
+    return c.json(data);
   } catch (e) {
     return c.json(formatError(e), 500);
   }

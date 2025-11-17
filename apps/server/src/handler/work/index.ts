@@ -56,17 +56,17 @@ workApp.get('/subtitles/:id', async c => {
 
     const prisma = getPrisma();
 
-    const work = await prisma.work.findUnique({
-      where: { id },
-      select: { subtitles: true }
+    const subtitlesData = await prisma.subtitlesData.findUnique({
+      where: { workId: id },
+      select: { data: true }
     });
 
-    if (!work?.subtitles)
+    if (!subtitlesData?.data)
       return c.json({ message: '字幕不存在' }, 404);
 
-    const filetype = await fileTypeFromBuffer(work.subtitles);
+    const filetype = await fileTypeFromBuffer(subtitlesData.data);
 
-    return c.body(new Uint8Array(work.subtitles), 200, {
+    return c.body(new Uint8Array(subtitlesData.data), 200, {
       'Content-Disposition': `attachment; filename=${filetype?.ext ? `${id}.${filetype.ext}` : 'unknown'}`
     });
   } catch (e) {

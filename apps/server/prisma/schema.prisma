@@ -35,7 +35,8 @@ model Work {
   originalId       String?
   translationInfo  TranslationInfo?
   languageEditions Json[]
-  subtitles        Bytes?
+  subtitles        Boolean                @default(false)
+  subtitlesData    SubtitlesData?
   embedding        Unsupported("vector")?
   releaseDate      String
   createdAt        DateTime               @default(now())
@@ -70,6 +71,12 @@ model Genre {
   id    Int    @id
   name  String
   works Work[]
+}
+
+model SubtitlesData {
+  workId String @id
+  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+  data   Bytes
 }
 
 model TranslationInfo {

@@ -32,13 +32,6 @@ export function formatError(e: unknown, text?: string) {
   return { message: text ? (error ? text + ': ' + error : error) : error };
 }
 
-export function filterSubtitles<T>(data: T) {
-  return (data as Array<{ subtitles?: unknown }>).map(work => ({
-    ...work,
-    subtitles: !!work.subtitles
-  })) as T;
-}
-
 export async function generateEmbedding(d: WorkInfo | string) {
   const apiKey = process.env.JINA_API_KEY;
   const apiUrl = 'https://api.jina.ai/v1/embeddings';

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
-import { filterSubtitles, formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
+import { formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -72,7 +72,7 @@ worksApp.get('/', async c => {
       AND = AND.concat({ circle: { id: circleId } });
 
     if (subtitles)
-      AND = AND.concat({ subtitles: { not: { equals: null } } });
+      AND = AND.concat({ subtitles: { equals: true } });
 
     if (multilingual)
       AND = AND.concat({ languageEditions: { isEmpty: false } });
@@ -98,7 +98,7 @@ worksApp.get('/', async c => {
       OR = OR.concat({ circle: { id: circleId } });
 
     if (subtitles)
-      OR = OR.concat({ subtitles: { not: { equals: null } } });
+      OR = OR.concat({ subtitles: { equals: true } });
 
     if (multilingual)
       OR = OR.concat({ languageEditions: { isEmpty: false } });
@@ -193,7 +193,7 @@ worksApp.get('/', async c => {
         page,
         limit,
         total,
-        data: filterSubtitles(data)
+        data
       });
     }
 
@@ -211,7 +211,7 @@ worksApp.get('/', async c => {
       page,
       limit,
       total,
-      data: filterSubtitles(works)
+      data: works
     });
   } catch (e) {
     return c.json(formatError(e), 500);
@@ -247,7 +247,7 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
   const sortedWorks = works.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
 
   return {
-    data: filterSubtitles(sortedWorks)
+    data: sortedWorks
   };
 };
 

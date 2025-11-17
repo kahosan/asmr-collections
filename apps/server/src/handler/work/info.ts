@@ -85,6 +85,7 @@ infoApp.get('/info/:id', async c => {
       originalId: data.translation_info.original_workno,
       reviewCount: data.review_count ?? 0,
       releaseDate: data.release_date,
+      subtitles: false,
       translationInfo: {
         isVolunteer: data.translation_info.is_volunteer,
         isOriginal: data.translation_info.is_original,
