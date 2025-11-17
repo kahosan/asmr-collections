@@ -91,7 +91,7 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
       const targetPath = findSmartPath(data, settings.smartPath.pattern);
 
       if (targetPath && targetPath.length > 0)
-        navigate({ search: { path: targetPath }, replace: true });
+        navigate({ search: { path: targetPath } });
     }
   }, [asmrOneApi, isExists?.exists, navigate, searchPath, settings.smartPath.enable, settings.smartPath.pattern, settings.voiceLibraryOptions.fallbackToAsmrOneApi, tracksApi]);
 
