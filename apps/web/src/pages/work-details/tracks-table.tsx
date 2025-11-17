@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableRow } from '~/components/ui/table';
 
 import { FileImage, FileText, FolderClosed } from 'lucide-react';
 
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 
 import FolderBreadcrumb from '../../components/breadcrumb/folder-breadcrumb';
 
@@ -10,14 +10,11 @@ import VideoItem from './video-item';
 import AudioItem from './audio-item';
 
 import { useAtom } from 'jotai';
-import { Activity, useMemo, useRef, useCallback } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { match } from 'ts-pattern';
 
-import useSWRImmutable from 'swr/immutable';
 import { mediaStateAtom } from '~/hooks/use-media-state';
-
-import { toast } from 'sonner';
 
 import LightGallery from 'lightgallery/react';
 import type { LightGallery as LightGalleryType } from 'lightgallery/lightgallery';
@@ -31,79 +28,23 @@ import 'lightgallery/css/lg-rotate.css';
 import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-thumbnail.css';
 
-import { fetcher } from '~/lib/fetcher';
 import { SubtitleMatcher, collectSubtitles } from '../../lib/subtitle-matcher';
 
-import { extractFileExt, notifyError } from '~/utils';
+import { extractFileExt } from '~/utils';
 
 import type { MediaTrack } from '~/hooks/use-media-state';
-import type { SettingOptions } from '~/hooks/use-setting-options';
 
 import type { Tracks } from '~/types/tracks';
 import type { Work } from '~/types/work';
 
 interface TracksTableProps {
   work: Work
+  tracks?: Tracks | null
   searchPath?: string[]
-  settings: SettingOptions
 }
 
-export default function TracksTabale({ work, searchPath, settings }: TracksTableProps) {
+export default function TracksTabale({ work, tracks, searchPath }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);
-  const navigate = useNavigate({ from: '/work-details/$id' });
-
-  const { data: isExists } = useSWRImmutable<{ exists: boolean }>(
-    settings.voiceLibraryOptions.useLocalVoiceLibrary ? `/api/library/exists/${work.id}` : null,
-    fetcher,
-    {
-      onError: e => notifyError(e, '获取作品是否存在于本地库中失败'),
-      suspense: true
-    }
-  );
-
-  const asmrOneApi = `/proxy/${encodeURIComponent(`${settings.asmrOneApi}/api/tracks/${work.id.replace('RJ', '')}`)}`;
-  const localApi = `/api/tracks/${work.id}`;
-
-  const tracksApi = match(settings.voiceLibraryOptions.useLocalVoiceLibrary)
-    .when(v => v && isExists?.exists, () => localApi)
-    .when(v => v && isExists?.exists === false, () => {
-      return settings.voiceLibraryOptions.fallbackToAsmrOneApi ? asmrOneApi : null;
-    })
-    .with(false, () => asmrOneApi)
-    .otherwise(() => null);
-
-  const errorText = tracksApi === localApi
-    ? '获取本地数据失败'
-    : '获取 ASMR.ONE 数据失败';
-
-  const handleOnSuccess = useCallback((data: Tracks) => {
-    if (
-      tracksApi === asmrOneApi
-      && settings.voiceLibraryOptions.fallbackToAsmrOneApi
-      && isExists?.exists === false
-    )
-      toast.success('成功回退至 ASMR.ONE 获取数据');
-
-    if (
-      settings.smartPath.enable
-      && !searchPath
-    ) {
-      const targetPath = findSmartPath(data, settings.smartPath.pattern);
-
-      if (targetPath && targetPath.length > 0)
-        navigate({ search: { path: targetPath } });
-    }
-  }, [asmrOneApi, isExists?.exists, navigate, searchPath, settings.smartPath.enable, settings.smartPath.pattern, settings.voiceLibraryOptions.fallbackToAsmrOneApi, tracksApi]);
-
-  const { data: tracks } = useSWRImmutable<Tracks>(
-    tracksApi,
-    fetcher,
-    {
-      onError: e => notifyError(e, errorText),
-      suspense: true,
-      onSuccess: handleOnSuccess
-    }
-  );
 
   const filterData = searchPath?.reduce((acc, path) => {
     return acc?.find(item => item.title === path)?.children ?? [];
@@ -189,19 +130,9 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
       lightGalleryRef.current.openGallery(index);
   };
 
-  if (!tracksApi) {
-    return (
-      <p className="mt-2 text-sm opacity-65">
-        当前作品不在本地库中，且未启用回退 ASMR.ONE。
-      </p>
-    );
-  }
-
   return (
     <>
-      <Activity mode={tracks ? 'visible' : 'hidden'} name="tracks-table-breadcrumb">
-        <FolderBreadcrumb path={searchPath} />
-      </Activity>
+      <FolderBreadcrumb path={searchPath} />
 
       {
         (groupByType?.image && groupByType.image.length > 0) && (
@@ -341,49 +272,4 @@ export default function TracksTabale({ work, searchPath, settings }: TracksTable
       </div>
     </>
   );
-}
-
-/**
- * 查找包含目标文件类型的路径
- * @param tracks - 轨道数据
- * @param patterns - 文件扩展名模式数组（按优先级顺序）
- * @returns 找到的路径数组,如果未找到则返回 undefined
- */
-function findSmartPath(tracks: Tracks, patterns: string[]): string[] | undefined {
-  // 按优先级顺序查找每个格式
-  for (const pattern of patterns) {
-    // 先排序 tracks，确保匹配 pattern 的文件夹或文件优先被处理
-    const prioritizedTracks = tracks.sort((a, b) => {
-      // 先比较是否匹配 pattern
-      const aMatch = a.title.toLowerCase().includes(pattern) ? 0 : 1;
-      const bMatch = b.title.toLowerCase().includes(pattern) ? 0 : 1;
-
-      if (aMatch !== bMatch) return aMatch - bMatch;
-
-      // 相同匹配情况下，按数字排序
-      const aNum = Number.parseInt(a.title.replaceAll(/\D/g, ''), 10) || 0;
-      const bNum = Number.parseInt(b.title.replaceAll(/\D/g, ''), 10) || 0;
-      return aNum - bNum;
-    });
-
-    const result = searchInTracksForPattern(prioritizedTracks, pattern);
-    if (result) return result;
-  }
-
-  function searchInTracksForPattern(items: Tracks, pattern: string, currentPath: string[] = []): string[] | undefined {
-    const item = items.find(i => i.type === 'audio');
-    const ext = extractFileExt(item?.title ?? '').toLowerCase();
-    if (ext === pattern)
-      return currentPath;
-
-    for (const item of items.filter(i => i.type === 'folder')) {
-      if (!item.children) continue;
-      const result = searchInTracksForPattern(
-        item.children,
-        pattern,
-        [...currentPath, item.title]
-      );
-      if (result) return result;
-    }
-  }
 }

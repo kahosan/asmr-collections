@@ -65,7 +65,7 @@ export class SubtitleMatcher {
  * @param recursive - 是否递归收集子目录的字幕文件,默认为 false
  * @returns 字幕信息数组
  */
-export function collectSubtitles(data: Tracks | undefined, recursive = false): SubtitleInfo[] {
+export function collectSubtitles(data: Tracks | undefined | null, recursive = false): SubtitleInfo[] {
   if (!data) return [];
 
   const subtitles: SubtitleInfo[] = [];

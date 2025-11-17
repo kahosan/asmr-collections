@@ -3,6 +3,8 @@ import { toast } from 'sonner';
 
 import { HTTPError } from '~/lib/fetcher';
 
+import type { Tracks } from '~/types/tracks';
+
 export function writeClipboard(text: string, notifyText = '已复制到剪贴板') {
   if (typeof navigator.clipboard === 'undefined') {
     toast.error('复制失败', { description: '请检查是否处于 HTTPS 环境下，或浏览器不支持' });
@@ -56,4 +58,49 @@ export function formatDuration(seconds: number) {
     return `${formatTimeUnit(hrs)}:${formatTimeUnit(mins)}:${formatTimeUnit(secs)}`;
 
   return `${formatTimeUnit(mins)}:${formatTimeUnit(secs)}`;
+}
+
+/**
+ * 查找包含目标文件类型的路径
+ * @param tracks - 轨道数据
+ * @param patterns - 文件扩展名模式数组（按优先级顺序）
+ * @returns 找到的路径数组,如果未找到则返回 undefined
+ */
+export function findSmartPath(tracks: Tracks, patterns: string[]): string[] | undefined {
+  // 按优先级顺序查找每个格式
+  for (const pattern of patterns) {
+    // 先排序 tracks，确保匹配 pattern 的文件夹或文件优先被处理
+    const prioritizedTracks = tracks.sort((a, b) => {
+      // 先比较是否匹配 pattern
+      const aMatch = a.title.toLowerCase().includes(pattern) ? 0 : 1;
+      const bMatch = b.title.toLowerCase().includes(pattern) ? 0 : 1;
+
+      if (aMatch !== bMatch) return aMatch - bMatch;
+
+      // 相同匹配情况下，按数字排序
+      const aNum = Number.parseInt(a.title.replaceAll(/\D/g, ''), 10) || 0;
+      const bNum = Number.parseInt(b.title.replaceAll(/\D/g, ''), 10) || 0;
+      return aNum - bNum;
+    });
+
+    const result = searchInTracksForPattern(prioritizedTracks, pattern);
+    if (result) return result;
+  }
+
+  function searchInTracksForPattern(items: Tracks, pattern: string, currentPath: string[] = []): string[] | undefined {
+    const item = items.find(i => i.type === 'audio');
+    const ext = extractFileExt(item?.title ?? '').toLowerCase();
+    if (ext === pattern)
+      return currentPath;
+
+    for (const item of items.filter(i => i.type === 'folder')) {
+      if (!item.children) continue;
+      const result = searchInTracksForPattern(
+        item.children,
+        pattern,
+        [...currentPath, item.title]
+      );
+      if (result) return result;
+    }
+  }
 }

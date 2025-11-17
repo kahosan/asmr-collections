@@ -68,6 +68,7 @@ export type WorkDetailsSearchParams = InferFullSearchSchema<typeof workDetailsRo
 const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/work-details/$id',
+  staleTime: Infinity,
   loader({ params }) {
     const id = params.id;
     preloadWorkDetails(id);
