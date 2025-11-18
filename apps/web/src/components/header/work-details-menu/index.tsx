@@ -10,6 +10,7 @@ import UpdateMenu from './update';
 import ClearCacheMenu from './clear-cache';
 import SleepModeDialog from './sleep-mode-dialog';
 
+import GoToDetail from '../go-to-detail';
 import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
@@ -95,6 +96,10 @@ export function WorkDetailsMenu() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-46">
+          <DropdownMenuItem asChild>
+            <GoToDetail />
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             {
               match(isExists?.exists)

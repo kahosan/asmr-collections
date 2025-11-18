@@ -3,6 +3,7 @@ import { MenubarContent, MenubarMenu, MenubarTrigger, MenubarSeparator, MenubarI
 import AddWorkDialog from './add-work';
 import BatchUpdateDialog from './batch-update';
 
+import GoToDetail from '../go-to-detail';
 import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
@@ -28,6 +29,8 @@ export default function OtherMenu() {
           菜单
         </MenubarTrigger>
         <MenubarContent align="end">
+          <GoToDetail />
+          <MenubarSeparator />
           <MenubarItem onClick={() => setShowAddWorkDialog(p => !p)} className="cursor-pointer">
             添加作品
             <MenubarShortcut>⌘I</MenubarShortcut>
