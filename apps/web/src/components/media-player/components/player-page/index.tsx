@@ -59,7 +59,7 @@ export default function PlayerPage() {
           key="player-page"
           className={cn(
             'fixed overflow-hidden bg-card',
-            'sm:w-85 sm:h-145 sm:bottom-5 sm:right-5',
+            'sm:w-85 sm:h-145 sm:bottom-5 sm:right-scroll-locked-5',
             'sm:rounded-md sm:border sm:border-border sm:shadow-lg',
             'max-sm:inset-0 max-sm:pt-5 max-sm:pb-[env(safe-area-inset-bottom)]'
           )}

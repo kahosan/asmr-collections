@@ -205,6 +205,10 @@ body {
     @apply bg-background text-foreground;
   }
 
+  html {
+    scrollbar-gutter: stable;
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -226,6 +230,14 @@ body {
   min-height: calc(var(--spacing) * --value(integer));
   max-width: calc(var(--spacing) * --value(integer));
   max-height: calc(var(--spacing) * --value(integer));
+}
+
+@utility w-scroll-locked {
+  width: calc(100% - var(--removed-body-scroll-bar-size, 0px));
+}
+
+@utility right-scroll-locked-5 {
+  right: calc(calc(var(--spacing) * 5) + var(--removed-body-scroll-bar-size, 0px));
 }
 
 /* Lock scroll when player page is opened on small screens 640px */
@@ -254,6 +266,10 @@ body[data-scroll-locked] {
 
 body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 15px;
+}
+
+html:has(body[data-scroll-locked]) {
+  scrollbar-gutter: auto;
 }
 
 * {
