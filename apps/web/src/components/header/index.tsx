@@ -35,7 +35,7 @@ export default function Header() {
   return (
     <>
       <div className="fixed top-0 w-[calc(100%-var(--removed-body-scroll-bar-size,0px))] z-10 bg-background">
-        <div className="max-w-7xl mx-auto flex justify-between items-center h-14 p-4 gap-2">
+        <div className="max-w-7xl mx-auto flex justify-between items-center h-(--navbar-height) p-4 gap-2">
           <Link className="font-bold text-lg" to="/" search={{ order: 'desc', sort: 'releaseDate', filterOp: 'and' }}>ASMR</Link>
           <div className="flex items-center gap-2">
             <SearchBar search={search} key={search.keyword} />

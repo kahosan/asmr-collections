@@ -7,7 +7,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <>
       <Header />
-      <main className="max-w-7xl mx-auto p-4 pt-18">
+      <main className="max-w-7xl mx-auto p-4 pt-[calc(var(--navbar-height)+1rem)] mb-4">
         {children}
       </main>
       <Confirmer />

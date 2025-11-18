@@ -25,7 +25,7 @@ export default function Pagination(props: Props) {
     pages.push(i);
 
   return (
-    <SPagination className="my-4">
+    <SPagination className="mt-4">
       <PaginationContent>
         <PPrevious to="/" search={{ ...search, page: Math.max(1, current - 1) }} className="[&_span]:hidden" />
         <PLink isActive={current === 1} to="/" search={{ ...search, page: 1 }}>1</PLink>

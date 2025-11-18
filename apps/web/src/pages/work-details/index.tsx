@@ -209,7 +209,7 @@ export default function WorkDetails() {
             </div>
           </div>
         </Card>
-        <div className="bg-current/8 p-2 rounded-md text-sm">
+        <div className="bg-current/8 p-2 rounded-md text-sm my-4">
           {data.intro}
         </div>
       </Activity>
