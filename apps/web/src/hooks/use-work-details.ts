@@ -99,9 +99,9 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
         logger.error(e, '预加载作品音轨失败');
         return { error: new Error(errorMessage, { cause: e }) };
       }
-    }, {
-      onSuccess,
-      suspense: true
+    },
+    {
+      onSuccess
     }
   );
 }

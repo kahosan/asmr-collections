@@ -11,6 +11,7 @@ import { Separator } from '~/components/ui/separator';
 
 import SimilarWorks from './similar';
 import TracksTabale from './tracks-table';
+import TracksSkeleton from './tracks-skeleton';
 
 import { useAtomValue } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
@@ -46,7 +47,7 @@ export default function WorkDetails() {
     navigate({ search: { path }, replace: true });
   }, [navigate]);
 
-  const { data: tracks } = useWorkDetailsTracks(id, smartNavigate, searchPath);
+  const { data: tracks, isLoading } = useWorkDetailsTracks(id, smartNavigate, searchPath);
 
   if (!data)
     throw new Error('作品数据请求失败，详情请查看控制台');
@@ -213,11 +214,23 @@ export default function WorkDetails() {
         </div>
       </Activity>
 
-      {tracks?.error
-        ? <div className="mt-2 text-sm opacity-65">{tracks.error.message || '未知错误'}</div>
-        : (tracks === null
-          ? <p className="mt-2 text-sm opacity-65"> 当前作品不在本地库中，且未启用回退 ASMR.ONE。 </p>
-          : <TracksTabale work={data} searchPath={searchPath} tracks={tracks.data} />)}
+      {isLoading && <TracksSkeleton />}
+
+      {!isLoading && tracks?.error && (
+        <div className="mt-2 text-sm opacity-65">
+          {tracks.error.message || '未知错误'}
+        </div>
+      )}
+
+      {!isLoading && tracks === null && (
+        <p className="mt-2 text-sm opacity-65">
+          当前作品不在本地库中，且未启用回退 ASMR.ONE。
+        </p>
+      )}
+
+      {!isLoading && tracks?.data && (
+        <TracksTabale work={data} searchPath={searchPath} tracks={tracks.data} />
+      )}
 
       <SimilarWorks work={data} />
     </>
