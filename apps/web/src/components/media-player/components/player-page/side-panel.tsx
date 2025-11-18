@@ -2,6 +2,7 @@ import { ScrollArea } from '~/components/ui/scroll-area';
 
 import Playlist from './playlist';
 import Subtitles from './subtitles';
+
 import { Tabs, TabsContent } from '~/components/tabs';
 
 import { useRef, useState } from 'react';
@@ -9,9 +10,11 @@ import { cn } from '~/lib/utils';
 
 import type * as TabsPrimitive from '@radix-ui/react-tabs';
 
+type TabValue = 'playlist' | 'subtitles' | 'similar' | '';
+
 type PlayerSidePanelProps = {
-  activeTab?: string
-  onTabChange?: (tab: string) => void
+  activeTab?: TabValue
+  onTabChange?: (tab: TabValue) => void
   classNames?: { scrollArea?: string }
 } & React.ComponentProps<typeof TabsPrimitive.Root>;
 
@@ -21,10 +24,10 @@ export default function PlayerSidePanel({ activeTab = 'playlist', onTabChange, c
 
   const handleTabChange = (value: string) => {
     if (onTabChange) {
-      onTabChange(value);
+      onTabChange(value as TabValue);
       return;
     }
-    setTab(value);
+    setTab(value as TabValue);
   };
 
   return (

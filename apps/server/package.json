@@ -23,7 +23,6 @@
     "cachified-redis-adapter": "^2.0.2",
     "cheerio": "^1.1.2",
     "dotenv-cli": "^8.0.0",
-    "file-type": "^21.0.0",
     "hono": "^4.10.0",
     "lru-cache": "^11.2.2",
     "music-metadata": "^11.10.0",

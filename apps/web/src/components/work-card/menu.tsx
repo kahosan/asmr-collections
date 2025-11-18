@@ -187,11 +187,11 @@ function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string, exists
     const fileExt = extractFileExt(file.name);
     const fileSize = file.size;
 
-    if (!['zip', '7z', 'rar'].includes(fileExt) || fileSize > 1024 * 1024) {
+    if (!['zip'].includes(fileExt) || fileSize > 2 * 1024 * 1024) {
       toast.error(
         <div>
-          <p>文件格式仅支持 <code>7z zip rar</code></p>
-          <p>并且大小不超过 <code>1MB</code></p>
+          <p>文件格式仅支持 <code>zip</code></p>
+          <p>并且大小不超过 <code>2MB</code></p>
         </div>
       );
       return;

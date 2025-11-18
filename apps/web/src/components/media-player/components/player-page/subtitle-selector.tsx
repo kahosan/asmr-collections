@@ -38,7 +38,7 @@ export default function SubtitleSelector() {
 
       const content = await fetchTextTrackContent(subtitles.url);
       const textTrack = new TextTrack({
-        content,
+        content: content || subtitles.content,
         id: currentTrack.title,
         kind: 'subtitles',
         label: 'Chinese',

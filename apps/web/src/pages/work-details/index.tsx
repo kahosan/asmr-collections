@@ -47,7 +47,7 @@ export default function WorkDetails() {
     navigate({ search: { path }, replace: true });
   }, [navigate]);
 
-  const { data: tracks, isLoading } = useWorkDetailsTracks(id, smartNavigate, searchPath);
+  const { data: tracks, isLoading } = useWorkDetailsTracks(id, smartNavigate, data?.subtitles, searchPath);
 
   if (!data)
     throw new Error('作品数据请求失败，详情请查看控制台');
@@ -229,7 +229,7 @@ export default function WorkDetails() {
       )}
 
       {!isLoading && tracks?.data && (
-        <TracksTabale work={data} searchPath={searchPath} tracks={tracks.data} />
+        <TracksTabale work={data} searchPath={searchPath} tracks={tracks.data} externalSubtitles={tracks.externalSubtitles} />
       )}
 
       <SimilarWorks work={data} />

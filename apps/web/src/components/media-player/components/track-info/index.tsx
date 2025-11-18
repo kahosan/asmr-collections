@@ -17,7 +17,7 @@ export default function TrackInfo({ mainExpand }: MiddleControlsProps) {
 
   return (
     <div id="track-info" className="flex items-center justify-center gap-2">
-      <div id="thumbnail-wrapper" className={cn('size-11 bg-zinc-800 rounded-md overflow-hidden max-md:hidden max-sm:block', cod ? '' : 'ml-3')}>
+      <div id="thumbnail-wrapper" className={cn('size-11 bg-zinc-800 rounded-md overflow-hidden max-sm:block', cod ? '' : 'ml-3')}>
         <img
           id="thumbnail"
           className="w-full h-full object-cover"

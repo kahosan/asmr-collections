@@ -10,6 +10,7 @@ import VideoItem from './video-item';
 import AudioItem from './audio-item';
 
 import { useAtom } from 'jotai';
+import { produce } from 'immer';
 import { useMemo, useRef } from 'react';
 
 import { match } from 'ts-pattern';
@@ -32,7 +33,7 @@ import { SubtitleMatcher, collectSubtitles } from '../../lib/subtitle-matcher';
 
 import { extractFileExt } from '~/utils';
 
-import type { MediaTrack } from '~/hooks/use-media-state';
+import type { MediaTrack, SubtitleInfo } from '~/hooks/use-media-state';
 
 import type { Tracks } from '~/types/tracks';
 import type { Work } from '~/types/work';
@@ -41,9 +42,10 @@ interface TracksTableProps {
   work: Work
   tracks?: Tracks | null
   searchPath?: string[]
+  externalSubtitles?: SubtitleInfo[]
 }
 
-export default function TracksTabale({ work, tracks, searchPath }: TracksTableProps) {
+export default function TracksTabale({ work, tracks, searchPath, externalSubtitles }: TracksTableProps) {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);
 
   const filterData = searchPath?.reduce((acc, path) => {
@@ -63,7 +65,12 @@ export default function TracksTabale({ work, tracks, searchPath }: TracksTablePr
     }
   }, [filterData]);
 
-  const allSubtitles = useMemo(() => collectSubtitles(tracks, true), [tracks]);
+  const allSubtitles = useMemo(() => {
+    const all = collectSubtitles(tracks, true);
+    if (all.length > 0) return all;
+
+    return externalSubtitles ?? [];
+  }, [externalSubtitles, tracks]);
 
   const subtitleMatcher = useMemo(() => {
     const currentDirSubtitles = collectSubtitles(groupByType?.media);
@@ -73,53 +80,33 @@ export default function TracksTabale({ work, tracks, searchPath }: TracksTablePr
 
   const handlePlay = (track: MediaTrack, tracks?: MediaTrack[]) => {
     const currentSubtitle = subtitleMatcher.find(track.title);
-    setMediaState(state => ({
-      ...state,
+    setMediaState({
       work,
       open: true,
       allSubtitles,
       tracks: tracks?.map(item => {
-        const subtitle = subtitleMatcher.find(item.title);
+        const subtitles = subtitleMatcher.find(item.title);
         return {
           ...item,
-          subtitles: subtitle
-            ? {
-              title: subtitle.title,
-              url: subtitle.url
-            }
-            : undefined
+          subtitles
         };
       }),
       currentTrack: {
         ...track,
         subtitles: currentSubtitle
-          ? {
-            title: currentSubtitle.title,
-            url: currentSubtitle.url
-          }
-          : undefined
       }
-    }));
+    });
   };
 
   const enqueueTrack = (track: MediaTrack) => {
     if (mediaState.tracks?.find(item => item.title === track.title)) return;
 
-    const subtitle = subtitleMatcher.find(track.title);
-    setMediaState(state => ({
-      ...state,
-      tracks: [
-        ...(state.tracks ?? []),
-        {
-          ...track,
-          subtitles: subtitle
-            ? {
-              title: subtitle.title,
-              url: subtitle.url
-            }
-            : undefined
-        }
-      ]
+    const subtitles = subtitleMatcher.find(track.title);
+    setMediaState(state => produce(state, draft => {
+      draft.tracks?.push({
+        ...track,
+        subtitles
+      });
     }));
   };
 

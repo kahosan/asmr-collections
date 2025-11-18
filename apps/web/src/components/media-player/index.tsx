@@ -43,11 +43,14 @@ export default function MediaPlayer() {
   }, [changeTrack, mediaState.currentTrack, mediaState.work?.artists, mediaState.work?.cover, mediaState.work?.name]);
 
   const onLoadStart = useCallback(async (e: MediaPlayingEvent) => {
-    const content = await fetchTextTrackContent(mediaState.currentTrack?.subtitles?.url);
-    if (!content) return;
+    const src = mediaState.currentTrack?.subtitles?.url;
+    const stateContent = mediaState.currentTrack?.subtitles?.content;
+
+    const content = await fetchTextTrackContent();
+    if (!content && !stateContent && !src) return;
 
     const track = new TextTrack({
-      content,
+      content: content || stateContent,
       id: mediaState.currentTrack?.title,
       kind: 'subtitles',
       label: 'Chinese',
@@ -56,7 +59,7 @@ export default function MediaPlayer() {
 
     e.target.textTracks.add(track);
     track.setMode('showing');
-  }, [mediaState.currentTrack?.subtitles?.url, mediaState.currentTrack?.title]);
+  }, [mediaState.currentTrack?.subtitles?.content, mediaState.currentTrack?.subtitles?.url, mediaState.currentTrack?.title]);
 
   if (!mediaState.open) return null;
 

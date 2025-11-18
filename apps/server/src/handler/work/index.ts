@@ -1,5 +1,3 @@
-import { fileTypeFromBuffer } from 'file-type';
-
 import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
@@ -64,10 +62,12 @@ workApp.get('/subtitles/:id', async c => {
     if (!subtitlesData?.data)
       return c.json({ message: '字幕不存在' }, 404);
 
-    const filetype = await fileTypeFromBuffer(subtitlesData.data);
+    const data = new Uint8Array(subtitlesData.data);
 
-    return c.body(new Uint8Array(subtitlesData.data), 200, {
-      'Content-Disposition': `attachment; filename=${filetype?.ext ? `${id}.${filetype.ext}` : 'unknown'}`
+    return c.body(data, 200, {
+      'Content-Type': 'application/zip',
+      'Content-Disposition': `attachment; filename=${id}.zip`,
+      'Content-Length': data.length.toString()
     });
   } catch (e) {
     return c.json(formatError(e), 500);

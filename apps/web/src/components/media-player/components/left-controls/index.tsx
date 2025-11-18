@@ -50,7 +50,7 @@ export default function LeftControls() {
       <div className="rounded-full p-2 dark:hover:bg-white/15 hover:bg-black/15 transition-colors">
         <SkipForwardIcon className="min-max-size-6 cursor-pointer" fill="currentColor" onClick={() => actions?.nextTrack()} />
       </div>
-      <div className="flex items-center text-xs font-medium opacity-60 max-md:hidden">
+      <div className="flex items-center text-xs font-medium opacity-60">
         <Time className="time" type="current" />
         <div className="mx-1">/</div>
         <Time className="time" type="duration" />

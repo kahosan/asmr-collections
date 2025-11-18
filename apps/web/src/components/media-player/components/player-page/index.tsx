@@ -148,9 +148,6 @@ export default function PlayerPage() {
                         key={activeTab}
                         onTabChange={handleTabChange}
                         activeTab={activeTab}
-                        classNames={{
-                          scrollArea: 'max-md:h-[calc(100dvh-10rem)]'
-                        }}
                       />
                     </motion.div>
                   </>

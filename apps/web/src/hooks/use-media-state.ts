@@ -4,7 +4,8 @@ import type { Work } from '~/types/work';
 
 export interface SubtitleInfo {
   title: string
-  url: string
+  url?: string
+  content?: string
 }
 
 export interface MediaTrack extends Track {

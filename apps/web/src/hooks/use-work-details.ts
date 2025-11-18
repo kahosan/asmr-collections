@@ -1,12 +1,17 @@
+import { toast } from 'sonner';
+import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
-import type { Tracks } from '~/types/tracks';
+
 import { settingOptionsAtom } from './use-setting-options';
-import { fetcher } from '~/lib/fetcher';
-import { logger } from '~/lib/logger';
-import { toast } from 'sonner';
 import { findSmartPath, notifyError } from '~/utils';
-import { useCallback } from 'react';
+
+import { logger } from '~/lib/logger';
+import { fetcher } from '~/lib/fetcher';
+import { readerZipFileSubtitles } from '~/lib/subtitle-matcher';
+
+import type { Tracks } from '~/types/tracks';
+import type { SubtitleInfo } from './use-media-state';
 
 export type TracksData =
   {
@@ -14,14 +19,17 @@ export type TracksData =
     data?: undefined
     fallback?: undefined
     existsInLocal?: undefined
+    externalSubtitles?: undefined
   } | {
     data: Tracks
     fallback: boolean
     existsInLocal: boolean
     error?: undefined
+    externalSubtitles?: SubtitleInfo[]
   } | null;
 
-export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[]) => void, searchPath?: string[]) {
+// eslint-disable-next-line sukka/bool-param-default -- Need to distinguish undefined
+export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[]) => void, hasSubtitles?: boolean, searchPath?: string[]) {
   const settings = useAtomValue(settingOptionsAtom);
   const voiceLibrary = settings.voiceLibraryOptions;
 
@@ -51,8 +59,12 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     }
   }, [id, searchPath, settings.smartPath.enable, settings.smartPath.pattern, smartNavigate]);
 
-  return useSWRImmutable(
-    voiceLibrary.useLocalVoiceLibrary ? `work-tracks-local-${id}` : `work-tracks-${id}`,
+  const key = hasSubtitles === undefined
+    ? null
+    : (voiceLibrary.useLocalVoiceLibrary ? `work-tracks-local-${id}` : `work-tracks-${id}`);
+
+  return useSWRImmutable<TracksData>(
+    key,
     async () => {
       const enableLibrary = voiceLibrary.useLocalVoiceLibrary;
 
@@ -84,13 +96,9 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
       if (!tracksApi)
         return null;
 
+      let workTracks: Tracks | null = null;
       try {
-        const workTracks = await fetcher<Tracks>(tracksApi);
-        return {
-          data: workTracks,
-          fallback: tracksApi === asmrOneApi && exists === false,
-          existsInLocal: exists === true
-        };
+        workTracks = await fetcher<Tracks>(tracksApi);
       } catch (e) {
         const errorMessage = tracksApi === localApi
           ? '获取本地音频数据失败'
@@ -99,6 +107,25 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
         logger.error(e, '预加载作品音轨失败');
         return { error: new Error(errorMessage, { cause: e }) };
       }
+
+      const tracksData = {
+        data: workTracks,
+        fallback: tracksApi === asmrOneApi && exists === false,
+        existsInLocal: exists === true
+      };
+
+      if (hasSubtitles) {
+        try {
+          const externalSubtitles = await readerZipFileSubtitles(`/api/work/subtitles/${id}`);
+          return { ...tracksData, externalSubtitles };
+        } catch (e) {
+          logger.error(e, '尝试加载数据库字幕失败');
+          notifyError(e, '尝试加载数据库字幕失败');
+          return tracksData;
+        }
+      }
+
+      return tracksData;
     },
     {
       onSuccess
