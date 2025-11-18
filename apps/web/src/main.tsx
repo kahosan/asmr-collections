@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import Providers from './providers/index.tsx';
+import Providers from './providers';
 
 import './globals.css';
-import RouterProvider from './providers/router/index.tsx';
+import RouterProvider from './providers/router';
 
 import '~build/console';
 
