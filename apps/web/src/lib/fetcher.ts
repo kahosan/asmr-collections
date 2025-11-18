@@ -32,7 +32,9 @@ export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promis
       } else if (typeof data === 'object' && data.error) {
         throw new HTTPError(data.error, res.status, data?.data);
       } else if (data) {
-        throw new HTTPError(`未知错误: ${JSON.stringify(data)}`, res.status);
+        const stringData = typeof data === 'string' ? data : JSON.stringify(data);
+        const error = stringData.includes('<!DOCTYPE html>') ? `服务器发生错误：${res.status}` : stringData;
+        throw new HTTPError(`未知错误: ${error}`, res.status);
       }
       throw new HTTPError(res.statusText || '请求失败', res.status);
     }
