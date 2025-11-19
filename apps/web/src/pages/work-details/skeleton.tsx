@@ -46,7 +46,7 @@ export default function WorkDetailsSkeleton() {
         </div>
       </Card>
 
-      <Skeleton className="bg-current/8 h-12 rounded-md" />
+      <Skeleton className="bg-current/8 h-12 rounded-md my-4" />
 
       <TracksSkeleton />
     </>
