@@ -10,6 +10,7 @@ export interface SubtitleInfo {
 
 export interface MediaTrack extends Track {
   subtitles?: SubtitleInfo
+  lastPlayedAt?: number
 }
 
 export interface MediaState {

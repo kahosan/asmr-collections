@@ -8,6 +8,7 @@ import FolderBreadcrumb from '../../components/breadcrumb/folder-breadcrumb';
 
 import VideoItem from './video-item';
 import AudioItem from './audio-item';
+import ContinueLastPlayback from './continue-last-playback';
 
 import { useAtom } from 'jotai';
 import { produce } from 'immer';
@@ -78,13 +79,18 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
     return new SubtitleMatcher([currentDirSubtitles, allSubtitles]);
   }, [groupByType?.media, allSubtitles]);
 
-  const handlePlay = (track: MediaTrack, tracks?: MediaTrack[]) => {
+  const filterTracks = useMemo(
+    () => groupByType?.media?.filter(track => track.type === 'audio'),
+    [groupByType?.media]
+  );
+
+  const handlePlay = (track: MediaTrack) => {
     const currentSubtitle = subtitleMatcher.find(track.title);
     setMediaState({
       work,
       open: true,
       allSubtitles,
-      tracks: tracks?.map(item => {
+      tracks: filterTracks?.map(item => {
         const subtitles = subtitleMatcher.find(item.title);
         return {
           ...item,
@@ -94,6 +100,27 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
       currentTrack: {
         ...track,
         subtitles: currentSubtitle
+      }
+    });
+  };
+
+  const handlePlayHistory = (track: MediaTrack, lastPlayedAt?: number) => {
+    const currentSubtitle = subtitleMatcher.find(track.title);
+    setMediaState({
+      work,
+      open: true,
+      allSubtitles,
+      tracks: filterTracks?.map(item => {
+        const subtitles = subtitleMatcher.find(item.title);
+        return {
+          ...item,
+          subtitles
+        };
+      }),
+      currentTrack: {
+        ...track,
+        subtitles: currentSubtitle,
+        lastPlayedAt
       }
     });
   };
@@ -119,6 +146,8 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
 
   return (
     <>
+      <ContinueLastPlayback id={work.id} currentPlayWorkId={mediaState.work?.id} handlePlayHistory={handlePlayHistory} />
+
       <FolderBreadcrumb path={searchPath} />
 
       {
@@ -172,7 +201,6 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
                 const isCurrentTrack = mediaState.currentTrack?.title === item.title;
                 const videoFt = ['mp4', 'mkv', 'avi', 'mov'];
                 const isVideo = videoFt.includes(extractFileExt(item.title).toLowerCase());
-                const tracks = groupByType.media?.filter(track => track.type === 'audio');
 
                 const textUrl = item.mediaStreamUrl;
 
@@ -200,7 +228,7 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
                           .with('video', () => (
                             <VideoItem
                               track={item}
-                              tracks={tracks}
+                              tracks={filterTracks}
                               work={work}
                             />
                           ))
@@ -208,7 +236,7 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
                             <AudioItem
                               existCurrentTrack={!!mediaState.currentTrack}
                               track={item}
-                              onPlay={() => handlePlay(item, tracks)}
+                              onPlay={() => handlePlay(item)}
                               enqueueTrack={() => enqueueTrack(item)}
                             />
                           ))
@@ -238,21 +266,24 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
             }
 
             {
-              groupByType?.other?.map(item => (
-                <TableRow key={item.title}>
-                  <TableCell className="p-0 whitespace-normal h-12.5">
-                    <Link
-                      to={item.mediaDownloadUrl}
-                      target="_blank"
-                      title={item.title}
-                      className="flex items-center py-1"
-                    >
-                      <FileText className="min-size-8 mx-4" color="#9E9E9E" />
-                      <p className="line-clamp-2">{item.title}</p>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))
+              groupByType?.other?.map(item => {
+                const url = item.mediaDownloadUrl;
+                return (
+                  <TableRow key={item.title}>
+                    <TableCell className="p-0 whitespace-normal h-12.5">
+                      <Link
+                        to={url}
+                        target="_blank"
+                        title={item.title}
+                        className="flex items-center py-1"
+                      >
+                        <FileText className="min-size-8 mx-4" color="#9E9E9E" />
+                        <p className="line-clamp-2">{item.title}</p>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             }
           </TableBody>
         </Table>
