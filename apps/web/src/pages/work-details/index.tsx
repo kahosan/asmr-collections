@@ -1,4 +1,4 @@
-import { getRouteApi, Link } from '@tanstack/react-router';
+import { getRouteApi, Link, useMatchRoute } from '@tanstack/react-router';
 
 import { Activity, useCallback } from 'react';
 
@@ -33,6 +33,7 @@ export default function WorkDetails() {
   const { id } = route.useParams();
   const navigate = route.useNavigate();
   const searchPath = route.useSearch({ select: ({ path }) => path });
+  const matchRoute = useMatchRoute();
 
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
@@ -44,8 +45,11 @@ export default function WorkDetails() {
   );
 
   const smartNavigate = useCallback((path: string[]) => {
-    navigate({ search: { path }, replace: true });
-  }, [navigate]);
+    // 当不处于 work-details 路由时，不进行导航
+    if (!matchRoute({ to: '/work-details/$id' })) return;
+
+    navigate({ params: { id }, search: { path }, replace: true });
+  }, [id, matchRoute, navigate]);
 
   const { data: tracks, isLoading } = useWorkDetailsTracks(id, smartNavigate, data?.subtitles, searchPath);
 
