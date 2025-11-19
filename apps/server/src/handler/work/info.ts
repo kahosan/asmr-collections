@@ -4,6 +4,7 @@ import { createCachified, ttl } from '~/lib/cachified';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
+import { formatError } from '../utils';
 
 const [dlsiteCache] = createCachified<WorkInfoResp | null>({
   ttl: ttl(60 * 24)
@@ -71,9 +72,9 @@ infoApp.get('/info/:id', async c => {
     return c.json(data);
   } catch (e) {
     if (e instanceof HTTPError)
-      return c.json({ message: `获取作品信息失败，返回 Code：${e.status}` }, 500);
+      return c.json(formatError(`获取作品信息失败，返回 Code：${e.status}`), 500);
 
-    return c.json({ message: '获取作品信息失败' }, 500);
+    return c.json(formatError('获取作品信息失败'), 500);
   }
 });
 

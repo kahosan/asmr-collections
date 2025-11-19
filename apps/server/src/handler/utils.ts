@@ -28,6 +28,9 @@ export function formatError(e: unknown, text?: string) {
   if (e instanceof Error)
     return { message: text ? text + ': ' + e.message : e.message };
 
+  if (typeof e === 'string')
+    return { message: e };
+
   const error = e ? JSON.stringify(e).replaceAll(/^"|"$/g, '') : undefined;
   return { message: text ? (error ? text + ': ' + error : error) : error };
 }
