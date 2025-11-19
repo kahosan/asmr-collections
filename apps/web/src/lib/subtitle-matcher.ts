@@ -132,7 +132,7 @@ export async function readerZipFileSubtitles(src: string): Promise<SubtitleInfo[
 }
 
 export function decodeText(data: ArrayBuffer | Uint8Array): string {
-  const encodings = ['gbk', 'gb2312', 'gb18030', 'utf-8'];
+  const encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030'];
 
   for (const encoding of encodings) {
     try {
