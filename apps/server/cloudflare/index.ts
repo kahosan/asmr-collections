@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
-import { api } from '../src/router/api';
+import { api } from '../src/router';
 import { proxyApp } from '../src/router/proxy';
 
 interface Bindings {

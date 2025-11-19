@@ -3,7 +3,7 @@ import path, { join } from 'node:path';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { logger } from 'hono/logger';
-import { api } from './router/api';
+import { api } from './router';
 import { proxyApp } from './router/proxy';
 import { formatError, getVoiceLibraryEnv } from './router/utils';
 
