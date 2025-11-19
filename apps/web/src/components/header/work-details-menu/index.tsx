@@ -6,6 +6,8 @@ import { Button } from '~/components/ui/button';
 import { confirm } from '~/components/ui/confirmer';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 
+import { SubtitlesSubMenu } from '~/components/work-card/menu';
+
 import UpdateMenu from './update';
 import ClearCacheMenu from './clear-cache';
 import SleepModeDialog from './sleep-mode-dialog';
@@ -121,6 +123,8 @@ export function WorkDetailsMenu() {
                 .otherwise(() => <DropdownMenuItem disabled>菜单项加载中...</DropdownMenuItem>)
             }
           </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <SubtitlesSubMenu id={id} existsSubtitles />
           <DropdownMenuSeparator />
           <HiddenImage menuType="dropdown" />
           <DropdownMenuSeparator />

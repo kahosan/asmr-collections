@@ -172,7 +172,7 @@ export default function Menu({ work }: Props) {
   );
 }
 
-function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string, existsSubtitles: boolean, onClose: () => void }) {
+export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string, existsSubtitles: boolean, onClose?: () => void }) {
   const [subtitlesAction, subtitlesIsMutating] = useToastMutation('subtitles');
 
   const uploadSubtitles = async (subtitles?: FileList | null) => {
@@ -201,7 +201,7 @@ function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string, exists
 
     if (existsSubtitles) {
       const yes = await confirm({
-        title: '确定要覆盖原有字幕吗?',
+        title: '可能已存在字幕，确定要覆盖吗?',
         description: '覆盖后不可恢复'
       });
       if (!yes) return;
@@ -221,7 +221,7 @@ function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string, exists
       }
     });
 
-    onClose();
+    onClose?.();
   };
 
   const handleDownload = () => {
