@@ -1,22 +1,29 @@
 import { useAtomValue } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
-import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
+import { settingOptionsAtom, voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { mutateTracks } from '~/lib/mutation';
 
 const useLocalAtom = focusAtom(voiceLibraryOptionsAtom, optic => optic.prop('useLocalVoiceLibrary'));
+const asmrOneApiAtom = focusAtom(settingOptionsAtom, optic => optic.prop('asmrOneApi'));
 
 export default function ClearCacheMenu({ id}: { id: string }) {
   const [clearTracksAction, m1] = useToastMutation('clear-tracks-cache');
-  const enabled = useAtomValue(useLocalAtom);
+  const local = useAtomValue(useLocalAtom);
+  const asmrOneApi = useAtomValue(asmrOneApiAtom);
 
   const isMutating = m1;
 
+  const searchParams = new URLSearchParams({
+    local: local ? 'true' : 'false',
+    asmrOneApi
+  });
+
   const handleClear = () => {
     clearTracksAction({
-      key: `/api/tracks/${id}/cache/clear`,
+      key: `/api/tracks/${id}/cache/clear?${searchParams.toString()}`,
       fetchOps: { method: 'POST' },
       toastOps: {
         loading: '正在清理曲目缓存...',
@@ -31,8 +38,8 @@ export default function ClearCacheMenu({ id}: { id: string }) {
 
   return (
     <DropdownMenuItem
-      title="清理本地库相关操作的缓存"
-      disabled={isMutating || !enabled}
+      title="清理获取 tracks 的缓存"
+      disabled={isMutating}
       className="cursor-pointer"
       onClick={handleClear}
     >

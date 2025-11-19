@@ -68,10 +68,8 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     async () => {
       const enableLibrary = voiceLibrary.useLocalVoiceLibrary;
 
-      const asmrOneApi = `/proxy/${encodeURIComponent(`${settings.asmrOneApi}/api/tracks/${id.replace('RJ', '')}`)}`;
-      const localApi = `/api/tracks/${id}`;
+      let useAsmrOne: boolean | null = null;
 
-      let tracksApi: string | null = null;
       let exists: boolean | null = null;
 
       try {
@@ -80,11 +78,11 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
           exists = isExists.exists;
 
           if (exists)
-            tracksApi = localApi;
+            useAsmrOne = false;
           else if (voiceLibrary.fallbackToAsmrOneApi)
-            tracksApi = asmrOneApi;
+            useAsmrOne = true;
         } else {
-          tracksApi = asmrOneApi;
+          useAsmrOne = true;
         }
       } catch (e) {
         logger.error(e, '检查本地库状态失败');
@@ -93,16 +91,22 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
         };
       }
 
-      if (!tracksApi)
+      if (useAsmrOne === null)
         return null;
+
+      const searchParams = new URLSearchParams();
+      if (useAsmrOne) {
+        searchParams.append('provider', 'asmrone');
+        searchParams.append('asmrOneApi', settings.asmrOneApi);
+      }
 
       let workTracks: Tracks | null = null;
       try {
-        workTracks = await fetcher<Tracks>(tracksApi);
+        workTracks = await fetcher<Tracks>(`/api/tracks/${id}?${searchParams.toString()}`);
       } catch (e) {
-        const errorMessage = tracksApi === localApi
-          ? '获取本地音频数据失败'
-          : '获取 ASMR.ONE 音频数据失败';
+        const errorMessage = useAsmrOne
+          ? '获取 ASMR.ONE 音频数据失败'
+          : '获取本地音频数据失败';
 
         logger.error(e, '预加载作品音轨失败');
         return { error: new Error(errorMessage, { cause: e }) };
@@ -110,7 +114,7 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
 
       const tracksData = {
         data: workTracks,
-        fallback: tracksApi === asmrOneApi && exists === false,
+        fallback: useAsmrOne && exists === false,
         existsInLocal: exists === true
       };
 

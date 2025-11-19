@@ -33,7 +33,8 @@ interface CreateCachifiedOptions<T> extends Omit<CachifiedOptions<T>, 'cache' | 
 }
 
 type CacheKey =
-  | `tracks-${string}`;
+  | `tracks-${string}`
+  | `asmrone-tracks-${string}-${string}`;
 
 interface CachifiedParams<T> {
   cacheKey: CacheKey

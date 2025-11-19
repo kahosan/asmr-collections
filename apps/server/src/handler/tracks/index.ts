@@ -2,10 +2,12 @@ import type { Track, Tracks } from '~/types/tracks';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { newQueue } from '@henrygd/queue';
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { parseFile } from 'music-metadata';
 import { match } from 'ts-pattern';
-import { createCachified } from '~/lib/cachified';
+import * as z from 'zod';
+import { createCachified, ttl } from '~/lib/cachified';
 import { HOST_URL } from '~/lib/constant';
 import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
 
@@ -18,10 +20,32 @@ const [tracksCache, clearTracksCache] = createCachified<Tracks>({
 
 export const tracksApp = new Hono();
 
-tracksApp.get('/:id', async c => {
+const schema = z.discriminatedUnion('provider', [
+  z.object({
+    provider: z.literal('asmrone'),
+    asmrOneApi: z.string()
+  }),
+  z.object({
+    provider: z.undefined()
+  })
+]);
+
+tracksApp.get('/:id', zValidator('query', schema), async c => {
   const { id } = c.req.param();
+  const query = c.req.valid('query');
 
   try {
+    if (query.provider === 'asmrone') {
+      const { fetchAsmrOneTracks } = await import('~/provider/asmrone');
+      const data = await tracksCache({
+        cacheKey: `asmrone-tracks-${id}-${query.asmrOneApi}`,
+        getFreshValue: () => fetchAsmrOneTracks(id, query.asmrOneApi),
+        ttl: ttl(60),
+        ctx: c
+      });
+      return c.json(data);
+    }
+
     const { VOICE_LIBRARY } = getVoiceLibraryEnv();
 
     const workPath = join(VOICE_LIBRARY, id);
@@ -41,14 +65,26 @@ tracksApp.get('/:id', async c => {
   }
 });
 
-tracksApp.post('/:id/cache/clear', async c => {
+const schemaClearCache = z.object({
+  asmrOneApi: z.string(),
+  local: z.boolean()
+});
+
+tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async c => {
   const { id } = c.req.param();
+  const { asmrOneApi, local } = c.req.valid('query');
 
   try {
+    if (!local) {
+      await clearTracksCache(`asmrone-tracks-${id}-${asmrOneApi}`);
+      return c.json({ message: `${id} 缓存已清除` });
+    }
+
     // check voice library env
     getVoiceLibraryEnv();
 
     await clearTracksCache(`tracks-${id}`);
+    await clearTracksCache(`asmrone-tracks-${id}-${asmrOneApi}`);
     return c.json({ message: `${id} 缓存已清除` });
   } catch (e) {
     return c.json(formatError(e), 500);

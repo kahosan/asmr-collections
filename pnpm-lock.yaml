@@ -35,6 +35,9 @@ importers:
       '@henrygd/queue':
         specifier: ^1.1.1
         version: 1.1.1
+      '@hono/zod-validator':
+        specifier: ^0.7.4
+        version: 0.7.4(hono@4.10.0)(zod@4.1.12)
       '@prisma/adapter-neon':
         specifier: ^6.19.0
         version: 6.19.0
@@ -68,6 +71,9 @@ importers:
       ts-pattern:
         specifier: ^5.8.0
         version: 5.8.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20251011.0
@@ -865,6 +871,12 @@ packages:
 
   '@henrygd/queue@1.1.1':
     resolution: {integrity: sha512-U6qjF4kIK7K72e74tmHyi2TWjSbwzKmnOlu9HOz1l6JFCeM9Sqe3znSoyK/kst+rie7Q8FvTqVxcBjG+Q7vJYQ==}
+
+  '@hono/zod-validator@0.7.4':
+    resolution: {integrity: sha512-biKGn3BRJVaftZlIPMyK+HCe/UHAjJ6sH0UyXe3+v0OcgVr9xfImDROTJFLtn9e3XEEAHGZIM9U6evu85abm8Q==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.25.0 || ^4.0.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4836,6 +4848,11 @@ snapshots:
   '@floating-ui/utils@0.2.8': {}
 
   '@henrygd/queue@1.1.1': {}
+
+  '@hono/zod-validator@0.7.4(hono@4.10.0)(zod@4.1.12)':
+    dependencies:
+      hono: 4.10.0
+      zod: 4.1.12
 
   '@humanfs/core@0.19.1': {}
 

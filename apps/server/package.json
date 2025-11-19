@@ -18,6 +18,7 @@
   "dependencies": {
     "@epic-web/cachified": "^5.6.0",
     "@henrygd/queue": "^1.1.1",
+    "@hono/zod-validator": "^0.7.4",
     "@prisma/adapter-neon": "^6.19.0",
     "@prisma/client": "^6.17.1",
     "cachified-redis-adapter": "^2.0.2",
@@ -28,7 +29,8 @@
     "music-metadata": "^11.10.0",
     "prisma": "^6.17.1",
     "redis": "^5.9.0",
-    "ts-pattern": "^5.8.0"
+    "ts-pattern": "^5.8.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251011.0",
