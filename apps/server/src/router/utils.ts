@@ -3,7 +3,8 @@ import type { WorkInfo } from '~/types/source';
 
 import * as fs from 'node:fs/promises';
 
-import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
+import { join } from 'node:path';
+import { COVERS_PATH, HOST_URL, IS_WORKERS, VOICE_LIBRARY } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 
@@ -96,3 +97,26 @@ export function getVoiceLibraryEnv() {
 
   return { VOICE_LIBRARY, HOST_URL };
 };
+
+export async function saveCoverImage(url: string, id: string) {
+  if (IS_WORKERS) {
+    console.warn('在 Workers 环境下无法保存封面图片');
+    return;
+  }
+
+  const coverPath = join(COVERS_PATH, id + '.jpg');
+  if (await hasExistsInLocal(coverPath))
+    return;
+
+  const normalizedUrl = url.startsWith('//') ? 'https:' + url : url;
+
+  const res = await fetch(normalizedUrl);
+  if (!res.ok) {
+    console.error(`下载封面图片失败: ${res.status} ${res.statusText}`);
+    return;
+  }
+
+  await Bun.write(coverPath, res);
+
+  return coverPath.replace(process.cwd(), '');
+}

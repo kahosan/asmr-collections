@@ -33,6 +33,10 @@ export default defineConfig({
       '/proxy': {
         target: 'http://localhost:3000',
         changeOrigin: true
+      },
+      '/covers': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
       }
     }
   },

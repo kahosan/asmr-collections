@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, generateEmbedding, workIsExistsInDB } from '~/router/utils';
+import { formatError, generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
 
 export const updateApp = new Hono();
 
@@ -26,6 +26,13 @@ updateApp.put('/refresh/:id', async c => {
   }
 
   if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
+
+  try {
+    const coverPath = await saveCoverImage(data.image_main, id);
+    data.image_main = coverPath ?? data.image_main;
+  } catch (e) {
+    console.error('保存 cover 图片失败:', e);
+  }
 
   try {
     const work = await updateWork(data, id);

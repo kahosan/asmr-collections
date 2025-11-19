@@ -1,8 +1,11 @@
-import path, { join } from 'node:path';
+/* eslint-disable antfu/no-top-level-await -- disabled in this file */
+import * as fs from 'node:fs/promises';
 
+import path, { join } from 'node:path';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { logger } from 'hono/logger';
+import { COVERS_PATH } from './lib/constant';
 import { api } from './router';
 import { proxyApp } from './router/proxy';
 import { formatError, getVoiceLibraryEnv } from './router/utils';
@@ -63,6 +66,9 @@ app.on('GET', ['/download/*', '/stream/*'], c => {
   }
 });
 
+// cover images
+app.get('/covers/*', serveStatic({ root: process.cwd() }));
+
 // web
 app.use('/work-details/*', serveStatic({
   root: CLIENT_DIST,
@@ -72,6 +78,13 @@ app.use('/work-details/*', serveStatic({
 app
   .use('/assets/*', serveStatic({ root: CLIENT_DIST }))
   .use('/*', serveStatic({ root: CLIENT_DIST }));
+
+// init
+try {
+  await fs.mkdir(COVERS_PATH, { recursive: true });
+} catch (error) {
+  console.error('Failed to create covers directory:', error);
+}
 
 const port = process.env.PORT || 3000;
 console.info(`Server listening on port ${port}`);

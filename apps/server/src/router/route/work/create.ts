@@ -5,7 +5,7 @@ import { getPrisma } from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { formatError, generateEmbedding, workIsExistsInDB } from '~/router/utils';
+import { formatError, generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
 
 export const createApp = new Hono();
 
@@ -41,6 +41,13 @@ createApp.post('/create/:id', async c => {
       embeddingError = new HTTPError(e.message, 500);
 
     console.error(`${id} 生成向量失败:`, e);
+  }
+
+  try {
+    const coverPath = await saveCoverImage(data.image_main, id);
+    data.image_main = coverPath ?? data.image_main;
+  } catch (e) {
+    console.error('保存 cover 图片失败:', e);
   }
 
   const prisma = getPrisma();
