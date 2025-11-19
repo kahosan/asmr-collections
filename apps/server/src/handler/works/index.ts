@@ -3,51 +3,78 @@ import type { Work } from '~/types/collection';
 import { join } from 'node:path';
 
 import { Hono } from 'hono';
+import * as z from 'zod';
 import { getPrisma } from '~/lib/db';
+import { zValidator } from '~/lib/validator';
 import { formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
 export const worksApp = new Hono();
 
-worksApp.get('/', async c => {
-  const {
-    page: _page,
-    limit: _limit
-  } = c.req.query();
+export const schema = z.object({
+  circleId: z.string().optional(),
+  seriesId: z.string().optional(),
+  keyword: z.string().optional(),
+  embedding: z.string().optional(),
+  existsLocal: z.enum(['only', 'exclude']).optional(),
+  order: z.enum(['asc', 'desc']).default('desc'),
+  sort: z.string().default('releaseDate'),
+  filterOp: z.enum(['and', 'or']).default('and'),
 
-  const page = Number.parseInt(_page || '1', 10);
-  const limit = Number.parseInt(_limit || '20', 10);
+  artistId: z.preprocess(val => {
+    if (typeof val === 'string') {
+      const r = val.split(',');
+      return r.length === 1 && r[0] === '' ? [] : r;
+    }
+  }, z.array(z.coerce.number()).optional()),
+
+  genres: z.preprocess(val => {
+    if (typeof val === 'string') {
+      const r = val.split(',');
+      return r.length === 1 && r[0] === '' ? [] : r;
+    }
+  }, z.array(z.coerce.number()).optional()),
+
+  age: z.coerce.number().optional(),
+  multilingual: z.coerce.boolean().optional(),
+  subtitles: z.coerce.boolean().optional(),
+  page: z.coerce.number().default(1),
+  limit: z.coerce.number().default(20),
+  illustratorId: z.coerce.number().optional(),
+  artistCount: z.coerce.number().optional()
+});
+
+worksApp.get('/', zValidator('query', schema), async c => {
+  const {
+    page,
+    limit
+  } = c.req.valid('query');
 
   // filter
   const {
     circleId,
     seriesId,
-    illustratorId: _illustratorId,
-    artistId: _artistId,
-    artistCount: _artistCount,
-    genres: _genres,
+    illustratorId,
+    artistId,
+    artistCount,
+    genres,
     multilingual,
     subtitles,
     keyword,
     age,
-    filterOp = 'and',
+    filterOp,
     existsLocal
-  } = c.req.query();
+  } = c.req.valid('query');
 
   // sort
   const {
-    order = 'desc',
-    sort = 'releaseDate'
-  } = c.req.query();
+    order,
+    sort
+  } = c.req.valid('query');
 
   // search type
   const { embedding } = c.req.query();
-
-  const genres = (_genres || undefined)?.split(',').map(id => Number.parseInt(id, 10));
-  const artistId = (_artistId || undefined)?.split(',').map(id => Number.parseInt(id, 10));
-  const artistCount = _artistCount ? Number.parseInt(_artistCount, 10) : undefined;
-  const illustratorId = Number.parseInt(_illustratorId, 10);
 
   let AND: Prisma.WorkWhereInput[] = [];
   let OR: Prisma.WorkWhereInput[] = [];
@@ -63,7 +90,7 @@ worksApp.get('/', async c => {
       AND = AND.concat({ illustrators: { some: { id: illustratorId } } });
 
     if (age)
-      AND = AND.concat({ ageCategory: { equals: Number.parseInt(age, 10) } });
+      AND = AND.concat({ ageCategory: { equals: age } });
 
     if (seriesId)
       AND = AND.concat({ series: { id: seriesId } });
@@ -89,7 +116,7 @@ worksApp.get('/', async c => {
       OR = OR.concat({ illustrators: { some: { id: illustratorId } } });
 
     if (age)
-      OR = OR.concat({ ageCategory: { equals: Number.parseInt(age, 10) } });
+      OR = OR.concat({ ageCategory: { equals: age } });
 
     if (seriesId)
       OR = OR.concat({ series: { id: seriesId } });
@@ -140,7 +167,7 @@ worksApp.get('/', async c => {
           ...queryArgs.where,
           id: { in: existsIds }
         };
-      } else if (existsLocal === 'exclude') {
+      } else {
         queryArgs.where = {
           ...queryArgs.where,
           id: { in: noExistsIds }
