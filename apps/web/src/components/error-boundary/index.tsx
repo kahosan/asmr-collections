@@ -14,7 +14,11 @@ import {
 import { Button } from '~/components/ui/button';
 
 function ErrorFallback({ error }: FallbackProps) {
-  const message = 'message' in error ? error.message : '未知错误';
+  let message = 'message' in error ? error.message : '未知错误';
+  if (error.data) {
+    message += ': ';
+    message += typeof error.data === 'object' ? Object.values(error.data).join(', ') : error.data;
+  }
 
   const showDesc = typeof message === 'string' && message.includes('useLocalVoiceLibrary');
   return (
