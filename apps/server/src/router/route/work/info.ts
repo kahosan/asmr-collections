@@ -4,7 +4,7 @@ import { createCachified, ttl } from '~/lib/cachified';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { formatError } from '../utils';
+import { formatError } from '~/router/utils';
 
 const [dlsiteCache] = createCachified<WorkInfoResp | null>({
   ttl: ttl(60 * 24)

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { proxy } from 'hono/proxy';
-import { formatError } from '~/handler/utils';
+import { formatError } from './utils';
 
 export const proxyApp = new Hono();
 

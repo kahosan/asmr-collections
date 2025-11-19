@@ -6,7 +6,7 @@ import { Hono } from 'hono';
 import * as z from 'zod';
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
+import { formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '~/router/utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 

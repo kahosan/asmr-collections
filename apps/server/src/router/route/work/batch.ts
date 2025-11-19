@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { generateEmbedding, workIsExistsInDB } from '../utils';
+import { generateEmbedding, workIsExistsInDB } from '~/router/utils';
 import { createWork } from './create';
 import { updateWork } from './update';
 

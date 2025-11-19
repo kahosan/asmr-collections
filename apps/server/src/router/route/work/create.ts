@@ -5,7 +5,7 @@ import { getPrisma } from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { formatError, generateEmbedding, workIsExistsInDB } from '../utils';
+import { formatError, generateEmbedding, workIsExistsInDB } from '~/router/utils';
 
 export const createApp = new Hono();
 

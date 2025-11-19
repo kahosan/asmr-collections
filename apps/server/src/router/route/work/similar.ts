@@ -1,7 +1,7 @@
 import type { Work } from '~/types/collection';
 import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
-import { formatError } from '../utils';
+import { formatError } from '~/router/utils';
 
 export const similarApp = new Hono();
 

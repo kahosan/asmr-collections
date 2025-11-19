@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
-import { formatError } from '../utils';
+import { formatError } from '~/router/utils';
 
 const modelFields = new Set(['genre', 'work', 'artist', 'circle', 'series', 'illustrator']);
 

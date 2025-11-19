@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { fieldApp } from '~/handler/field';
-import { libraryApp } from '~/handler/library';
-import { tracksApp } from '~/handler/tracks';
-import { workApp } from '~/handler/work';
-import { worksApp } from '~/handler/works';
+import { fieldApp } from '../route/field';
+import { libraryApp } from '../route/library';
+import { tracksApp } from '../route/tracks';
+import { workApp } from '../route/work';
+import { worksApp } from '../route/works';
 
 export const api = new Hono()
   .use(cors())

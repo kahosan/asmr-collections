@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { Hono } from 'hono';
 import { HOST_URL } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
-import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
+import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '~/router/utils';
 
 export const libraryApp = new Hono();
 

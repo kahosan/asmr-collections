@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, generateEmbedding, workIsExistsInDB } from '../utils';
+import { formatError, generateEmbedding, workIsExistsInDB } from '~/router/utils';
 
 export const updateApp = new Hono();
 

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
-import { formatError, workIsExistsInDB } from '../utils';
+import { formatError, workIsExistsInDB } from '~/router/utils';
 
 export const deleteApp = new Hono();
 
