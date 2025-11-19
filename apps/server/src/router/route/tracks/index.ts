@@ -9,7 +9,7 @@ import * as z from 'zod';
 import { createCachified, ttl } from '~/lib/cachified';
 import { HOST_URL } from '~/lib/constant';
 import { zValidator } from '~/lib/validator';
-import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '~/router/utils';
+import { formatError, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
 
 const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
@@ -49,7 +49,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
     const { VOICE_LIBRARY } = getVoiceLibraryEnv();
 
     const workPath = join(VOICE_LIBRARY, id);
-    const workIsExist = await workIsExistsInLocal(workPath);
+    const workIsExist = await hasExistsInLocal(workPath);
     if (!workIsExist)
       return c.json({ message: '作品不存在于本地音声库' }, 404);
 

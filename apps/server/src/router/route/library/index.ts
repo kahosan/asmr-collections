@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { Hono } from 'hono';
 import { HOST_URL } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
-import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '~/router/utils';
+import { formatError, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
 
 export const libraryApp = new Hono();
 
@@ -70,7 +70,7 @@ libraryApp.get('/exists/:id', async c => {
   try {
     const { VOICE_LIBRARY } = getVoiceLibraryEnv();
 
-    const isExists = await workIsExistsInLocal(join(VOICE_LIBRARY, id));
+    const isExists = await hasExistsInLocal(join(VOICE_LIBRARY, id));
     return c.json({ exists: isExists });
   } catch (e) {
     return c.json(formatError(e), 500);

@@ -7,7 +7,7 @@ import { HOST_URL, VOICE_LIBRARY } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 
-export async function workIsExistsInLocal(path: PathLike): Promise<boolean> {
+export async function hasExistsInLocal(path: PathLike): Promise<boolean> {
   try {
     await fs.stat(path);
     return true;

@@ -6,7 +6,7 @@ import { Hono } from 'hono';
 import * as z from 'zod';
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { formatError, generateEmbedding, getVoiceLibraryEnv, workIsExistsInLocal } from '~/router/utils';
+import { formatError, generateEmbedding, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -286,7 +286,7 @@ async function getLocalWorkIds(voiceLibrary: string) {
   const results = await Promise.all(
     ids.map(async ({ id }) => ({
       id,
-      exists: await workIsExistsInLocal(join(voiceLibrary, id))
+      exists: await hasExistsInLocal(join(voiceLibrary, id))
     }))
   );
 
