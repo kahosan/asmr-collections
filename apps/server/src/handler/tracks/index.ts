@@ -2,13 +2,13 @@ import type { Track, Tracks } from '~/types/tracks';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { newQueue } from '@henrygd/queue';
-import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { parseFile } from 'music-metadata';
 import { match } from 'ts-pattern';
 import * as z from 'zod';
 import { createCachified, ttl } from '~/lib/cachified';
 import { HOST_URL } from '~/lib/constant';
+import { zValidator } from '~/lib/validator';
 import { formatError, getVoiceLibraryEnv, workIsExistsInLocal } from '../utils';
 
 const folderQueue = newQueue(50);
@@ -67,7 +67,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
 
 const schemaClearCache = z.object({
   asmrOneApi: z.string(),
-  local: z.boolean()
+  local: z.coerce.boolean()
 });
 
 tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async c => {
