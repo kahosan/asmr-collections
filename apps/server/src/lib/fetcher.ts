@@ -29,12 +29,12 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
       : await res.text();
 
     if (!res.ok)
-      throw new HTTPError(`Fetch ${url} failed`, res.status, data);
+      throw new HTTPError(`请求 ${url} 失败`, res.status, data);
 
     return data as T;
   } catch (error) {
     if (error instanceof SyntaxError)
-      throw new Error(`Failed to parse JSON body: ${error.message}`);
+      throw new Error(`解析 JSON 失败：${error.message}`);
 
     throw error;
   }
