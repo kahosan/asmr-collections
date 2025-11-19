@@ -1,6 +1,13 @@
 import type { Tracks } from '~/types/tracks';
-import { fetcher } from '~/lib/fetcher';
+import { fetcher, HTTPError } from '~/lib/fetcher';
 
-export function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
-  return fetcher<Tracks>(`${asmrOneApi}/api/tracks/${id.replace('RJ', '')}`);
+export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
+  try {
+    return await fetcher<Tracks>(`${asmrOneApi}/api/tracks/${id.replace('RJ', '')}`);
+  } catch (e) {
+    if (e instanceof HTTPError && e.status === 404)
+      throw new Error(e.data?.error || '作品不存在于 asmr.one');
+
+    throw e;
+  };
 }
