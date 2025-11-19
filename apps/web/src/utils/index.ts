@@ -31,6 +31,7 @@ export function notifyError(error: unknown, text: string, options?: ExternalToas
       id,
       description: options?.description ?? message
     });
+    return;
   }
 
   toast.error(text, {
