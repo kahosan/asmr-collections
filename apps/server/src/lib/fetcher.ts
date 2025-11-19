@@ -28,8 +28,13 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
       ? await res.json()
       : await res.text();
 
-    if (!res.ok)
+    if (!res.ok) {
+      const stringData = typeof data === 'string' ? data : JSON.stringify(data);
+      if (stringData.includes('<!DOCTYPE html>'))
+        throw new HTTPError(`请求 ${url} 失败，服务器发生错误：${res.status}`, res.status);
+
       throw new HTTPError(`请求 ${url} 失败`, res.status, data);
+    }
 
     return data as T;
   } catch (error) {
