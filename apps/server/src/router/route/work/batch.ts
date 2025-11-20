@@ -33,7 +33,7 @@ batchApp.post('/batch/create', async c => {
   // 步骤 1: 并发收集所有需要处理的数据
   const validData: Array<{ id: string, data: WorkInfo }> = [];
 
-  const fetchTasks = ids.map(id => async () => {
+  ids.forEach(id => fetchQueue.add(async () => {
     try {
       if (await workIsExistsInDB(id)) {
         result.failed.push({ id, error: '作品已收藏' });
@@ -51,10 +51,10 @@ batchApp.post('/batch/create', async c => {
       console.error(`获取作品 ${id} 信息失败:`, e);
       result.failed.push({ id, error: '获取作品信息失败' });
     }
-  });
+  }));
 
   // 并发获取所有数据
-  await fetchQueue.all(fetchTasks);
+  await fetchQueue.done();
 
   if (validData.length === 0) {
     return c.json({
@@ -134,7 +134,7 @@ batchApp.post('/batch/create', async c => {
   }
 
   // 步骤 4: 并发创建作品（使用 connect 而不是 connectOrCreate）
-  const createTasks = validData.map(({ id, data }) => async () => {
+  validData.forEach(({ id, data }) => createQueue.add(async () => {
     try {
       let embedding: number[] | undefined;
       try {
@@ -160,9 +160,9 @@ batchApp.post('/batch/create', async c => {
         error: e instanceof Error ? e.message : '未知错误'
       });
     }
-  });
+  }));
 
-  await createQueue.all(createTasks);
+  await createQueue.done();
 
   return c.json({
     ...result,
@@ -187,7 +187,7 @@ batchApp.post('/batch/refresh', async c => {
   // 步骤 1: 并发收集所有需要更新的数据
   const validData: Array<{ id: string, data: WorkInfo }> = [];
 
-  const fetchTasks = targetIds.map(id => async () => {
+  targetIds.forEach(id => fetchQueue.add(async () => {
     try {
       const data = await fetchWorkInfo(id);
       if (!data) {
@@ -199,10 +199,10 @@ batchApp.post('/batch/refresh', async c => {
       console.error(`获取作品 ${id} 信息失败:`, e);
       result.failed.push({ id, error: '获取作品信息失败' });
     }
-  });
+  }));
 
   // 并发获取所有数据
-  await fetchQueue.all(fetchTasks);
+  await fetchQueue.done();
 
   if (validData.length === 0) {
     return c.json({
@@ -276,7 +276,7 @@ batchApp.post('/batch/refresh', async c => {
   }
 
   // 步骤 4: 并发更新作品
-  const updateTasks = validData.map(({ id, data }) => async () => {
+  validData.forEach(({ id, data }) => refreshQueue.add(async () => {
     try {
       await updateWork(data, id);
       result.success.push(id);
@@ -287,9 +287,9 @@ batchApp.post('/batch/refresh', async c => {
         error: e instanceof Error ? e.message : '未知错误'
       });
     }
-  });
+  }));
 
-  await refreshQueue.all(updateTasks);
+  await refreshQueue.done();
 
   return c.json({
     ...result,
