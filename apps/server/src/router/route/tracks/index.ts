@@ -38,7 +38,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
     if (query.provider === 'asmrone') {
       const { fetchAsmrOneTracks } = await import('~/provider/asmrone');
       const data = await tracksCache({
-        cacheKey: `asmrone-tracks-${id}-${query.asmrOneApi}`,
+        cacheKey: `asmrone-tracks-${id}-${encodeURIComponent(query.asmrOneApi)}`,
         getFreshValue: () => fetchAsmrOneTracks(id, query.asmrOneApi),
         ttl: ttl(60),
         ctx: c
@@ -75,8 +75,10 @@ tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async 
   const { asmrOneApi, local } = c.req.valid('query');
 
   try {
+    const encodedAsmrOneApi = encodeURIComponent(asmrOneApi);
+
     if (!local) {
-      await clearTracksCache(`asmrone-tracks-${id}-${asmrOneApi}`);
+      await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
       return c.json({ message: `${id} 缓存已清除` });
     }
 
@@ -84,7 +86,7 @@ tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async 
     getVoiceLibraryEnv();
 
     await clearTracksCache(`tracks-${id}`);
-    await clearTracksCache(`asmrone-tracks-${id}-${asmrOneApi}`);
+    await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
     return c.json({ message: `${id} 缓存已清除` });
   } catch (e) {
     return c.json(formatError(e), 500);

@@ -6,7 +6,7 @@ import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
 import { formatError } from '~/router/utils';
 
-const [dlsiteCache] = createCachified<WorkInfoResp | null>({
+const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResp | null>({
   ttl: ttl(60 * 24)
 });
 
@@ -66,8 +66,10 @@ infoApp.get('/info/:id', async c => {
       ctx: c
     });
 
-    if (!data)
+    if (!data) {
+      await clearDLsiteCache(`dlsite-work-info-${id}`);
       return c.json({ message: 'DLsite 不存在此作品' }, 404);
+    }
 
     return c.json(data);
   } catch (e) {
