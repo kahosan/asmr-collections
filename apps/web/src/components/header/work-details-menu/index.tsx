@@ -112,6 +112,8 @@ export function WorkDetailsMenu() {
                     <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={deleteIsMutating}>
                       删除作品
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <SubtitlesSubMenu id={id} existsSubtitles />
                   </>
                 ))
                 .with(false, () => (
@@ -123,8 +125,6 @@ export function WorkDetailsMenu() {
                 .otherwise(() => <DropdownMenuItem disabled>菜单项加载中...</DropdownMenuItem>)
             }
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <SubtitlesSubMenu id={id} existsSubtitles />
           <DropdownMenuSeparator />
           <HiddenImage menuType="dropdown" />
           <DropdownMenuSeparator />
