@@ -2,14 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
+  provider        = "prisma-client"
+  output          = "../src/lib/prisma"
 }
 
 datasource db {
   provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  extensions = [vector]
 }
 
 // Work Model
@@ -37,7 +35,7 @@ model Work {
   languageEditions Json[]
   subtitles        Boolean                @default(false)
   subtitlesData    SubtitlesData?
-  embedding        Unsupported("vector")?
+  embedding        Unsupported("vector(1024)")?
   releaseDate      DateTime
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt

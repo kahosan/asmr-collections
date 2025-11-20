@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from '@prisma/client';
+import type { Prisma, PrismaClient } from '~/lib/prisma/client';
 import type { Work } from '~/types/collection';
 import { join } from 'node:path';
 
