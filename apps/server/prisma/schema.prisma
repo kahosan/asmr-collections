@@ -4,6 +4,15 @@
 generator client {
   provider        = "prisma-client"
   output          = "../src/lib/prisma"
+
+  runtime = "bun"
+}
+
+generator workers {
+  provider        = "prisma-client"
+  output          = "../src/lib/prisma-workers"
+
+  runtime = "workerd"
 }
 
 datasource db {

@@ -1,16 +1,21 @@
+/* eslint-disable antfu/no-top-level-await -- */
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import { PrismaClient } from './prisma/client';
+import { IS_WORKERS } from './constant';
+import { PrismaClient as PrismaClientWorkers } from './prisma-workers/client';
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+const adapterNeon = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+const adapterPg = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+
+const prisma = IS_WORKERS
+  ? null
+  : await import('./prisma/client')
+    .then(m => new m.PrismaClient({ adapter: adapterPg }));
 
 export function getPrisma() {
-  if (process.env.RUNTIME === 'workers') {
-    const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
-    return new PrismaClient({ adapter });
-  }
+  if (IS_WORKERS)
+    return new PrismaClientWorkers({ adapter: adapterNeon });
 
-  return prisma;
+  return prisma!;
 }

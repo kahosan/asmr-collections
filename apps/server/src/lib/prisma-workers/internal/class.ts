@@ -11,7 +11,7 @@
  * Please import the `PrismaClient` class from the `client.ts` file instead.
  */
 
-import * as runtime from "@prisma/client/runtime/client"
+import * as runtime from "@prisma/client/runtime/wasm-compiler-edge"
 import type * as Prisma from "./prismaNamespace.ts"
 
 
@@ -29,20 +29,16 @@ const config: runtime.GetPrismaClientConfig = {
 }
 
 config.runtimeDataModel = JSON.parse("{\"models\":{\"Work\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"cover\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"intro\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"circleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"circle\",\"kind\":\"object\",\"type\":\"Circle\",\"relationName\":\"CircleToWork\"},{\"name\":\"seriesId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"series\",\"kind\":\"object\",\"type\":\"Series\",\"relationName\":\"SeriesToWork\"},{\"name\":\"artists\",\"kind\":\"object\",\"type\":\"Artist\",\"relationName\":\"ArtistToWork\"},{\"name\":\"illustrators\",\"kind\":\"object\",\"type\":\"Illustrator\",\"relationName\":\"IllustratorToWork\"},{\"name\":\"ageCategory\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"genres\",\"kind\":\"object\",\"type\":\"Genre\",\"relationName\":\"GenreToWork\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sales\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"wishlistCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"rate\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"rateCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"reviewCount\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"originalId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"translationInfo\",\"kind\":\"object\",\"type\":\"TranslationInfo\",\"relationName\":\"TranslationInfoToWork\"},{\"name\":\"languageEditions\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"subtitles\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"subtitlesData\",\"kind\":\"object\",\"type\":\"SubtitlesData\",\"relationName\":\"SubtitlesDataToWork\"},{\"name\":\"releaseDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Circle\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"works\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"CircleToWork\"}],\"dbName\":null},\"Series\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"works\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"SeriesToWork\"}],\"dbName\":null},\"Artist\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"works\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"ArtistToWork\"}],\"dbName\":null},\"Illustrator\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"works\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"IllustratorToWork\"}],\"dbName\":null},\"Genre\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"works\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"GenreToWork\"}],\"dbName\":null},\"SubtitlesData\":{\"fields\":[{\"name\":\"workId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"work\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"SubtitlesDataToWork\"},{\"name\":\"data\",\"kind\":\"scalar\",\"type\":\"Bytes\"}],\"dbName\":null},\"TranslationInfo\":{\"fields\":[{\"name\":\"workId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"work\",\"kind\":\"object\",\"type\":\"Work\",\"relationName\":\"TranslationInfoToWork\"},{\"name\":\"isVolunteer\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isOriginal\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isParent\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isChild\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isTranslationBonusChild\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"originalWorkno\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"parentWorkno\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"childWorknos\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lang\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
-
-async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
-  const { Buffer } = await import('node:buffer')
-  const wasmArray = Buffer.from(wasmBase64, 'base64')
-  return new WebAssembly.Module(wasmArray)
-}
-
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
+  getRuntime: async () => await import("./query_compiler_bg.js"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs")
-    return await decodeBase64AsWasm(wasm)
+    const { default: module } = await import("./query_compiler_bg.wasm?module")
+    return module
   }
+}
+if (typeof globalThis !== 'undefined' && globalThis['DEBUG'] || (typeof process !== 'undefined' && process.env && process.env.DEBUG) || undefined) {
+  runtime.Debug.enable(typeof globalThis !== 'undefined' && globalThis['DEBUG'] || (typeof process !== 'undefined' && process.env && process.env.DEBUG) || undefined)
 }
 
 
