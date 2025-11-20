@@ -157,6 +157,7 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
               onInit={detail => {
                 lightGalleryRef.current = detail.instance;
               }}
+              licenseKey="free"
               speed={200}
               plugins={[lgThumbnail, lgZoom, lgRotate]}
               download
