@@ -29,6 +29,9 @@ export default function MediaPlayer() {
   }, [mediaState.currentTrack?.title, mediaState.tracks, setMediaState]);
 
   const onLoadStart = useCallback(async (e: MediaPlayingEvent) => {
+    // 清理已存在的字幕轨道
+    e.target.textTracks.clear();
+
     const src = mediaState.currentTrack?.subtitles?.url;
     const stateContent = mediaState.currentTrack?.subtitles?.content;
 
