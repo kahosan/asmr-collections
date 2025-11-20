@@ -9,6 +9,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useGenerateSearch } from '~/hooks/use-generate-search';
 
 import { notifyError } from '~/utils';
+
+import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
 
 import type { Data } from '~/types/work';
@@ -32,7 +34,7 @@ export default function CircleFilter() {
 
   return (
     <MenubarSub>
-      <MenubarSubTrigger>
+      <MenubarSubTrigger className={cn('transition-opacity', search.circleId ? 'opacity-100' : 'opacity-60')}>
         社团
       </MenubarSubTrigger>
       <MenubarSubContent>

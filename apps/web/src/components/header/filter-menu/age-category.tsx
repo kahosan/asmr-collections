@@ -3,13 +3,15 @@ import { MenubarCheckboxItem, MenubarSub, MenubarSubContent, MenubarSubTrigger }
 import { useNavigate } from '@tanstack/react-router';
 import { useGenerateSearch } from '~/hooks/use-generate-search';
 
+import { cn } from '~/lib/utils';
+
 export default function AgeCategory() {
   const { search, exclude } = useGenerateSearch();
   const navigate = useNavigate();
 
   return (
     <MenubarSub>
-      <MenubarSubTrigger>
+      <MenubarSubTrigger className={cn('transition-opacity', search.age ? 'opacity-100' : 'opacity-60')}>
         年龄分级
       </MenubarSubTrigger>
       <MenubarSubContent>
