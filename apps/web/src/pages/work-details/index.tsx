@@ -21,7 +21,7 @@ import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { useWorkDetailsTracks } from '~/hooks/use-work-details';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
-import { writeClipboard } from '~/utils';
+import { writeClipboard, formatChineseDate } from '~/utils';
 
 import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
@@ -120,7 +120,7 @@ export default function WorkDetails() {
 
             <div className="text-sm mb-2">
               <span className="font-bold">发行日期：</span>
-              <span>{data.releaseDate}</span>
+              <span>{formatChineseDate(data.releaseDate)}</span>
             </div>
 
             <div className="text-sm inline-flex items-center flex-wrap gap-2">

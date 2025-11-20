@@ -34,7 +34,7 @@ export interface WorkInfo {
     ratio: number
   }>
   review_count?: number
-  release_date: string
+  release_date: Date
   translation_info: {
     is_volunteer: boolean
     // 日文原版

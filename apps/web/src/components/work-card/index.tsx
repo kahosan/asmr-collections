@@ -109,7 +109,7 @@ export default function WorkCard({ work, showMenus = true, showImageBadge = true
             'text-gray-300 max-w-[70%] truncate'
           )}
         >
-          {work.releaseDate}
+          {work.releaseDate.slice(0, 10)}
         </div>
         {
           work.seriesId

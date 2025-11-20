@@ -52,7 +52,7 @@ export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): 
       rateCount: work.rate_count,
       originalId: work.original_workno,
       reviewCount: work.review_count,
-      releaseDate: work.release,
+      releaseDate: new Date(work.release),
       translationInfo: {
         isVolunteer: work.translation_info.is_volunteer,
         isOriginal: work.translation_info.is_original,
@@ -64,8 +64,8 @@ export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): 
         childWorknos: work.translation_info.child_worknos,
         lang: work.translation_info.lang
       },
-      createdAt: work.create_date,
-      updatedAt: work.create_date,
+      createdAt: new Date(work.create_date),
+      updatedAt: new Date(work.create_date),
       languageEditions: work.language_editions.map(edition => ({
         workId: edition.workno,
         label: edition.label,

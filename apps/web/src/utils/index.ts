@@ -62,6 +62,21 @@ export function formatDuration(seconds: number) {
 }
 
 /**
+ * 格式化日期为中文格式
+ * @param dateString - ISO 日期字符串
+ * @returns 格式化后的日期字符串，如 "2025年11月18日 0时"
+ */
+export function formatChineseDate(dateString: string) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hour = date.getHours();
+
+  return `${year}年${month}月${day}日 ${hour}时`;
+}
+
+/**
  * 查找包含目标文件类型的路径
  * @param tracks - 轨道数据
  * @param patterns - 文件扩展名模式数组（按优先级顺序）

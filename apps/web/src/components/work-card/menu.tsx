@@ -123,7 +123,7 @@ export default function Menu({ work }: Props) {
                   赏析数：{work.reviewCount}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  发售日期：{work.releaseDate}
+                  发售日期：{work.releaseDate.slice(0, 10)}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   收藏日期：{work.createdAt.slice(0, 10)}

@@ -38,7 +38,7 @@ model Work {
   subtitles        Boolean                @default(false)
   subtitlesData    SubtitlesData?
   embedding        Unsupported("vector")?
-  releaseDate      String
+  releaseDate      DateTime
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt
 }

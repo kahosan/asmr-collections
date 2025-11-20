@@ -29,7 +29,7 @@ export async function fetchWorkInfo(id: string): Promise<WorkInfo | null> {
       name: data.title_name
     },
     genres: other.tags,
-    release_date: data.regist_date.split(' ').at(0) ?? '',
+    release_date: new Date(data.regist_date),
     price: data.price,
     sales: data.dl_count,
     rating: data.rate_average_2dp,

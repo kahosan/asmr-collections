@@ -38,7 +38,7 @@ export interface Work {
   rateCount: number
   originalId: string | null
   reviewCount: number
-  releaseDate: string
+  releaseDate: Date
   translationInfo: {
     isVolunteer: boolean
     // 日文原版
@@ -67,8 +67,8 @@ export interface Work {
   subtitlesData?: {
     data: File
   }
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export type WorkInfoResp = Omit<Work, 'createdAt' | 'updatedAt'>;
