@@ -16,6 +16,8 @@ export default function GoToDetail() {
 
   const disabled = !z.string().regex(/^(?:rj|bj|vj)\d{6,8}$/i).safeParse(id).success;
 
+  const tooltip = id === '' ? '输入 ID 前往作品详情' : (disabled ? 'RJ 号格式错误' : '前往作品详情');
+
   const handleClick = () => {
     if (disabled) return;
     navigate({ params: { id: id.toUpperCase() } });
@@ -38,14 +40,14 @@ export default function GoToDetail() {
               e.stopPropagation();
           }}
         />
-        <Tooltip open={isFocused || undefined}>
+        <Tooltip open={isFocused}>
           <TooltipTrigger asChild>
             <InputGroupButton onClick={handleClick}>
               <ArrowRight />
             </InputGroupButton>
           </TooltipTrigger>
           <TooltipContent>
-            {disabled ? 'RJ 号格式错误' : '前往作品详情'}
+            {tooltip}
           </TooltipContent>
         </Tooltip>
       </InputGroup>
