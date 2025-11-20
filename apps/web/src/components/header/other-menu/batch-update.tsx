@@ -39,6 +39,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
         success(data) {
           return data.message;
         },
+        error: '批量更新失败',
         description(data) {
           if (data.failed.length > 0) {
             setFailedIds(data.failed.map(f => f.id));

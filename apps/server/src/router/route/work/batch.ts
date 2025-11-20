@@ -25,6 +25,9 @@ batchApp.post('/batch/create', async c => {
   if (!ids.length)
     return c.json({ message: '请提供有效的 ID 列表' }, 400);
 
+  if (fetchQueue.size() + createQueue.size() > 0)
+    return c.json({ message: '当前有批量操作正在进行，请稍后再试' }, 400);
+
   const result: BatchResult = {
     success: [],
     failed: []
@@ -171,6 +174,9 @@ batchApp.post('/batch/create', async c => {
 });
 
 batchApp.post('/batch/refresh', async c => {
+  if (fetchQueue.size() + refreshQueue.size() > 0)
+    return c.json({ message: '当前有批量操作正在进行，请稍后再试' }, 400);
+
   const prisma = getPrisma();
 
   const targetIds = await prisma.work.findMany({ select: { id: true } })

@@ -90,6 +90,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         success(data) {
           return data.message;
         },
+        error: '批量添加失败',
         description(data) {
           if (data.failed.length > 0) {
             logger.warn(data.failed, '批量添加失败列表');
