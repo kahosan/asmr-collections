@@ -21,6 +21,7 @@ export function useSimilar(id: string) {
     searchParams.append('asmrOneApi', asmrOneApiUrl);
 
   return useSWRImmutable<Work[]>(`/api/work/similar/${id}?${searchParams.toString()}`, fetcher, {
-    onError: e => notifyError(e, '获取相似作品失败')
+    onError: e => notifyError(e, '获取相似作品失败'),
+    errorRetryCount: 0
   });
 };
