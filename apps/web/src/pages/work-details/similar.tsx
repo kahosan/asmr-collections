@@ -3,24 +3,17 @@ import { Carousel, CarouselContent, CarouselItem } from '~/components/ui/carouse
 
 import Autoplay from 'embla-carousel-autoplay';
 
-import useSWRImmutable from 'swr/immutable';
-
-import { notifyError } from '~/utils';
-
 import { cn } from '~/lib/utils';
-import { fetcher } from '~/lib/fetcher';
 
 import type { Work } from '~/types/work';
+import { useSimilar } from '~/hooks/use-similar';
 
 interface SimilarWorksProps {
   work: Work
 }
 
 export default function SimilarWorks({ work }: SimilarWorksProps) {
-  // 这里是 undefined 因为成功用数据库里的数据时不会带 exists 字段
-  const { data } = useSWRImmutable<Work[]>(work.exists === undefined ? `/api/work/similar/${work.id}` : null, fetcher, {
-    onError: e => notifyError(e, '获取相似作品失败')
-  });
+  const { data } = useSimilar(work.id);
 
   if (!data || data.length === 0)
     return null;

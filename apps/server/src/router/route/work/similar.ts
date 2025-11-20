@@ -1,17 +1,59 @@
 import type { Work } from '~/types/collection';
 import { Hono } from 'hono';
+import * as z from 'zod';
+import { createCachified, ttl } from '~/lib/cachified';
 import { getPrisma } from '~/lib/db';
+import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
+
+const [similarCache] = createCachified<Work[]>();
 
 export const similarApp = new Hono();
 
-similarApp.get('/similar/:id', async c => {
-  const { id } = c.req.param();
+const schema = z.object({
+  asmrOneApi: z.url().optional()
+});
 
-  const prisma = getPrisma();
+similarApp.get('/similar/:id', zValidator('query', schema), async c => {
+  const { id } = c.req.param();
+  const { asmrOneApi } = c.req.valid('query');
 
   try {
-    const similarWorks = await prisma.$queryRaw<Work[]>`
+    if (asmrOneApi) {
+      const { fetchAsmrOneSimilarWorks } = await import('~/provider/asmrone');
+      const works = await similarCache({
+        cacheKey: `asmrone-similar-work-${id}-${encodeURIComponent(asmrOneApi)}`,
+        getFreshValue: () => fetchAsmrOneSimilarWorks(id, asmrOneApi),
+        ttl: ttl(60 * 24 * 7),
+        ctx: c
+      });
+      if (works.length === 0)
+        return c.json(formatError('作品不存在于 ASMR.ONE 或没有向量信息'), 404);
+
+      return c.json(works);
+    }
+
+    const similarWorks = await similarCache({
+      cacheKey: `similar-work-${id}`,
+      getFreshValue: () => getSimilar(id),
+      ttl: ttl(60),
+      ctx: c
+    });
+
+    // 检查是否找到结果
+    if (similarWorks.length === 0)
+      return c.json(formatError('作品不存在或没有向量信息'), 404);
+
+    return c.json(similarWorks);
+  } catch (e) {
+    return c.json(formatError(e), 500);
+  }
+});
+
+async function getSimilar(id: string) {
+  const prisma = getPrisma();
+
+  const data = await prisma.$queryRaw<Work[]>`
       WITH target_work AS (
         SELECT embedding 
         FROM "Work" 
@@ -121,25 +163,16 @@ similarApp.get('/similar/:id', async c => {
       LIMIT 10
     `;
 
-    // 检查是否找到结果
-    if (similarWorks.length === 0)
-      return c.json(formatError('作品不存在或没有向量信息'), 404);
-
-    // 数据后处理：将 JSON 字符串转换为对象
-    const data = similarWorks.map(work => ({
-      ...work,
-      artists: typeof work.artists === 'string' ? JSON.parse(work.artists) : work.artists,
-      illustrators: typeof work.illustrators === 'string' ? JSON.parse(work.illustrators) : work.illustrators,
-      genres: typeof work.genres === 'string' ? JSON.parse(work.genres) : work.genres,
-      circle: typeof work.circle === 'string' ? JSON.parse(work.circle) : work.circle,
-      series: work.series && typeof work.series === 'string' ? JSON.parse(work.series) : work.series,
-      translationInfo: typeof work.translationInfo === 'string'
-        ? JSON.parse(work.translationInfo)
-        : work.translationInfo
-    }));
-
-    return c.json(data);
-  } catch (e) {
-    return c.json(formatError(e), 500);
-  }
-});
+  // 数据后处理：将 JSON 字符串转换为对象
+  return data.map(work => ({
+    ...work,
+    artists: typeof work.artists === 'string' ? JSON.parse(work.artists) : work.artists,
+    illustrators: typeof work.illustrators === 'string' ? JSON.parse(work.illustrators) : work.illustrators,
+    genres: typeof work.genres === 'string' ? JSON.parse(work.genres) : work.genres,
+    circle: typeof work.circle === 'string' ? JSON.parse(work.circle) : work.circle,
+    series: work.series && typeof work.series === 'string' ? JSON.parse(work.series) : work.series,
+    translationInfo: typeof work.translationInfo === 'string'
+      ? JSON.parse(work.translationInfo)
+      : work.translationInfo
+  }));
+}

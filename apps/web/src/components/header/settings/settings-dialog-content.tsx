@@ -74,6 +74,16 @@ export function SettingsDialogContent({ setOpen }: { setOpen: (open: boolean) =>
           <Separator />
 
           <SettingItem
+            id="use-asmr-one-recommender"
+            checked={options.useAsmrOneRecommender}
+            onCheckedChange={checked => setOptions(d => {
+              d.useAsmrOneRecommender = checked;
+            })}
+          >
+            使用 ASMR.ONE 的推荐
+          </SettingItem>
+
+          <SettingItem
             id="show-work-details"
             checked={options.showWorkDetail}
             onCheckedChange={checked => setOptions(d => {

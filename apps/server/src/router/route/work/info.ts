@@ -12,48 +12,58 @@ const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResp | null>({
 
 export const infoApp = new Hono();
 
-async function processArtists(names: string[]) {
+export async function processArtists(names: string[]) {
   if (!names.length)
     return [];
 
   const prisma = getPrisma();
 
-  const records = await prisma.artist.findMany({
+  const existing = await prisma.artist.findMany({
     where: { name: { in: names } }
   });
 
-  const recordMap = new Map(
-    records.map(record => [record.name, record])
-  );
+  const existingNames = new Set(existing.map(a => a.name));
+  const newNames = names.filter(name => !existingNames.has(name));
 
-  return names.map(name => {
-    const record = recordMap.get(name);
-    return record
-      ? { name: record.name, id: record.id }
-      : { name, id: null };
-  });
+  if (newNames.length > 0) {
+    await prisma.artist.createMany({
+      data: newNames.map(name => ({ name })),
+      skipDuplicates: true
+    });
+
+    return prisma.artist.findMany({
+      where: { name: { in: names } }
+    });
+  }
+
+  return existing;
 }
 
-async function processIllustrators(names: string[]) {
+export async function processIllustrators(names: string[]) {
   if (!names.length)
     return [];
 
   const prisma = getPrisma();
 
-  const records = await prisma.illustrator.findMany({
+  const existing = await prisma.illustrator.findMany({
     where: { name: { in: names } }
   });
 
-  const recordMap = new Map(
-    records.map(record => [record.name, record])
-  );
+  const existingNames = new Set(existing.map(i => i.name));
+  const newNames = names.filter(name => !existingNames.has(name));
 
-  return names.map(name => {
-    const record = recordMap.get(name);
-    return record
-      ? { name: record.name, id: record.id }
-      : { name, id: null };
-  });
+  if (newNames.length > 0) {
+    await prisma.illustrator.createMany({
+      data: newNames.map(name => ({ name })),
+      skipDuplicates: true
+    });
+
+    return prisma.illustrator.findMany({
+      where: { name: { in: names } }
+    });
+  }
+
+  return existing;
 }
 
 infoApp.get('/info/:id', async c => {

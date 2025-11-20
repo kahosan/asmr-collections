@@ -8,7 +8,8 @@ import { fetcher, HTTPError } from '~/lib/fetcher';
 export function preloadWorkDetails(id: string, cause: 'preload' | 'enter' | 'stay', mutate = false) {
   const preloadFetcher = async () => {
     try {
-      return await fetcher(`/api/work/${id}`);
+      const data = await fetcher<Record<string, string>>(`/api/work/${id}`);
+      return { ...data, exists: true };
     } catch (e) {
       if (e instanceof HTTPError && e.status === 404) {
         try {

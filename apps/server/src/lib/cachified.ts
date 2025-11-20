@@ -35,7 +35,9 @@ interface CreateCachifiedOptions<T> extends Omit<CachifiedOptions<T>, 'cache' | 
 type CacheKey =
   | `tracks-${string}`
   | `asmrone-tracks-${string}-${string}`
-  | `dlsite-work-info-${string}`;
+  | `dlsite-work-info-${string}`
+  | `asmrone-similar-work-${string}-${string}`
+  | `similar-work-${string}`;
 
 interface CachifiedParams<T> {
   cacheKey: CacheKey
@@ -111,12 +113,7 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
   return [cached, clearCache] as const;
 }
 
-/**
- * Convert minutes to milliseconds
- * @param minutes
- * @returns milliseconds
- * @example ttl(5) // 5 minutes in milliseconds
- */
+// TODO: return { day, hour, minute }
 export function ttl(minutes: number): number {
   return minutes * 60 * 1000;
 };

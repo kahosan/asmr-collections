@@ -71,13 +71,4 @@ export interface Work {
   updatedAt: string
 }
 
-export type WorkInfoResp = Omit<Work, 'artists' | 'illustrators' | 'createdAt' | 'updatedAt'> & {
-  artists: Array<{
-    id: number | null
-    name: string
-  }>
-  illustrators: Array<{
-    id: number | null
-    name: string
-  }>
-};
+export type WorkInfoResp = Omit<Work, 'createdAt' | 'updatedAt'>;

@@ -1,5 +1,10 @@
+import type { Work } from '~/types/collection';
+import type { Recommender } from '~/types/provider/asmr-one';
 import type { Tracks } from '~/types/tracks';
 import { fetcher, HTTPError } from '~/lib/fetcher';
+import { processArtists } from '~/router/route/work/info';
+
+// TODO: 热门推荐和用户推荐
 
 export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
   try {
@@ -11,3 +16,69 @@ export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
     throw e;
   };
 }
+
+export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): Promise<Work[]> {
+  try {
+    const data = await fetcher<Recommender>(`${asmrOneApi}/api/recommender/item-neighbors`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        itemId: id.replace('RJ', '')
+      })
+    });
+
+    const p = data.works.map(async work => ({
+      id: work.source_id,
+      name: work.title,
+      cover: work.mainCoverUrl,
+      intro: work.title,
+      circleId: work.circle.source_id,
+      circle: {
+        id: work.circle.source_id,
+        name: work.circle.name
+      },
+      seriesId: null,
+      series: null,
+      artists: await processArtists(work.vas.map(va => va.name)),
+      illustrators: [],
+      ageCategory: work.age_category_string === 'R18' ? 3 : (work.age_category_string === 'R15' ? 2 : 1) as (1 | 2 | 3),
+      genres: work.tags.map(tag => ({ id: tag.id, name: tag.name })),
+      price: work.price,
+      sales: work.dl_count,
+      wishlistCount: 0,
+      rate: work.rate_average_2dp,
+      rateCount: work.rate_count,
+      originalId: work.original_workno,
+      reviewCount: work.review_count,
+      releaseDate: work.release,
+      translationInfo: {
+        isVolunteer: work.translation_info.is_volunteer,
+        isOriginal: work.translation_info.is_original,
+        isParent: work.translation_info.is_parent,
+        isChild: work.translation_info.is_child,
+        isTranslationBonusChild: work.translation_info.is_translation_bonus_child,
+        originalWorkno: work.translation_info.original_workno,
+        parentWorkno: work.translation_info.parent_workno,
+        childWorknos: work.translation_info.child_worknos,
+        lang: work.translation_info.lang
+      },
+      createdAt: work.create_date,
+      updatedAt: work.create_date,
+      languageEditions: work.language_editions.map(edition => ({
+        workId: edition.workno,
+        label: edition.label,
+        lang: edition.lang
+      })),
+      subtitles: false
+    }));
+
+    return await Promise.all(p);
+  } catch (e) {
+    if (e instanceof HTTPError && e.status === 404)
+      throw new Error(e.data?.error || '作品不存在于 asmr.one');
+
+    throw e;
+  };
+};

@@ -6,6 +6,7 @@ import { focusAtom } from 'jotai-optics';
 export interface SettingOptions {
   kikoeru: string
   asmrOneApi: string
+  useAsmrOneRecommender: boolean
   showWorkDetail: boolean
   voiceLibraryOptions: {
     useLocalVoiceLibrary: boolean
@@ -21,6 +22,7 @@ export interface SettingOptions {
 export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__', {
   kikoeru: 'https://asmr.one/work',
   asmrOneApi: 'https://api.asmr.one',
+  useAsmrOneRecommender: false,
   showWorkDetail: true,
   voiceLibraryOptions: {
     useLocalVoiceLibrary: false,
