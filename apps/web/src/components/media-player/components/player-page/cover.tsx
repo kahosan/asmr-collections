@@ -32,13 +32,14 @@ export default function PlayerCover({ ...rest }: React.HTMLAttributes<HTMLDivEle
   return (
     <div {...rest} className="w-full relative h-auto flex items-center self-center max-sm:self-auto max-sm:max-w-full max-sm:mt-12">
       <div className="pb-[75%]" />
-      <div className="absolute inset-0 overflow-hidden rounded-md">
+      <div className="bg-zinc-700 absolute inset-0 overflow-hidden rounded-md">
         <img
           onClick={handleClick}
           src={data?.cover}
           alt={data?.name}
+          onLoad={e => { e.currentTarget.style.opacity = '1'; }}
           className={cn(
-            'object-cover object-center size-full transition-opacity cursor-pointer',
+            'object-cover object-center size-full opacity-0 transition-opacity cursor-pointer',
             isHiddenImage && 'filter blur-xl'
           )}
         />
