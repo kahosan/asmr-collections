@@ -19,10 +19,11 @@ import type { BatchOperationResponse } from '~/types/work';
 export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [batchUpdateAction, m1] = useToastMutation<BatchOperationResponse>('batch-refresh');
   const [cancelBatcUpdateAction, m2] = useToastMutation<BatchOperationResponse>('batch-refresh-cancel');
+  const [batchUpdateStatusAction, m3] = useToastMutation<BatchOperationResponse>('batch-refresh-status');
 
   const [failedIds, setFailedIds] = useState<string[]>([]);
 
-  const isMutating = m1 || m2;
+  const isMutating = m1 || m2 || m3;
 
   const handleBatchUpdate = () => {
     if (isMutating) {
@@ -73,6 +74,30 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
     });
   };
 
+  const handleBatchUpdateStatus = () => {
+    if (!isMutating) {
+      toast.warning('当前没有进行中的操作', { position: 'bottom-right' });
+      return;
+    }
+
+    if (m3) {
+      toast.warning('查询状态已在进行中', { position: 'bottom-right' });
+      return;
+    }
+
+    batchUpdateStatusAction({
+      key: '/api/work/batch/status',
+      fetchOps: { method: 'POST', body: 'refresh' },
+      toastOps: {
+        loading: '查询批量更新状态中...',
+        success(data) {
+          return data.message;
+        },
+        error: '查询状态失败'
+      }
+    });
+  };
+
   return (
     <Dialog
       open={open}
@@ -95,9 +120,12 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
             从 DLsite 获取最新的信息
           </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <Button disabled={isMutating} onClick={handleBatchUpdate}>
             批量更新
+          </Button>
+          <Button variant="outline" disabled={m3 || !isMutating} onClick={handleBatchUpdateStatus}>
+            操作详情
           </Button>
           <Button
             variant="outline"
@@ -120,7 +148,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
           >
             <CopyIcon />
           </Button>
-          <div className="px-4 py-2">
+          <div className="px-4 py-2 text-sm">
             {failedIds.length === 0 && <div className="opacity-80 text-sm">失败列表</div>}
             {failedIds.map(id => (
               <motion.div layout key={id}>

@@ -8,9 +8,8 @@ export type WorkAPI =
   | 'work/upload/subtitles/:id'
   | 'work/subtitles/:id'
   | 'work/exists/:id'
-  | 'work/batch/create'
-  | 'work/batch/refresh'
-  | 'work/batch/cancel';
+  | 'work/similar/:id'
+  | 'work/batch/create' | 'work/batch/refresh' | 'work/batch/cancel' | 'work/batch/status';
 
 export type WorksAPI = 'works';
 export type FieldAPI = 'field/:field';

@@ -28,8 +28,9 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
   const [createAction, m1] = useToastMutation<WorkCreateResponse>('create');
   const [batchCreateAction, m2] = useToastMutation<BatchOperationResponse>('batch-create');
   const [cancelBatchCreateAction, m3] = useToastMutation<BatchOperationResponse>('batch-create-cancel');
+  const [batchCreateStatusAction, m4] = useToastMutation<BatchOperationResponse>('batch-create-status');
 
-  const isMutating = m1 || m2 || m3;
+  const isMutating = m1 || m2 || m3 || m4;
 
   const handleCreate = () => {
     if (isMutating) return;
@@ -127,6 +128,30 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
     });
   };
 
+  const handleBatchCreateStatus = () => {
+    if (!isMutating) {
+      toast.warning('当前没有进行中的操作', { position: 'bottom-right' });
+      return;
+    }
+
+    if (m4) {
+      toast.warning('查询状态已在进行中', { position: 'bottom-right' });
+      return;
+    }
+
+    batchCreateStatusAction({
+      key: '/api/work/batch/status',
+      fetchOps: { method: 'POST', body: 'create' },
+      toastOps: {
+        loading: '查询批量添加状态中...',
+        success(data) {
+          return data.message;
+        },
+        error: '查询状态失败'
+      }
+    });
+  };
+
   return (
     <Dialog
       open={open}
@@ -158,9 +183,12 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
           <DialogTitle>批量添加</DialogTitle>
           <DialogDescription>支持逗号、空格、换行分隔</DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <Button variant="default" disabled={isMutating} onClick={handleBatchCreate}>
             添加
+          </Button>
+          <Button variant="outline" disabled={m4 || !isMutating} onClick={handleBatchCreateStatus}>
+            操作详情
           </Button>
           <Button
             variant="outline"

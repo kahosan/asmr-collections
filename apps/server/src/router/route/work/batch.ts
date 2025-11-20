@@ -328,3 +328,29 @@ batchApp.post('/batch/cancel', async c => {
 
   return c.json({ message: '无效的操作类型' }, 400);
 });
+
+batchApp.post('/batch/status', async c => {
+  const type = await c.req.text();
+
+  if (type === 'create') {
+    const createSize = createQueue.size();
+    const createActive = createQueue.active();
+    const fetchSize = fetchQueue.size();
+    const fetchActive = fetchQueue.active();
+    return c.json({
+      message: `批量添加状态：待处理：${createSize}，正在创建：${createActive}，待获取数据：${fetchSize}，正在获取数据：${fetchActive}`
+    });
+  }
+
+  if (type === 'refresh') {
+    const refreshSize = refreshQueue.size();
+    const refreshActive = refreshQueue.active();
+    const fetchSize = fetchQueue.size();
+    const fetchActive = fetchQueue.active();
+    return c.json({
+      message: `批量更新状态：待处理：${refreshSize}，正在更新：${refreshActive}，待获取数据：${fetchSize}，正在获取数据：${fetchActive}`
+    });
+  }
+
+  return c.json({ message: '无效的操作类型' }, 400);
+});
