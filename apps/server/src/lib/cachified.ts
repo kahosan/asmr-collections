@@ -23,7 +23,25 @@ const redisCache = REDIS_URL
   })()
   : null;
 
-const DEFAULT_TTL = ttl(10);
+const MINUTE_MS = 60 * 1000;
+const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
+/**
+ * Utility to generate TTL values.
+ * @example
+ * ```ts
+ * const tenMinutes = ttl.minute(10);
+ * const twoHours = ttl.hour(2);
+ * const threeDays = ttl.day(3);
+ * ```
+ */
+export const ttl = {
+  minute: (min: number) => min * MINUTE_MS,
+  hour: (hr: number) => hr * HOUR_MS,
+  day: (d: number) => d * DAY_MS
+};
+
+const DEFAULT_TTL = ttl.minute(10);
 const DEFAULT_MAX = 100;
 
 interface CreateCachifiedOptions<T> extends Omit<CachifiedOptions<T>, 'cache' | 'key' | 'getFreshValue'> {
@@ -112,11 +130,6 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
 
   return [cached, clearCache] as const;
 }
-
-// TODO: return { day, hour, minute }
-export function ttl(minutes: number): number {
-  return minutes * 60 * 1000;
-};
 
 export function getExecutionCtx(ctx: Context): ExecutionContext | undefined {
   return IS_WORKERS ? ctx.executionCtx : undefined;

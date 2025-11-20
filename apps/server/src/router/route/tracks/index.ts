@@ -40,7 +40,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
       const data = await tracksCache({
         cacheKey: `asmrone-tracks-${id}-${encodeURIComponent(query.asmrOneApi)}`,
         getFreshValue: () => fetchAsmrOneTracks(id, query.asmrOneApi),
-        ttl: ttl(60),
+        ttl: ttl.hour(1),
         ctx: c
       });
       return c.json(data);

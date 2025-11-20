@@ -24,7 +24,7 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
       const works = await similarCache({
         cacheKey: `asmrone-similar-work-${id}-${encodeURIComponent(asmrOneApi)}`,
         getFreshValue: () => fetchAsmrOneSimilarWorks(id, asmrOneApi),
-        ttl: ttl(60 * 24 * 7),
+        ttl: ttl.day(7),
         ctx: c
       });
       if (works.length === 0)
@@ -36,7 +36,7 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
     const similarWorks = await similarCache({
       cacheKey: `similar-work-${id}`,
       getFreshValue: () => getSimilar(id),
-      ttl: ttl(60),
+      ttl: ttl.hour(1),
       ctx: c
     });
 

@@ -7,7 +7,7 @@ import { HTTPError } from '~/lib/fetcher';
 import { formatError } from '~/router/utils';
 
 const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResp | null>({
-  ttl: ttl(60 * 24)
+  ttl: ttl.day(1)
 });
 
 export const infoApp = new Hono();
