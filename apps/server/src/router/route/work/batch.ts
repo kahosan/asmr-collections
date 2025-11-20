@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { generateEmbedding, workIsExistsInDB } from '~/router/utils';
+import { generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
 import { createWork } from './create';
 import { updateWork } from './update';
 
@@ -148,6 +148,13 @@ batchApp.post('/batch/create', async c => {
         // 向量生成失败不影响作品创建
       }
 
+      try {
+        const coverPath = await saveCoverImage(data.image_main, id);
+        data.image_main = coverPath ?? data.image_main;
+      } catch (e) {
+        console.error('保存 cover 图片失败:', e);
+      }
+
       await createWork(data, id);
 
       if (embedding) {
@@ -283,6 +290,13 @@ batchApp.post('/batch/refresh', async c => {
 
   // 步骤 4: 并发更新作品
   validData.forEach(({ id, data }) => refreshQueue.add(async () => {
+    try {
+      const coverPath = await saveCoverImage(data.image_main, id);
+      data.image_main = coverPath ?? data.image_main;
+    } catch (e) {
+      console.error('保存 cover 图片失败:', e);
+    }
+
     try {
       await updateWork(data, id);
       result.success.push(id);
