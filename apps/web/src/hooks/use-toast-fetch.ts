@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import type { ToastT } from 'sonner';
 import { toast } from 'sonner';
 
 import useSWRMutation from 'swr/mutation';
@@ -16,6 +17,7 @@ interface ToastOps<T> {
   success?: string | React.ReactNode | ((data: T) => React.ReactNode | string)
   error?: string | React.ReactNode | ((error: Error) => React.ReactNode | string)
   description?: React.ReactNode | string | ((data: T) => React.ReactNode | string)
+  position?: ToastT['position']
   finally?: () => void | Promise<void>
 }
 
@@ -44,6 +46,7 @@ export function useToastMutation<T>(key: ToastMutationKeys) {
     fetchOps,
     toastOps
   }: ToastcherOptions<T>) => toast.promise(trigger({ key, fetchOps }), {
+    ...toastOps,
     loading: toastOps?.loading,
     success: toastOps?.success,
     error: toastOps?.error,

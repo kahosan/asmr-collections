@@ -124,7 +124,8 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         success(data) {
           return data.message;
         },
-        error: '取消操作失败'
+        error: '取消操作失败',
+        position: 'bottom-right'
       }
     });
   };
@@ -148,7 +149,8 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         success(data) {
           return data.message;
         },
-        error: '查询状态失败'
+        error: '查询状态失败',
+        position: 'bottom-right'
       }
     });
   };

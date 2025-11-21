@@ -1,16 +1,16 @@
 import type { WorkInfo } from '~/types/source';
-import { newQueue } from '@henrygd/queue';
+import { newQueue } from '@henrygd/queue/rl';
 import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
+import { formatError, generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
 import { createWork } from './create';
 import { updateWork } from './update';
 
 const createQueue = newQueue(10);
 const refreshQueue = newQueue(10);
-const fetchQueue = newQueue(10);
+const fetchQueue = newQueue(10, 5, 1000); // 每秒最多 5 个请求
 
 export const batchApp = new Hono();
 
@@ -23,10 +23,14 @@ batchApp.post('/batch/create', async c => {
   const { ids } = await c.req.json<{ ids: string[] }>();
 
   if (!ids.length)
-    return c.json({ message: '请提供有效的 ID 列表' }, 400);
+    return c.json(formatError('请提供有效的 ID 列表'), 400);
 
-  if (fetchQueue.size() + createQueue.size() > 0)
-    return c.json({ message: '当前有批量操作正在进行，请稍后再试' }, 400);
+  if (fetchQueue.size() + createQueue.size() > 0) {
+    return c.json(formatError(
+      new Error(`待处理请求：${fetchQueue.size()}，待处理创建任务：${createQueue.size()}`),
+      '当前有批量操作正在进行，请稍后再试'
+    ), 400);
+  }
 
   const result: BatchResult = {
     success: [],
@@ -36,7 +40,7 @@ batchApp.post('/batch/create', async c => {
   // 步骤 1: 并发收集所有需要处理的数据
   const validData: Array<{ id: string, data: WorkInfo }> = [];
 
-  ids.forEach(id => fetchQueue.add(async () => {
+  const fetchTasks = ids.map(id => async () => {
     try {
       if (await workIsExistsInDB(id)) {
         result.failed.push({ id, error: '作品已收藏' });
@@ -54,10 +58,14 @@ batchApp.post('/batch/create', async c => {
       console.error(`获取作品 ${id} 信息失败:`, e);
       result.failed.push({ id, error: '获取作品信息失败' });
     }
-  }));
+  });
 
   // 并发获取所有数据
-  await fetchQueue.done();
+  try {
+    await fetchQueue.all(fetchTasks);
+  } catch (e) {
+    return c.json(formatError(e, '请求队列出错'), 500);
+  }
 
   if (validData.length === 0) {
     return c.json({
@@ -137,7 +145,7 @@ batchApp.post('/batch/create', async c => {
   }
 
   // 步骤 4: 并发创建作品（使用 connect 而不是 connectOrCreate）
-  validData.forEach(({ id, data }) => createQueue.add(async () => {
+  const createTasks = validData.map(({ id, data }) => async () => {
     try {
       let embedding: number[] | undefined;
       try {
@@ -170,9 +178,13 @@ batchApp.post('/batch/create', async c => {
         error: e instanceof Error ? e.message : '未知错误'
       });
     }
-  }));
+  });
 
-  await createQueue.done();
+  try {
+    await createQueue.all(createTasks);
+  } catch (e) {
+    return c.json(formatError(e, '创建队列出错'), 500);
+  }
 
   return c.json({
     ...result,
@@ -181,8 +193,12 @@ batchApp.post('/batch/create', async c => {
 });
 
 batchApp.post('/batch/refresh', async c => {
-  if (fetchQueue.size() + refreshQueue.size() > 0)
-    return c.json({ message: '当前有批量操作正在进行，请稍后再试' }, 400);
+  if (fetchQueue.size() + refreshQueue.size() > 0) {
+    return c.json(formatError(
+      new Error(`待处理请求：${fetchQueue.size()}，待处理更新任务：${refreshQueue.size()}`),
+      '当前有批量操作正在进行，请稍后再试'
+    ), 400);
+  }
 
   const prisma = getPrisma();
 
@@ -200,7 +216,7 @@ batchApp.post('/batch/refresh', async c => {
   // 步骤 1: 并发收集所有需要更新的数据
   const validData: Array<{ id: string, data: WorkInfo }> = [];
 
-  targetIds.forEach(id => fetchQueue.add(async () => {
+  const fetchTasks = targetIds.map(id => async () => {
     try {
       const data = await fetchWorkInfo(id);
       if (!data) {
@@ -212,10 +228,14 @@ batchApp.post('/batch/refresh', async c => {
       console.error(`获取作品 ${id} 信息失败:`, e);
       result.failed.push({ id, error: '获取作品信息失败' });
     }
-  }));
+  });
 
   // 并发获取所有数据
-  await fetchQueue.done();
+  try {
+    await fetchQueue.all(fetchTasks);
+  } catch (e) {
+    return c.json(formatError(e, '请求队列出错'), 500);
+  }
 
   if (validData.length === 0) {
     return c.json({
@@ -289,7 +309,7 @@ batchApp.post('/batch/refresh', async c => {
   }
 
   // 步骤 4: 并发更新作品
-  validData.forEach(({ id, data }) => refreshQueue.add(async () => {
+  const updateTasks = validData.map(({ id, data }) => async () => {
     try {
       const coverPath = await saveCoverImage(data.image_main, id);
       data.image_main = coverPath ?? data.image_main;
@@ -307,9 +327,13 @@ batchApp.post('/batch/refresh', async c => {
         error: e instanceof Error ? e.message : '未知错误'
       });
     }
-  }));
+  });
 
-  await refreshQueue.done();
+  try {
+    await refreshQueue.all(updateTasks);
+  } catch (e) {
+    return c.json(formatError(e, '更新队列出错'), 500);
+  }
 
   return c.json({
     ...result,
