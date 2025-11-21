@@ -11,7 +11,7 @@ export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
     return await fetcher<Tracks>(`${asmrOneApi}/api/tracks/${id.replace('RJ', '')}`);
   } catch (e) {
     if (e instanceof HTTPError && e.status === 404)
-      throw new Error(e.data?.error || '作品不存在于 asmr.one');
+      throw new HTTPError(e.data?.error || '作品不存在于 asmr.one', 404);
 
     throw e;
   };
@@ -77,7 +77,7 @@ export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): 
     return await Promise.all(p);
   } catch (e) {
     if (e instanceof HTTPError && e.status === 404)
-      throw new Error(e.data?.error || '作品不存在于 asmr.one');
+      throw new HTTPError(e.data?.error || '作品不存在于 asmr.one', e.status);
 
     throw e;
   };

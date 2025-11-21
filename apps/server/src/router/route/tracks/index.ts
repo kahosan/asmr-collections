@@ -8,6 +8,7 @@ import { match } from 'ts-pattern';
 import * as z from 'zod';
 import { createCachified, ttl } from '~/lib/cachified';
 import { HOST_URL } from '~/lib/constant';
+import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { formatError, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
 
@@ -61,6 +62,9 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
 
     return c.json(data);
   } catch (e) {
+    if (e instanceof HTTPError)
+      return c.json(formatError(e), e.status);
+
     return c.json(formatError(e), 500);
   }
 });

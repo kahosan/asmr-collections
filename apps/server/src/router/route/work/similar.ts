@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import * as z from 'zod';
 import { createCachified, ttl } from '~/lib/cachified';
 import { getPrisma } from '~/lib/db';
+import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 
@@ -46,6 +47,9 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
 
     return c.json(similarWorks);
   } catch (e) {
+    if (e instanceof HTTPError)
+      return c.json(formatError(e), e.status);
+
     return c.json(formatError(e), 500);
   }
 });
