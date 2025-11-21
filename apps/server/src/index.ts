@@ -107,15 +107,6 @@ app.use('/covers/*', serveStatic({
 }));
 
 // web
-app.use('/work-details/*', etag());
-app.use('/work-details/*', serveStatic({
-  root: CLIENT_DIST,
-  rewriteRequestPath: () => '/index.html',
-  onFound(_, c) {
-    c.header('Cache-Control', 'public, max-age=0, must-revalidate');
-  }
-}));
-
 app.use('/assets/*', etag());
 app.use('/assets/*', serveStatic({
   root: CLIENT_DIST,
@@ -127,12 +118,25 @@ app.use('/assets/*', serveStatic({
 app.use('*', etag());
 app.use('*', serveStatic({
   root: CLIENT_DIST,
+  rewriteRequestPath(path) {
+    if (path.startsWith('/work-details/'))
+      return '/index.html';
+
+    return path;
+  },
   onFound(path, c) {
     if (path.endsWith('.html'))
       c.header('Cache-Control', 'public, max-age=0, must-revalidate');
     else
       c.header('Cache-Control', 'public, max-age=604800');
   }
+}));
+
+// 404
+app.use('*', serveStatic({
+  root: CLIENT_DIST,
+  rewriteRequestPath: () => '/index.html',
+  onFound: (_, c) => c.header('Cache-Control', 'public, max-age=0, must-revalidate')
 }));
 
 // init
