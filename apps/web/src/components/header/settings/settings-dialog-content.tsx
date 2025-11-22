@@ -10,7 +10,6 @@ import { useSettingOptions } from '~/hooks/use-setting-options';
 
 import { SettingItem } from './setting-item';
 import { SettingInput } from './setting-input';
-import { LibrarySyncTooltip } from './library-sync-tooltip';
 import { SmartPathSettings } from './smart-path-settings';
 
 export function SettingsDialogContent({ setOpen }: { setOpen: (open: boolean) => void }) {
@@ -135,12 +134,6 @@ export function SettingsDialogContent({ setOpen }: { setOpen: (open: boolean) =>
           >
             无法在本地库中找到音声时使用 ASMR.ONE
           </SettingItem>
-
-          <Separator />
-
-          <div title="actions">
-            <LibrarySyncTooltip useLib={voiceLibOps.useLocalVoiceLibrary} />
-          </div>
 
           <Separator />
           <div className="flex gap-2">

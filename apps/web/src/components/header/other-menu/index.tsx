@@ -3,21 +3,27 @@ import { MenubarContent, MenubarMenu, MenubarTrigger, MenubarSeparator, MenubarI
 import AddWorkDialog from './add-work';
 import BatchAddDialog from './batch-add';
 import BatchUpdateDialog from './batch-update';
+import SyncVoiceLibraryDialog from './sync-voice-library';
 
 import GoToDetail from '../go-to-detail';
 import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
 import { useState } from 'react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useShortcut } from '~/hooks/use-shortcut';
+import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
+
 import { showSettingDialogAtom } from '~/lib/store';
 
 export default function OtherMenu() {
-  const [showBatchUpdateDialog, setShowBatchUpdateDialog] = useState(false);
-  const [showBatchAddDialog, setShowBatchAddDialog] = useState(false);
   const [showAddWorkDialog, setShowAddWorkDialog] = useState(false);
+  const [showBatchAddDialog, setShowBatchAddDialog] = useState(false);
+  const [showBatchUpdateDialog, setShowBatchUpdateDialog] = useState(false);
+  const [showSyncVoiceLibraryDialog, setShowSyncVoiceLibraryDialog] = useState(false);
+
+  const useVoiceLibrary = useAtomValue(voiceLibraryOptionsAtom).useLocalVoiceLibrary;
 
   const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
 
@@ -44,6 +50,9 @@ export default function OtherMenu() {
             批量更新
             <MenubarShortcut>⌘U</MenubarShortcut>
           </MenubarItem>
+          <MenubarItem onClick={() => setShowSyncVoiceLibraryDialog(p => !p)} className="cursor-pointer" disabled={!useVoiceLibrary}>
+            同步音声库
+          </MenubarItem>
           <MenubarSeparator />
           <HiddenImage menuType="menubar" />
           <MenubarSeparator />
@@ -58,6 +67,7 @@ export default function OtherMenu() {
       <BatchUpdateDialog key={Math.random()} open={showBatchUpdateDialog} setOpen={setShowBatchUpdateDialog} />
       <BatchAddDialog key={Math.random()} open={showBatchAddDialog} setOpen={setShowBatchAddDialog} />
       <AddWorkDialog key={Math.random()} open={showAddWorkDialog} setOpen={setShowAddWorkDialog} />
+      <SyncVoiceLibraryDialog key={Math.random()} open={showSyncVoiceLibraryDialog} setOpen={setShowSyncVoiceLibraryDialog} />
     </>
   );
 }

@@ -3,6 +3,7 @@ import type { WorkInfo } from '~/types/source';
 
 import * as fs from 'node:fs/promises';
 
+import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { COVERS_PATH, HOST_URL, IS_WORKERS, VOICE_LIBRARY } from '~/lib/constant';
 import { getPrisma } from '~/lib/db';
@@ -119,4 +120,16 @@ export async function saveCoverImage(url: string, id: string) {
   await Bun.write(coverPath, res);
 
   return coverPath.replace(process.cwd(), '');
+}
+
+export async function getAllLocalVoiceLibraryIds() {
+  const { VOICE_LIBRARY } = getVoiceLibraryEnv();
+
+  return readdir(VOICE_LIBRARY, { withFileTypes: true }).then(dir => {
+    return dir.reduce<string[]>((ids, file) => {
+      if (file.isDirectory() && /^(?:RJ|BJ|VJ)\d{6,8}$/.test(file.name))
+        ids.push(file.name);
+      return ids;
+    }, []);
+  });
 }

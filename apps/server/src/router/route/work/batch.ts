@@ -8,7 +8,7 @@ import { streamSSE } from 'hono/streaming';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
-import { generateEmbedding, saveCoverImage } from '~/router/utils';
+import { formatError, generateEmbedding, getAllLocalVoiceLibraryIds, saveCoverImage } from '~/router/utils';
 import { createWork } from './create';
 import { updateWork } from './update';
 
@@ -27,8 +27,15 @@ export const batchApp = new Hono();
 let targetIds: string[] = [];
 batchApp.on(['GET', 'POST'], '/batch/create', async c => {
   if (c.req.header('Content-Type') === 'application/json') {
-    const { ids } = await c.req.json<{ ids: string[] }>();
+    if (isBatchRunning)
+      return c.json(formatError('已有批量任务正在进行中，请稍后再试'), 400);
+
+    const { ids, sync } = await c.req.json<{ ids: string[], sync: boolean }>();
+
     targetIds = ids;
+    // 如果是同步本地音声库，则使用获取到的所有本地库 id
+    if (sync) targetIds = await getAllLocalVoiceLibraryIds();
+
     return c.json({ targetIds });
   }
 

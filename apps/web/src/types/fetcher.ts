@@ -17,7 +17,6 @@ export type TracksAPI =
   | 'tracks/:id'
   | 'tracks/:id/cache/clear';
 export type LibraryAPI =
-  | 'library/sync'
   | 'library/exists/:id';
 
 export type FetcherKey =

@@ -9,7 +9,7 @@ import { notifyError, parseWorkInput, writeClipboard } from '~/utils';
 
 import type { LogType, SSEData, SSEEvent } from '~/types/batch';
 
-export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (open: boolean) => void) {
+export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (open: boolean) => void, isSync = false) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [logs, setLogs] = useImmer<Array<{ type: LogType, message: string }>>([]);
   const [progress, setProgress] = useState({ current: 0, total: 0, percent: 0 });
@@ -35,15 +35,20 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       const headers = { 'Content-Type': 'application/json' };
 
       if (isCreate) {
-        if (!createIds) {
+        const { validIds: targetIds, isValid, isEmpty } = parseWorkInput(createIds);
+
+        if ((!isValid || isEmpty) && !isSync) {
           toast.warning('请输入有效 ID');
           return;
         }
-        const { validIds: targetIds } = parseWorkInput(createIds);
+
         const data = await fetcher(url, {
           method: 'POST',
           headers,
-          body: JSON.stringify({ ids: targetIds })
+          body: JSON.stringify({
+            ids: targetIds,
+            sync: isSync
+          })
         });
         logger.info(data, '批量创建请求已发送，开始监听 SSE');
       };
@@ -133,7 +138,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
     } finally {
       setIsProcessing(false);
     }
-  }, [isProcessing, type, createIds, setLogs]);
+  }, [isProcessing, setLogs, type, createIds, isSync]);
 
   const handleCancel = useCallback(() => {
     if (eventSourceRef.current) {
