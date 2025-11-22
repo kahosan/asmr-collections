@@ -27,16 +27,20 @@ export const batchApp = new Hono();
 let targetIds: string[] = [];
 batchApp.on(['GET', 'POST'], '/batch/create', async c => {
   if (c.req.header('Content-Type') === 'application/json') {
-    if (isBatchRunning)
-      return c.json(formatError('已有批量任务正在进行中，请稍后再试'), 400);
+    try {
+      if (isBatchRunning)
+        return c.json(formatError('已有批量任务正在进行中，请稍后再试'), 400);
 
-    const { ids, sync } = await c.req.json<{ ids: string[], sync: boolean }>();
+      const { ids, sync } = await c.req.json<{ ids: string[], sync: boolean }>();
 
-    targetIds = ids;
-    // 如果是同步本地音声库，则使用获取到的所有本地库 id
-    if (sync) targetIds = await getAllLocalVoiceLibraryIds();
+      targetIds = ids;
+      // 如果是同步本地音声库，则使用获取到的所有本地库 id
+      if (sync) targetIds = await getAllLocalVoiceLibraryIds();
 
-    return c.json({ targetIds });
+      return c.json({ targetIds });
+    } catch (e) {
+      return c.json(formatError(e), 500);
+    }
   }
 
   return streamSSE(c, async stream => {
