@@ -135,8 +135,6 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       notifyError(err, '启动批量操作失败', {
         id: toastIdRef.current
       });
-    } finally {
-      setIsProcessing(false);
     }
   }, [isProcessing, setLogs, type, createIds, isSync]);
 
