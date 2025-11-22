@@ -9,7 +9,7 @@ export type WorkAPI =
   | 'work/subtitles/:id'
   | 'work/exists/:id'
   | 'work/similar/:id'
-  | 'work/batch/create' | 'work/batch/refresh' | 'work/batch/cancel' | 'work/batch/status';
+  | 'work/batch/create' | 'work/batch/refresh';
 
 export type WorksAPI = 'works';
 export type FieldAPI = 'field/:field';

@@ -9,8 +9,9 @@ import { match } from 'ts-pattern';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import useBatchOperation from '~/hooks/use-batch-operation';
+import WorkInput from '~/components/work-input';
 
-export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
+export default function BatchAddDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const {
     copyLogs,
     handleCancel,
@@ -18,8 +19,10 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
     handleStart,
     isProcessing,
     logs,
-    progress
-  } = useBatchOperation('refresh', setOpen);
+    progress,
+    createIds,
+    setCreateIds
+  } = useBatchOperation('create', setOpen);
 
   return (
     <Dialog
@@ -32,14 +35,20 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
       >
         <DialogHeader>
           <DialogTitle>
-            批量更新收藏信息
+            批量添加收藏信息
           </DialogTitle>
           <DialogDescription>
-            从 DLsite 获取最新的信息
+            从 DLsite 添加作品
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4 flex flex-col gap-6">
+          <WorkInput
+            initialTip="自动捕获符合格式的 ID"
+            value={createIds}
+            onValueChange={setCreateIds}
+          />
+
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>进度 ({progress.current}/{progress.total})</span>
@@ -91,7 +100,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
           <div className="flex items-center text-sm text-muted-foreground mr-auto">
             {isProcessing ? <span className="flex items-center gap-2 text-blue-500"><Loader2 className="size-4 animate-spin" />正在运行</span>
               : (progress.percent === 100
-                ? <span className="flex items-center gap-2 text-green-600"><CheckIcon className="size-4" />更新完成</span>
+                ? <span className="flex items-center gap-2 text-green-600"><CheckIcon className="size-4" />添加完成</span>
                 : <span>等待开始</span>
               )}
           </div>
@@ -99,11 +108,11 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
             {isProcessing ? (
               <Button variant="destructive" onClick={handleCancel}>停止</Button>
             ) : (
-              <Button onClick={handleStart}>{progress.percent > 0 && progress.percent < 100 ? '重试' : '开始更新'}</Button>
+              <Button onClick={handleStart}>{progress.percent > 0 && progress.percent < 100 ? '重试' : '开始添加'}</Button>
             )}
           </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};

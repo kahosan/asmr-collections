@@ -1,6 +1,7 @@
 import { MenubarContent, MenubarMenu, MenubarTrigger, MenubarSeparator, MenubarItem, MenubarShortcut } from '~/components/ui/menubar';
 
 import AddWorkDialog from './add-work';
+import BatchAddDialog from './batch-add';
 import BatchUpdateDialog from './batch-update';
 
 import GoToDetail from '../go-to-detail';
@@ -15,6 +16,7 @@ import { showSettingDialogAtom } from '~/lib/store';
 
 export default function OtherMenu() {
   const [showBatchUpdateDialog, setShowBatchUpdateDialog] = useState(false);
+  const [showBatchAddDialog, setShowBatchAddDialog] = useState(false);
   const [showAddWorkDialog, setShowAddWorkDialog] = useState(false);
 
   const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
@@ -35,6 +37,9 @@ export default function OtherMenu() {
             添加作品
             <MenubarShortcut>⌘I</MenubarShortcut>
           </MenubarItem>
+          <MenubarItem onClick={() => setShowBatchAddDialog(p => !p)} className="cursor-pointer">
+            批量添加
+          </MenubarItem>
           <MenubarItem onClick={() => setShowBatchUpdateDialog(p => !p)} className="cursor-pointer">
             批量更新
             <MenubarShortcut>⌘U</MenubarShortcut>
@@ -51,6 +56,7 @@ export default function OtherMenu() {
         </MenubarContent>
       </MenubarMenu>
       <BatchUpdateDialog key={Math.random()} open={showBatchUpdateDialog} setOpen={setShowBatchUpdateDialog} />
+      <BatchAddDialog key={Math.random()} open={showBatchAddDialog} setOpen={setShowBatchAddDialog} />
       <AddWorkDialog key={Math.random()} open={showAddWorkDialog} setOpen={setShowAddWorkDialog} />
     </>
   );

@@ -2,6 +2,7 @@ import type { ExternalToast } from 'sonner';
 import { toast } from 'sonner';
 
 import { HTTPError } from '~/lib/fetcher';
+import { WORK_ID_REGEX } from '~/lib/constants';
 
 import type { Tracks } from '~/types/tracks';
 
@@ -119,4 +120,22 @@ export function findSmartPath(tracks: Tracks, patterns: string[]): string[] | un
       if (result) return result;
     }
   }
+}
+
+export function parseWorkInput(input: string) {
+  const stats = {
+    isEmpty: input.trim().length === 0,
+    isValid: false,
+    validIds: [] as string[]
+  };
+
+  if (!input) return stats;
+
+  const matches = input.match(WORK_ID_REGEX);
+  if (!matches) return stats;
+
+  stats.validIds = Array.from(new Set(matches.map(id => id.toUpperCase())));
+  stats.isValid = stats.validIds.length > 0;
+
+  return stats;
 }

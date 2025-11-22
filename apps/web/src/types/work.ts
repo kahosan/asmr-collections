@@ -61,12 +61,6 @@ export type Work = {
 
 export interface Data<T extends string | number> { id: T, name: string }
 
-export interface BatchOperationResponse {
-  success: string[]
-  failed: Array<{ id: string, error: string }>
-  message: string
-}
-
 export interface WorkCreateResponse {
   message?: string
 }
