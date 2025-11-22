@@ -1,14 +1,12 @@
 import { Button } from '~/components/ui/button';
 import { Progress } from '~/components/ui/progress';
-import { ScrollArea } from '~/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
+
+import { CheckIcon, Loader2 } from 'lucide-react';
 
 import WorkInput from '~/components/work-input';
 
-import { CheckIcon, CopyIcon, Loader2 } from 'lucide-react';
-
-import { match } from 'ts-pattern';
-import { AnimatePresence, motion } from 'framer-motion';
+import BatchLogs from './batch-logs';
 
 import useBatchOperation from '~/hooks/use-batch-operation';
 
@@ -58,43 +56,7 @@ export default function BatchAddDialog({ open, setOpen }: { open: boolean, setOp
             <Progress value={progress.percent} className="h-2" />
           </div>
 
-          <div className="border rounded-md relative bg-muted/30">
-            <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50 text-xs font-medium">
-              <span>处理日志</span>
-              <Button size="icon" variant="ghost" className="size-4" onClick={copyLogs} title="复制日志">
-                <CopyIcon className="size-3.5" />
-              </Button>
-            </div>
-            <ScrollArea className="h-50 sm:h-65 w-full">
-              <div className="p-4 text-xs font-mono space-y-2">
-                <AnimatePresence initial={false}>
-                  {logs.length === 0 && isProcessing && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-muted-foreground text-center py-8">
-                      <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" />
-                      正在处理中...
-                    </motion.div>
-                  )}
-                  {logs.length === 0 && !isProcessing && (
-                    <div className="text-muted-foreground text-center py-8">准备就绪</div>
-                  )}
-                  {logs.map(({ type, message }) => (
-                    <motion.div
-                      key={message}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex items-start gap-2"
-                    >
-                      {match(type)
-                        .with('info', () => <span className="mt-0.5 opacity-80">{message}</span>)
-                        .with('warning', () => <span className="text-yellow-500 dark:text-yellow-400/80 mt-0.5">{message}</span>)
-                        .with('error', () => <span className="text-purple-500 dark:text-purple-300/80 mt-0.5">{message}</span>)
-                        .exhaustive()}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </ScrollArea>
-          </div>
+          <BatchLogs isProcessing={isProcessing} logs={logs} onClick={copyLogs} />
         </div>
 
         <DialogFooter className="flex sm:justify-between gap-2">
