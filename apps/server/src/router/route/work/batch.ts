@@ -112,6 +112,12 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
       const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
 
+      const existingWorks = await prisma.work.findMany({
+        where: { id: { in: targetIds } },
+        select: { id: true }
+      });
+      const existingIdSet = new Set(existingWorks.map(w => w.id));
+
       for (let i = 0; i < totalWorks; i += BATCH_SIZE) {
         if (c.req.raw.signal.aborted) {
           console.warn('客户端已断开，停止批量操作');
@@ -126,12 +132,6 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           message: `开始处理第 ${batchIndex} 批，包含 ${batchIds.length} 个作品`
         });
 
-        const existingWorks = await prisma.work.findMany({
-          where: { id: { in: batchIds } },
-          select: { id: true }
-        });
-        const existingIdSet = new Set(existingWorks.map(w => w.id));
-
         // 分离出“需要抓取”的 ID 列表
         const idsToFetch: string[] = [];
 
@@ -140,7 +140,6 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           if (existingIdSet.has(id)) {
             result.failed.push({ id, error: '作品已收藏' });
             currentStep += 2; // 跳过两个步骤（抓取+创建），进度条直接补齐
-            // 这里不需要 await，为了让前端快速刷屏，或者你可以加上 await 保证顺序
             await sendEvent('log', { type: 'warning', message: `作品 ${id} 已收藏，跳过` });
             await sendProgress(id, 'failed', `作品 ${id} 已收藏`);
           } else {
@@ -158,7 +157,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
         const validData: Array<{ id: string, data: WorkInfo }> = [];
 
-        const fetchTasks = batchIds.map(id => async () => {
+        const fetchTasks = idsToFetch.map(id => async () => {
           if (c.req.raw.signal.aborted)
             return;
 
@@ -227,11 +226,13 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
-            if (coverPath !== data.image_main) {
+            if (coverPath) {
               await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
               await sendProgress(id, 'processing', `${id} 封面保存成功`);
+              data.image_main = coverPath;
             }
-            data.image_main = coverPath ?? data.image_main;
+            await sendEvent('log', { type: 'info', message: `${id} 封面已存在` });
+            await sendProgress(id, 'processing', `${id} 封面已存在`);
           } catch (e) {
             console.error('保存 cover 图片失败:', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
@@ -446,11 +447,11 @@ batchApp.get('/batch/refresh', c => {
 
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
-            if (coverPath !== data.image_main) {
+            if (coverPath) {
               await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
               await sendProgress(id, 'processing', `${id} 封面保存成功`);
+              data.image_main = coverPath;
             }
-            data.image_main = coverPath ?? data.image_main;
           } catch (e) {
             console.error('保存 cover 图片失败:', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });

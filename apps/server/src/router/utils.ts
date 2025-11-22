@@ -107,14 +107,14 @@ export async function saveCoverImage(url: string, id: string) {
 
   const coverPath = join(COVERS_PATH, id + '.jpg');
   if (await hasExistsInLocal(coverPath))
-    return coverPath.replace(process.cwd(), '');
+    return;
 
   const normalizedUrl = url.startsWith('//') ? 'https:' + url : url;
 
   const res = await fetch(normalizedUrl);
   if (!res.ok) {
-    console.error(`下载封面图片失败: ${res.status} ${res.statusText}`);
-    return;
+    console.error(`下载封面图片失败：${res.status} ${res.statusText}`);
+    throw new HTTPError(`下载封面图片失败：${res.statusText}`, res.status);
   }
 
   await Bun.write(coverPath, res);
