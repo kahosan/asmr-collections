@@ -85,9 +85,8 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
     try {
       // 准备工作
-      const totalWorks = targetIds.length;
+      const totalSteps = targetIds.length;
       let currentStep = 0;
-      const totalSteps = totalWorks * 2; // 每个作品两个步骤：获取信息 + 更新入库
 
       const sendProgress = async (id: string, status: 'success' | 'failed' | 'processing', msg?: string) => {
         const percent = Math.round((currentStep / totalSteps) * 100);
@@ -103,11 +102,11 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
       await sendEvent('start', {
         total: totalSteps,
-        message: `开始处理 ${totalWorks} 个作品，分批进行`
+        message: `开始处理 ${totalSteps} 个作品，分批进行`
       });
       await sendEvent('log', {
         type: 'info',
-        message: `准备完成，共 ${totalWorks} 个作品，将分为 ${Math.ceil(totalWorks / BATCH_SIZE)} 批处理`
+        message: `准备完成，共 ${totalSteps} 个作品，将分为 ${Math.ceil(totalSteps / BATCH_SIZE)} 批处理`
       });
 
       const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
@@ -118,7 +117,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
       });
       const existingIdSet = new Set(existingWorks.map(w => w.id));
 
-      for (let i = 0; i < totalWorks; i += BATCH_SIZE) {
+      for (let i = 0; i < totalSteps; i += BATCH_SIZE) {
         if (c.req.raw.signal.aborted) {
           console.warn('客户端已断开，停止批量操作');
           break;
@@ -139,7 +138,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
         for (const id of batchIds) {
           if (existingIdSet.has(id)) {
             result.failed.push({ id, error: '作品已收藏' });
-            currentStep += 2; // 跳过两个步骤（抓取+创建），进度条直接补齐
+            currentStep += 1; // 跳过两个步骤（抓取+创建），进度条直接补齐
             await sendEvent('log', { type: 'warning', message: `作品 ${id} 已收藏，跳过` });
             await sendProgress(id, 'failed', `作品 ${id} 已收藏`);
           } else {
@@ -165,20 +164,18 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
             const data = await fetchWorkInfo(id);
             if (!data) {
               result.failed.push({ id, error: 'DLsite 不存在此作品' });
-              // 失败意味着后续更新步骤也不会有了，所以进度 +2 (跳过更新阶段)
-              currentStep += 2;
+              currentStep += 1;
               await sendEvent('log', { type: 'warning', message: `DLsite 不存在 ${id}，跳过更新` });
               return await sendProgress(id, 'failed', `DLsite 不存在 ${id}`);
             }
 
             validData.push({ id, data });
-            currentStep += 1; // 完成第一阶段
             await sendEvent('log', { type: 'info', message: `${id} 信息获取成功` });
             await sendProgress(id, 'processing', `${id} 信息获取成功`); // 此时状态还是 processing，因为还没入库
           } catch (e) {
             console.error(`获取 ${id} 信息失败：`, e);
             result.failed.push({ id, error: '网络或解析错误' });
-            currentStep += 2;
+            currentStep += 1;
             await sendEvent('log', { type: 'error', message: `获取 ${id} 信息失败` });
             await sendProgress(id, 'failed', `${id} 获取信息失败`);
           }
@@ -247,7 +244,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
             }
 
             result.success.push(id);
-            currentStep += 1; // 完成第二阶段
+            currentStep += 1;
             await sendEvent('log', { type: 'info', message: `${id} 创建成功` });
             await sendProgress(id, 'success', `${id} 创建成功`);
           } catch (e) {
@@ -341,9 +338,8 @@ batchApp.get('/batch/refresh', c => {
       })
         .then(works => works.map(w => w.id));
 
-      const totalWorks = targetIds.length;
+      const totalSteps = targetIds.length;
       let currentStep = 0;
-      const totalSteps = totalWorks * 2; // 每个作品两个步骤：获取信息 + 更新入库
 
       const sendProgress = async (id: string, status: 'success' | 'failed' | 'processing', msg?: string) => {
         const percent = Math.round((currentStep / totalSteps) * 100);
@@ -359,14 +355,14 @@ batchApp.get('/batch/refresh', c => {
 
       await sendEvent('start', {
         total: totalSteps,
-        message: `开始处理 ${totalWorks} 个作品，分批进行`
+        message: `开始处理 ${totalSteps} 个作品，分批进行`
       });
       await sendEvent('log', {
         type: 'info',
-        message: `准备完成，共 ${totalWorks} 个作品，将分为 ${Math.ceil(totalWorks / BATCH_SIZE)} 批处理`
+        message: `准备完成，共 ${totalSteps} 个作品，将分为 ${Math.ceil(totalSteps / BATCH_SIZE)} 批处理`
       });
 
-      if (totalWorks === 0) {
+      if (totalSteps === 0) {
         await sendEvent('log', { type: 'info', message: '没有需要更新的作品，结束操作' });
         isBatchRunning = false;
         return await sendEvent('end', { message: '没有需要更新的作品' });
@@ -374,7 +370,7 @@ batchApp.get('/batch/refresh', c => {
 
       const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
 
-      for (let i = 0; i < totalWorks; i += BATCH_SIZE) {
+      for (let i = 0; i < totalSteps; i += BATCH_SIZE) {
         if (c.req.raw.signal.aborted) {
           console.warn('客户端已断开，停止批量操作');
           break;
@@ -398,20 +394,18 @@ batchApp.get('/batch/refresh', c => {
             const data = await fetchWorkInfo(id);
             if (!data) {
               result.failed.push({ id, error: 'DLsite 不存在此作品' });
-              // 失败意味着后续更新步骤也不会有了，所以进度 +2 (跳过更新阶段)
-              currentStep += 2;
+              currentStep += 1;
               await sendEvent('log', { type: 'warning', message: `DLsite 不存在 ${id}，跳过更新` });
               return await sendProgress(id, 'failed', `DLsite 不存在 ${id}`);
             }
 
             validData.push({ id, data });
-            currentStep += 1; // 完成第一阶段
             await sendEvent('log', { type: 'info', message: `${id} 信息获取成功` });
             await sendProgress(id, 'processing', `${id} 信息获取成功`); // 此时状态还是 processing，因为还没入库
           } catch (e) {
             console.error(`获取 ${id} 信息失败：`, e);
             result.failed.push({ id, error: '网络或解析错误' });
-            currentStep += 2;
+            currentStep += 1;
             await sendEvent('log', { type: 'error', message: `获取 ${id} 信息失败` });
             await sendProgress(id, 'failed', `${id} 获取信息失败`);
           }
@@ -461,7 +455,7 @@ batchApp.get('/batch/refresh', c => {
           try {
             await updateWork(data, id);
             result.success.push(id);
-            currentStep += 1; // 完成第二阶段
+            currentStep += 1;
             await sendEvent('log', { type: 'info', message: `${id} 更新成功` });
             await sendProgress(id, 'success', `${id} 更新成功`);
           } catch (e) {
