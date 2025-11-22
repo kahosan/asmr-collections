@@ -99,6 +99,8 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
         message: `准备完成，共 ${totalWorks} 个作品，将分为 ${Math.ceil(totalWorks / BATCH_SIZE)} 批处理`
       });
 
+      const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
+
       for (let i = 0; i < totalWorks; i += BATCH_SIZE) {
         if (c.req.raw.signal.aborted) {
           console.warn('客户端已断开，停止批量操作');
@@ -194,49 +196,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           message: `信息获取阶段完成：成功 ${validData.length} 个，失败 ${result.failed.length} 个，开始更新入库阶段`
         });
 
-        try {
-          // 步骤 2: 提取所有需要的关联数据
-          const circles = new Map<string, string>();
-          const series = new Map<string, string>();
-          const artists = new Map<string, string>();
-          const illustrators = new Map<string, string>();
-          const genres = new Map<number, string>();
-
-          for (const { data } of validData) {
-            circles.set(data.maker.id, data.maker.name);
-            if (data.series?.id) series.set(data.series.id, data.series.name);
-            data.artists?.forEach(name => artists.set(name, name));
-            data.illustrators?.forEach(name => illustrators.set(name, name));
-            data.genres?.forEach(g => genres.set(g.id, g.name));
-          }
-
-          // 步骤 3: 批量预创建可能缺失的关联数据
-          await Promise.all([
-            circles.size > 0 && prisma.circle.createMany({
-              data: Array.from(circles, ([id, name]) => ({ id, name })),
-              skipDuplicates: true
-            }),
-            series.size > 0 && prisma.series.createMany({
-              data: Array.from(series, ([id, name]) => ({ id, name })),
-              skipDuplicates: true
-            }),
-            artists.size > 0 && prisma.artist.createMany({
-              data: Array.from(artists, ([name]) => ({ name })),
-              skipDuplicates: true
-            }),
-            illustrators.size > 0 && prisma.illustrator.createMany({
-              data: Array.from(illustrators, ([name]) => ({ name })),
-              skipDuplicates: true
-            }),
-            genres.size > 0 && prisma.genre.createMany({
-              data: Array.from(genres, ([id, name]) => ({ id, name })),
-              skipDuplicates: true
-            })
-          ]);
-        } catch (e) {
-          console.error('批量创建关联数据失败:', e);
-          await sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
-        }
+        await ensureRelations(validData, ensureRelationsEvent);
 
         const createTasks = validData.map(({ id, data }) => async () => {
           if (c.req.raw.signal.aborted)
@@ -400,6 +360,8 @@ batchApp.get('/batch/refresh', c => {
         return await sendEvent('end', { message: '没有需要更新的作品' });
       }
 
+      const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
+
       for (let i = 0; i < totalWorks; i += BATCH_SIZE) {
         if (c.req.raw.signal.aborted) {
           console.warn('客户端已断开，停止批量操作');
@@ -465,52 +427,7 @@ batchApp.get('/batch/refresh', c => {
           message: `信息获取阶段完成：成功 ${validData.length} 个，失败 ${result.failed.length} 个，开始更新入库阶段`
         });
 
-        try {
-        // 步骤 2: 提取所有需要的关联数据
-          const circles = new Map<string, string>();
-          const series = new Map<string, string>();
-          const artists = new Map<string, string>();
-          const illustrators = new Map<string, string>();
-          const genres = new Map<number, string>();
-
-          for (const { data } of validData) {
-            circles.set(data.maker.id, data.maker.name);
-            if (data.series?.id) series.set(data.series.id, data.series.name);
-            data.artists?.forEach(name => artists.set(name, name));
-            data.illustrators?.forEach(name => illustrators.set(name, name));
-            data.genres?.forEach(g => genres.set(g.id, g.name));
-          }
-
-          // 步骤 3: 批量预创建可能缺失的关联数据
-          await Promise.all([
-            circles.size > 0 && prisma.circle.createMany({
-              data: Array.from(circles, ([id, name]) => ({ id, name })),
-              skipDuplicates: true
-            }),
-            series.size > 0 && prisma.series.createMany({
-              data: Array.from(series, ([id, name]) => ({ id, name })),
-              skipDuplicates: true
-            }),
-            artists.size > 0 && prisma.artist.createMany({
-              data: Array.from(artists, ([name]) => ({ name })),
-              skipDuplicates: true
-            }),
-            illustrators.size > 0 && prisma.illustrator.createMany({
-              data: Array.from(illustrators, ([name]) => ({ name })),
-              skipDuplicates: true
-            }),
-            genres.size > 0 && prisma.genre.createMany({
-              data: Array.from(genres, ([id, name]) => ({ id, name })),
-              skipDuplicates: true
-            })
-          ]);
-        } catch (e) {
-          console.error('批量创建关联数据失败:', e);
-          await sendEvent('log', {
-            type: 'warning',
-            message: '批次关联数据部分失败，但这不影响主要更新'
-          });
-        }
+        await ensureRelations(validData, ensureRelationsEvent);
 
         const updateTasks = validData.map(({ id, data }) => async () => {
           if (c.req.raw.signal.aborted)
@@ -581,3 +498,57 @@ batchApp.get('/batch/refresh', c => {
     }
   });
 });
+
+async function ensureRelations(validData: Array<{ data: WorkInfo }>, sendEvent: () => Promise<void>) {
+  try {
+    const prisma = getPrisma();
+
+    // 步骤 2: 提取所有需要的关联数据
+    const circles = new Map<string, string>();
+    const series = new Map<string, string>();
+    const artists = new Map<string, string>();
+    const illustrators = new Map<string, string>();
+    const genres = new Map<number, string>();
+
+    for (const { data } of validData) {
+      circles.set(data.maker.id, data.maker.name);
+      if (data.series?.id) series.set(data.series.id, data.series.name);
+      data.artists?.forEach(name => artists.set(name, name));
+      data.illustrators?.forEach(name => illustrators.set(name, name));
+      data.genres?.forEach(g => genres.set(g.id, g.name));
+    }
+
+    // 步骤 3: 批量预创建可能缺失的关联数据
+    const result = await Promise.allSettled([
+      circles.size > 0 && prisma.circle.createMany({
+        data: Array.from(circles, ([id, name]) => ({ id, name })),
+        skipDuplicates: true
+      }),
+      series.size > 0 && prisma.series.createMany({
+        data: Array.from(series, ([id, name]) => ({ id, name })),
+        skipDuplicates: true
+      }),
+      artists.size > 0 && prisma.artist.createMany({
+        data: Array.from(artists, ([name]) => ({ name })),
+        skipDuplicates: true
+      }),
+      illustrators.size > 0 && prisma.illustrator.createMany({
+        data: Array.from(illustrators, ([name]) => ({ name })),
+        skipDuplicates: true
+      }),
+      genres.size > 0 && prisma.genre.createMany({
+        data: Array.from(genres, ([id, name]) => ({ id, name })),
+        skipDuplicates: true
+      })
+    ]);
+
+    const rejected = result.filter(r => r.status === 'rejected');
+    if (rejected.length > 0) {
+      console.error('批量创建关联数据部分失败：', rejected.map(r => r.reason));
+      await sendEvent();
+    }
+  } catch (e) {
+    console.error('批量创建关联数据失败：', e);
+    await sendEvent();
+  }
+}
