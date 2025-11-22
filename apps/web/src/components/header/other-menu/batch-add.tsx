@@ -3,13 +3,14 @@ import { Progress } from '~/components/ui/progress';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '~/components/ui/dialog';
 
+import WorkInput from '~/components/work-input';
+
 import { CheckIcon, CopyIcon, Loader2 } from 'lucide-react';
 
 import { match } from 'ts-pattern';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import useBatchOperation from '~/hooks/use-batch-operation';
-import WorkInput from '~/components/work-input';
 
 export default function BatchAddDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const {
