@@ -256,9 +256,11 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
+            if (coverPath !== data.image_main) {
+              await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
+              await sendProgress(id, 'processing', `${id} 封面保存成功`);
+            }
             data.image_main = coverPath ?? data.image_main;
-            await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
-            await sendProgress(id, 'processing', `${id} 封面保存成功`);
           } catch (e) {
             console.error('保存 cover 图片失败:', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
@@ -516,6 +518,10 @@ batchApp.get('/batch/refresh', c => {
 
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
+            if (coverPath !== data.image_main) {
+              await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
+              await sendProgress(id, 'processing', `${id} 封面保存成功`);
+            }
             data.image_main = coverPath ?? data.image_main;
           } catch (e) {
             console.error('保存 cover 图片失败:', e);
