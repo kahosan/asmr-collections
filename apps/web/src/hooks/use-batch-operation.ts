@@ -96,8 +96,6 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
             logger.info(stats, '获取到 end 事件，操作结束');
           })
           .with({ event: 'error' }, ({ data }) => {
-            setIsProcessing(false);
-
             toast.error(`操作失败: ${data.message}`, {
               id: toastIdRef.current,
               description: data.details
@@ -121,6 +119,8 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       });
 
       es.addEventListener('error', e => {
+        setIsProcessing(false);
+
         if ('data' in e && typeof e.data === 'string') {
           handleEvent('error', e.data);
           return es.close();
