@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-loop-func -- batch */
 /* eslint-disable no-await-in-loop -- batch */
-import type { BatchResult, BatchSSEEvent, BatchSSEEvents } from '~/types/batch';
+import type { SSEStreamingApi } from 'hono/streaming';
+import type { BatchResult, BatchSSEEvent, BatchSSEEvents, SendEventFn } from '~/types/batch';
 import type { WorkInfo } from '~/types/source';
 import { newQueue } from '@henrygd/queue/rl';
 import { Hono } from 'hono';
@@ -44,26 +45,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
   }
 
   return streamSSE(c, async stream => {
-    const sendEvent = async <K extends BatchSSEEvent>(
-      event: K,
-      data: BatchSSEEvents[K]
-    ) => {
-      // 如果客户端已断开，不再写入，防止后端报错
-      if (c.req.raw.signal.aborted) {
-        fetchQueue.clear();
-        createQueue.clear();
-        targetIds = [];
-        return;
-      };
-      try {
-        await stream.writeSSE({
-          event,
-          data: JSON.stringify(data)
-        });
-      } catch (e) {
-        console.warn('SSE write failed (client disconnected?):', e);
-      }
-    };
+    const sendEvent = createSendEvent(stream, () => c.req.raw.signal.aborted);
 
     if (!targetIds.length) {
       sendEvent('log', { type: 'error', message: '未提供任何 ID，结束操作' });
@@ -72,10 +54,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
     if (isBatchRunning) {
       await sendEvent('log', { type: 'error', message: '已有批量任务正在进行中，请稍后再试' });
-      return sendEvent('error', {
-        message: '正在进行操作，请稍后再试',
-        details: '服务器正在处理另一个批量操作'
-      });
+      return sendEvent('error', { message: '正在进行操作，请稍后再试', details: '服务器正在处理另一个批量操作' });
     }
 
     isBatchRunning = true;
@@ -84,32 +63,20 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
     const result: BatchResult = { success: [], failed: [] };
 
     try {
-      // 准备工作
       const totalSteps = targetIds.length;
       let currentStep = 0;
 
-      const sendProgress = async (id: string, status: 'success' | 'failed' | 'processing', msg?: string) => {
+      const sendProgress = async () => {
         const percent = Math.round((currentStep / totalSteps) * 100);
         await sendEvent('progress', {
-          id,
-          status,
-          message: msg,
           current: currentStep,
           total: totalSteps,
           percent: percent > 100 ? 100 : percent
         });
       };
 
-      await sendEvent('start', {
-        total: totalSteps,
-        message: `开始处理 ${totalSteps} 个作品，分批进行`
-      });
-      await sendEvent('log', {
-        type: 'info',
-        message: `准备完成，共 ${totalSteps} 个作品，将分为 ${Math.ceil(totalSteps / BATCH_SIZE)} 批处理`
-      });
-
-      const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
+      await sendEvent('start', { total: totalSteps, message: `开始处理 ${totalSteps} 个作品，分批进行` });
+      await sendEvent('log', { type: 'info', message: `准备完成，共 ${totalSteps} 个作品，将分为 ${Math.ceil(totalSteps / BATCH_SIZE)} 批处理` });
 
       const existingWorks = await prisma.work.findMany({
         where: { id: { in: targetIds } },
@@ -138,9 +105,10 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
         for (const id of batchIds) {
           if (existingIdSet.has(id)) {
             result.failed.push({ id, error: '作品已收藏' });
-            currentStep += 1; // 跳过两个步骤（抓取+创建），进度条直接补齐
+
+            currentStep += 1;
+            await sendProgress();
             await sendEvent('log', { type: 'warning', message: `作品 ${id} 已收藏，跳过` });
-            await sendProgress(id, 'failed', `作品 ${id} 已收藏`);
           } else {
             idsToFetch.push(id);
           }
@@ -149,45 +117,16 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
         // 如果本批次所有 ID 都已存在，直接进入下一批
         if (idsToFetch.length === 0) continue;
 
-        await sendEvent('log', {
-          type: 'info',
-          message: `本批次需抓取 ${idsToFetch.length} 个新作品，${batchIds.length - idsToFetch.length} 个已跳过`
-        });
+        await sendEvent('log', { type: 'info', message: `本批次需抓取 ${idsToFetch.length} 个新作品，${batchIds.length - idsToFetch.length} 个已跳过` });
 
-        const validData: Array<{ id: string, data: WorkInfo }> = [];
+        const { validData, failed } = await fetchValidData(
+          idsToFetch,
+          sendEvent,
+          () => sendProgress(),
+          () => { currentStep += 1; }
+        );
 
-        const fetchTasks = idsToFetch.map(id => async () => {
-          if (c.req.raw.signal.aborted)
-            return;
-
-          try {
-            const data = await fetchWorkInfo(id);
-            if (!data) {
-              result.failed.push({ id, error: 'DLsite 不存在此作品' });
-              currentStep += 1;
-              await sendEvent('log', { type: 'warning', message: `DLsite 不存在 ${id}，跳过更新` });
-              return await sendProgress(id, 'failed', `DLsite 不存在 ${id}`);
-            }
-
-            validData.push({ id, data });
-            await sendEvent('log', { type: 'info', message: `${id} 信息获取成功` });
-            await sendProgress(id, 'processing', `${id} 信息获取成功`); // 此时状态还是 processing，因为还没入库
-          } catch (e) {
-            console.error(`获取 ${id} 信息失败：`, e);
-            result.failed.push({ id, error: '网络或解析错误' });
-            currentStep += 1;
-            await sendEvent('log', { type: 'error', message: `获取 ${id} 信息失败` });
-            await sendProgress(id, 'failed', `${id} 获取信息失败`);
-          }
-        });
-
-        // 并发获取所有数据
-        try {
-          await fetchQueue.all(fetchTasks);
-        } catch (e) {
-          await sendEvent('log', { type: 'error', message: `信息获取队列出错：${e instanceof Error ? e.message : '未知错误'}` });
-          console.error('信息获取队列出错:', e);
-        }
+        result.failed.push(...failed);
 
         // 如果这一批没有有效数据，直接进入下一批
         if (validData.length === 0 && result.failed.length > 0) {
@@ -198,12 +137,13 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           continue;
         };
 
-        await sendEvent('log', {
-          type: 'info',
-          message: `信息获取阶段完成：成功 ${validData.length} 个，失败 ${result.failed.length} 个，开始更新入库阶段`
-        });
+        await sendEvent('log', { type: 'info', message: `信息获取阶段完成：成功 ${validData.length} 个，失败 ${result.failed.length} 个，开始更新入库阶段` });
 
-        await ensureRelations(validData, ensureRelationsEvent);
+        try {
+          await ensureRelations(validData);
+        } catch {
+          return await sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，请查看服务端日志' });
+        }
 
         const createTasks = validData.map(({ id, data }) => async () => {
           if (c.req.raw.signal.aborted)
@@ -213,27 +153,22 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           try {
             embedding = await generateEmbedding(data);
             await sendEvent('log', { type: 'info', message: `${id} 生成向量成功` });
-            await sendProgress(id, 'processing', `${id} 生成向量成功`);
           } catch (e) {
             const message = (e instanceof HTTPError || e instanceof Error) ? e.message : '未知错误';
             console.error(`${id} 生成向量失败:`, message);
             await sendEvent('log', { type: 'warning', message: `${id} 生成向量失败` });
-            await sendProgress(id, 'failed', `${id} 生成向量失败`);
           }
 
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
             if (coverPath) {
               await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
-              await sendProgress(id, 'processing', `${id} 封面保存成功`);
               data.image_main = coverPath;
             }
             await sendEvent('log', { type: 'info', message: `${id} 封面已存在` });
-            await sendProgress(id, 'processing', `${id} 封面已存在`);
           } catch (e) {
-            console.error('保存 cover 图片失败:', e);
+            console.error('保存 cover 图片失败：', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
-            await sendProgress(id, 'failed', `${id} 封面保存失败`);
           }
 
           try {
@@ -244,15 +179,17 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
             }
 
             result.success.push(id);
+
             currentStep += 1;
+            await sendProgress();
             await sendEvent('log', { type: 'info', message: `${id} 创建成功` });
-            await sendProgress(id, 'success', `${id} 创建成功`);
           } catch (e) {
             console.error(`创建 ${id} 失败:`, e);
             result.failed.push({ id, error: e instanceof Error ? e.message : '未知错误' });
+
             currentStep += 1;
+            await sendProgress();
             await sendEvent('log', { type: 'error', message: `${id} 创建失败` });
-            await sendProgress(id, 'failed', `${id} 数据库操作失败`);
           }
         });
 
@@ -262,30 +199,17 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           console.error(e);
         }
 
-        await sendEvent('log', {
-          type: 'info',
-          message: `第 ${batchIndex} 批：成功 ${result.success.length} 个，失败 ${result.failed.length} 个`
-        });
+        await sendEvent('log', { type: 'info', message: `第 ${batchIndex} 批：成功 ${result.success.length} 个，失败 ${result.failed.length} 个` });
       }
 
-      await sendEvent('log', {
-        type: 'info',
-        message: `所有批次处理完成：成功: ${result.success.length}, 失败: ${result.failed.length}`
-      });
-      await sendEvent('end', {
-        message: '批量创建完成',
-        stats: result
-      });
+      await sendEvent('log', { type: 'info', message: `所有批次处理完成：成功: ${result.success.length}，失败：${result.failed.length}` });
+      await sendEvent('end', { message: '批量创建完成', stats: result });
     } catch (e) {
-      console.error('批量创建失败:', e);
-      await sendEvent('log', {
-        type: 'error',
-        message: `批量创建失败: ${e instanceof Error ? e.message : '未知错误'}`
-      });
-      await sendEvent('error', {
-        message: '批量创建失败',
-        details: e instanceof Error ? e.message : '未知错误'
-      });
+      console.error('批量创建失败：', e);
+
+      const message = e instanceof Error ? e.message : '未知错误';
+      await sendEvent('log', { type: 'error', message: `批量创建失败：${message}` });
+      await sendEvent('error', { message: '批量创建失败', details: message });
     } finally {
       isBatchRunning = false;
       fetchQueue.clear();
@@ -297,32 +221,11 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
 batchApp.get('/batch/refresh', c => {
   return streamSSE(c, async stream => {
-    const sendEvent = async <K extends BatchSSEEvent>(
-      event: K,
-      data: BatchSSEEvents[K]
-    ) => {
-      // 如果客户端已断开，不再写入，防止后端报错
-      if (c.req.raw.signal.aborted) {
-        fetchQueue.clear();
-        refreshQueue.clear();
-        return;
-      };
-      try {
-        await stream.writeSSE({
-          event,
-          data: JSON.stringify(data)
-        });
-      } catch (e) {
-        console.warn('SSE write failed (client disconnected?):', e);
-      }
-    };
+    const sendEvent = createSendEvent(stream, () => c.req.raw.signal.aborted);
 
     if (isBatchRunning) {
       await sendEvent('log', { type: 'error', message: '已有批量任务正在进行中，请稍后再试' });
-      return sendEvent('error', {
-        message: '正在进行操作，请稍后再试',
-        details: '服务器正在处理另一个批量操作'
-      });
+      return sendEvent('error', { message: '正在进行操作，请稍后再试', details: '服务器正在处理另一个批量操作' });
     }
 
     isBatchRunning = true;
@@ -331,7 +234,6 @@ batchApp.get('/batch/refresh', c => {
     const result: BatchResult = { success: [], failed: [] };
 
     try {
-      // 准备工作
       const targetIds = await prisma.work.findMany({
         select: { id: true },
         orderBy: { updatedAt: 'asc' }
@@ -341,34 +243,22 @@ batchApp.get('/batch/refresh', c => {
       const totalSteps = targetIds.length;
       let currentStep = 0;
 
-      const sendProgress = async (id: string, status: 'success' | 'failed' | 'processing', msg?: string) => {
+      const sendProgress = async () => {
         const percent = Math.round((currentStep / totalSteps) * 100);
         await sendEvent('progress', {
-          id,
-          status,
-          message: msg,
           current: currentStep,
           total: totalSteps,
           percent: percent > 100 ? 100 : percent
         });
       };
 
-      await sendEvent('start', {
-        total: totalSteps,
-        message: `开始处理 ${totalSteps} 个作品，分批进行`
-      });
-      await sendEvent('log', {
-        type: 'info',
-        message: `准备完成，共 ${totalSteps} 个作品，将分为 ${Math.ceil(totalSteps / BATCH_SIZE)} 批处理`
-      });
+      await sendEvent('start', { total: totalSteps, message: `开始处理 ${totalSteps} 个作品，分批进行` });
+      await sendEvent('log', { type: 'info', message: `准备完成，共 ${totalSteps} 个作品，将分为 ${Math.ceil(totalSteps / BATCH_SIZE)} 批处理` });
 
       if (totalSteps === 0) {
         await sendEvent('log', { type: 'info', message: '没有需要更新的作品，结束操作' });
-        isBatchRunning = false;
         return await sendEvent('end', { message: '没有需要更新的作品' });
       }
-
-      const ensureRelationsEvent = () => sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，但这不影响创建操作' });
 
       for (let i = 0; i < totalSteps; i += BATCH_SIZE) {
         if (c.req.raw.signal.aborted) {
@@ -379,45 +269,16 @@ batchApp.get('/batch/refresh', c => {
         const batchIds = targetIds.slice(i, i + BATCH_SIZE);
         const batchIndex = Math.floor(i / BATCH_SIZE) + 1;
 
-        await sendEvent('log', {
-          type: 'info',
-          message: `开始处理第 ${batchIndex} 批，包含 ${batchIds.length} 个作品`
-        });
+        await sendEvent('log', { type: 'info', message: `开始处理第 ${batchIndex} 批，包含 ${batchIds.length} 个作品` });
 
-        const validData: Array<{ id: string, data: WorkInfo }> = [];
+        const { validData, failed } = await fetchValidData(
+          batchIds,
+          sendEvent,
+          () => sendProgress(),
+          () => { currentStep += 1; }
+        );
 
-        const fetchTasks = batchIds.map(id => async () => {
-          if (c.req.raw.signal.aborted)
-            return;
-
-          try {
-            const data = await fetchWorkInfo(id);
-            if (!data) {
-              result.failed.push({ id, error: 'DLsite 不存在此作品' });
-              currentStep += 1;
-              await sendEvent('log', { type: 'warning', message: `DLsite 不存在 ${id}，跳过更新` });
-              return await sendProgress(id, 'failed', `DLsite 不存在 ${id}`);
-            }
-
-            validData.push({ id, data });
-            await sendEvent('log', { type: 'info', message: `${id} 信息获取成功` });
-            await sendProgress(id, 'processing', `${id} 信息获取成功`); // 此时状态还是 processing，因为还没入库
-          } catch (e) {
-            console.error(`获取 ${id} 信息失败：`, e);
-            result.failed.push({ id, error: '网络或解析错误' });
-            currentStep += 1;
-            await sendEvent('log', { type: 'error', message: `获取 ${id} 信息失败` });
-            await sendProgress(id, 'failed', `${id} 获取信息失败`);
-          }
-        });
-
-        // 并发获取所有数据
-        try {
-          await fetchQueue.all(fetchTasks);
-        } catch (e) {
-          await sendEvent('log', { type: 'error', message: `信息获取队列出错：${e instanceof Error ? e.message : '未知错误'}` });
-          console.error('信息获取队列出错:', e);
-        }
+        result.failed.push(...failed);
 
         // 如果这一批没有有效数据，直接进入下一批
         if (validData.length === 0 && result.failed.length > 0) {
@@ -428,42 +289,40 @@ batchApp.get('/batch/refresh', c => {
           continue;
         }
 
-        await sendEvent('log', {
-          type: 'info',
-          message: `信息获取阶段完成：成功 ${validData.length} 个，失败 ${result.failed.length} 个，开始更新入库阶段`
-        });
+        await sendEvent('log', { type: 'info', message: `信息获取阶段完成：成功 ${validData.length} 个，失败 ${result.failed.length} 个，开始更新入库阶段` });
 
-        await ensureRelations(validData, ensureRelationsEvent);
+        try {
+          await ensureRelations(validData);
+        } catch {
+          return await sendEvent('log', { type: 'warning', message: '批次关联数据部分失败，请查看服务端日志' });
+        }
 
         const updateTasks = validData.map(({ id, data }) => async () => {
-          if (c.req.raw.signal.aborted)
-            return;
-
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
             if (coverPath) {
               await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
-              await sendProgress(id, 'processing', `${id} 封面保存成功`);
               data.image_main = coverPath;
             }
           } catch (e) {
-            console.error('保存 cover 图片失败:', e);
+            console.error('保存 cover 图片失败：', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
-            await sendProgress(id, 'failed', `${id} 封面保存失败`);
           }
 
           try {
             await updateWork(data, id);
             result.success.push(id);
+
             currentStep += 1;
+            await sendProgress();
             await sendEvent('log', { type: 'info', message: `${id} 更新成功` });
-            await sendProgress(id, 'success', `${id} 更新成功`);
           } catch (e) {
             console.error(`更新 ${id} 失败:`, e);
             result.failed.push({ id, error: e instanceof Error ? e.message : '未知错误' });
+
             currentStep += 1;
+            await sendProgress();
             await sendEvent('log', { type: 'error', message: `${id} 更新失败` });
-            await sendProgress(id, 'failed', `${id} 数据库操作失败`);
           }
         });
 
@@ -473,30 +332,17 @@ batchApp.get('/batch/refresh', c => {
           console.error(e);
         }
 
-        await sendEvent('log', {
-          type: 'info',
-          message: `第 ${batchIndex} 批：成功 ${result.success.length} 个，失败 ${result.failed.length} 个`
-        });
+        await sendEvent('log', { type: 'info', message: `第 ${batchIndex} 批：成功 ${result.success.length} 个，失败 ${result.failed.length} 个` });
       }
 
-      await sendEvent('log', {
-        type: 'info',
-        message: `所有批次处理完成：成功: ${result.success.length}, 失败: ${result.failed.length}`
-      });
-      await sendEvent('end', {
-        message: '批量更新完成',
-        stats: result
-      });
+      await sendEvent('log', { type: 'info', message: `所有批次处理完成：成功: ${result.success.length}, 失败: ${result.failed.length}` });
+      await sendEvent('end', { message: '批量更新完成', stats: result });
     } catch (e) {
-      console.error('批量更新失败:', e);
-      await sendEvent('log', {
-        type: 'error',
-        message: `批量更新失败: ${e instanceof Error ? e.message : '未知错误'}`
-      });
-      await sendEvent('error', {
-        message: '批量更新失败',
-        details: e instanceof Error ? e.message : '未知错误'
-      });
+      console.error('批量更新失败：', e);
+
+      const message = e instanceof Error ? e.message : '未知错误';
+      await sendEvent('log', { type: 'error', message: `批量更新失败: ${message}` });
+      await sendEvent('error', { message: '批量更新失败', details: message });
     } finally {
       isBatchRunning = false;
       fetchQueue.clear();
@@ -505,56 +351,107 @@ batchApp.get('/batch/refresh', c => {
   });
 });
 
-async function ensureRelations(validData: Array<{ data: WorkInfo }>, sendEvent: () => Promise<void>) {
+function createSendEvent(stream: SSEStreamingApi, getAborted: () => boolean): SendEventFn {
+  return async <K extends BatchSSEEvent>(
+    event: K,
+    data: BatchSSEEvents[K]
+  ) => {
+    if (getAborted()) return;
+
+    try {
+      await stream.writeSSE({
+        event,
+        data: JSON.stringify(data)
+      });
+    } catch (e) {
+      console.warn('SSE 写入数据失败 ：', e);
+    }
+  };
+}
+
+async function fetchValidData(ids: string[], sendEvent: SendEventFn, sendProgress: () => Promise<void>, changeCurrentStep: () => void) {
+  const validData: Array<{ id: string, data: WorkInfo }> = [];
+  const failed: Array<{ id: string, error: string }> = [];
+
+  const fetchTasks = ids.map(id => async () => {
+    try {
+      const data = await fetchWorkInfo(id);
+      if (!data) {
+        failed.push({ id, error: 'DLsite 不存在此作品' });
+
+        changeCurrentStep();
+        await sendProgress();
+        return await sendEvent('log', { type: 'warning', message: `DLsite 不存在 ${id}，跳过更新` });
+      }
+
+      validData.push({ id, data });
+      await sendEvent('log', { type: 'info', message: `${id} 信息获取成功` });
+    } catch (e) {
+      console.error(`获取 ${id} 信息失败：`, e);
+      failed.push({ id, error: '网络或解析错误' });
+
+      changeCurrentStep();
+      await sendProgress();
+      await sendEvent('log', { type: 'error', message: `获取 ${id} 信息失败` });
+    }
+  });
+
+  // 并发获取所有数据
   try {
-    const prisma = getPrisma();
-
-    // 步骤 2: 提取所有需要的关联数据
-    const circles = new Map<string, string>();
-    const series = new Map<string, string>();
-    const artists = new Map<string, string>();
-    const illustrators = new Map<string, string>();
-    const genres = new Map<number, string>();
-
-    for (const { data } of validData) {
-      circles.set(data.maker.id, data.maker.name);
-      if (data.series?.id) series.set(data.series.id, data.series.name);
-      data.artists?.forEach(name => artists.set(name, name));
-      data.illustrators?.forEach(name => illustrators.set(name, name));
-      data.genres?.forEach(g => genres.set(g.id, g.name));
-    }
-
-    // 步骤 3: 批量预创建可能缺失的关联数据
-    const result = await Promise.allSettled([
-      circles.size > 0 && prisma.circle.createMany({
-        data: Array.from(circles, ([id, name]) => ({ id, name })),
-        skipDuplicates: true
-      }),
-      series.size > 0 && prisma.series.createMany({
-        data: Array.from(series, ([id, name]) => ({ id, name })),
-        skipDuplicates: true
-      }),
-      artists.size > 0 && prisma.artist.createMany({
-        data: Array.from(artists, ([name]) => ({ name })),
-        skipDuplicates: true
-      }),
-      illustrators.size > 0 && prisma.illustrator.createMany({
-        data: Array.from(illustrators, ([name]) => ({ name })),
-        skipDuplicates: true
-      }),
-      genres.size > 0 && prisma.genre.createMany({
-        data: Array.from(genres, ([id, name]) => ({ id, name })),
-        skipDuplicates: true
-      })
-    ]);
-
-    const rejected = result.filter(r => r.status === 'rejected');
-    if (rejected.length > 0) {
-      console.error('批量创建关联数据部分失败：', rejected.map(r => r.reason));
-      await sendEvent();
-    }
+    await fetchQueue.all(fetchTasks);
   } catch (e) {
-    console.error('批量创建关联数据失败：', e);
-    await sendEvent();
+    await sendEvent('log', { type: 'error', message: `信息获取队列出错：${e instanceof Error ? e.message : '未知错误'}` });
+    console.error('信息获取队列出错：', e);
+  }
+
+  return { validData, failed };
+}
+
+async function ensureRelations(validData: Array<{ data: WorkInfo }>) {
+  const prisma = getPrisma();
+
+  // 步骤 2: 提取所有需要的关联数据
+  const circles = new Map<string, string>();
+  const series = new Map<string, string>();
+  const artists = new Map<string, string>();
+  const illustrators = new Map<string, string>();
+  const genres = new Map<number, string>();
+
+  for (const { data } of validData) {
+    circles.set(data.maker.id, data.maker.name);
+    if (data.series?.id) series.set(data.series.id, data.series.name);
+    data.artists?.forEach(name => artists.set(name, name));
+    data.illustrators?.forEach(name => illustrators.set(name, name));
+    data.genres?.forEach(g => genres.set(g.id, g.name));
+  }
+
+  // 步骤 3: 批量预创建可能缺失的关联数据
+  const result = await Promise.allSettled([
+    circles.size > 0 && prisma.circle.createMany({
+      data: Array.from(circles, ([id, name]) => ({ id, name })),
+      skipDuplicates: true
+    }),
+    series.size > 0 && prisma.series.createMany({
+      data: Array.from(series, ([id, name]) => ({ id, name })),
+      skipDuplicates: true
+    }),
+    artists.size > 0 && prisma.artist.createMany({
+      data: Array.from(artists, ([name]) => ({ name })),
+      skipDuplicates: true
+    }),
+    illustrators.size > 0 && prisma.illustrator.createMany({
+      data: Array.from(illustrators, ([name]) => ({ name })),
+      skipDuplicates: true
+    }),
+    genres.size > 0 && prisma.genre.createMany({
+      data: Array.from(genres, ([id, name]) => ({ id, name })),
+      skipDuplicates: true
+    })
+  ]);
+
+  const rejected = result.filter(r => r.status === 'rejected');
+  if (rejected.length > 0) {
+    console.error('批量创建关联数据部分失败：', rejected.map(r => r.reason));
+    throw new Error('批量创建关联数据失败');
   }
 }

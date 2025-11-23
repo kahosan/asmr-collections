@@ -4,9 +4,6 @@ export interface BatchSSEEvents {
     message: string
   }
   progress: {
-    id: string
-    status: 'success' | 'failed' | 'processing'
-    message?: string
     current: number
     total: number
     percent: number
@@ -27,6 +24,8 @@ export interface BatchSSEEvents {
     details: string
   }
 }
+
+export type SendEventFn = <K extends BatchSSEEvent>(event: K, data: BatchSSEEvents[K]) => Promise<void>;
 
 export type BatchSSEEvent = keyof BatchSSEEvents;
 

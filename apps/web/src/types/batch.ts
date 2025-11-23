@@ -4,9 +4,6 @@ export interface BatchSSEEvents {
     message: string
   }
   progress: {
-    id: string
-    status: 'success' | 'failed' | 'processing'
-    message?: string
     current: number
     total: number
     percent: number
