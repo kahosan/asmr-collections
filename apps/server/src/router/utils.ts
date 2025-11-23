@@ -111,7 +111,17 @@ export async function saveCoverImage(url: string, id: string) {
 
   const normalizedUrl = url.startsWith('//') ? 'https:' + url : url;
 
-  const res = await fetch(normalizedUrl);
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, 1000 * 10); // 10 秒超时
+
+  const res = await fetch(normalizedUrl, {
+    signal: controller.signal
+  });
+
+  clearTimeout(timer);
+
   if (!res.ok) {
     console.error(`下载封面图片失败：${res.status} ${res.statusText}`);
     throw new HTTPError(`下载封面图片失败：${res.statusText}`, res.status);
