@@ -3,6 +3,7 @@
 import type { SSEStreamingApi } from 'hono/streaming';
 import type { BatchResult, BatchSSEEvent, BatchSSEEvents, SendEventFn } from '~/types/batch';
 import type { WorkInfo } from '~/types/source';
+import { randomUUID } from 'node:crypto';
 import { newQueue } from '@henrygd/queue/rl';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
@@ -360,6 +361,7 @@ function createSendEvent(stream: SSEStreamingApi, getAborted: () => boolean): Se
 
     try {
       await stream.writeSSE({
+        id: randomUUID(),
         event,
         data: JSON.stringify(data)
       });

@@ -29,6 +29,7 @@ export type LogType = 'info' | 'warning' | 'error';
 
 export type SSEData = {
   [K in keyof BatchSSEEvents]: {
+    id: string
     event: K
     data: BatchSSEEvents[K]
   }

@@ -11,7 +11,7 @@ import type { LogType, SSEData, SSEEvent } from '~/types/batch';
 
 export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (open: boolean) => void, isSync = false) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [logs, setLogs] = useImmer<Array<{ type: LogType, message: string }>>([]);
+  const [logs, setLogs] = useImmer<Array<{ id: string, type: LogType, message: string }>>([]);
   const [progress, setProgress] = useState({ current: 0, total: 0, percent: 0 });
   const [createIds, setCreateIds] = useState<string>('');
 
@@ -57,7 +57,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       eventSourceRef.current = es;
 
       // 通用处理函数
-      const handleEvent = (event: SSEEvent, data: string) => {
+      const handleEvent = (id: string, event: SSEEvent, data: string) => {
         if (!data) {
           logger.warn({ event, data }, 'SSE 收到空数据，忽略');
           return;
@@ -71,7 +71,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
           return;
         }
 
-        match({ event, data: parsedData } as SSEData)
+        match({ id, event, data: parsedData } as SSEData)
           .with(({ event: 'start' }), ({ data }) => {
             const { total, message } = data;
             setProgress({ current: 0, total, percent: 0 });
@@ -82,10 +82,10 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
           .with({ event: 'progress' }, ({ data }) => {
             setProgress(data);
           })
-          .with({ event: 'log' }, ({ data }) => {
+          .with({ event: 'log' }, ({ id, data }) => {
             const { type, message } = data;
             setLogs(p => {
-              p.push({ type, message });
+              p.push({ id, type, message });
             });
           })
           .with({ event: 'end' }, ({ data }) => {
@@ -110,11 +110,11 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
         toast.success('SSE 连接已建立', { id: toastIdRef.current });
       });
 
-      es.addEventListener('start', e => handleEvent('start', e.data));
-      es.addEventListener('progress', e => handleEvent('progress', e.data));
-      es.addEventListener('log', e => handleEvent('log', e.data));
+      es.addEventListener('start', e => handleEvent(e.lastEventId, 'start', e.data));
+      es.addEventListener('progress', e => handleEvent(e.lastEventId, 'progress', e.data));
+      es.addEventListener('log', e => handleEvent(e.lastEventId, 'log', e.data));
       es.addEventListener('end', e => {
-        handleEvent('end', e.data);
+        handleEvent(e.lastEventId, 'end', e.data);
         es.close();
       });
 
@@ -122,7 +122,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
         setIsProcessing(false);
 
         if ('data' in e && typeof e.data === 'string') {
-          handleEvent('error', e.data);
+          handleEvent('error', 'error', e.data);
           return es.close();
         }
 
@@ -143,7 +143,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       eventSourceRef.current.close();
 
       setLogs(p => {
-        p.push({ type: 'warning', message: '操作已被用户取消' });
+        p.push({ id: Date.now().toString(), type: 'warning', message: '操作已被用户取消' });
       });
 
       toast.info('已停止', {

@@ -13,7 +13,7 @@ import type { LogType } from '~/types/batch';
 interface BatchLogsProps {
   onClick: () => void
   isProcessing: boolean
-  logs: Array<{ type: LogType, message: string }>
+  logs: Array<{ id: string, type: LogType, message: string }>
 }
 
 export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProps) {
@@ -64,9 +64,9 @@ export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProp
             {logs.length === 0 && !isProcessing && (
               <div className="text-muted-foreground text-center py-12">准备就绪</div>
             )}
-            {logs.map(({ type, message }) => (
+            {logs.map(({ id, type, message }) => (
               <motion.div
-                key={message}
+                key={id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-start gap-2"
