@@ -6,6 +6,7 @@ export default kaho(
     ignores: {
       customGlobs: [
         'apps/server/src/lib/prisma/**/*.ts',
+        'apps/server/src/lib/prisma-workers/**/*.ts',
         'apps/web/src/components/ui/*.tsx',
         'apps/web/tailwind.config.js'
       ]

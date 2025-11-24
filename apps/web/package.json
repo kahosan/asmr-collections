@@ -78,6 +78,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-router-devtools": "^1.136.1",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react-swc": "^4.2.2",
