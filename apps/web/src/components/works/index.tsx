@@ -33,7 +33,6 @@ export default function Works() {
       </div>
       <Pagination
         total={data?.total ?? 0}
-        current={Number.parseInt(searchParams.get('page') ?? '1', 10)}
       />
     </>
   );

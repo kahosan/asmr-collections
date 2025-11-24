@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@asmr-collections/shared": "workspace:*",
     "@dnd-kit/helpers": "^0.1.21",
     "@dnd-kit/react": "^0.1.21",
     "@radix-ui/react-accordion": "^1.2.12",

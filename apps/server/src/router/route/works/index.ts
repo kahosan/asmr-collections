@@ -1,9 +1,8 @@
 import type { Prisma, PrismaClient } from '~/lib/prisma/client';
 import type { Work } from '~/types/collection';
 import { join } from 'node:path';
-
+import { IndexSearchQuerySchema } from '@asmr-collections/shared';
 import { Hono } from 'hono';
-import * as z from 'zod';
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { formatError, generateEmbedding, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
@@ -12,40 +11,7 @@ type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
 export const worksApp = new Hono();
 
-export const schema = z.object({
-  circleId: z.string().optional(),
-  seriesId: z.string().optional(),
-  keyword: z.string().optional(),
-  embedding: z.string().optional(),
-  existsLocal: z.enum(['only', 'exclude']).optional(),
-  order: z.enum(['asc', 'desc']).default('desc'),
-  sort: z.string().default('releaseDate'),
-  filterOp: z.enum(['and', 'or']).default('and'),
-
-  artistId: z.preprocess(val => {
-    if (typeof val === 'string') {
-      const r = val.split(',');
-      return r.length === 1 && r[0] === '' ? [] : r;
-    }
-  }, z.array(z.coerce.number()).optional()),
-
-  genres: z.preprocess(val => {
-    if (typeof val === 'string') {
-      const r = val.split(',');
-      return r.length === 1 && r[0] === '' ? [] : r;
-    }
-  }, z.array(z.coerce.number()).optional()),
-
-  age: z.coerce.number().optional(),
-  multilingual: z.coerce.boolean().optional(),
-  subtitles: z.coerce.boolean().optional(),
-  page: z.coerce.number().default(1),
-  limit: z.coerce.number().default(20),
-  illustratorId: z.coerce.number().optional(),
-  artistCount: z.coerce.number().optional()
-});
-
-worksApp.get('/', zValidator('query', schema), async c => {
+worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
   const {
     page,
     limit

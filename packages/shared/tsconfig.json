@@ -8,13 +8,17 @@
     "skipLibCheck": true,
 
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "emitDeclarationOnly": true,
 
-    "composite": false,
+    "outDir": "dist",
+    "sourceMap": true,
+
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
 
     "strict": true,
     "strictNullChecks": true,
@@ -23,12 +27,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    }
   },
-  "include": ["src", "cloudflare", "prisma.config.ts"],
-  "references": [{ "path": "../../packages/shared/tsconfig.json" }]
+  "include": ["src"]
 }

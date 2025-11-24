@@ -3,20 +3,21 @@ import { PaginationContent, PaginationEllipsis, PaginationLink, PaginationNext, 
 
 interface Props {
   total: number
-  current: number
 }
 
 const PLink = createLink(PaginationLink);
 const PPrevious = createLink(PaginationPrevious);
 const PNext = createLink(PaginationNext);
 
-export default function Pagination(props: Props) {
-  const { total, current } = props;
+export default function Pagination({ total }: Props) {
   const search = useSearch({ from: '/' });
+
+  const current = search.page;
+  const limit = search.limit;
 
   const pages = [];
 
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.ceil(total / limit);
   // eslint-disable-next-line sukka/unicorn/no-nested-ternary -- 反正没人看到 QwQ
   const startPage = Math.max(2, current > totalPages - 3 ? (current === totalPages ? current - 4 : current > totalPages - 2 ? current - 2 : current - 3) : current - 1);
   const endPage = Math.min(totalPages - 1, (current <= 3) ? startPage + 3 : current + 1);

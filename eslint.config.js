@@ -14,7 +14,10 @@ export default kaho(
   },
   {
     ...sorting,
-    files: ['apps/server/**/*.ts'],
+    files: [
+      'apps/server/**/*.ts',
+      'packages/**/*.ts'
+    ],
     rules: {
       ...sorting.rules,
       'no-console': 'off'
