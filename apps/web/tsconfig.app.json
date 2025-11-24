@@ -1,18 +1,20 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "esnext",
-    "lib": ["ESNext", "DOM"],
-    "module": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "types": ["vite/client"],
     "skipLibCheck": true,
 
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "jsx": "react-jsx",
 
     "composite": false,
 
@@ -29,5 +31,5 @@
       "~/*": ["./src/*"]
     }
   },
-  "include": ["src", "cloudflare", "prisma.config.ts"]
+  "include": ["src"]
 }
