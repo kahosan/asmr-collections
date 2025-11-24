@@ -48,10 +48,12 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
     <Dialog
       open={open}
       onOpenChange={isOpen => {
-        if (isMutating)
+        if (isMutating) {
           toast.warning('请先等待添加完成');
-        else
+        } else {
+          setId('');
           setOpen(isOpen);
+        }
       }}
     >
       <DialogContent className="rounded-lg max-w-[90%] sm:max-w-md" onInteractOutside={e => e.preventDefault()}>

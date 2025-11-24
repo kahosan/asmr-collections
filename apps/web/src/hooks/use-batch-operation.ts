@@ -156,19 +156,20 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
   }, [setLogs]);
 
   const copyLogs = () => {
-    if (logs.some(({ type }) => type === 'error')) {
-      const errorData = logs.filter(({ type }) => type === 'error');
+    if (logs.some(({ type }) => type === 'error' || type === 'warning')) {
+      const errorData = logs.filter(({ type }) => type === 'error' || type === 'warning');
       writeClipboard(JSON.stringify(errorData, null, 2));
     } else {
-      toast.warning('没有错误日志', { position: 'bottom-right' });
+      toast.warning('没有错误日志');
     }
   };
 
   const handleOpenChange = (val: boolean) => {
     if (!val && isProcessing) {
-      toast.warning('请先等待操作完成或点击停止', { position: 'bottom-right' });
+      toast.warning('请先等待操作完成或点击停止');
       return;
     }
+    setCreateIds('');
     setOpen(val);
   };
 

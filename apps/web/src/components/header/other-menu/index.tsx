@@ -64,10 +64,10 @@ export default function OtherMenu() {
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
-      <BatchUpdateDialog key={Math.random()} open={showBatchUpdateDialog} setOpen={setShowBatchUpdateDialog} />
-      <BatchAddDialog key={Math.random()} open={showBatchAddDialog} setOpen={setShowBatchAddDialog} />
-      <AddWorkDialog key={Math.random()} open={showAddWorkDialog} setOpen={setShowAddWorkDialog} />
-      <SyncVoiceLibraryDialog key={Math.random()} open={showSyncVoiceLibraryDialog} setOpen={setShowSyncVoiceLibraryDialog} />
+      <BatchUpdateDialog open={showBatchUpdateDialog} setOpen={setShowBatchUpdateDialog} />
+      <BatchAddDialog open={showBatchAddDialog} setOpen={setShowBatchAddDialog} />
+      <AddWorkDialog open={showAddWorkDialog} setOpen={setShowAddWorkDialog} />
+      <SyncVoiceLibraryDialog open={showSyncVoiceLibraryDialog} setOpen={setShowSyncVoiceLibraryDialog} />
     </>
   );
 }
