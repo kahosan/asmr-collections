@@ -1,8 +1,8 @@
 import { match } from 'ts-pattern';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import { Button } from '~/components/ui/button';
-import { ScrollArea } from '~/components/ui/scroll-area';
+import { VirtualizerScrollArea, VirtualizedVirtualizer } from '~/components/ui/virtualized';
 
 import { CopyIcon, Loader2 } from 'lucide-react';
 
@@ -37,7 +37,7 @@ export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProp
           <CopyIcon className="size-3.5" />
         </Button>
       </div>
-      <ScrollArea
+      <VirtualizerScrollArea
         type="auto"
         ref={el => {
           const viewport = el?.querySelector('[data-slot="scroll-area-viewport"]');
@@ -54,7 +54,7 @@ export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProp
         className="h-50 sm:h-65 w-full"
       >
         <div className="p-4 text-xs font-mono space-y-2">
-          <AnimatePresence initial={false}>
+          <VirtualizedVirtualizer startMargin={10}>
             {logs.length === 0 && isProcessing && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-muted-foreground text-center py-8">
                 <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" />
@@ -69,6 +69,7 @@ export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProp
                 key={id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: .3 }}
                 className="flex items-start gap-2"
               >
                 {match(type)
@@ -78,9 +79,9 @@ export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProp
                   .exhaustive()}
               </motion.div>
             ))}
-          </AnimatePresence>
+          </VirtualizedVirtualizer>
         </div>
-      </ScrollArea>
+      </VirtualizerScrollArea>
     </div>
   );
 }

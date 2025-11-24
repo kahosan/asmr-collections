@@ -2,8 +2,13 @@
 
 import { useComposedRefs } from "@radix-ui/react-compose-refs";
 import { Primitive } from "@radix-ui/react-primitive";
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 import * as React from "react";
 import { experimental_VGrid as VGrid, VList, Virtualizer } from "virtua";
+
+import { ScrollBar } from "./scroll-area";
+
+import { cn } from "~/lib/utils"
 
 const VirtualizedContext = React.createContext<{
   scrollRef: React.RefObject<React.ComponentRef<typeof Primitive.div> | null>;
@@ -67,6 +72,39 @@ function VirtualizedGrid(props: React.ComponentProps<typeof VGrid>) {
   return <VGrid data-slot="virtualized-grid" {...props} />;
 }
 
+type ScrollAreaProps = React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+  overscrollBehavior?: "auto" | "contain" | "none"
+}
+
+function VirtualizerScrollArea({
+  className,
+  children,
+  overscrollBehavior,
+  ...props
+}: ScrollAreaProps) {
+  return (
+    <ScrollAreaPrimitive.Root
+      data-slot="scroll-area"
+      className={cn("relative", className)}
+      {...props}
+    >
+      <Virtualized asChild>
+        <ScrollAreaPrimitive.Viewport
+          data-slot="scroll-area-viewport"
+          className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
+          style={{
+            overscrollBehavior: overscrollBehavior,
+          }}
+        >
+          {children}
+        </ScrollAreaPrimitive.Viewport>
+      </Virtualized>
+      <ScrollBar />
+      <ScrollAreaPrimitive.Corner />
+    </ScrollAreaPrimitive.Root>
+  )
+}
+
 function VirtualizedVirtualizer({
   ...props
 }: Omit<React.ComponentProps<typeof Virtualizer>, "scrollRef">) {
@@ -85,5 +123,6 @@ export {
   Virtualized,
   VirtualizedList,
   VirtualizedGrid,
+  VirtualizerScrollArea,
   VirtualizedVirtualizer,
 };
