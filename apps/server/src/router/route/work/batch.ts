@@ -45,8 +45,10 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
     }
   }
 
+  c.req.raw.signal.addEventListener('abort', handleAbort);
+
   return streamSSE(c, async stream => {
-    const sendEvent = createSendEvent(stream, () => c.req.raw.signal.aborted);
+    const sendEvent = createSendEvent(stream);
 
     if (!targetIds.length) {
       sendEvent('log', { type: 'error', message: '未提供任何 ID，结束操作' });
@@ -86,10 +88,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
       const existingIdSet = new Set(existingWorks.map(w => w.id));
 
       for (let i = 0; i < totalSteps; i += BATCH_SIZE) {
-        if (c.req.raw.signal.aborted) {
-          console.warn('客户端已断开，停止批量操作');
-          break;
-        }
+        if (c.req.raw.signal.aborted) break;
 
         const batchIds = targetIds.slice(i, i + BATCH_SIZE);
         const batchIndex = Math.floor(i / BATCH_SIZE) + 1;
@@ -122,8 +121,9 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
         const { validData, failed } = await fetchValidData(
           idsToFetch,
+          c.req.raw.signal,
           sendEvent,
-          () => sendProgress(),
+          sendProgress,
           () => { currentStep += 1; }
         );
 
@@ -153,7 +153,6 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           let embedding: number[] | undefined;
           try {
             embedding = await generateEmbedding(data);
-            await sendEvent('log', { type: 'info', message: `${id} 生成向量成功` });
           } catch (e) {
             const message = (e instanceof HTTPError || e instanceof Error) ? e.message : '未知错误';
             console.error(`${id} 生成向量失败:`, message);
@@ -162,11 +161,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
-            if (coverPath) {
-              await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
-              data.image_main = coverPath;
-            }
-            await sendEvent('log', { type: 'info', message: `${id} 封面已存在` });
+            if (coverPath) data.image_main = coverPath;
           } catch (e) {
             console.error('保存 cover 图片失败：', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
@@ -213,16 +208,17 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
       await sendEvent('error', { message: '批量创建失败', details: message });
     } finally {
       isBatchRunning = false;
-      fetchQueue.clear();
-      createQueue.clear();
       targetIds = [];
+      c.req.raw.signal.removeEventListener('abort', handleAbort);
     }
   });
 });
 
 batchApp.get('/batch/refresh', c => {
+  c.req.raw.signal.addEventListener('abort', handleAbort);
+
   return streamSSE(c, async stream => {
-    const sendEvent = createSendEvent(stream, () => c.req.raw.signal.aborted);
+    const sendEvent = createSendEvent(stream);
 
     if (isBatchRunning) {
       await sendEvent('log', { type: 'error', message: '已有批量任务正在进行中，请稍后再试' });
@@ -262,10 +258,7 @@ batchApp.get('/batch/refresh', c => {
       }
 
       for (let i = 0; i < totalSteps; i += BATCH_SIZE) {
-        if (c.req.raw.signal.aborted) {
-          console.warn('客户端已断开，停止批量操作');
-          break;
-        }
+        if (c.req.raw.signal.aborted) break;
 
         const batchIds = targetIds.slice(i, i + BATCH_SIZE);
         const batchIndex = Math.floor(i / BATCH_SIZE) + 1;
@@ -274,8 +267,9 @@ batchApp.get('/batch/refresh', c => {
 
         const { validData, failed } = await fetchValidData(
           batchIds,
+          c.req.raw.signal,
           sendEvent,
-          () => sendProgress(),
+          sendProgress,
           () => { currentStep += 1; }
         );
 
@@ -301,10 +295,7 @@ batchApp.get('/batch/refresh', c => {
         const updateTasks = validData.map(({ id, data }) => async () => {
           try {
             const coverPath = await saveCoverImage(data.image_main, id);
-            if (coverPath) {
-              await sendEvent('log', { type: 'info', message: `${id} 封面保存成功` });
-              data.image_main = coverPath;
-            }
+            if (coverPath) data.image_main = coverPath;
           } catch (e) {
             console.error('保存 cover 图片失败：', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
@@ -346,19 +337,23 @@ batchApp.get('/batch/refresh', c => {
       await sendEvent('error', { message: '批量更新失败', details: message });
     } finally {
       isBatchRunning = false;
-      fetchQueue.clear();
-      refreshQueue.clear();
+      c.req.raw.signal.removeEventListener('abort', handleAbort);
     }
   });
 });
 
-function createSendEvent(stream: SSEStreamingApi, getAborted: () => boolean): SendEventFn {
+function handleAbort() {
+  console.warn('客户端已断开，停止批量操作');
+  fetchQueue.clear();
+  refreshQueue.clear();
+  createQueue.clear();
+};
+
+function createSendEvent(stream: SSEStreamingApi): SendEventFn {
   return async <K extends BatchSSEEvent>(
     event: K,
     data: BatchSSEEvents[K]
   ) => {
-    if (getAborted()) return;
-
     try {
       await stream.writeSSE({
         id: randomUUID(),
@@ -371,11 +366,19 @@ function createSendEvent(stream: SSEStreamingApi, getAborted: () => boolean): Se
   };
 }
 
-async function fetchValidData(ids: string[], sendEvent: SendEventFn, sendProgress: () => Promise<void>, changeCurrentStep: () => void) {
+async function fetchValidData(
+  ids: string[],
+  abortSignal: AbortSignal,
+  sendEvent: SendEventFn,
+  sendProgress: () => Promise<void>,
+  changeCurrentStep: () => void
+) {
   const validData: Array<{ id: string, data: WorkInfo }> = [];
   const failed: Array<{ id: string, error: string }> = [];
 
   const fetchTasks = ids.map(id => async () => {
+    if (abortSignal.aborted) return;
+
     try {
       const data = await fetchWorkInfo(id);
       if (!data) {

@@ -116,20 +116,28 @@ export async function saveCoverImage(url: string, id: string) {
     controller.abort();
   }, 1000 * 10); // 10 秒超时
 
-  const res = await fetch(normalizedUrl, {
-    signal: controller.signal
-  });
+  try {
+    const res = await fetch(normalizedUrl, {
+      signal: controller.signal
+    });
 
-  clearTimeout(timer);
+    if (!res.ok) {
+      console.error(`下载封面图片失败：${res.status} ${res.statusText}`);
+      throw new HTTPError(`下载封面图片失败：${res.statusText}`, res.status);
+    }
 
-  if (!res.ok) {
-    console.error(`下载封面图片失败：${res.status} ${res.statusText}`);
-    throw new HTTPError(`下载封面图片失败：${res.statusText}`, res.status);
+    const buffer = await res.arrayBuffer();
+
+    await Bun.write(coverPath, buffer);
+    return coverPath.replace(process.cwd(), '');
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError')
+      throw new Error('下载封面图片超时');
+
+    throw error;
+  } finally {
+    clearTimeout(timer);
   }
-
-  await Bun.write(coverPath, res);
-
-  return coverPath.replace(process.cwd(), '');
 }
 
 export async function getAllLocalVoiceLibraryIds() {
