@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 
-import { parseWorkInput } from '~/utils';
 import WorkInput from '../work-input';
+import { ArrowRight } from 'lucide-react';
+
+import { parseWorkInput } from '~/utils';
 
 const route = getRouteApi('/work-details/$id');
 
@@ -27,6 +29,7 @@ export default function GoToDetail() {
         onValueChange={v => setId(v)}
         initialTip="输入 ID 前往作品详情"
         validTip="按回车或点击按钮前往"
+        tipIcon={<ArrowRight />}
         onKeyUp={e => {
           if (e.key === 'Enter')
             handleClick();
