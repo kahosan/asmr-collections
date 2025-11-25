@@ -1,8 +1,10 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { ListVideoIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+
+import { AnimatePresence, motion } from 'framer-motion';
 import { usePlayHistoryValue } from '~/hooks/use-play-history';
-import type { Track } from '~/types/tracks';
+
+import type { Track } from '@asmr-collections/shared';
 
 interface ContinueLastPlaybackProps {
   id: string

@@ -16,7 +16,7 @@ export interface BatchSSEEvents {
     }
   }
   log: {
-    type: LogType
+    type: BatchLogType
     message: string
   }
   error: {
@@ -25,14 +25,18 @@ export interface BatchSSEEvents {
   }
 }
 
-export type LogType = 'info' | 'warning' | 'error';
+export type BatchLogType = 'info' | 'warning' | 'error';
 
-export type SSEData = {
-  [K in keyof BatchSSEEvents]: {
+export type BatchSSEEvent = keyof BatchSSEEvents;
+
+export type BatchSSEData = {
+  [K in BatchSSEEvent]: {
     id: string
     event: K
     data: BatchSSEEvents[K]
   }
-}[keyof BatchSSEEvents];
+}[BatchSSEEvent];
 
-export type SSEEvent = keyof BatchSSEEvents;
+export type BatchSendEventFn = <K extends BatchSSEEvent>(event: K, data: BatchSSEEvents[K]) => Promise<void>;
+
+export type BatchResult = BatchSSEEvents['end']['stats'];

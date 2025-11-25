@@ -15,7 +15,7 @@ import { settingOptionsAtom } from '~/hooks/use-setting-options';
 import { extractFileExt } from '~/utils';
 import { mutateWorks } from '~/lib/mutation';
 
-import type { Work } from '~/types/work';
+import type { Work } from '@asmr-collections/shared';
 
 interface Props {
   work: Work

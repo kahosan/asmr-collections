@@ -9,7 +9,7 @@ import { CheckIcon, Tag } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import type { Data } from '~/types/work';
+import type { Data } from '@asmr-collections/shared';
 
 interface Props {
   genres: Array<Data<number>>

@@ -2,11 +2,11 @@ import WorkCard from '~/components/work-card';
 import { Carousel, CarouselContent, CarouselItem } from '~/components/ui/carousel';
 
 import Autoplay from 'embla-carousel-autoplay';
+import { useSimilar } from '~/hooks/use-similar';
 
 import { cn } from '~/lib/utils';
 
-import type { Work } from '~/types/work';
-import { useSimilar } from '~/hooks/use-similar';
+import type { Work } from '@asmr-collections/shared';
 
 interface SimilarWorksProps {
   work: Work

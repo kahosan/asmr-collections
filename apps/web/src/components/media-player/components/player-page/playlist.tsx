@@ -10,7 +10,8 @@ import { DragDropProvider } from '@dnd-kit/react';
 import { useSortable, isSortable } from '@dnd-kit/react/sortable';
 
 import { cn } from '~/lib/utils';
-import type { Track } from '~/types/tracks';
+
+import type { Track } from '@asmr-collections/shared';
 
 export default function Playlist() {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);

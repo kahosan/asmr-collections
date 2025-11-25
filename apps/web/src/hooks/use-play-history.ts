@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { Track } from '~/types/tracks';
+import type { Track } from '@asmr-collections/shared';
 
 interface PlayHistoryItem {
   id: string

@@ -4,7 +4,7 @@ import { extractFileExt } from '~/utils';
 import { HttpReader, Uint8ArrayWriter, ZipReader } from '@zip.js/zip.js';
 
 import type { IFuseOptions } from 'fuse.js';
-import type { Tracks } from '~/types/tracks';
+import type { Tracks } from '@asmr-collections/shared';
 import type { SubtitleInfo } from '~/hooks/use-media-state';
 
 export class SubtitleMatcher {

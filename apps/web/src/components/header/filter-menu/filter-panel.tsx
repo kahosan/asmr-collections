@@ -10,7 +10,7 @@ import Loading from '~/components/loading';
 
 import { HTTPError } from '~/lib/fetcher';
 
-import type { Data } from '~/types/work';
+import type { Data } from '@asmr-collections/shared';
 
 interface Props<T extends string | number> {
   placeholder: string

@@ -1,36 +1,25 @@
-export interface Work {
+import type { Jsonify } from '../utils';
+
+export interface Data<T extends string | number> { id: T, name: string }
+
+export interface ServerWork {
   id: string
   name: string
   cover: string
   intro: string
-  // circle
+  // 社团
   circleId: string
-  circle: {
-    id: string
-    name: string
-  }
+  circle: Data<string>
   // 系列
   seriesId: string | null
-  series: {
-    id: string
-    name: string
-  } | null
+  series: Data<string> | null
   // 声优
-  artists: Array<{
-    id: number
-    name: string
-  }>
+  artists: Array<Data<number>>
   // 画师
-  illustrators: Array<{
-    id: number
-    name: string
-  }>
+  illustrators: Array<Data<number>>
   ageCategory: 1 | 2 | 3 // 1: 全年齢, 2: R15, 3: R18
   // tags
-  genres: Array<{
-    id: number
-    name: string
-  }>
+  genres: Array<Data<number>>
   price: number
   sales: number
   wishlistCount: number
@@ -71,4 +60,7 @@ export interface Work {
   updatedAt: Date
 }
 
-export type WorkInfoResp = Omit<Work, 'createdAt' | 'updatedAt'>;
+export type Work = Jsonify<ServerWork> & {
+  // 以下都为非数据库字段
+  exists?: boolean // 是否已收藏
+};

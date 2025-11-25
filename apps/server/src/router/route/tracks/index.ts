@@ -1,4 +1,4 @@
-import type { Track, Tracks } from '~/types/tracks';
+import type { Track, Tracks } from '@asmr-collections/shared';
 import { readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { newQueue } from '@henrygd/queue';

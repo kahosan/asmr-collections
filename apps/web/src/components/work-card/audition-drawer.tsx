@@ -20,7 +20,7 @@ interface Embed {
   works: Array<{ embed_url: string, embed_width: number, embed_height: number }>
 }
 
-export default function AuditionDrawer({ workId, originalId }: { workId: string, originalId?: string }) {
+export default function AuditionDrawer({ workId, originalId }: { workId: string, originalId?: string | null }) {
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useSWR<Embed>(
     open ? `https://chobit.cc/api/v1/dlsite/embed?workno=${originalId ?? workId}` : null,

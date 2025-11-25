@@ -7,8 +7,7 @@ import { useCallback, useState } from 'react';
 
 import { formatDuration } from '~/utils';
 
-import type { Work } from '~/types/work';
-import type { Track, Tracks } from '~/types/tracks';
+import type { Work, Track, Tracks } from '@asmr-collections/shared';
 
 interface VideoItemProps {
   track: Track

@@ -10,8 +10,8 @@ import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
 import { readerZipFileSubtitles } from '~/lib/subtitle-matcher';
 
-import type { Tracks } from '~/types/tracks';
 import type { SubtitleInfo } from './use-media-state';
+import type { Tracks } from '@asmr-collections/shared';
 
 export type TracksData =
   {

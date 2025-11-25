@@ -1,5 +1,5 @@
+import type { ServerWork } from '@asmr-collections/shared';
 import type { Prisma, PrismaClient } from '~/lib/prisma/client';
-import type { Work } from '~/types/collection';
 import { join } from 'node:path';
 import { IndexSearchQuerySchema } from '@asmr-collections/shared';
 import { Hono } from 'hono';
@@ -174,7 +174,7 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
     if (artistCount) {
       const works = await prisma.work.findMany(queryArgs)
         .then(works => {
-          return (works as unknown as Work[])
+          return (works as unknown as ServerWork[])
             .filter(work => (artistCount ? work.artists.length === artistCount : true));
         });
 

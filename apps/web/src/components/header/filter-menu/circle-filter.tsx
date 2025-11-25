@@ -13,7 +13,7 @@ import { notifyError } from '~/utils';
 import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
 
-import type { Data } from '~/types/work';
+import type { Data } from '@asmr-collections/shared';
 
 export default function CircleFilter() {
   const { data, isLoading, error } = useSWR<Array<Data<string>>>('/api/field/circle', fetcher, {

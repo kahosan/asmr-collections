@@ -7,7 +7,8 @@ import { settingOptionsAtom } from './use-setting-options';
 import { notifyError } from '~/utils';
 
 import { fetcher } from '~/lib/fetcher';
-import type { Work } from '~/types/work';
+
+import type { Work } from '@asmr-collections/shared';
 
 const useRecommenderAtom = focusAtom(settingOptionsAtom, optic => optic.prop('useAsmrOneRecommender'));
 const asmrOneApi = focusAtom(settingOptionsAtom, optic => optic.prop('asmrOneApi'));

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { HTTPError } from '~/lib/fetcher';
 import { WORK_ID_REGEX } from '~/lib/constants';
 
-import type { Tracks } from '~/types/tracks';
+import type { Tracks } from '@asmr-collections/shared';
 
 export function writeClipboard(text: string, notifyText = '已复制到剪贴板') {
   if (typeof navigator.clipboard === 'undefined') {

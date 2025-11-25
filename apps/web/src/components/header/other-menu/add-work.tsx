@@ -11,12 +11,10 @@ import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { parseWorkInput } from '~/utils';
 import { mutateWorks } from '~/lib/mutation';
 
-import type { WorkCreateResponse } from '~/types/work';
-
 export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [id, setId] = useState<string>('');
 
-  const [createAction, isMutating] = useToastMutation<WorkCreateResponse>('create');
+  const [createAction, isMutating] = useToastMutation<{ message?: string }>('create');
 
   const { validIds, isEmpty, isValid } = parseWorkInput(id);
 

@@ -26,7 +26,7 @@ import { writeClipboard, formatChineseDate } from '~/utils';
 import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
 
-import type { Work } from '~/types/work';
+import type { Work } from '@asmr-collections/shared';
 
 const route = getRouteApi('/work-details/$id');
 

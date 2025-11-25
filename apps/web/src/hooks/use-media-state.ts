@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
-import type { Track } from '~/types/tracks';
-import type { Work } from '~/types/work';
+
+import type { Work, Track } from '@asmr-collections/shared';
 
 export interface SubtitleInfo {
   title: string

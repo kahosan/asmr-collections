@@ -1,4 +1,4 @@
-import type { WorkInfoResp } from '~/types/collection';
+import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 import { Hono } from 'hono';
 import { createCachified, ttl } from '~/lib/cachified';
 import { getPrisma } from '~/lib/db';
@@ -6,7 +6,7 @@ import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
 import { formatError } from '~/router/utils';
 
-const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResp | null>({
+const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResponse<ServerWork> | null>({
   ttl: ttl.day(1)
 });
 
@@ -90,7 +90,7 @@ infoApp.get('/info/:id', async c => {
   }
 });
 
-async function getInfo(id: string): Promise<WorkInfoResp | null> {
+async function getInfo(id: string): Promise<WorkInfoResponse<ServerWork> | null> {
   const data = await fetchWorkInfo(id);
 
   if (!data)

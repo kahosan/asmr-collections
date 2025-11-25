@@ -24,7 +24,7 @@ import { notifyError, writeClipboard } from '~/utils';
 import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';
 
-import type { Work } from '~/types/work';
+import type { Work } from '@asmr-collections/shared';
 
 interface Props {
   work: Work

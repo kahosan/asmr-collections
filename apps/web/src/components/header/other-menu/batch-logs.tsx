@@ -8,12 +8,12 @@ import { CopyIcon, Loader2 } from 'lucide-react';
 
 import { useState } from 'react';
 
-import type { LogType } from '~/types/batch';
+import type { BatchLogType } from '@asmr-collections/shared';
 
 interface BatchLogsProps {
   onClick: () => void
   isProcessing: boolean
-  logs: Array<{ id: string, type: LogType, message: string }>
+  logs: Array<{ id: string, type: BatchLogType, message: string }>
 }
 
 export default function BatchLogs({ onClick, logs, isProcessing }: BatchLogsProps) {

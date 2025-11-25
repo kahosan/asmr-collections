@@ -36,8 +36,7 @@ import { extractFileExt } from '~/utils';
 
 import type { MediaTrack, SubtitleInfo } from '~/hooks/use-media-state';
 
-import type { Tracks } from '~/types/tracks';
-import type { Work } from '~/types/work';
+import type { Work, Tracks } from '@asmr-collections/shared';
 
 interface TracksTableProps {
   work: Work

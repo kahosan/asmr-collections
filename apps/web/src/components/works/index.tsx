@@ -7,7 +7,7 @@ import { useSearch } from '@tanstack/react-router';
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
 
-import type { WorksResponse } from '~/types/works';
+import type { WorksResponse } from '@asmr-collections/shared';
 
 export default function Works() {
   const search = useSearch({ from: '/' });

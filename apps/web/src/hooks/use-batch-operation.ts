@@ -7,11 +7,11 @@ import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
 import { notifyError, parseWorkInput, writeClipboard } from '~/utils';
 
-import type { LogType, SSEData, SSEEvent } from '~/types/batch';
+import type { BatchLogType, BatchSSEData, BatchSSEEvent } from '@asmr-collections/shared';
 
 export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (open: boolean) => void, isSync = false) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [logs, setLogs] = useImmer<Array<{ id: string, type: LogType, message: string }>>([]);
+  const [logs, setLogs] = useImmer<Array<{ id: string, type: BatchLogType, message: string }>>([]);
   const [progress, setProgress] = useState({ current: 0, total: 0, percent: 0 });
   const [createIds, setCreateIds] = useState<string>('');
 
@@ -57,7 +57,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       eventSourceRef.current = es;
 
       // 通用处理函数
-      const handleEvent = (id: string, event: SSEEvent, data: string) => {
+      const handleEvent = (id: string, event: BatchSSEEvent, data: string) => {
         if (!data) {
           logger.warn({ event, data }, 'SSE 收到空数据，忽略');
           return;
@@ -71,7 +71,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
           return;
         }
 
-        match({ id, event, data: parsedData } as SSEData)
+        match({ id, event, data: parsedData } as BatchSSEData)
           .with(({ event: 'start' }), ({ data }) => {
             const { total, message } = data;
             setProgress({ current: 0, total, percent: 0 });

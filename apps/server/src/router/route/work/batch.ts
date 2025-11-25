@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-loop-func -- batch */
 /* eslint-disable no-await-in-loop -- batch */
+import type { BatchResult, BatchSendEventFn, BatchSSEEvent, BatchSSEEvents } from '@asmr-collections/shared';
 import type { SSEStreamingApi } from 'hono/streaming';
-import type { BatchResult, BatchSSEEvent, BatchSSEEvents, SendEventFn } from '~/types/batch';
 import type { WorkInfo } from '~/types/source';
 import { randomUUID } from 'node:crypto';
 import { newQueue } from '@henrygd/queue/rl';
@@ -349,7 +349,7 @@ function handleAbort() {
   createQueue.clear();
 };
 
-function createSendEvent(stream: SSEStreamingApi): SendEventFn {
+function createSendEvent(stream: SSEStreamingApi): BatchSendEventFn {
   return async <K extends BatchSSEEvent>(
     event: K,
     data: BatchSSEEvents[K]
@@ -369,7 +369,7 @@ function createSendEvent(stream: SSEStreamingApi): SendEventFn {
 async function fetchValidData(
   ids: string[],
   abortSignal: AbortSignal,
-  sendEvent: SendEventFn,
+  sendEvent: BatchSendEventFn,
   sendProgress: () => Promise<void>,
   changeCurrentStep: () => void
 ) {

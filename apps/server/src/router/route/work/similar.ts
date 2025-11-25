@@ -1,4 +1,4 @@
-import type { Work } from '~/types/collection';
+import type { ServerWork } from '@asmr-collections/shared';
 import { Hono } from 'hono';
 import * as z from 'zod';
 import { createCachified, ttl } from '~/lib/cachified';
@@ -7,7 +7,7 @@ import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 
-const [similarCache] = createCachified<Work[]>();
+const [similarCache] = createCachified<ServerWork[]>();
 
 export const similarApp = new Hono();
 
@@ -57,7 +57,7 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
 async function getSimilar(id: string) {
   const prisma = getPrisma();
 
-  const data = await prisma.$queryRaw<Work[]>`
+  const data = await prisma.$queryRaw<ServerWork[]>`
       WITH target_work AS (
         SELECT embedding 
         FROM "Work" 

@@ -1,6 +1,5 @@
-import type { Work } from '~/types/collection';
+import type { ServerWork, Tracks } from '@asmr-collections/shared';
 import type { Recommender } from '~/types/provider/asmr-one';
-import type { Tracks } from '~/types/tracks';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 import { processArtists } from '~/router/route/work/info';
 
@@ -17,7 +16,7 @@ export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
   };
 }
 
-export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): Promise<Work[]> {
+export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): Promise<ServerWork[]> {
   try {
     const data = await fetcher<Recommender>(`${asmrOneApi}/api/recommender/item-neighbors`, {
       method: 'POST',
