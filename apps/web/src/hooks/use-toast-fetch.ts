@@ -33,7 +33,13 @@ interface ToastcherOptions<T> {
   toastOps?: ToastOps<T>
 }
 
-type ToastMutationKeys = 'delete' | 'create' | 'refresh' | 'upload' | 'sync' | (string & {});
+type ToastMutationKeys =
+  | 'delete'
+  | 'create'
+  | 'refresh'
+  | 'upload'
+  | 'subtitles'
+  | `clear-${string}-cache`;
 
 export function useToastMutation<T>(key: ToastMutationKeys) {
   const { trigger, isMutating, ...rest } = useSWRMutation(
