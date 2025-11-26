@@ -16,6 +16,8 @@
     "paths": {
       "~/*": ["./src/*"]
     },
+
+    "types": ["vite/client", "unplugin-info/client"],
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "verbatimModuleSyntax": true,
