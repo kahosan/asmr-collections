@@ -24,7 +24,7 @@
     "eslint-config-kaho": "4.0.0",
     "lint-staged": "^16.1.2",
     "simple-git-hooks": "^2.13.0",
-    "typescript": "^5.8.3"
+    "typescript": "~5.9.3"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged && pnpm typecheck"
