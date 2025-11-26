@@ -19,14 +19,11 @@ export default kaho(
       'packages/**/*.ts'
     ],
     rules: {
-      ...sorting.rules,
-      'no-console': 'off'
+      ...sorting.rules
     }
   },
   {
-    rules: {
-      'import-x/no-unresolved': 'off',
-      'react-hooks/purity': 'off'
-    }
+    files: ['apps/server/**/*.ts'],
+    rules: { 'no-console': 'off' }
   }
 );
