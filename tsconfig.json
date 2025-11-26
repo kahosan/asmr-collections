@@ -1,5 +1,4 @@
 {
-  "files": [],
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "composite": false
@@ -8,5 +7,6 @@
     { "path": "./apps/web/tsconfig.json" },
     { "path": "./apps/server/tsconfig.json" },
     { "path": "./packages/shared/tsconfig.json" }
-  ]
+  ],
+  "files": []
 }

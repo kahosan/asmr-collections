@@ -4,29 +4,26 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
     "target": "esnext",
     "lib": ["ESNext", "DOM"],
+    "moduleDetection": "force",
     "module": "ESNext",
-    "skipLibCheck": true,
 
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "emitDeclarationOnly": true,
-
-    "outDir": "dist",
-    "sourceMap": true,
-
-    "composite": true,
     "declaration": true,
     "declarationMap": true,
 
+    "emitDeclarationOnly": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
     "strict": true,
     "strictNullChecks": true,
+    "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "skipLibCheck": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
 }

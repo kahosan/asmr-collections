@@ -27,13 +27,13 @@
     "typescript": "^5.8.3"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged && pnpm typecheck"
+    "pre-commit": "npx lint-staged && pnpm typecheck"
   },
   "lint-staged": {
     "src/**/*.{js,cjs,mjs,ts,cts,mts}": [
       "eslint --fix"
     ],
-    "package.json": [
+    "*.json": [
       "eslint --fix"
     ]
   }
