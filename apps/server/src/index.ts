@@ -1,15 +1,16 @@
 /* eslint-disable antfu/no-top-level-await -- disabled in this file */
-import * as fs from 'node:fs/promises';
-
 import path from 'node:path';
+import fs from 'node:fs/promises';
+
 import { Hono } from 'hono';
-import { serveStatic } from 'hono/bun';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
-import { COVERS_PATH } from './lib/constant';
+import { serveStatic } from 'hono/bun';
+
 import { api } from './router';
 import { mediaApp } from './router/media';
 import { proxyApp } from './router/proxy';
+import { COVERS_PATH } from './lib/constant';
 
 const CLIENT_DIST = path.resolve(import.meta.dirname, '../../web/dist');
 const COVERS_DIR = path.resolve(process.cwd(), 'covers');

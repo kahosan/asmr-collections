@@ -3,12 +3,12 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { formatError, workIsExistsInDB } from '~/router/utils';
 
+import { infoApp } from './info';
 import { batchApp } from './batch';
 import { createApp } from './create';
 import { deleteApp } from './delete';
-import { infoApp } from './info';
-import { similarApp } from './similar';
 import { updateApp } from './update';
+import { similarApp } from './similar';
 
 export const workApp = new Hono()
   .route('/', createApp)

@@ -1,10 +1,12 @@
-import type { Cache, CacheEntry, CachifiedOptions, GetFreshValue } from '@epic-web/cachified';
 import type { Context, ExecutionContext } from 'hono';
+import type { Cache, CacheEntry, CachifiedOptions, GetFreshValue } from '@epic-web/cachified';
+
 import cachified, { softPurge, totalTtl, verboseReporter } from '@epic-web/cachified';
-import { redisCacheAdapter } from 'cachified-redis-adapter';
+
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- use cachified
 import { LRUCache } from 'lru-cache';
 import { createClient } from 'redis';
+import { redisCacheAdapter } from 'cachified-redis-adapter';
 
 import { IS_WORKERS, REDIS_URL } from './constant';
 

@@ -1,16 +1,22 @@
 /* eslint-disable @typescript-eslint/no-loop-func -- batch */
 /* eslint-disable no-await-in-loop -- batch */
-import type { BatchResult, BatchSendEventFn, BatchSSEEvent, BatchSSEEvents } from '@asmr-collections/shared';
+
 import type { SSEStreamingApi } from 'hono/streaming';
+import type { BatchResult, BatchSendEventFn, BatchSSEEvent, BatchSSEEvents } from '@asmr-collections/shared';
+
 import type { WorkInfo } from '~/types/source';
+
 import { randomUUID } from 'node:crypto';
-import { newQueue } from '@henrygd/queue/rl';
+
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
+import { newQueue } from '@henrygd/queue/rl';
+
 import { getPrisma } from '~/lib/db';
-import { fetchWorkInfo } from '~/lib/dlsite';
 import { HTTPError } from '~/lib/fetcher';
+import { fetchWorkInfo } from '~/lib/dlsite';
 import { formatError, generateEmbedding, getAllLocalVoiceLibraryIds, saveCoverImage } from '~/router/utils';
+
 import { createWork } from './create';
 import { updateWork } from './update';
 

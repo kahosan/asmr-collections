@@ -17,10 +17,7 @@ export default kaho(
     files: [
       'apps/server/**/*.ts',
       'packages/**/*.ts'
-    ],
-    rules: {
-      ...sorting.rules
-    }
+    ]
   },
   {
     files: ['apps/server/**/*.ts'],

@@ -1,6 +1,6 @@
 /* eslint-disable antfu/no-top-level-await -- */
-import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaNeon } from '@prisma/adapter-neon';
 
 import { IS_WORKERS } from './constant';
 import { PrismaClient as PrismaClientWorkers } from './prisma-workers/client';
