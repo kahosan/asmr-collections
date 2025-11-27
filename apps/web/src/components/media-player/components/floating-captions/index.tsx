@@ -94,7 +94,7 @@ export default function FloatingCaptions() {
       <div
         id="floating-captions"
         className={cn(
-          'bg-gray-400/60 text-blue-600 dark:bg-accent/70 dark:text-blue-400',
+          'bg-gray-400/60 text-blue-600 dark:bg-accent/70 dark:text-blue-400 backdrop-blur-md',
           'rounded-sm min-w-dvw text-center min-h-8 px-4 py-1',
           'text-xl touch-none',
           'flex flex-wrap items-center justify-center'
