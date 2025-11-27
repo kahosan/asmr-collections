@@ -30,6 +30,5 @@
     "erasableSyntaxOnly": true,
     "noUncheckedSideEffectImports": true
   },
-  "references": [{ "path": "../../packages/shared/tsconfig.json" }],
   "include": ["src", "cloudflare", "prisma.config.ts"]
 }

@@ -31,6 +31,5 @@
     "erasableSyntaxOnly": true,
     "noUncheckedSideEffectImports": true
   },
-  "references": [{ "path": "../../packages/shared/tsconfig.json" }],
   "include": ["src", "vite.config.ts"]
 }

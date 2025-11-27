@@ -15,7 +15,7 @@
     "server:migration": "pnpm --filter @asmr-collections/server migration:deploy",
     "server:migration:dev": "pnpm --filter @asmr-collections/server migration:dev",
     "server:status": "pnpm --filter @asmr-collections/server status",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc -b --noEmit",
     "release": "pnpx bumpp --no-push -r",
     "postinstall": "npx simple-git-hooks"
   },
