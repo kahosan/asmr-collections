@@ -64,7 +64,7 @@ export default function VideoItem({ track, tracks, work }: VideoItemProps) {
         <video
           controls
           src={currentTrack.mediaDownloadUrl}
-          className="rounded-sm"
+          className="rounded-sm min-w-full min-h-40 sm:min-h-70"
           onPlaying={onPlaying}
         />
         <DialogFooter className="gap-3">
