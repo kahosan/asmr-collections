@@ -1,5 +1,6 @@
 import { MenubarContent, MenubarMenu, MenubarTrigger, MenubarSeparator, MenubarItem, MenubarShortcut } from '~/components/ui/menubar';
 
+import RandomWork from './random-work';
 import AddWorkDialog from './add-work';
 import BatchAddDialog from './batch-add';
 import BatchUpdateDialog from './batch-update';
@@ -50,6 +51,8 @@ export default function OtherMenu() {
             批量更新
             <MenubarShortcut>⌘U</MenubarShortcut>
           </MenubarItem>
+          <MenubarSeparator />
+          <RandomWork />
           <MenubarItem onClick={() => setShowSyncVoiceLibraryDialog(p => !p)} className="cursor-pointer" disabled={!useVoiceLibrary}>
             同步音声库
           </MenubarItem>

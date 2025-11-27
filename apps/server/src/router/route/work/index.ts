@@ -7,6 +7,7 @@ import { infoApp } from './info';
 import { batchApp } from './batch';
 import { createApp } from './create';
 import { deleteApp } from './delete';
+import { randomApp } from './random';
 import { updateApp } from './update';
 import { similarApp } from './similar';
 
@@ -16,7 +17,8 @@ export const workApp = new Hono()
   .route('/', infoApp)
   .route('/', updateApp)
   .route('/', similarApp)
-  .route('/', batchApp);
+  .route('/', batchApp)
+  .route('/', randomApp);
 
 workApp.get('/:id', async c => {
   const { id } = c.req.param();

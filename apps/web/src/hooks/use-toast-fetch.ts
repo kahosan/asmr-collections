@@ -39,6 +39,7 @@ type ToastMutationKeys =
   | 'refresh'
   | 'upload'
   | 'subtitles'
+  | 'random'
   | `clear-${string}-cache`;
 
 export function useToastMutation<T>(key: ToastMutationKeys) {
