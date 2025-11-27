@@ -7,6 +7,8 @@ import { readdir } from 'node:fs/promises';
 
 import * as fs from 'node:fs/promises';
 
+import { WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
+
 import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 import { COVERS_PATH, HOST_URL, IS_WORKERS, VOICE_LIBRARY } from '~/lib/constant';
@@ -147,7 +149,7 @@ export async function getAllLocalVoiceLibraryIds() {
 
   return readdir(VOICE_LIBRARY, { withFileTypes: true }).then(dir => {
     return dir.reduce<string[]>((ids, file) => {
-      if (file.isDirectory() && /^(?:RJ|BJ|VJ)\d{6,8}$/.test(file.name))
+      if (file.isDirectory() && WORK_ID_EXACT_REGEX.test(file.name))
         ids.push(file.name);
       return ids;
     }, []);

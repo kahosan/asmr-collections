@@ -1,14 +1,14 @@
+import { extname } from '@asmr-collections/shared';
+
 import { fetcher } from '~/lib/fetcher';
 import { logger } from '~/lib/logger';
 
 import { decodeText, lrcToVtt } from '~/lib/subtitle-matcher';
 
-import { extractFileExt } from '~/utils';
-
 export async function fetchTextTrackContent(src?: string) {
   if (!src) return;
 
-  const fileType = extractFileExt(src).toLowerCase();
+  const fileType = extname(src).toLowerCase();
 
   try {
     const data = await fetcher<string | ArrayBuffer>(src);

@@ -325,6 +325,9 @@ importers:
 
   packages/shared:
     dependencies:
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
       zod:
         specifier: ^4.1.12
         version: 4.1.12

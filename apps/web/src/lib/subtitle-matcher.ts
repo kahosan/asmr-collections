@@ -1,5 +1,6 @@
 import Fuse from 'fuse.js';
-import { extractFileExt } from '~/utils';
+
+import { extname } from '@asmr-collections/shared';
 
 import { HttpReader, Uint8ArrayWriter, ZipReader } from '@zip.js/zip.js';
 
@@ -76,7 +77,7 @@ export function collectSubtitles(data: Tracks | undefined | null, recursive = fa
   const supportedExtensions = new Set(['srt', 'lrc', 'vtt']);
 
   function processItem(item: Tracks[number]) {
-    if (item.type === 'text' && supportedExtensions.has(extractFileExt(item.title))) {
+    if (item.type === 'text' && supportedExtensions.has(extname(item.title))) {
       const url = item.mediaDownloadUrl;
       if (url) {
         subtitles.push({
@@ -112,7 +113,7 @@ export async function readerZipFileSubtitles(src: string): Promise<SubtitleInfo[
     if (entry.directory) continue;
 
     let filename = decodeText(entry.rawFilename);
-    const ext = extractFileExt(filename);
+    const ext = extname(filename);
 
     filename = filename.split('/').pop() || filename;
 

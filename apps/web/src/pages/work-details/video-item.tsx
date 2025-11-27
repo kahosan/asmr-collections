@@ -5,7 +5,7 @@ import { FileVideo } from 'lucide-react';
 
 import { useCallback, useState } from 'react';
 
-import { formatDuration } from '~/utils';
+import { formatDuration } from '@asmr-collections/shared';
 
 import type { Work, Track, Tracks } from '@asmr-collections/shared';
 

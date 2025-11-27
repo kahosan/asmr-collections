@@ -5,6 +5,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 
 import { MenuIcon } from 'lucide-react';
 
+import { extname } from '@asmr-collections/shared';
+
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -12,7 +14,6 @@ import { useAtomValue } from 'jotai';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
-import { extractFileExt } from '~/utils';
 import { mutateWorks } from '~/lib/mutation';
 
 import type { Work } from '@asmr-collections/shared';
@@ -184,7 +185,7 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
 
     const file = subtitles[0];
 
-    const fileExt = extractFileExt(file.name);
+    const fileExt = extname(file.name);
     const fileSize = file.size;
 
     if (!['zip'].includes(fileExt) || fileSize > 2 * 1024 * 1024) {

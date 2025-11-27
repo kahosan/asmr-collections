@@ -2,7 +2,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, Con
 
 import { FileMusic } from 'lucide-react';
 
-import { formatDuration } from '~/utils';
+import { formatDuration } from '@asmr-collections/shared';
 
 import type { MediaTrack } from '~/hooks/use-media-state';
 

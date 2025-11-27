@@ -15,6 +15,7 @@
     "sourceMap": true,
     "outDir": "dist",
 
+    "isolatedDeclarations": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,

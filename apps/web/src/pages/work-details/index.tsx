@@ -3,6 +3,8 @@ import { getRouteApi, Link, useMatchRoute } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Activity, useCallback } from 'react';
 
+import { formatChineseDate } from '@asmr-collections/shared';
+
 import { ImageIcon, MicIcon } from 'lucide-react';
 
 import { Card } from '~/components/ui/card';
@@ -21,7 +23,7 @@ import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { useWorkDetailsTracks } from '~/hooks/use-work-details';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
-import { writeClipboard, formatChineseDate } from '~/utils';
+import { writeClipboard } from '~/utils';
 
 import { cn } from '~/lib/utils';
 import { fetcher } from '~/lib/fetcher';

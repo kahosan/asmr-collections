@@ -21,6 +21,8 @@ import { mediaStateAtom } from '~/hooks/use-media-state';
 import LightGallery from 'lightgallery/react';
 import type { LightGallery as LightGalleryType } from 'lightgallery/lightgallery';
 
+import { extname } from '@asmr-collections/shared';
+
 import lgZoom from 'lightgallery/plugins/zoom';
 import lgRotate from 'lightgallery/plugins/rotate';
 import lgThumbnail from 'lightgallery/plugins/thumbnail';
@@ -31,8 +33,6 @@ import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-thumbnail.css';
 
 import { SubtitleMatcher, collectSubtitles } from '../../lib/subtitle-matcher';
-
-import { extractFileExt } from '~/utils';
 
 import type { MediaTrack, SubtitleInfo } from '~/hooks/use-media-state';
 
@@ -200,7 +200,7 @@ export default function TracksTabale({ work, tracks, searchPath, externalSubtitl
               groupByType?.media?.map(item => {
                 const isCurrentTrack = mediaState.currentTrack?.title === item.title;
                 const videoFt = ['mp4', 'mkv', 'avi', 'mov'];
-                const isVideo = videoFt.includes(extractFileExt(item.title).toLowerCase());
+                const isVideo = videoFt.includes(extname(item.title).toLowerCase());
 
                 const textUrl = item.mediaStreamUrl;
 

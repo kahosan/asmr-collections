@@ -1,8 +1,9 @@
-import type { ExternalToast } from 'sonner';
 import { toast } from 'sonner';
+import type { ExternalToast } from 'sonner';
+
+import { extname, WORK_ID_REGEX } from '@asmr-collections/shared';
 
 import { HTTPError } from '~/lib/fetcher';
-import { WORK_ID_REGEX } from '~/lib/constants';
 
 import type { Tracks } from '@asmr-collections/shared';
 
@@ -42,41 +43,6 @@ export function notifyError(error: unknown, text: string, options?: ExternalToas
   });
 }
 
-// 使用 >>> 0 处理无后缀情况：lastIndexOf 返回 -1 时转为超大正数
-export function extractFileExt(name: string) {
-  return name.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2);
-}
-
-function formatTimeUnit(unit: number) {
-  return String(unit).padStart(2, '0');
-}
-
-export function formatDuration(seconds: number) {
-  const hrs = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  if (hrs > 0)
-    return `${formatTimeUnit(hrs)}:${formatTimeUnit(mins)}:${formatTimeUnit(secs)}`;
-
-  return `${formatTimeUnit(mins)}:${formatTimeUnit(secs)}`;
-}
-
-/**
- * 格式化日期为中文格式
- * @param dateString - ISO 日期字符串
- * @returns 格式化后的日期字符串，如 "2025年11月18日 0时"
- */
-export function formatChineseDate(dateString: string) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hour = date.getHours();
-
-  return `${year}年${month}月${day}日 ${hour}时`;
-}
-
 /**
  * 查找包含目标文件类型的路径
  * @param tracks - 轨道数据
@@ -106,7 +72,7 @@ export function findSmartPath(tracks: Tracks, patterns: string[]): string[] | un
 
   function searchInTracksForPattern(items: Tracks, pattern: string, currentPath: string[] = []): string[] | undefined {
     const item = items.find(i => i.type === 'audio');
-    const ext = extractFileExt(item?.title ?? '').toLowerCase();
+    const ext = extname(item?.title ?? '').toLowerCase();
     if (ext === pattern)
       return currentPath;
 
