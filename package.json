@@ -20,8 +20,8 @@
     "postinstall": "npx simple-git-hooks"
   },
   "devDependencies": {
-    "eslint": "^9.33.0",
-    "eslint-config-kaho": "4.0.0",
+    "eslint": "^9.39.1",
+    "eslint-config-kaho": "4.0.1",
     "lint-staged": "^16.1.2",
     "simple-git-hooks": "^2.13.0",
     "typescript": "~5.9.3"
