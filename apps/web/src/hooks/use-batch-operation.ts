@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
+import { mutateWorks } from '~/lib/mutation';
 import { notifyError, parseWorkInput, writeClipboard } from '~/utils';
 
 import type { BatchLogType, BatchSSEData, BatchSSEEvent } from '@asmr-collections/shared';
@@ -115,6 +116,7 @@ export default function useBatchOperation(type: 'refresh' | 'create', setOpen: (
       es.addEventListener('log', e => handleEvent(e.lastEventId, 'log', e.data));
       es.addEventListener('end', e => {
         handleEvent(e.lastEventId, 'end', e.data);
+        mutateWorks();
         es.close();
       });
 
