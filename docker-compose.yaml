@@ -1,6 +1,6 @@
 services:
   asmr-collections:
-    image: asmr-collections:latest
+    image: ghcr.io/kahosan/asmr-collections:latest
     container_name: asmr_collections
     ports:
       - "3000:3000"

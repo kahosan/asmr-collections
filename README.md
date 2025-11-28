@@ -32,7 +32,7 @@ curl -O https://raw.githubusercontent.com/kahosan/asmr-collections/main/docker-c
 # 如果要使用本地库，取消注释 VOICE_LIBRARY_PATH 和 HOST_URL 两行，并将 HOST_URL 修改为你的访问地址
 
 # 启动服务
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 本地运行
