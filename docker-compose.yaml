@@ -24,7 +24,7 @@ services:
 
   database:
     container_name: asmr_postgres
-    image: pgvector/pgvector:pg17
+    image: pgvector/pgvector:pg17-bookworm
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret # 请修改为更安全的密码
