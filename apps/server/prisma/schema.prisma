@@ -2,33 +2,33 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client"
-  output          = "../src/lib/prisma"
+  provider = "prisma-client"
+  output   = "../src/lib/prisma"
 
   runtime = "bun"
 }
 
 generator workers {
-  provider        = "prisma-client"
-  output          = "../src/lib/prisma-workers"
+  provider = "prisma-client"
+  output   = "../src/lib/prisma-workers"
 
   runtime = "workerd"
 }
 
 datasource db {
-  provider   = "postgresql"
+  provider = "postgresql"
 }
 
 // Work Model
 model Work {
-  id               String                 @id
+  id               String                       @id
   name             String
   cover            String
   intro            String
   circleId         String
-  circle           Circle                 @relation(fields: [circleId], references: [id])
+  circle           Circle                       @relation(fields: [circleId], references: [id])
   seriesId         String?
-  series           Series?                @relation(fields: [seriesId], references: [id])
+  series           Series?                      @relation(fields: [seriesId], references: [id])
   artists          Artist[]
   illustrators     Illustrator[]
   ageCategory      Int
@@ -42,12 +42,14 @@ model Work {
   originalId       String?
   translationInfo  TranslationInfo?
   languageEditions Json[]
-  subtitles        Boolean                @default(false)
+  subtitles        Boolean                      @default(false)
   subtitlesData    SubtitlesData?
   embedding        Unsupported("vector(1024)")?
   releaseDate      DateTime
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  @@index([embedding], map: "Work_embedding_HNSW")
 }
 
 model Circle {
