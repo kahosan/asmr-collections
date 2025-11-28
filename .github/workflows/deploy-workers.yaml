@@ -1,0 +1,53 @@
+name: Deploy Workers
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm run server:build
+
+      - name: Copy dist to apps/server
+        run: |
+          mv apps/web/dist apps/server/
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'apps/server'
+          command: deploy
+          secrets: |
+            DATABASE_URL
+            JINA_API_KEY
+          environment: production
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
+          RUNTIME: 'workers' 
