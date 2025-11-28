@@ -68,7 +68,7 @@ set -e
 : "${DATABASE_URL:? Error: DATABASE_URL environment variable is not set.}"
 
 echo -n "DATABASE_URL is set, starting migration..."
-bunx prisma migrate deploy
+bunx prisma@7.0.0 migrate deploy
 
 echo -n "Starting the server..."
 exec bun ./index.js
