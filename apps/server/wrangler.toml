@@ -10,6 +10,13 @@ RUNTIME = "workers"
 directory = "./dist"
 binding = "ASSETS"
 
+[env.production]
+name = "asmr-collections"
+workers_dev = true
+
+[env.production.vars]
+RUNTIME = "workers"
+
 [observability]
 [observability.logs]
 enabled = true
