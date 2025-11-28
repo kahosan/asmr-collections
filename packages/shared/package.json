@@ -18,5 +18,8 @@
     "pathe": "^2.0.3",
     "ufo": "^1.6.1",
     "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
   }
 }

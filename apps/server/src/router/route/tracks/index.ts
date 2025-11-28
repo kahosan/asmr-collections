@@ -7,14 +7,14 @@ import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { newQueue } from '@henrygd/queue';
 import { parseFile } from 'music-metadata';
-import { joinURL } from '@asmr-collections/shared';
+import { exists, joinURL } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
 import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { createCachified, ttl } from '~/lib/cachified';
-import { formatError, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
+import { formatError, getVoiceLibraryEnv } from '~/router/utils';
 
 const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
@@ -54,7 +54,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
     const { VOICE_LIBRARY } = getVoiceLibraryEnv();
 
     const workPath = join(VOICE_LIBRARY, id);
-    const workIsExist = await hasExistsInLocal(workPath);
+    const workIsExist = await exists(workPath);
     if (!workIsExist)
       return c.json({ message: '作品不存在于本地音声库' }, 404);
 

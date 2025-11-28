@@ -2,14 +2,14 @@ import type { ServerWork } from '@asmr-collections/shared';
 
 import type { Prisma, PrismaClient } from '~/lib/prisma/client';
 
-import { join } from 'node:path';
+import { readdir } from 'node:fs/promises';
 
 import { Hono } from 'hono';
 import { IndexSearchQuerySchema } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { formatError, generateEmbedding, getVoiceLibraryEnv, hasExistsInLocal } from '~/router/utils';
+import { formatError, generateEmbedding, getVoiceLibraryEnv } from '~/router/utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -251,25 +251,20 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
 async function getLocalWorkIds(voiceLibrary: string) {
   const prisma = getPrisma();
 
+  const files = await readdir(voiceLibrary);
+  const st = new Set(files);
+
   const ids = await prisma.work.findMany({ select: { id: true } });
 
-  const results = await Promise.all(
-    ids.map(async ({ id }) => ({
-      id,
-      exists: await hasExistsInLocal(join(voiceLibrary, id))
-    }))
-  );
+  const existsIds: string[] = [];
+  const noExistsIds: string[] = [];
 
-  const { existsIds, noExistsIds } = results.reduce<Record<'existsIds' | 'noExistsIds', string[]>>(
-    (acc, { id, exists }) => {
-      if (exists)
-        acc.existsIds.push(id);
-      else
-        acc.noExistsIds.push(id);
-      return acc;
-    },
-    { existsIds: [], noExistsIds: [] }
-  );
+  ids.forEach(({ id }) => {
+    if (st.has(id))
+      existsIds.push(id);
+    else
+      noExistsIds.push(id);
+  });
 
   return { existsIds, noExistsIds };
 }

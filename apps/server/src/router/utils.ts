@@ -1,26 +1,13 @@
-import type { PathLike } from 'node:fs';
-
 import type { WorkInfo } from '~/types/source';
 
 import { join } from 'node:path';
 import { readdir } from 'node:fs/promises';
 
-import * as fs from 'node:fs/promises';
-
-import { WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
+import { exists, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 import { COVERS_PATH, HOST_URL, IS_WORKERS, VOICE_LIBRARY } from '~/lib/constant';
-
-export async function hasExistsInLocal(path: PathLike): Promise<boolean> {
-  try {
-    await fs.stat(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export function workIsExistsInDB(id: string) {
   const prisma = getPrisma();
@@ -110,7 +97,7 @@ export async function saveCoverImage(url: string, id: string) {
   }
 
   const coverPath = join(COVERS_PATH, id + '.jpg');
-  if (await hasExistsInLocal(coverPath))
+  if (await exists(coverPath))
     return coverPath.replace(process.cwd(), '');
 
   const normalizedUrl = url.startsWith('//') ? 'https:' + url : url;
