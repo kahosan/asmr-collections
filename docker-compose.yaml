@@ -32,7 +32,7 @@ services:
     volumes:
       - ./pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
     restart: unless-stopped
 
   redis:
