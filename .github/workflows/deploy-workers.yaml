@@ -44,7 +44,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: "apps/server"
-          preCommand: pnpm run migration:deploy
+          preCommands: pnpm run migration:deploy
           command: deploy
           secrets: |
             DATABASE_URL
