@@ -12,7 +12,7 @@ import { mediaApp } from './router/media';
 import { proxyApp } from './router/proxy';
 import { COVERS_PATH } from './lib/constant';
 
-const CLIENT_DIST = path.resolve(import.meta.dirname, '../../web/dist');
+const CLIENT_DIST = process.env.DIST_PATH || path.resolve(import.meta.dirname, '../../web/dist');
 const COVERS_DIR = path.resolve(process.cwd(), 'covers');
 
 export const app = new Hono();
@@ -83,6 +83,23 @@ try {
 
 const port = process.env.PORT || 3000;
 console.info(`Server listening on port ${port}`);
+
+async function shutdown() {
+  console.info('Shutting down server...');
+
+  try {
+    console.info('Disconnecting from database...');
+    const prisma = (await import('./lib/db')).getPrisma();
+    await prisma.$disconnect();
+  } catch (error) {
+    console.error('\nError during shutdown:', error);
+  }
+
+  process.exit(0);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 export default {
   port,

@@ -11,8 +11,31 @@
 
 - 需要一个 postgres 数据库，本地或白嫖网上的都可以
 - 运行的机器需要安装 `pm2` 和 [`bun`](https://bun.sh/docs/installation)
+- 或者直接使用 Docker
 
 ## 使用方法
+
+### Docker
+
+```bash
+mkdir asmr-collections
+cd asmr-collections
+
+# 创建 covers 目录用于存放封面
+mkdir covers
+
+# 复制 docker-compose.yaml 文件到当前目录
+curl -O https://raw.githubusercontent.com/kahosan/asmr-collections/main/docker-compose.yaml
+
+# 修改 docker-compose.yaml 中的环境变量
+# JINA_API_KEY 填入从 jina.ai 获取的 key
+# 如果要使用本地库，取消注释 VOICE_LIBRARY_PATH 和 HOST_URL 两行，并将 HOST_URL 修改为你的访问地址
+
+# 启动服务
+docker-compose up -d
+```
+
+### 本地运行
 
 ```bash
 # 将 repo clone 到本地
@@ -48,7 +71,7 @@ pm2 start pnpm --name asmr-collections -- run server:build-start
 
 当没有启用本地库时，会从 [asmr.one](https://asmr.one) 获取作品数据，并支持在线播放
 
-本地库功能需要在 `.env` 文件中填写本地库的路径与你部署的网站的域名（默认是本地地址，如果你部署在局域网内的某部机器上并且没有配置反向代理，可以用 <机器 IP>:3000）
+本地库功能需要在 `.env` 文件中或 compose 文件中填写本地库的路径与你部署的网站的域名（默认是本地地址，如果你部署在局域网内的某部机器上并且没有配置反向代理，可以用 <机器 IP>:3000）
 
 本地库内的文件夹，都需要是以 RJ、VJ、BJ 号命名的文件夹，否则无法识别
 
@@ -62,7 +85,7 @@ pm2 start pnpm --name asmr-collections -- run server:build-start
 
 ## TODO
 
-- [ ] Docker 支持
+- [x] Docker 支持
 
 ...
 
