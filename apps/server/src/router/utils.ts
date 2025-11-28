@@ -111,7 +111,7 @@ export async function saveCoverImage(url: string, id: string) {
 
   const coverPath = join(COVERS_PATH, id + '.jpg');
   if (await hasExistsInLocal(coverPath))
-    return;
+    return coverPath.replace(process.cwd(), '');
 
   const normalizedUrl = url.startsWith('//') ? 'https:' + url : url;
 
