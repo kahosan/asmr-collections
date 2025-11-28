@@ -23,16 +23,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.node-version'
-          cache: 'pnpm'
+          node-version-file: ".node-version"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Build frontend
         run: pnpm run server:build
 
-      - name: Copy dist to apps/server
+      - name: Move dist to apps/server
         run: |
           mv apps/web/dist apps/server/
 
@@ -41,7 +43,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'apps/server'
+          workingDirectory: "apps/server"
+          preCommand: pnpm run migration:deploy
           command: deploy
           secrets: |
             DATABASE_URL
@@ -50,4 +53,4 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
-          RUNTIME: 'workers' 
+          RUNTIME: "workers"
