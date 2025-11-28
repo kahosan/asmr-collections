@@ -1,0 +1,1 @@
+export { joinURL } from 'ufo';

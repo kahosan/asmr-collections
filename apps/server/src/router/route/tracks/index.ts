@@ -7,10 +7,10 @@ import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { newQueue } from '@henrygd/queue';
 import { parseFile } from 'music-metadata';
+import { joinURL } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
-import { HOST_URL } from '~/lib/constant';
 import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { createCachified, ttl } from '~/lib/cachified';
@@ -130,17 +130,12 @@ async function generateTracks(path: string, basePath: string): Promise<Tracks> {
           .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
           .otherwise(() => 'other' as const);
 
+        const encodename = encodeURIComponent(file.name);
         const item: Track = {
           type: ft,
           title: file.name,
-          mediaDownloadUrl: new URL(
-            `/download${relativePath}/${encodeURIComponent(file.name)}`,
-            HOST_URL
-          ).toString(),
-          mediaStreamUrl: new URL(
-            `/stream${relativePath}/${encodeURIComponent(file.name)}`,
-            HOST_URL
-          ).toString()
+          mediaDownloadUrl: joinURL('/download', relativePath, encodename),
+          mediaStreamUrl: joinURL('/stream', relativePath, encodename)
         };
 
         if (ft === 'audio') {
