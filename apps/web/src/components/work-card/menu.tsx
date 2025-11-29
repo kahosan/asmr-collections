@@ -27,11 +27,11 @@ export default function Menu({ work }: Props) {
 
   const settingOptions = useAtomValue(settingOptionsAtom);
 
-  const [refreshAction, refreshIsMutating] = useToastMutation('refresh');
+  const [updateAction, updateIsMutating] = useToastMutation('update');
 
-  const handleRefresh = () => {
-    refreshAction({
-      key: `/api/work/refresh/${work.id}`,
+  const handleUpdate = () => {
+    updateAction({
+      key: `/api/work/update/${work.id}`,
       fetchOps: { method: 'PUT' },
       toastOps: {
         loading: `${work.id} 数据更新中...`,
@@ -88,7 +88,7 @@ export default function Menu({ work }: Props) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem disabled={refreshIsMutating} onClick={handleRefresh} className="cursor-pointer">
+          <DropdownMenuItem disabled={updateIsMutating} onClick={handleUpdate} className="cursor-pointer">
             数据更新
           </DropdownMenuItem>
           <DropdownMenuItem

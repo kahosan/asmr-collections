@@ -11,7 +11,7 @@ import { clearSimilarCache } from './similar';
 
 export const updateApp = new Hono();
 
-updateApp.put('/refresh/:id', async c => {
+updateApp.put('/update/:id', async c => {
   const { id } = c.req.param();
 
   try {
@@ -83,7 +83,7 @@ updateApp.put('/upload/subtitles/:id', async c => {
   }
 });
 
-updateApp.put('/refresh/embedding/:id', async c => {
+updateApp.put('/update/embedding/:id', async c => {
   const { id } = c.req.param();
 
   try {

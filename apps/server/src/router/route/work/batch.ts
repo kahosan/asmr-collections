@@ -22,7 +22,7 @@ import { createWork } from './create';
 import { updateWork } from './update';
 
 const createQueue = newQueue(10);
-const refreshQueue = newQueue(10);
+const updateQueue = newQueue(10);
 const fetchQueue = newQueue(10, 5, 1000); // 每秒最多 5 个请求
 
 // 全局状态锁，防止多次触发
@@ -221,7 +221,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
   });
 });
 
-batchApp.get('/batch/refresh', c => {
+batchApp.get('/batch/update', c => {
   c.req.raw.signal.addEventListener('abort', handleAbort);
 
   return streamSSE(c, async stream => {
@@ -326,7 +326,7 @@ batchApp.get('/batch/refresh', c => {
         });
 
         try {
-          await refreshQueue.all(updateTasks);
+          await updateQueue.all(updateTasks);
         } catch (e) {
           console.error(e);
         }
@@ -352,7 +352,7 @@ batchApp.get('/batch/refresh', c => {
 function handleAbort() {
   console.warn('客户端已断开，停止批量操作');
   fetchQueue.clear();
-  refreshQueue.clear();
+  updateQueue.clear();
   createQueue.clear();
 };
 

@@ -10,7 +10,7 @@ import { notifyError, parseWorkInput, writeClipboard } from '~/utils';
 
 import type { BatchLogType, BatchSSEData, BatchSSEEvent } from '@asmr-collections/shared';
 
-export function useBatchOperation(type: 'refresh' | 'create', setOpen: (open: boolean) => void, isSync = false) {
+export function useBatchOperation(type: 'update' | 'create', setOpen: (open: boolean) => void, isSync = false) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [logs, setLogs] = useImmer<Array<{ id: string, type: BatchLogType, message: string }>>([]);
   const [progress, setProgress] = useState({ current: 0, total: 0, percent: 0 });

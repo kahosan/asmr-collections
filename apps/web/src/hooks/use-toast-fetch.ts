@@ -36,7 +36,7 @@ interface ToastcherOptions<T> {
 type ToastMutationKeys =
   | 'delete'
   | 'create'
-  | 'refresh'
+  | 'update'
   | 'upload'
   | 'subtitles'
   | 'random'

@@ -5,11 +5,11 @@ import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 import { mutateSimilar, mutateWorkInfo } from '~/lib/mutation';
 
 export default function UpdateMenu({ id }: { id: string }) {
-  const [refreshAction, refreshIsMutating] = useToastMutation('refresh');
+  const [updateAction, updateIsMutating] = useToastMutation('update');
 
   const update = () => {
-    refreshAction({
-      key: `/api/work/refresh/${id}`,
+    updateAction({
+      key: `/api/work/update/${id}`,
       fetchOps: { method: 'PUT' },
       toastOps: {
         loading: `${id} 数据更新中...`,
@@ -23,8 +23,8 @@ export default function UpdateMenu({ id }: { id: string }) {
   };
 
   const updateVector = () => {
-    refreshAction({
-      key: `/api/work/refresh/embedding/${id}`,
+    updateAction({
+      key: `/api/work/update/embedding/${id}`,
       fetchOps: { method: 'PUT' },
       toastOps: {
         loading: `${id} 向量信息更新中...`,
@@ -39,10 +39,10 @@ export default function UpdateMenu({ id }: { id: string }) {
 
   return (
     <>
-      <DropdownMenuItem disabled={refreshIsMutating} className="cursor-pointer" onClick={update}>
+      <DropdownMenuItem disabled={updateIsMutating} className="cursor-pointer" onClick={update}>
         更新信息
       </DropdownMenuItem>
-      <DropdownMenuItem disabled={refreshIsMutating} className="cursor-pointer" onClick={updateVector}>
+      <DropdownMenuItem disabled={updateIsMutating} className="cursor-pointer" onClick={updateVector}>
         更新向量
       </DropdownMenuItem>
     </>

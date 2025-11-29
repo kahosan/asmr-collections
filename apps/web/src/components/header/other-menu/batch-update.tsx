@@ -18,7 +18,7 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
     isProcessing,
     logs,
     progress
-  } = useBatchOperation('refresh', setOpen);
+  } = useBatchOperation('update', setOpen);
 
   const prevent = usePreventAutoFocus();
 
