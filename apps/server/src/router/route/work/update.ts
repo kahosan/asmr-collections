@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
+import { findwork, formatError, generateEmbedding, saveCoverImage } from '~/router/utils';
 
 export const updateApp = new Hono();
 
@@ -12,7 +12,7 @@ updateApp.put('/refresh/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExistsInDB(id))
+    if (!await findwork(id))
       return c.json({ message: '收藏不存在' }, 400);
   } catch (e) {
     return c.json(formatError(e), 500);
@@ -53,7 +53,7 @@ updateApp.put('/upload/subtitles/:id', async c => {
     return c.json({ message: '文件格式不正确' }, 400);
 
   try {
-    if (!await workIsExistsInDB(id))
+    if (!await findwork(id))
       return c.json({ message: '收藏不存在' }, 400);
 
     const prisma = getPrisma();
@@ -84,7 +84,7 @@ updateApp.put('/refresh/embedding/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExistsInDB(id))
+    if (!await findwork(id))
       return c.json({ message: '收藏不存在' }, 400);
   } catch (e) {
     return c.json(formatError(e), 500);

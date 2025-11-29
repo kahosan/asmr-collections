@@ -9,7 +9,7 @@ import { getPrisma } from '~/lib/db';
 import { fetcher, HTTPError } from '~/lib/fetcher';
 import { COVERS_PATH, HOST_URL, IS_WORKERS, VOICE_LIBRARY } from '~/lib/constant';
 
-export function workIsExistsInDB(id: string) {
+export function findwork(id: string) {
   const prisma = getPrisma();
   return prisma.work.findUnique({ where: { id }, select: { id: true } });
 }

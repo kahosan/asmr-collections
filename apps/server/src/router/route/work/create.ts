@@ -5,7 +5,7 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, generateEmbedding, saveCoverImage, workIsExistsInDB } from '~/router/utils';
+import { findwork, formatError, generateEmbedding, saveCoverImage } from '~/router/utils';
 
 export const createApp = new Hono();
 
@@ -25,7 +25,7 @@ createApp.post('/create/:id', async c => {
   if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
 
   try {
-    if (await workIsExistsInDB(id))
+    if (await findwork(id))
       return c.json({ message: '作品已收藏' }, 400);
   } catch (e) {
     return c.json(formatError(e), 500);

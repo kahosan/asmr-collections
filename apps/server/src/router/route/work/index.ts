@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
-import { formatError, workIsExistsInDB } from '~/router/utils';
+import { findwork, formatError } from '~/router/utils';
 
 import { infoApp } from './info';
 import { batchApp } from './batch';
@@ -51,7 +51,7 @@ workApp.get('/subtitles/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await workIsExistsInDB(id))
+    if (!await findwork(id))
       return c.json({ message: '收藏不存在' }, 404);
 
     const prisma = getPrisma();
@@ -80,7 +80,7 @@ workApp.get('/exists/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    const exists = await workIsExistsInDB(id);
+    const exists = await findwork(id);
     return c.json({ exists: !!exists });
   } catch (e) {
     return c.json(formatError(e), 500);
