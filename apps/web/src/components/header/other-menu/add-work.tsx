@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { parseWorkInput } from '~/utils';
-import { mutateWorks } from '~/lib/mutation';
+import { mutateSimilar, mutateWorks } from '~/lib/mutation';
 
 export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [id, setId] = useState<string>('');
@@ -37,6 +37,7 @@ export default function AddWorkDialog({ open, setOpen }: { open: boolean, setOpe
         },
         finally() {
           mutateWorks();
+          mutateSimilar(validIds[0]);
         }
       }
     });

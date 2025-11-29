@@ -128,7 +128,12 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
     }, verboseReporter());
   };
 
-  const clearCache = async (cacheKey: CacheKey) => softPurge({ cache, key: cacheKey });
+  const clearCache = (cacheKey: CacheKey, soft = true): unknown | Promise<unknown> => {
+    if (soft)
+      return softPurge({ cache, key: cacheKey });
+
+    return cache.delete(cacheKey);
+  };
 
   return [cached, clearCache] as const;
 }

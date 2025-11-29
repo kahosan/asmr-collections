@@ -10,7 +10,7 @@ import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';
 
-const [similarCache] = createCachified<ServerWork[]>();
+const [similarCache, clear] = createCachified<ServerWork[]>();
 
 export const similarApp = new Hono();
 
@@ -56,6 +56,10 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
     return c.json(formatError(e), 500);
   }
 });
+
+export function clearSimilarCache(id: string) {
+  return clear(`similar-work-${id}`, false);
+}
 
 async function getSimilar(id: string) {
   const prisma = getPrisma();

@@ -2,7 +2,7 @@ import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 
-import { mutateWorkInfo } from '~/lib/mutation';
+import { mutateSimilar, mutateWorkInfo } from '~/lib/mutation';
 
 export default function UpdateMenu({ id }: { id: string }) {
   const [refreshAction, refreshIsMutating] = useToastMutation('refresh');
@@ -31,7 +31,7 @@ export default function UpdateMenu({ id }: { id: string }) {
         success: `${id} 向量信息更新成功`,
         error: `${id} 向量信息更新失败`,
         finally() {
-          mutateWorkInfo(id);
+          mutateSimilar(id);
         }
       }
     });

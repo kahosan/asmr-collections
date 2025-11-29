@@ -8,6 +8,8 @@ import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
 import { findwork, formatError, saveCoverImage } from '~/router/utils';
 
+import { clearSimilarCache } from './similar';
+
 export const createApp = new Hono();
 
 createApp.post('/create/:id', async c => {
@@ -59,6 +61,7 @@ createApp.post('/create/:id', async c => {
     if (embedding) {
       const vectorString = `[${embedding.join(',')}]`;
       await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${work.id}`;
+      await clearSimilarCache(id);
     }
 
     return c.json({

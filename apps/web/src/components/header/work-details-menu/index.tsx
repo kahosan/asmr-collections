@@ -25,7 +25,7 @@ import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
-import { mutateWorkInfo } from '~/lib/mutation';
+import { mutateSimilar, mutateWorkInfo } from '~/lib/mutation';
 import { showSettingDialogAtom } from '~/lib/store';
 
 export function WorkDetailsMenu() {
@@ -84,6 +84,7 @@ export function WorkDetailsMenu() {
         finally() {
           mutate();
           mutateWorkInfo(id);
+          mutateSimilar(id);
         }
       }
     });
