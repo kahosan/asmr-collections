@@ -7,6 +7,8 @@ import { formatChineseDate } from '@asmr-collections/shared';
 
 import { ImageIcon, MicIcon } from 'lucide-react';
 
+import WorkPreview from '~/components/work-preview';
+
 import { Card } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -239,6 +241,10 @@ export default function WorkDetails() {
 
       {!isLoading && tracks?.data && (
         <TracksTabale work={data} searchPath={searchPath} tracks={tracks.data} externalSubtitles={tracks.externalSubtitles} />
+      )}
+
+      {!isLoading && !tracks?.data && (
+        <WorkPreview workId={data.id} originalId={data.originalId} className="block mt-4" />
       )}
 
       <SimilarWorks work={data} />
