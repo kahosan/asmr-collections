@@ -24,13 +24,40 @@ export default function CircleFilter() {
   const navigate = useNavigate();
 
   const handleSelect = useCallback((id: string) => {
-    if (search.circleId === id) {
-      navigate({ to: '/', search: exclude(['keyword', 'page', 'circleId']) });
-      return;
-    }
+    const excludedId = `-${id}`;
 
-    navigate({ to: '/', search: exclude(['keyword', 'page'], { circleId: id }) });
+    if (search.circleId === id) {
+      // 当前是“选中” -> 切换为“排除”
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { circleId: excludedId })
+      });
+    } else if (search.circleId === excludedId) {
+      // 当前是“排除” -> 切换为“未选中” (移除 circleId 字段)
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page', 'circleId'])
+      });
+    } else {
+      // 当前是“未选中”或其他 -> 切换为“选中”
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { circleId: id })
+      });
+    }
   }, [exclude, navigate, search.circleId]);
+
+  const sortFn = useCallback(({ id }: Data<string>) => {
+    if (search.circleId === id) return -1;
+    if (search.circleId === `-${id}`) return -1;
+    return 0;
+  }, [search.circleId]);
+
+  const isCheck = ({ id }: Data<string>) => {
+    if (search.circleId === id) return true;
+    if (search.circleId === `-${id}`) return 'indeterminate'; // 字符串加前缀判断
+    return false;
+  };
 
   return (
     <MenubarSub>
@@ -44,9 +71,9 @@ export default function CircleFilter() {
           error={error}
           errorText="获取社团列表失败"
           data={data}
-          sort={({ id }) => (search.circleId === id ? -1 : 0)}
+          sort={sortFn}
           handleSelect={handleSelect}
-          isCheck={({ id }) => search.circleId === id}
+          isCheck={isCheck}
         />
       </MenubarSubContent>
     </MenubarSub>

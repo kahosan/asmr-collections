@@ -24,19 +24,41 @@ export default function ArtistsFilter() {
   const navigate = useNavigate();
 
   const handleSelect = useCallback((id: number) => {
-    if (search.artistId?.includes(id)) {
-      navigate({
-        to: '/',
-        search: exclude(['keyword', 'page'], { artistId: search.artistId.filter(_id => _id !== id) })
-      });
-      return;
+    const currentList = search.artistId || [];
+    const isIncluded = currentList.includes(id);
+    const isExcluded = currentList.includes(-id);
+
+    let newList: number[];
+
+    if (isIncluded) {
+      // 当前是“选中” -> 切换为“排除” (移除 id, 添加 -id)
+      newList = currentList.filter(x => x !== id).concat(-id);
+    } else if (isExcluded) {
+      // 当前是“排除” -> 切换为“未选中” (移除 -id)
+      newList = currentList.filter(x => x !== -id);
+    } else {
+      // 当前是“未选中” -> 切换为“选中” (添加 id)
+      newList = [...currentList, id];
     }
 
-    navigate({
-      to: '/',
-      search: exclude(['keyword', 'page'], { artistId: [...search.artistId ?? [], id] })
-    });
+    // 如果数组为空，直接从 URL 移除该字段，保持 URL 干净
+    if (newList.length === 0)
+      navigate({ to: '/', search: exclude(['keyword', 'page', 'artistId']) });
+    else
+      navigate({ to: '/', search: exclude(['keyword', 'page'], { artistId: newList }) });
   }, [exclude, navigate, search.artistId]);
+
+  const sortFn = useCallback(({ id }: Data<number>) => {
+    if (search.artistId?.includes(id)) return -1;
+    if (search.artistId?.includes(-id)) return -1;
+    return 0;
+  }, [search.artistId]);
+
+  const isCheck = useCallback((data: Data<number>) => {
+    if (search.artistId?.includes(data.id)) return true;
+    if (search.artistId?.includes(-data.id)) return 'indeterminate';
+    return false;
+  }, [search.artistId]);
 
   return (
     <MenubarSub>
@@ -73,9 +95,9 @@ export default function ArtistsFilter() {
           error={error}
           errorText="获取声优列表失败"
           data={data}
-          sort={({ id }) => (search.artistId?.includes(id) ? -1 : 1)}
+          sort={sortFn}
           handleSelect={handleSelect}
-          isCheck={({ id }) => search.artistId?.includes(id) ?? false}
+          isCheck={isCheck}
         />
       </MenubarSubContent>
     </MenubarSub>

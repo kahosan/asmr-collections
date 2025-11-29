@@ -24,19 +24,40 @@ export default function SeriesFilter() {
   const navigate = useNavigate();
 
   const handleSelect = useCallback((id: string) => {
+    const excludedId = `-${id}`;
+
     if (search.seriesId === id) {
+      // 当前是“选中” -> 切换为“排除” (带负号)
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { seriesId: excludedId })
+      });
+    } else if (search.seriesId === excludedId) {
+      // 当前是“排除” -> 切换为“未选中” (移除字段)
       navigate({
         to: '/',
         search: exclude(['keyword', 'page', 'seriesId'])
       });
-      return;
+    } else {
+      // 当前是“未选中” -> 切换为“选中” (原始 ID)
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { seriesId: id })
+      });
     }
-
-    navigate({
-      to: '/',
-      search: exclude(['keyword', 'page'], { seriesId: id })
-    });
   }, [exclude, navigate, search.seriesId]);
+
+  const sortFn = useCallback(({ id }: Data<string>) => {
+    if (search.seriesId === id) return -1;
+    if (search.seriesId === `-${id}`) return -1;
+    return 0;
+  }, [search.seriesId]);
+
+  const isChecked = useCallback(({ id }: Data<string>) => {
+    if (search.seriesId === id) return true;
+    if (search.seriesId === `-${id}`) return 'indeterminate';
+    return false;
+  }, [search.seriesId]);
 
   return (
     <MenubarSub>
@@ -50,9 +71,9 @@ export default function SeriesFilter() {
           error={error}
           errorText="获取系列列表失败"
           data={data}
-          sort={({ id }) => (search.seriesId === id ? -1 : 0)}
+          sort={sortFn}
           handleSelect={handleSelect}
-          isCheck={({ id }) => search.seriesId === id}
+          isCheck={isChecked}
         />
       </MenubarSubContent>
     </MenubarSub>

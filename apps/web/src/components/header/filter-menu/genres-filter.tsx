@@ -24,19 +24,42 @@ export default function GenresFilter() {
   const navigate = useNavigate();
 
   const handleSelect = useCallback((id: number) => {
-    if (search.genres?.includes(id)) {
-      navigate({
-        to: '/',
-        search: exclude(['keyword', 'page'], { genres: search.genres.filter(_id => _id !== id) })
-      });
-      return;
+    const currentList = search.genres || [];
+    const isSelected = currentList.includes(id);
+    const isExcluded = currentList.includes(-id);
+
+    let newList: number[];
+
+    if (isSelected) {
+      // 当前是“选中” -> 切换为“排除” (移除正数，添加负数)
+      newList = currentList.filter(x => x !== id).concat(-id);
+    } else if (isExcluded) {
+      // 当前是“排除” -> 切换为“未选中” (移除负数)
+      newList = currentList.filter(x => x !== -id);
+    } else {
+      // 当前是“未选中” -> 切换为“选中” (添加正数)
+      newList = [...currentList, id];
     }
 
-    navigate({
-      to: '/',
-      search: exclude(['keyword', 'page'], { genres: [...search.genres ?? [], id] })
-    });
+    // 更新 URL，如果数组为空则移除字段
+    if (newList.length === 0)
+      navigate({ to: '/', search: exclude(['keyword', 'page', 'genres']) });
+    else
+      navigate({ to: '/', search: exclude(['keyword', 'page'], { genres: newList }) });
   }, [exclude, navigate, search.genres]);
+
+  const sortFn = useCallback(({ id }: Data<number>) => {
+    if (search.genres?.includes(id)) return -1;
+    if (search.genres?.includes(-id)) return 1;
+    return 0;
+  }, [search.genres]);
+
+  // 2. 获取当前状态 (True / False / 'indeterminate')
+  const isChecked = ({ id }: Data<number>) => {
+    if (search.genres?.includes(id)) return true;
+    if (search.genres?.includes(-id)) return 'indeterminate';
+    return false;
+  };
 
   return (
     <MenubarSub>
@@ -50,9 +73,9 @@ export default function GenresFilter() {
           error={error}
           errorText="获取标签列表失败"
           data={data}
-          sort={({ id }) => (search.genres?.includes(id) ? -1 : 1)}
+          sort={sortFn}
           handleSelect={handleSelect}
-          isCheck={({ id }) => search.genres?.includes(id) ?? false}
+          isCheck={isChecked}
         />
       </MenubarSubContent>
     </MenubarSub>

@@ -25,12 +25,37 @@ export default function IllustratorsFilter() {
 
   const handleSelect = useCallback((id: number) => {
     if (search.illustratorId === id) {
-      navigate({ to: '/', search: exclude(['keyword', 'page', 'illustratorId']) });
-      return;
+      // 当前是“选中” -> 切换为“排除” (负数)
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { illustratorId: -id })
+      });
+    } else if (search.illustratorId === -id) {
+      // 当前是“排除” -> 切换为“未选中” (移除字段)
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page', 'illustratorId'])
+      });
+    } else {
+      // 当前是“未选中” -> 切换为“选中” (正数)
+      navigate({
+        to: '/',
+        search: exclude(['keyword', 'page'], { illustratorId: id })
+      });
     }
-
-    navigate({ to: '/', search: exclude(['keyword', 'page'], { illustratorId: id }) });
   }, [exclude, navigate, search.illustratorId]);
+
+  const sortFn = useCallback(({ id }: Data<number>) => {
+    if (search.illustratorId === id) return -1;
+    if (search.illustratorId === -id) return 0;
+    return 1;
+  }, [search.illustratorId]);
+
+  const isChecked = useCallback(({ id }: Data<number>) => {
+    if (search.illustratorId === id) return true;
+    if (search.illustratorId === -id) return 'indeterminate';
+    return false;
+  }, [search.illustratorId]);
 
   return (
     <MenubarSub>
@@ -44,9 +69,9 @@ export default function IllustratorsFilter() {
           error={error}
           errorText="获取画师列表失败"
           data={data}
-          sort={({ id }) => (search.illustratorId === id ? -1 : 1)}
+          sort={sortFn}
           handleSelect={handleSelect}
-          isCheck={({ id }) => search.illustratorId === id}
+          isCheck={isChecked}
         />
       </MenubarSubContent>
     </MenubarSub>

@@ -47,67 +47,76 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
   // search type
   const { embedding } = c.req.query();
 
-  let AND: Prisma.WorkWhereInput[] = [];
-  let OR: Prisma.WorkWhereInput[] = [];
+  const AND: Prisma.WorkWhereInput[] = [];
+  const OR: Prisma.WorkWhereInput[] = [];
 
-  if (filterOp === 'and') {
-    if (genres && genres.length > 0)
-      AND = AND.concat(genres.map(id => ({ genres: { some: { id } } })));
+  const pushCondition = (condition: Prisma.WorkWhereInput | Prisma.WorkWhereInput[]) => {
+    const target = filterOp === 'or' ? OR : AND;
+    if (Array.isArray(condition))
+      target.push(...condition);
+    else
+      target.push(condition);
+  };
 
-    if (artistId && artistId.length > 0)
-      AND = AND.concat(artistId.map(id => ({ artists: { some: { id } } })));
-
-    if (illustratorId)
-      AND = AND.concat({ illustrators: { some: { id: illustratorId } } });
-
-    if (age)
-      AND = AND.concat({ ageCategory: { equals: age } });
-
-    if (seriesId)
-      AND = AND.concat({ series: { id: seriesId } });
-
-    if (circleId)
-      AND = AND.concat({ circle: { id: circleId } });
-
-    if (subtitles)
-      AND = AND.concat({ subtitles: { equals: true } });
-
-    if (multilingual)
-      AND = AND.concat({ languageEditions: { isEmpty: false } });
+  if (genres && genres.length > 0) {
+    const conditions = genres.map(id => {
+      if (id < 0) return { genres: { none: { id: Math.abs(id) } } };
+      return { genres: { some: { id } } };
+    });
+    pushCondition(conditions);
   }
 
-  if (filterOp === 'or') {
-    if (genres && genres.length > 0)
-      OR = OR.concat(genres.map(id => ({ genres: { some: { id } } })));
-
-    if (artistId && artistId.length > 0)
-      OR = OR.concat(artistId.map(id => ({ artists: { some: { id } } })));
-
-    if (illustratorId)
-      OR = OR.concat({ illustrators: { some: { id: illustratorId } } });
-
-    if (age)
-      OR = OR.concat({ ageCategory: { equals: age } });
-
-    if (seriesId)
-      OR = OR.concat({ series: { id: seriesId } });
-
-    if (circleId)
-      OR = OR.concat({ circle: { id: circleId } });
-
-    if (subtitles)
-      OR = OR.concat({ subtitles: { equals: true } });
-
-    if (multilingual)
-      OR = OR.concat({ languageEditions: { isEmpty: false } });
+  if (artistId && artistId.length > 0) {
+    const conditions = artistId.map(id => {
+      if (id < 0) return { artists: { none: { id: Math.abs(id) } } };
+      return { artists: { some: { id } } };
+    });
+    pushCondition(conditions);
   }
+
+  if (illustratorId) {
+    if (illustratorId < 0)
+      pushCondition({ illustrators: { none: { id: Math.abs(illustratorId) } } });
+    else
+      pushCondition({ illustrators: { some: { id: illustratorId } } });
+  }
+
+  if (age) {
+    if (age < 0)
+      pushCondition({ ageCategory: { not: Math.abs(age) } });
+    else
+      pushCondition({ ageCategory: age });
+  }
+
+  if (seriesId) {
+    if (seriesId.startsWith('-')) {
+      pushCondition({
+        OR: [
+          { seriesId: null },
+          { seriesId: { not: seriesId.slice(1) } }
+        ]
+      });
+    } else {
+      pushCondition({ seriesId });
+    }
+  }
+
+  if (circleId) {
+    if (circleId.startsWith('-'))
+      pushCondition({ circleId: { not: circleId.slice(1) } });
+    else
+      pushCondition({ circleId });
+  }
+
+  if (subtitles) pushCondition({ subtitles: { equals: true } });
+  if (multilingual) pushCondition({ languageEditions: { isEmpty: false } });
 
   // 使用关键词搜索时，上面的条件会被忽略，因为不会携带其他参数了
   if (keyword && !embedding) {
-    OR = OR.concat([
+    OR.push(
       { id: { contains: keyword, mode: 'insensitive' } },
       { name: { contains: keyword, mode: 'insensitive' } }
-    ]);
+    );
   }
 
   const queryArgs: FindManyWorksQuery = {
@@ -195,15 +204,16 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
       });
     }
 
-    const works = await prisma.work.findMany({
-      ...queryArgs,
-      skip: (page - 1) * limit,
-      take: limit
-    });
-
-    const total = await prisma.work.count({
-      where: queryArgs.where
-    });
+    const [works, total] = await prisma.$transaction([
+      prisma.work.findMany({
+        ...queryArgs,
+        skip: (page - 1) * limit,
+        take: limit
+      }),
+      prisma.work.count({
+        where: queryArgs.where
+      })
+    ]);
 
     return c.json({
       page,

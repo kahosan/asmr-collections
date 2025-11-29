@@ -1,5 +1,5 @@
 import { Activity, useMemo, useState } from 'react';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, MinusIcon } from 'lucide-react';
 
 import { Virtualized, VirtualizedVirtualizer } from '~/components/ui/virtualized';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command';
@@ -20,7 +20,7 @@ interface Props<T extends string | number> {
   data?: Array<Data<T>>
   sort: (data: Data<T>) => number
   handleSelect: (id: T) => void
-  isCheck: (data: Data<T>) => boolean
+  isCheck: (data: Data<T>) => boolean | 'indeterminate'
 }
 
 export default function FilterPanel<T extends string | number>({
@@ -80,7 +80,9 @@ export default function FilterPanel<T extends string | number>({
                               transition={{ duration: 0.1, ease: 'easeInOut' }}
                               className="ml-auto"
                             >
-                              <CheckIcon />
+                              {checked === 'indeterminate'
+                                ? <MinusIcon />
+                                : <CheckIcon />}
                             </motion.div>
                           )}
                         </AnimatePresence>
