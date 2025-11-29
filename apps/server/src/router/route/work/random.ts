@@ -8,16 +8,12 @@ export const randomApp = new Hono()
     try {
       const prisma = getPrisma();
 
-      const count = await prisma.work.count();
-      const work = await prisma.work.findFirst({
-        select: { id: true },
-        skip: Math.floor(Math.random() * Math.max(1, count))
-      });
+      const work = await prisma.$queryRaw<Array<{ id: string }>>`SELECT id FROM "Work" ORDER BY RANDOM() LIMIT 1;`;
 
-      if (!work)
+      if (work.length === 0)
         return c.json(formatError('未找到作品'), 404);
 
-      return c.json(work);
+      return c.json(work[0]);
     } catch (e) {
       return c.json(formatError(e), 500);
     }
