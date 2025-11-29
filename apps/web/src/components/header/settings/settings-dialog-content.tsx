@@ -44,7 +44,7 @@ export function SettingsDialogContent({ setOpen }: { setOpen: (open: boolean) =>
           在此处配置设置选项
         </AlertDialogDescription>
       </AlertDialogHeader>
-      <ScrollArea className="h-[70dvh]" type="auto">
+      <ScrollArea className="max-h-[70dvh]" type="auto">
         <div className="flex flex-col gap-4.5 mt-4 px-6">
 
           <SettingInput
