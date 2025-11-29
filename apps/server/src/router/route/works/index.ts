@@ -9,7 +9,8 @@ import { IndexSearchQuerySchema } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { formatError, generateEmbedding, getVoiceLibraryEnv } from '~/router/utils';
+import { generateEmbedding } from '~/ai/jina';
+import { formatError, getVoiceLibraryEnv } from '~/router/utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 

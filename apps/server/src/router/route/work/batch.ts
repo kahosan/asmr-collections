@@ -15,7 +15,8 @@ import { newQueue } from '@henrygd/queue/rl';
 import { getPrisma } from '~/lib/db';
 import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError, generateEmbedding, getAllLocalVoiceLibraryIds, saveCoverImage } from '~/router/utils';
+import { generateEmbedding } from '~/ai/jina';
+import { formatError, getAllLocalVoiceLibraryIds, saveCoverImage } from '~/router/utils';
 
 import { createWork } from './create';
 import { updateWork } from './update';

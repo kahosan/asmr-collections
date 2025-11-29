@@ -5,7 +5,8 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { findwork, formatError, generateEmbedding, saveCoverImage } from '~/router/utils';
+import { generateEmbedding } from '~/ai/jina';
+import { findwork, formatError, saveCoverImage } from '~/router/utils';
 
 export const createApp = new Hono();
 
