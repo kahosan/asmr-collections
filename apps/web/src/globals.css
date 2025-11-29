@@ -5,55 +5,55 @@
 @plugin "tailwindcss-animate";
 
 @font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Thin.woff2') format('woff2');
+  font-family: "HarmonyOS Sans SC";
+  src: url("./assets/fonts/HarmonyOS_Sans_SC_Thin.woff2") format("woff2");
   font-weight: 100;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Light.woff2') format('woff2');
+  font-family: "HarmonyOS Sans SC";
+  src: url("./assets/fonts/HarmonyOS_Sans_SC_Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
+  font-family: "HarmonyOS Sans SC";
+  src: url("./assets/fonts/HarmonyOS_Sans_SC_Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Medium.woff2') format('woff2');
+  font-family: "HarmonyOS Sans SC";
+  src: url("./assets/fonts/HarmonyOS_Sans_SC_Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Bold.woff2') format('woff2');
+  font-family: "HarmonyOS Sans SC";
+  src: url("./assets/fonts/HarmonyOS_Sans_SC_Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: url('./assets/fonts/HarmonyOS_Sans_SC_Black.woff2') format('woff2');
+  font-family: "HarmonyOS Sans SC";
+  src: url("./assets/fonts/HarmonyOS_Sans_SC_Black.woff2") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
 body {
-  font-family: 'HarmonyOS Sans SC', system-ui, sans-serif;
+  font-family: "HarmonyOS Sans SC", system-ui, sans-serif;
 }
 
 .no-scrollbar {
@@ -205,10 +205,6 @@ body {
     @apply bg-background text-foreground;
   }
 
-  html {
-    scrollbar-gutter: stable;
-  }
-
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -232,14 +228,6 @@ body {
   max-height: calc(var(--spacing) * --value(integer));
 }
 
-@utility w-scroll-locked {
-  width: calc(100% - var(--removed-body-scroll-bar-size, 0px));
-}
-
-@utility right-scroll-locked-5 {
-  right: calc(calc(var(--spacing) * 5) + var(--removed-body-scroll-bar-size, 0px));
-}
-
 /* Lock scroll when player page is opened on small screens 640px */
 @media (width < 40rem) {
   body:has(div[data-player-page="true"]) {
@@ -252,24 +240,13 @@ html.lg-on body {
   overflow: hidden;
 }
 
-body[data-scroll-locked] {
-  overflow: hidden !important;
-  overscroll-behavior: contain;
-  position: relative !important;
-  padding-left: 0px;
-  padding-top: 0px;
-  padding-right: 0px;
-  margin-left: 0;
-  margin-top: 0;
-  margin-right: 15px !important;
+html {
+  scrollbar-gutter: stable;
 }
 
-body[data-scroll-locked] {
-  --removed-body-scroll-bar-size: 15px;
-}
-
-html:has(body[data-scroll-locked]) {
-  scrollbar-gutter: auto;
+html body[data-scroll-locked] {
+  overflow: unset !important;
+  margin-right: unset !important;
 }
 
 * {
