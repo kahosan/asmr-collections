@@ -7,6 +7,7 @@ import { CheckIcon, Loader2 } from 'lucide-react';
 import BatchLogs from './batch-logs';
 
 import useBatchOperation from '~/hooks/use-batch-operation';
+import { usePreventAutoFocus } from '~/hooks/use-prevent-auto-focus';
 
 export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const {
@@ -19,14 +20,16 @@ export default function BatchUpdateDialog({ open, setOpen }: { open: boolean, se
     progress
   } = useBatchOperation('refresh', setOpen);
 
+  const prevent = usePreventAutoFocus();
+
   return (
     <Dialog
       open={open}
       onOpenChange={handleOpenChange}
     >
       <DialogContent
+        {...prevent}
         onInteractOutside={e => e.preventDefault()}
-        onOpenAutoFocus={e => e.preventDefault()}
         className="rounded-lg max-w-[90%] sm:max-w-xl"
       >
         <DialogHeader>
