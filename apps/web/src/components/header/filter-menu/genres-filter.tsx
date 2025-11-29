@@ -50,7 +50,7 @@ export default function GenresFilter() {
 
   const sortFn = useCallback(({ id }: Data<number>) => {
     if (search.genres?.includes(id)) return -1;
-    if (search.genres?.includes(-id)) return 1;
+    if (search.genres?.includes(-id)) return -1;
     return 0;
   }, [search.genres]);
 

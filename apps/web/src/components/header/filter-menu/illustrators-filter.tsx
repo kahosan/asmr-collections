@@ -47,8 +47,8 @@ export default function IllustratorsFilter() {
 
   const sortFn = useCallback(({ id }: Data<number>) => {
     if (search.illustratorId === id) return -1;
-    if (search.illustratorId === -id) return 0;
-    return 1;
+    if (search.illustratorId === -id) return -1;
+    return 0;
   }, [search.illustratorId]);
 
   const isChecked = useCallback(({ id }: Data<number>) => {
