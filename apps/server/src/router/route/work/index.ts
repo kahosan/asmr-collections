@@ -9,6 +9,7 @@ import { createApp } from './create';
 import { deleteApp } from './delete';
 import { randomApp } from './random';
 import { updateApp } from './update';
+import { uploadApp } from './upload';
 import { similarApp } from './similar';
 
 export const workApp = new Hono()
@@ -16,6 +17,7 @@ export const workApp = new Hono()
   .route('/', deleteApp)
   .route('/', infoApp)
   .route('/', updateApp)
+  .route('/', uploadApp)
   .route('/', similarApp)
   .route('/', batchApp)
   .route('/', randomApp);
