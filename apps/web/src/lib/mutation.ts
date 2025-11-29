@@ -1,13 +1,7 @@
 import { mutate } from 'swr';
 
-import { preloadWorkDetails } from '~/providers/router/preload';
-
 export function mutateWorkInfo(id: string) {
-  return mutate(
-    `work-info-${id}`,
-    () => preloadWorkDetails(id, 'enter', true),
-    { revalidate: false }
-  );
+  return mutate(`work-info-${id}`);
 }
 
 export function mutateWorks() {

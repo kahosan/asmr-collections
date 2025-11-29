@@ -75,14 +75,3 @@ workApp.get('/subtitles/:id', async c => {
     return c.json(formatError(e), 500);
   }
 });
-
-workApp.get('/exists/:id', async c => {
-  const { id } = c.req.param();
-
-  try {
-    const exists = await findwork(id);
-    return c.json({ exists: !!exists });
-  } catch (e) {
-    return c.json(formatError(e), 500);
-  }
-});

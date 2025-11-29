@@ -17,14 +17,12 @@ import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
 import { useSetAtom } from 'jotai';
-import useSWRImmutable from 'swr/immutable';
 
 import { match } from 'ts-pattern';
 
+import { useWorkInfo } from '~/hooks/use-work-info';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
-import { notifyError } from '~/utils';
-import { fetcher } from '~/lib/fetcher';
 import { mutateSimilar, mutateWorkInfo } from '~/lib/mutation';
 import { showSettingDialogAtom } from '~/lib/store';
 
@@ -38,13 +36,7 @@ export function WorkDetailsMenu() {
   const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
   const [showSleepModeDialog, setShowSleepModeDialog] = useState(false);
 
-  const { data: isExists, mutate, error } = useSWRImmutable<{ exists: boolean }>(
-    `/api/work/exists/${id}`,
-    fetcher,
-    {
-      onError: e => notifyError(e, '获取作品是否存在于数据中失败')
-    }
-  );
+  const { data } = useWorkInfo(id, { suspense: true });
 
   const handleDelete = async () => {
     const yes = await confirm({
@@ -61,7 +53,6 @@ export function WorkDetailsMenu() {
         success: `${id} 删除成功`,
         error: `${id} 删除失败`,
         finally() {
-          mutate();
           mutateWorkInfo(id);
         }
       }
@@ -82,7 +73,6 @@ export function WorkDetailsMenu() {
         },
         error: `${id} 添加失败`,
         finally() {
-          mutate();
           mutateWorkInfo(id);
           mutateSimilar(id);
         }
@@ -105,7 +95,7 @@ export function WorkDetailsMenu() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             {
-              match(isExists?.exists)
+              match(data?.exists)
                 .with(true, () => (
                   <>
                     <UpdateMenu id={id} />
@@ -122,7 +112,7 @@ export function WorkDetailsMenu() {
                     添加作品
                   </DropdownMenuItem>
                 ))
-                .when(() => error, () => <DropdownMenuItem disabled>菜单项加载失败</DropdownMenuItem>)
+                .when(() => data === null, () => <DropdownMenuItem disabled>菜单项加载失败</DropdownMenuItem>)
                 .otherwise(() => <DropdownMenuItem disabled>菜单项加载中...</DropdownMenuItem>)
             }
           </DropdownMenuGroup>

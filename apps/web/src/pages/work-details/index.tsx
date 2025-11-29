@@ -19,8 +19,8 @@ import TracksTabale from './tracks-table';
 import TracksSkeleton from './tracks-skeleton';
 
 import { useAtomValue } from 'jotai';
-import useSWRImmutable from 'swr/immutable';
 
+import { useWorkInfo } from '~/hooks/use-work-info';
 import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 import { useWorkDetailsTracks } from '~/hooks/use-work-details';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
@@ -28,9 +28,6 @@ import { settingOptionsAtom } from '~/hooks/use-setting-options';
 import { writeClipboard } from '~/utils';
 
 import { cn } from '~/lib/utils';
-import { fetcher } from '~/lib/fetcher';
-
-import type { Work } from '@asmr-collections/shared';
 
 const route = getRouteApi('/work-details/$id');
 
@@ -43,11 +40,7 @@ export default function WorkDetails() {
   const isHiddenImage = useAtomValue(hiddenImageAtom);
   const settings = useAtomValue(settingOptionsAtom);
 
-  const { data } = useSWRImmutable<Work>(
-    `work-info-${id}`,
-    fetcher,
-    { suspense: true }
-  );
+  const { data } = useWorkInfo(id, { suspense: true });
 
   const smartNavigate = useCallback((path: string[]) => {
     // 当不处于 work-details 路由时，不进行导航
