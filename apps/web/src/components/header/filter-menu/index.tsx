@@ -7,8 +7,6 @@ import SeriesFilter from './series-filter';
 import ArtistsFilter from './artists-filter';
 import IllustratorsFilter from './illustrators-filter';
 
-import { MinusIcon } from 'lucide-react';
-
 import { Activity } from 'react';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from '@tanstack/react-router';
@@ -57,7 +55,7 @@ export default function FilterMenu() {
           </MenubarCheckboxItem>
           <Activity mode={settings.useLocalVoiceLibrary ? 'visible' : 'hidden'}>
             <MenubarCheckboxItem
-              checked={search.existsLocal === 'only'}
+              checked={search.existsLocal === 'exclude' ? 'indeterminate' : !!search.existsLocal}
               onCheckedChange={() => {
                 if (!search.existsLocal)
                   navigate({ to: '/', search: exclude(['keyword', 'page'], { existsLocal: 'only' }) });
@@ -68,11 +66,6 @@ export default function FilterMenu() {
               }}
               onSelect={e => e.preventDefault()}
             >
-              {search.existsLocal === 'exclude' && (
-                <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
-                  <MinusIcon className="size-4" />
-                </span>
-              )}
               本地{search.existsLocal === 'exclude' ? '没' : ''}有
             </MenubarCheckboxItem>
           </Activity>
