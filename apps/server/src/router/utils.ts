@@ -1,7 +1,8 @@
 import { join } from 'node:path';
 import { readdir } from 'node:fs/promises';
 
-import { exists, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
+import { exists } from '@asmr-collections/shared/server';
+import { WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 import { HTTPError } from '~/lib/fetcher';

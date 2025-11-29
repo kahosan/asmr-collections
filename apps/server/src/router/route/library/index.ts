@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
 import { Hono } from 'hono';
-import { exists } from '@asmr-collections/shared';
+import { exists } from '@asmr-collections/shared/server';
 
 import { formatError, getVoiceLibraryEnv } from '~/router/utils';
 

@@ -7,7 +7,8 @@ import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { newQueue } from '@henrygd/queue';
 import { parseFile } from 'music-metadata';
-import { exists, joinURL } from '@asmr-collections/shared';
+import { joinURL } from '@asmr-collections/shared';
+import { exists } from '@asmr-collections/shared/server';
 
 import * as z from 'zod';
 
