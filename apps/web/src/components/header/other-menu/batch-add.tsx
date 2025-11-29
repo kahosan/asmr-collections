@@ -8,7 +8,7 @@ import WorkInput from '~/components/work-input';
 
 import BatchLogs from './batch-logs';
 
-import useBatchOperation from '~/hooks/use-batch-operation';
+import { useBatchOperation } from '~/hooks/use-batch-operation';
 
 export default function BatchAddDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const {

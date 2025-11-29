@@ -6,7 +6,7 @@ import BatchLogs from './batch-logs';
 
 import { CheckIcon, Loader2 } from 'lucide-react';
 
-import useBatchOperation from '~/hooks/use-batch-operation';
+import { useBatchOperation } from '~/hooks/use-batch-operation';
 
 export default function SyncVoiceLibraryDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const {
