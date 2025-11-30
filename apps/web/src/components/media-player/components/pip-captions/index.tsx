@@ -1,7 +1,6 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 
-import { toast } from 'sonner';
 import { useAtom, useSetAtom } from 'jotai';
 import { useMediaState } from '@vidstack/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -9,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
 import { floatingCaptionsOpenAtom } from '../../hooks/use-floating-open';
 
+import { notifyError } from '~/utils';
 import { logger } from '~/lib/logger';
 
 interface DocumentPictureInPictureOptions {
@@ -35,13 +35,10 @@ export default function PipCaptions() {
   useEffect(() => {
     if (open && !pipWindowRef.current) {
       const initPiP = async () => {
-        if (!('documentPictureInPicture' in window)) {
-          toast.warning('您的浏览器不支持画中画');
-          setPipOpen(false);
-          return;
-        }
-
         try {
+          if (!('documentPictureInPicture' in window))
+            throw new Error('暂不支持移动端');
+
           const pip = await (window.documentPictureInPicture as DocumentPictureInPicture).requestWindow({
             width: 400,
             height: 100
@@ -63,7 +60,7 @@ export default function PipCaptions() {
           setFloatingCaptionsOpen(false);
         } catch (err) {
           setPipOpen(false);
-          toast.error('开启画中画失败');
+          notifyError(err, '开启画中画失败');
           logger.error(err, '开启画中画失败');
         }
       };
