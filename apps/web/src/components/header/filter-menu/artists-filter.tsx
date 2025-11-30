@@ -3,6 +3,7 @@ import { MenubarCheckboxItem, MenubarSeparator, MenubarSub, MenubarSubContent, M
 import FilterPanel from './filter-panel';
 
 import useSWR from 'swr';
+import { produce } from 'immer';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
@@ -25,33 +26,46 @@ export default function ArtistsFilter() {
 
   const handleSelect = useCallback((id: number) => {
     const currentList = search.artistId || [];
-    const isIncluded = currentList.includes(id);
-    const isExcluded = currentList.includes(-id);
 
-    let newList: number[];
+    const newList = produce(currentList, draft => {
+      const indexSelected = draft.indexOf(id);
+      const indexExcluded = draft.indexOf(-id);
 
-    if (isIncluded) {
-      // 当前是“选中” -> 切换为“排除” (移除 id, 添加 -id)
-      newList = currentList.filter(x => x !== id).concat(-id);
-    } else if (isExcluded) {
-      // 当前是“排除” -> 切换为“未选中” (移除 -id)
-      newList = currentList.filter(x => x !== -id);
-    } else {
-      // 当前是“未选中” -> 切换为“选中” (添加 id)
-      newList = [...currentList, id];
-    }
+      if (indexSelected !== -1)
+        draft[indexSelected] = -id;
+      else if (indexExcluded === -1)
+        draft.push(id);
+      else
+        draft.splice(indexExcluded, 1);
+    });
 
-    // 如果数组为空，直接从 URL 移除该字段，保持 URL 干净
     if (newList.length === 0)
       navigate({ to: '/', search: exclude(['keyword', 'page', 'artistId']) });
     else
       navigate({ to: '/', search: exclude(['keyword', 'page'], { artistId: newList }) });
   }, [exclude, navigate, search.artistId]);
 
-  const sortFn = useCallback(({ id }: Data<number>) => {
-    if (search.artistId?.includes(id)) return -2;
-    if (search.artistId?.includes(-id)) return -1;
-    return 0;
+  const sortFn = useCallback((a: Data<number>, b: Data<number>) => {
+    const list = search.artistId || [];
+
+    const getListIndex = (id: number) => {
+      const posIndex = list.indexOf(id);
+      if (posIndex !== -1) return posIndex;
+      return list.indexOf(-id);
+    };
+
+    const indexA = getListIndex(a.id);
+    const indexB = getListIndex(b.id);
+    const isAInList = indexA !== -1;
+    const isBInList = indexB !== -1;
+
+    if (isAInList && isBInList)
+      return indexA - indexB;
+
+    if (isAInList && !isBInList) return -1;
+    if (!isAInList && isBInList) return 1;
+
+    return a.id - b.id;
   }, [search.artistId]);
 
   const isCheck = useCallback((data: Data<number>) => {

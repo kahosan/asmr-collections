@@ -18,7 +18,7 @@ interface Props<T extends string | number> {
   error: unknown
   errorText: string
   data?: Array<Data<T>>
-  sort: (data: Data<T>) => number
+  sort: (a: Data<T>, b: Data<T>) => number
   handleSelect: (id: T) => void
   isCheck: (data: Data<T>) => boolean | 'indeterminate'
 }
@@ -36,10 +36,16 @@ export default function FilterPanel<T extends string | number>({
   const [input, setInput] = useState('');
 
   const filtered = useMemo(() => {
-    if (!input)
-      return data;
-    return data?.filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()));
-  }, [data, input]);
+    if (!data) return [];
+    let result: Array<Data<T>>;
+
+    if (input)
+      result = data.filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()));
+    else
+      result = [...data];
+
+    return result.sort(sort);
+  }, [data, input, sort]);
 
   return (
     <Command className="max-[400px]:max-w-36">
@@ -59,7 +65,7 @@ export default function FilterPanel<T extends string | number>({
             <ErrorComp error={error} text={errorText} />
             <VirtualizedVirtualizer>
               {
-                filtered?.sort(sort).map(({ id, name }) => {
+                filtered.map(({ id, name }) => {
                   const checked = isCheck({ id, name });
                   return (
                     <motion.div

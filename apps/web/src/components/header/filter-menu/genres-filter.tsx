@@ -3,6 +3,7 @@ import { MenubarSub, MenubarSubContent, MenubarSubTrigger } from '~/components/u
 import FilterPanel from './filter-panel';
 
 import useSWR from 'swr';
+import { produce } from 'immer';
 import { useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
@@ -25,33 +26,46 @@ export default function GenresFilter() {
 
   const handleSelect = useCallback((id: number) => {
     const currentList = search.genres || [];
-    const isSelected = currentList.includes(id);
-    const isExcluded = currentList.includes(-id);
 
-    let newList: number[];
+    const newList = produce(currentList, draft => {
+      const indexSelected = draft.indexOf(id);
+      const indexExcluded = draft.indexOf(-id);
 
-    if (isSelected) {
-      // 当前是“选中” -> 切换为“排除” (移除正数，添加负数)
-      newList = currentList.filter(x => x !== id).concat(-id);
-    } else if (isExcluded) {
-      // 当前是“排除” -> 切换为“未选中” (移除负数)
-      newList = currentList.filter(x => x !== -id);
-    } else {
-      // 当前是“未选中” -> 切换为“选中” (添加正数)
-      newList = [...currentList, id];
-    }
+      if (indexSelected !== -1)
+        draft[indexSelected] = -id;
+      else if (indexExcluded === -1)
+        draft.push(id);
+      else
+        draft.splice(indexExcluded, 1);
+    });
 
-    // 更新 URL，如果数组为空则移除字段
     if (newList.length === 0)
       navigate({ to: '/', search: exclude(['keyword', 'page', 'genres']) });
     else
       navigate({ to: '/', search: exclude(['keyword', 'page'], { genres: newList }) });
   }, [exclude, navigate, search.genres]);
 
-  const sortFn = useCallback(({ id }: Data<number>) => {
-    if (search.genres?.includes(id)) return -2;
-    if (search.genres?.includes(-id)) return -1;
-    return 0;
+  const sortFn = useCallback((a: Data<number>, b: Data<number>) => {
+    const list = search.genres || [];
+
+    const getListIndex = (id: number) => {
+      const posIndex = list.indexOf(id);
+      if (posIndex !== -1) return posIndex;
+      return list.indexOf(-id);
+    };
+
+    const indexA = getListIndex(a.id);
+    const indexB = getListIndex(b.id);
+    const isAInList = indexA !== -1;
+    const isBInList = indexB !== -1;
+
+    if (isAInList && isBInList)
+      return indexA - indexB;
+
+    if (isAInList && !isBInList) return -1;
+    if (!isAInList && isBInList) return 1;
+
+    return a.id - b.id;
   }, [search.genres]);
 
   // 2. 获取当前状态 (True / False / 'indeterminate')
