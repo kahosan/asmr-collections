@@ -1,14 +1,13 @@
 import { createPortal } from 'react-dom';
-import { useCallback, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { toast } from 'sonner';
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
+import { useMediaState } from '@vidstack/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
 import { floatingCaptionsOpenAtom } from '../../hooks/use-floating-open';
-
-import { Button } from '~/components/ui/button';
-import { PictureInPicture2Icon, PictureInPictureIcon } from 'lucide-react';
 
 import { logger } from '~/lib/logger';
 
@@ -22,110 +21,127 @@ interface DocumentPictureInPicture extends EventTarget {
   requestWindow(options?: DocumentPictureInPictureOptions): Promise<Window>
 }
 
-interface PipCaptionsProps {
-  activeCue: VTTCue | null
-}
+export default function PipCaptions() {
+  const textTrackState = useMediaState('textTrack');
+  const [activeCue, setActiveCue] = useState<VTTCue>();
 
-export default function PipCaptions({ activeCue }: PipCaptionsProps) {
-  const [pipWindow, setPipWindow] = useState<Window | null>(null);
+  const pipWindowRef = useRef<Window | null>(null);
 
+  const [open, setPipOpen] = useAtom(pipCaptionsOpenAtom);
   const setFloatingCaptionsOpen = useSetAtom(floatingCaptionsOpenAtom);
 
-  const textColor = document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000';
-  const backgroundColor = document.documentElement.classList.contains('dark') ? '#000000' : '#FFFFFF';
+  const [container, setContainer] = useState<HTMLElement | null>(null);
 
-  const destoryPiP = useCallback(() => {
-    pipWindow?.close();
-    setPipWindow(null);
-    setFloatingCaptionsOpen(true);
-  }, [pipWindow, setFloatingCaptionsOpen]);
+  useEffect(() => {
+    if (open && !pipWindowRef.current) {
+      const initPiP = async () => {
+        if (!('documentPictureInPicture' in window)) {
+          toast.warning('您的浏览器不支持画中画');
+          setPipOpen(false);
+          return;
+        }
 
-  const togglePiP = useCallback(async () => {
-    if (pipWindow) return destoryPiP();
+        try {
+          const pip = await (window.documentPictureInPicture as DocumentPictureInPicture).requestWindow({
+            width: 400,
+            height: 100
+          });
 
-    if (!('documentPictureInPicture' in window)) {
-      toast.warning('您的浏览器不支持画中画');
-      return;
+          pip.document.body.style.margin = '0';
+
+          // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener -- don't need to remove listener, as pip window will be closed
+          pip.addEventListener('pagehide', () => {
+            pipWindowRef.current = null;
+            setContainer(null);
+            setPipOpen(false);
+            setFloatingCaptionsOpen(true);
+          });
+
+          pipWindowRef.current = pip;
+
+          setContainer(pip.document.body);
+          setFloatingCaptionsOpen(false);
+        } catch (err) {
+          setPipOpen(false);
+          toast.error('开启画中画失败');
+          logger.error(err, '开启画中画失败');
+        }
+      };
+
+      initPiP();
     }
 
-    try {
-      const pip = await (window.documentPictureInPicture as DocumentPictureInPicture).requestWindow({
-        width: 400,
-        height: 100
-      });
+    if (!open && pipWindowRef.current)
+      pipWindowRef.current.close();
 
-      pip.document.body.style.margin = '0';
+    return () => {
+      if (pipWindowRef.current) {
+        pipWindowRef.current.close();
+        pipWindowRef.current = null;
+      }
+    };
+  }, [open, setFloatingCaptionsOpen, setPipOpen]);
 
-      pip.addEventListener('pagehide', destoryPiP);
+  useEffect(() => {
+    if (!textTrackState) return;
 
-      setFloatingCaptionsOpen(false);
-      setPipWindow(pip);
-    } catch (err) {
-      toast.error('开启画中画失败');
-      logger.error(err, '开启画中画失败');
-    }
-  }, [pipWindow, setFloatingCaptionsOpen, destoryPiP]);
+    const onCueChange = () => {
+      const cues = textTrackState.activeCues;
+      const cue = cues.at(0) as VTTCue | undefined;
+      if (cue) setActiveCue(cue);
+    };
 
-  return (
-    <>
-      <Button
-        variant="secondary"
-        size="icon-sm"
-        className="text-sm"
-        onClick={togglePiP}
-        title={pipWindow ? '关闭字幕画中画' : '开启字幕画中画'}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={pipWindow ? 'pip-on' : 'pip-off'}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {pipWindow ? <PictureInPictureIcon /> : <PictureInPicture2Icon />}
-          </motion.div>
-        </AnimatePresence>
-      </Button>
+    textTrackState.addEventListener('load', onCueChange);
+    textTrackState.addEventListener('cue-change', onCueChange);
 
-      {pipWindow && createPortal(
-        <div
+    return () => {
+      textTrackState.removeEventListener('load', onCueChange);
+      textTrackState.removeEventListener('cue-change', onCueChange);
+    };
+  }, [textTrackState]);
+
+  const isDark = document.documentElement.classList.contains('dark');
+  const textColor = isDark ? '#FFFFFF' : '#000000';
+  const backgroundColor = isDark ? '#000000' : '#FFFFFF';
+
+  if (!container) return null;
+
+  return createPortal(
+    <div
+      style={{
+        display: 'flex',
+        width: '100vw',
+        height: '100vh',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor,
+        color: textColor,
+        overflow: 'hidden',
+        padding: '4px',
+        boxSizing: 'border-box'
+      }}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.p
+          key={activeCue?.text || 'empty'}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.15 }}
           style={{
-            display: 'flex',
-            width: '100vw',
-            height: '100vh',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor,
-            color: textColor,
-            overflow: 'hidden',
-            padding: '4px',
-            boxSizing: 'border-box'
+            fontFamily: 'HarmonyOS Sans, sans-serif',
+            textAlign: 'center',
+            fontSize: 'clamp(14px, 5vw, 50px)',
+            fontWeight: 600,
+            lineHeight: 1.4,
+            textWrap: 'balance',
+            margin: 0
           }}
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.p
-              key={activeCue?.text || 'empty'}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }}
-              style={{
-                fontFamily: 'HarmonyOS Sans, sans-serif',
-                textAlign: 'center',
-                fontSize: 'clamp(14px, 5vw, 50px)',
-                fontWeight: 600,
-                lineHeight: 1.4,
-                textWrap: 'balance',
-                margin: 0
-              }}
-            >
-              {activeCue?.text || '...'}
-            </motion.p>
-          </AnimatePresence>
-        </div>,
-        pipWindow.document.body
-      )}
-    </>
+          {activeCue?.text || '...'}
+        </motion.p>
+      </AnimatePresence>
+    </div>,
+    container
   );
 }

@@ -8,6 +8,7 @@ import { MediaActionsContext } from './context/media-actions';
 
 import TrackInfo from './components/track-info';
 import PlayerPage from './components/player-page';
+import PipCaptions from './components/pip-captions';
 import LeftControls from './components/left-controls';
 import RightControls from './components/right-controls';
 import ProgressSlider from './components/progress-slider';
@@ -39,6 +40,7 @@ export function AudioPlayerLayout({ prev, next }: PlayerLayoutProps) {
     <MediaActionsContext value={mediaActions}>
       <PlayerPage />
       <FloatingCaptions />
+      <PipCaptions />
 
       <AnimatePresence>
         {!expand && (

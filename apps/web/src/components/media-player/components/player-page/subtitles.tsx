@@ -3,15 +3,15 @@ import { useMediaContext, useMediaRemote, useMediaState } from '@vidstack/react'
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { focusAtom } from 'jotai-optics';
-import { useAtomValue } from 'jotai/react';
+import { useAtom, useAtomValue } from 'jotai/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
+import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
 
 import { Button } from '~/components/ui/button';
-import { RefreshCwIcon, RefreshCwOffIcon } from 'lucide-react';
+import { PictureInPicture2Icon, PictureInPictureIcon, RefreshCwIcon, RefreshCwOffIcon } from 'lucide-react';
 
-import PipCaptions from '../pip-captions';
 import SubtitleSelector from './subtitle-selector';
 
 import { cn } from '~/lib/utils';
@@ -45,6 +45,7 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const [loaded, setLoaded] = useState('');
 
   const allSubtitles = useAtomValue(allSubtitlesAtom);
+  const [openPipCaptions, setOpenPipCaptions] = useAtom(pipCaptionsOpenAtom);
 
   const currentTime = media.$state.currentTime();
 
@@ -109,7 +110,25 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
       <div className="sticky top-0 bg-card w-full z-1 flex items-center justify-between p-2 border-b border-r border-l rounded-b-lg">
         <SubtitleSelector />
         <div className="flex items-center gap-2">
-          <PipCaptions activeCue={activeCue} />
+          <Button
+            variant="secondary"
+            size="icon-sm"
+            className="text-sm"
+            onClick={() => setOpenPipCaptions(p => !p)}
+            title={openPipCaptions ? '关闭字幕画中画' : '开启字幕画中画'}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={openPipCaptions ? 'pip-on' : 'pip-off'}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {openPipCaptions ? <PictureInPictureIcon /> : <PictureInPicture2Icon />}
+              </motion.div>
+            </AnimatePresence>
+          </Button>
           <Button
             variant="secondary"
             size="icon-sm"
