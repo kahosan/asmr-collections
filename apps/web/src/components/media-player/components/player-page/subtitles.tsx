@@ -11,6 +11,7 @@ import { mediaStateAtom } from '~/hooks/use-media-state';
 import { Button } from '~/components/ui/button';
 import { RefreshCwIcon, RefreshCwOffIcon } from 'lucide-react';
 
+import PipCaptions from '../pip-captions';
 import SubtitleSelector from './subtitle-selector';
 
 import { cn } from '~/lib/utils';
@@ -107,24 +108,27 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
     <div className="relative">
       <div className="sticky top-0 bg-card w-full z-1 flex items-center justify-between p-2 border-b border-r border-l rounded-b-lg">
         <SubtitleSelector />
-        <Button
-          variant="secondary"
-          size="icon-sm"
-          className="text-sm"
-          onClick={handleAutoScrollChange}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={autoScroll ? 'on' : 'off'}
-              initial={{ scale: 0, opacity: 0, rotate: -180 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0, opacity: 0, rotate: 180 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-            >
-              {autoScroll ? <RefreshCwIcon /> : <RefreshCwOffIcon />}
-            </motion.div>
-          </AnimatePresence>
-        </Button>
+        <div className="flex items-center gap-2">
+          <PipCaptions activeCue={activeCue} />
+          <Button
+            variant="secondary"
+            size="icon-sm"
+            className="text-sm"
+            onClick={handleAutoScrollChange}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={autoScroll ? 'on' : 'off'}
+                initial={{ scale: 0, opacity: 0, rotate: -180 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 0, opacity: 0, rotate: 180 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                {autoScroll ? <RefreshCwIcon /> : <RefreshCwOffIcon />}
+              </motion.div>
+            </AnimatePresence>
+          </Button>
+        </div>
       </div>
       <motion.div
         initial={{ opacity: 0 }}

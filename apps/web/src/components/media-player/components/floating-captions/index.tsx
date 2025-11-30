@@ -1,9 +1,15 @@
+import { useAtomValue } from 'jotai';
 import { useMediaState } from '@vidstack/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Activity, useCallback, useEffect, useRef, useState } from 'react';
+
+import { floatingCaptionsOpenAtom } from '../../hooks/use-floating-open';
+
 import { cn } from '~/lib/utils';
 
 export default function FloatingCaptions() {
   const textTrackState = useMediaState('textTrack');
+
+  const open = useAtomValue(floatingCaptionsOpenAtom);
 
   const [activeCue, setActiveCue] = useState<VTTCue>();
 
@@ -78,30 +84,32 @@ export default function FloatingCaptions() {
   if (!textTrackState) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        left: 0,
-        bottom: 100,
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        touchAction: 'none'
-      }}
-      className="select-none z-5"
-      onMouseDown={handleStart}
-      onTouchStart={handleStart}
-    >
+    <Activity mode={open ? 'visible' : 'hidden'}>
       <div
-        id="floating-captions"
-        className={cn(
-          'bg-gray-400/60 text-blue-600 dark:bg-accent/70 dark:text-blue-400 backdrop-blur-md',
-          'rounded-sm min-w-dvw text-center min-h-8 px-4 py-1',
-          'text-xl touch-none',
-          'flex flex-wrap items-center justify-center'
-        )}
+        style={{
+          position: 'fixed',
+          left: 0,
+          bottom: 100,
+          transform: `translate(${position.x}px, ${position.y}px)`,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          touchAction: 'none'
+        }}
+        className="select-none z-5"
+        onMouseDown={handleStart}
+        onTouchStart={handleStart}
       >
-        <span>{activeCue?.text}</span>
+        <div
+          id="floating-captions"
+          className={cn(
+            'bg-gray-400/60 text-blue-600 dark:bg-accent/70 dark:text-blue-400 backdrop-blur-md',
+            'rounded-sm min-w-dvw text-center min-h-8 px-4 py-1',
+            'text-xl touch-none',
+            'flex flex-wrap items-center justify-center'
+          )}
+        >
+          <span>{activeCue?.text}</span>
+        </div>
       </div>
-    </div>
+    </Activity>
   );
 }
