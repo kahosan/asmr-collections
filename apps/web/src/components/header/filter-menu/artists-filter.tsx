@@ -49,7 +49,7 @@ export default function ArtistsFilter() {
   }, [exclude, navigate, search.artistId]);
 
   const sortFn = useCallback(({ id }: Data<number>) => {
-    if (search.artistId?.includes(id)) return -1;
+    if (search.artistId?.includes(id)) return -2;
     if (search.artistId?.includes(-id)) return -1;
     return 0;
   }, [search.artistId]);

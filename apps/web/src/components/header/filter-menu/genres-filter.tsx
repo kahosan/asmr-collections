@@ -49,7 +49,7 @@ export default function GenresFilter() {
   }, [exclude, navigate, search.genres]);
 
   const sortFn = useCallback(({ id }: Data<number>) => {
-    if (search.genres?.includes(id)) return -1;
+    if (search.genres?.includes(id)) return -2;
     if (search.genres?.includes(-id)) return -1;
     return 0;
   }, [search.genres]);
