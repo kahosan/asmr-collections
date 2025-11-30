@@ -29,7 +29,7 @@ export default function WorkPreview({ workId, originalId, ...props }: WorkPrevie
       {
         isLoading
           ? <div className="flex justify-center gap-2 items-center"><Spinner className="min-size-5" /> 正在加载试听</div>
-          : <iframe title="embed preview player" src={embed?.embed_url} width={embed?.embed_width} height={embed?.embed_height} allowFullScreen sandbox="allow-popups allow-scripts" />
+          : <iframe title="embed preview player" src={embed?.embed_url} width={embed?.embed_width} height={embed?.embed_height} allowFullScreen sandbox="allow-popups allow-scripts" className="max-w-full" />
       }
     </div>
   );
