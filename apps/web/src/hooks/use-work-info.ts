@@ -1,9 +1,11 @@
+import useSWRImmutable from 'swr/immutable';
+
+import { notifyError } from '~/utils';
+import { logger } from '~/lib/logger';
+import { fetcher, HTTPError } from '~/lib/fetcher';
+
 import type { Work } from '@asmr-collections/shared';
 import type { BareFetcher, SWRConfiguration } from 'swr';
-import useSWRImmutable from 'swr/immutable';
-import { fetcher, HTTPError } from '~/lib/fetcher';
-import { logger } from '~/lib/logger';
-import { notifyError } from '~/utils';
 
 export async function workInfoFetcher(id: string, cause: 'preload' | 'enter' | 'stay'): Promise<Work | null> {
   try {
