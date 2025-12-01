@@ -1,4 +1,4 @@
-import { useMediaContext, useMediaRemote, useMediaState } from '@vidstack/react';
+import { useMediaContext, useMediaRemote } from '@vidstack/react';
 
 import { useEffect, useEffectEvent, useState } from 'react';
 
@@ -7,6 +7,7 @@ import { useAtom, useAtomValue } from 'jotai/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
+import { useActiveCue } from '../../hooks/use-active-cue';
 import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
 
 import { Button } from '~/components/ui/button';
@@ -38,11 +39,10 @@ interface SubtitlesProps {
 export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const remote = useMediaRemote();
   const media = useMediaContext();
-  const textTrack = useMediaState('textTrack');
+
+  const { activeCue, textTrackState } = useActiveCue();
 
   const [autoScroll, setAutoScroll] = useState(true);
-  const [activeCue, setActiveCue] = useState<VTTCue | null>(null);
-  const [loaded, setLoaded] = useState('');
 
   const allSubtitles = useAtomValue(allSubtitlesAtom);
   const [openPipCaptions, setOpenPipCaptions] = useAtom(pipCaptionsOpenAtom);
@@ -56,28 +56,6 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const handleAutoScrollChange = () => {
     setAutoScroll(p => !p);
   };
-
-  useEffect(() => {
-    if (!textTrack) return;
-
-    const onCueChange = () => {
-      const cues = textTrack.activeCues;
-      const cue = cues.at(0) as VTTCue | undefined;
-      if (cue) setActiveCue(cue);
-    };
-
-    const onLoad = () => {
-      setLoaded(textTrack.id);
-    };
-
-    textTrack.addEventListener('load', onLoad);
-    textTrack.addEventListener('cue-change', onCueChange);
-
-    return () => {
-      textTrack.removeEventListener('load', onLoad);
-      textTrack.removeEventListener('cue-change', onCueChange);
-    };
-  }, [textTrack]);
 
   const isAutoScroll = useEffectEvent(() => autoScroll);
   const getViewport = useEffectEvent(() => {
@@ -153,9 +131,8 @@ export default function Subtitles({ scrollAreaRef }: SubtitlesProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="pt-4 space-y-2"
-        key={loaded}
       >
-        {textTrack?.cues.map((cue, index, arr) => {
+        {textTrackState?.cues.map((cue, index, arr) => {
           let isActive = false;
           if (activeCue) {
             isActive = cue.startTime === activeCue.startTime;

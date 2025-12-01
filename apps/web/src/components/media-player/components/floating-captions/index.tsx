@@ -1,45 +1,19 @@
 import { useAtomValue } from 'jotai';
-import { useMediaState } from '@vidstack/react';
 import { Activity, useCallback, useEffect, useRef, useState } from 'react';
 
+import { useActiveCue } from '../../hooks/use-active-cue';
 import { floatingCaptionsOpenAtom } from '../../hooks/use-floating-open';
 
 import { cn } from '~/lib/utils';
 
 export default function FloatingCaptions() {
-  const textTrackState = useMediaState('textTrack');
-
   const open = useAtomValue(floatingCaptionsOpenAtom);
 
-  const [activeCue, setActiveCue] = useState<VTTCue>();
+  const { activeCue, textTrackState } = useActiveCue();
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef({ startX: 0, startY: 0 });
-
-  useEffect(() => {
-    if (!textTrackState) return;
-
-    const onCueChange = () => {
-      const cues = textTrackState.activeCues;
-      const cue = cues.at(0) as VTTCue | undefined;
-      if (cue) setActiveCue(cue);
-    };
-
-    const onLoad = () => {
-      const cues = textTrackState.cues;
-      const cue = cues.find(cue => cue.text) as VTTCue | undefined;
-      setActiveCue(cue);
-    };
-
-    textTrackState.addEventListener('load', onLoad);
-    textTrackState.addEventListener('cue-change', onCueChange);
-
-    return () => {
-      textTrackState.removeEventListener('load', onLoad);
-      textTrackState.removeEventListener('cue-change', onCueChange);
-    };
-  }, [textTrackState]);
 
   const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);

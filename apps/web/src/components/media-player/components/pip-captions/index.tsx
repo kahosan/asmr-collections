@@ -2,9 +2,9 @@ import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { useMediaState } from '@vidstack/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { useActiveCue } from '../../hooks/use-active-cue';
 import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
 import { floatingCaptionsOpenAtom } from '../../hooks/use-floating-open';
 
@@ -22,8 +22,7 @@ interface DocumentPictureInPicture extends EventTarget {
 }
 
 export default function PipCaptions() {
-  const textTrackState = useMediaState('textTrack');
-  const [activeCue, setActiveCue] = useState<VTTCue>();
+  const { activeCue } = useActiveCue();
 
   const pipWindowRef = useRef<Window | null>(null);
 
@@ -78,24 +77,6 @@ export default function PipCaptions() {
       }
     };
   }, [open, setFloatingCaptionsOpen, setPipOpen]);
-
-  useEffect(() => {
-    if (!textTrackState) return;
-
-    const onCueChange = () => {
-      const cues = textTrackState.activeCues;
-      const cue = cues.at(0) as VTTCue | undefined;
-      if (cue) setActiveCue(cue);
-    };
-
-    textTrackState.addEventListener('load', onCueChange);
-    textTrackState.addEventListener('cue-change', onCueChange);
-
-    return () => {
-      textTrackState.removeEventListener('load', onCueChange);
-      textTrackState.removeEventListener('cue-change', onCueChange);
-    };
-  }, [textTrackState]);
 
   const isDark = document.documentElement.classList.contains('dark');
   const textColor = isDark ? '#FFFFFF' : '#000000';
