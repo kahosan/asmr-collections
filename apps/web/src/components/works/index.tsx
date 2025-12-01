@@ -2,21 +2,18 @@ import WorkCard from '../work-card';
 import Pagination from '../pagination';
 
 import useSWR from 'swr';
-import { useSearch } from '@tanstack/react-router';
 
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
 
 import type { WorksResponse } from '@asmr-collections/shared';
 
-export default function Works() {
-  const search = useSearch({ from: '/' });
-  const searchParams = new URLSearchParams();
+interface WorksProps {
+  swrKey: string
+}
 
-  for (const [key, value] of Object.entries(search))
-    searchParams.set(key, value.toString());
-
-  const { data } = useSWR<WorksResponse>(`/api/works?${searchParams.toString()}`, fetcher, {
+export default function Works({ swrKey }: WorksProps) {
+  const { data } = useSWR<WorksResponse>(swrKey, fetcher, {
     suspense: true,
     onError: err => notifyError(err, '获取作品列表失败')
   });
@@ -31,9 +28,7 @@ export default function Works() {
           </div>
         ))}
       </div>
-      <Pagination
-        total={data?.total ?? 0}
-      />
+      <Pagination total={data?.total ?? 0} />
     </>
   );
 }

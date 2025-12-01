@@ -1,1 +1,1 @@
-export { joinURL } from 'ufo';
+export * from 'ufo';
