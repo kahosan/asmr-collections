@@ -1,7 +1,10 @@
 import useSWR from 'swr';
 import { fetchJsonp } from 'foxact/fetch-jsonp';
-import { cn } from '~/lib/utils';
+import { withQuery } from '@asmr-collections/shared';
+
 import { Spinner } from '../ui/spinner';
+
+import { cn } from '~/lib/utils';
 
 async function fetcher<T>(key: string) {
   return fetchJsonp<T>(callbackName => `${key}&callback=${callbackName}`);
@@ -17,10 +20,9 @@ interface WorkPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default function WorkPreview({ workId, originalId, ...props }: WorkPreviewProps) {
-  const { data, isLoading } = useSWR<Embed>(
-    `https://chobit.cc/api/v1/dlsite/embed?workno=${originalId ?? workId}`,
-    fetcher
-  );
+  const key = withQuery('https://chobit.cc/api/v1/dlsite/embed', { workno: originalId ?? workId });
+
+  const { data, isLoading } = useSWR<Embed>(key, fetcher);
 
   const embed = data?.works.at(0);
 

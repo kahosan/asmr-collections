@@ -2,6 +2,8 @@ import { useAtomValue } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import useSWRImmutable from 'swr/immutable';
 
+import { withQuery } from '@asmr-collections/shared';
+
 import { settingOptionsAtom } from './use-setting-options';
 
 import { notifyError } from '~/utils';
@@ -17,11 +19,10 @@ export function useSimilar(id: string) {
   const useRecommender = useAtomValue(useRecommenderAtom);
   const asmrOneApiUrl = useAtomValue(asmrOneApi);
 
-  const searchParams = new URLSearchParams();
-  if (useRecommender)
-    searchParams.append('asmrOneApi', asmrOneApiUrl);
+  const query = useRecommender ? { asmrOneApi: asmrOneApiUrl } : {};
+  const key = withQuery(`/api/work/similar/${id}`, query);
 
-  return useSWRImmutable<Work[]>(`/api/work/similar/${id}?${searchParams.toString()}`, fetcher, {
+  return useSWRImmutable<Work[]>(key, fetcher, {
     onError: e => notifyError(e, '获取相似作品失败'),
     errorRetryCount: 0
   });

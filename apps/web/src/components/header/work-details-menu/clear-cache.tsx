@@ -1,9 +1,12 @@
 import { useAtomValue } from 'jotai';
 import { focusAtom } from 'jotai-optics';
+import { withQuery } from '@asmr-collections/shared';
+
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
-import { settingOptionsAtom, voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
+import { settingOptionsAtom, voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
+
 import { mutateTracks } from '~/lib/mutation';
 
 const useLocalAtom = focusAtom(voiceLibraryOptionsAtom, optic => optic.prop('useLocalVoiceLibrary'));
@@ -16,14 +19,14 @@ export default function ClearCacheMenu({ id}: { id: string }) {
 
   const isMutating = m1;
 
-  const searchParams = new URLSearchParams({
-    local: local ? 'true' : 'false',
+  const key = withQuery(`/api/tracks/${id}/cache/clear`, {
+    local,
     asmrOneApi
   });
 
   const handleClear = () => {
     clearTracksAction({
-      key: `/api/tracks/${id}/cache/clear?${searchParams.toString()}`,
+      key,
       fetchOps: { method: 'POST' },
       toastOps: {
         loading: '正在清理曲目缓存...',

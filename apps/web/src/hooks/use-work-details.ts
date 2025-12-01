@@ -3,6 +3,8 @@ import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
 
+import { withQuery } from '@asmr-collections/shared';
+
 import { settingOptionsAtom } from './use-setting-options';
 import { findSmartPath, notifyError } from '~/utils';
 
@@ -100,9 +102,17 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
         searchParams.append('asmrOneApi', settings.asmrOneApi);
       }
 
+      const query = useAsmrOne
+        ? {
+          provider: 'asmrone',
+          asmrOneApi: settings.asmrOneApi
+        }
+        : {};
+
       let workTracks: Tracks | null = null;
       try {
-        workTracks = await fetcher<Tracks>(`/api/tracks/${id}?${searchParams.toString()}`);
+        const key = withQuery(`/api/tracks/${id}`, query);
+        workTracks = await fetcher<Tracks>(key);
       } catch (e) {
         const errorMessage = useAsmrOne
           ? '获取 ASMR.ONE 音频数据失败'
