@@ -9,8 +9,7 @@ export function mutateWorks() {
 }
 
 export function mutateTracks(id: string) {
-  mutate(`work-tracks-${id}`);
-  mutate(`work-tracks-local-${id}`);
+  mutate(key => typeof key === 'string' && key.startsWith(`work-tracks-${id}`));
 }
 
 export function mutateSimilar(id: string) {

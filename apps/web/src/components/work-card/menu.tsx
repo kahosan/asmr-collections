@@ -14,7 +14,7 @@ import { useAtomValue } from 'jotai';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
-import { mutateWorks } from '~/lib/mutation';
+import { mutateWorkInfo, mutateWorks } from '~/lib/mutation';
 
 import type { Work } from '@asmr-collections/shared';
 
@@ -216,7 +216,11 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
       },
       toastOps: {
         loading: `${id} 字幕上传中...`,
-        success: `${id} 字幕上传成功`,
+        success() {
+          // 重新请求字幕信息
+          mutateWorkInfo(id);
+          return `${id} 字幕上传成功`;
+        },
         error: `${id} 字幕上传失败`,
         description: `上传的字幕名称为: ${file.name}`
       }

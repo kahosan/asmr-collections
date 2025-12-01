@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { match } from 'ts-pattern';
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import useSWRImmutable from 'swr/immutable';
@@ -61,88 +62,91 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     }
   }, [id, searchPath, settings.smartPath.enable, settings.smartPath.pattern, smartNavigate]);
 
-  const key = hasSubtitles === undefined
-    ? null
-    : (voiceLibrary.useLocalVoiceLibrary ? `work-tracks-local-${id}` : `work-tracks-${id}`);
+  const key = match(hasSubtitles)
+    .with(true, () => {
+      return voiceLibrary.useLocalVoiceLibrary ? `work-tracks-${id}-local` : `work-tracks-${id}`;
+    })
+    .with(false, () => {
+      return voiceLibrary.useLocalVoiceLibrary ? `work-tracks-${id}-local-no-subtitles` : `work-tracks-${id}-no-subtitles`;
+    })
+    .with(undefined, () => null)
+    .exhaustive();
 
-  return useSWRImmutable<TracksData>(
-    key,
-    async () => {
-      const enableLibrary = voiceLibrary.useLocalVoiceLibrary;
+  // 拿出来是为了当 hasSubtitles 变化时重新请求
+  const fetchFn = async () => {
+    const enableLibrary = voiceLibrary.useLocalVoiceLibrary;
 
-      let useAsmrOne: boolean | null = null;
+    let useAsmrOne: boolean | null = null;
 
-      let exists: boolean | null = null;
+    let exists: boolean | null = null;
 
-      try {
-        if (enableLibrary) {
-          const isExists = await fetcher<{ exists: boolean }>(`/api/library/exists/${id}`);
-          exists = isExists.exists;
+    try {
+      if (enableLibrary) {
+        const isExists = await fetcher<{ exists: boolean }>(`/api/library/exists/${id}`);
+        exists = isExists.exists;
 
-          if (exists)
-            useAsmrOne = false;
-          else if (voiceLibrary.fallbackToAsmrOneApi)
-            useAsmrOne = true;
-        } else {
+        if (exists)
+          useAsmrOne = false;
+        else if (voiceLibrary.fallbackToAsmrOneApi)
           useAsmrOne = true;
-        }
-      } catch (e) {
-        logger.error(e, '检查本地库状态失败');
-        return {
-          error: new Error('获取是否存在于本地库失败', { cause: e })
-        };
+      } else {
+        useAsmrOne = true;
       }
-
-      if (useAsmrOne === null)
-        return null;
-
-      const searchParams = new URLSearchParams();
-      if (useAsmrOne) {
-        searchParams.append('provider', 'asmrone');
-        searchParams.append('asmrOneApi', settings.asmrOneApi);
-      }
-
-      const query = useAsmrOne
-        ? {
-          provider: 'asmrone',
-          asmrOneApi: settings.asmrOneApi
-        }
-        : {};
-
-      let workTracks: Tracks | null = null;
-      try {
-        const key = withQuery(`/api/tracks/${id}`, query);
-        workTracks = await fetcher<Tracks>(key);
-      } catch (e) {
-        const errorMessage = useAsmrOne
-          ? '获取 ASMR.ONE 音频数据失败'
-          : '获取本地音频数据失败';
-
-        logger.error(e, '预加载作品音轨失败');
-        return { error: new Error(errorMessage, { cause: e }) };
-      }
-
-      const tracksData = {
-        data: workTracks,
-        fallback: useAsmrOne && exists === false,
-        existsInLocal: exists === true
+    } catch (e) {
+      logger.error(e, '检查本地库状态失败');
+      return {
+        error: new Error('获取是否存在于本地库失败', { cause: e })
       };
-
-      if (hasSubtitles) {
-        try {
-          const externalSubtitles = await readerZipFileSubtitles(`/api/work/subtitles/${id}`);
-          return { ...tracksData, externalSubtitles };
-        } catch (e) {
-          logger.error(e, '尝试加载数据库字幕失败');
-          notifyError(e, '尝试加载数据库字幕失败');
-          return tracksData;
-        }
-      }
-
-      return tracksData;
-    },
-    {
-      onSuccess
     }
-  );
+
+    if (useAsmrOne === null)
+      return null;
+
+    const searchParams = new URLSearchParams();
+    if (useAsmrOne) {
+      searchParams.append('provider', 'asmrone');
+      searchParams.append('asmrOneApi', settings.asmrOneApi);
+    }
+
+    const query = useAsmrOne
+      ? {
+        provider: 'asmrone',
+        asmrOneApi: settings.asmrOneApi
+      }
+      : {};
+
+    let workTracks: Tracks | null = null;
+    try {
+      const key = withQuery(`/api/tracks/${id}`, query);
+      workTracks = await fetcher<Tracks>(key);
+    } catch (e) {
+      const errorMessage = useAsmrOne
+        ? '获取 ASMR.ONE 音频数据失败'
+        : '获取本地音频数据失败';
+
+      logger.error(e, '预加载作品音轨失败');
+      return { error: new Error(errorMessage, { cause: e }) };
+    }
+
+    const tracksData = {
+      data: workTracks,
+      fallback: useAsmrOne && exists === false,
+      existsInLocal: exists === true
+    };
+
+    if (hasSubtitles) {
+      try {
+        const externalSubtitles = await readerZipFileSubtitles(`/api/work/subtitles/${id}`);
+        return { ...tracksData, externalSubtitles };
+      } catch (e) {
+        logger.error(e, '尝试加载数据库字幕失败');
+        notifyError(e, '尝试加载数据库字幕失败');
+        return tracksData;
+      }
+    }
+
+    return tracksData;
+  };
+
+  return useSWRImmutable<TracksData>(key, fetchFn, { onSuccess });
 }
