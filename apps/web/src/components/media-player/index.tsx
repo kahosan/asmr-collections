@@ -1,5 +1,5 @@
 import { MediaPlayer as VidstackPlayer, MediaProvider, MEDIA_KEY_SHORTCUTS, TextTrack } from '@vidstack/react';
-import type { MediaLoadedDataEvent, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
+import type { MediaLoadedDataEvent, MediaPlayerInstance, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
 
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
@@ -76,27 +76,40 @@ export default function MediaPlayer() {
     }, 2000);
   }, [mediaState.currentTrack, mediaState.work, updateHistory]);
 
-  const setupMediaSession = useCallback((isPlaying: boolean) => {
-    if (
-      !('mediaSession' in navigator)
-      || !mediaState.currentTrack
-      || !mediaState.work
-      || !isPlaying
-    ) return;
+  const setupMediaSession = useCallback((el: MediaPlayerInstance | null) => {
+    if (!el) return;
 
-    const currentTrack = mediaState.currentTrack;
+    const unsubscribe = el.subscribe(state => {
+      if (
+        !('mediaSession' in navigator)
+        || !mediaState.currentTrack
+        || !mediaState.work
+        || !state.canPlay
+      ) return;
 
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: currentTrack.title,
-      artist: mediaState.work.artists.map(artist => artist.name).join(', '),
-      album: mediaState.work.name,
-      artwork: [
-        { src: mediaState.work.cover }
-      ]
+      const currentTrack = mediaState.currentTrack;
+
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.title,
+        artist: mediaState.work.artists.map(artist => artist.name).join(', '),
+        album: mediaState.work.name,
+        artwork: [
+          { src: mediaState.work.cover, sizes: '512x512', type: 'image/jpeg' }
+        ]
+      });
+
+      navigator.mediaSession.setActionHandler('previoustrack', () => changeTrack());
+      navigator.mediaSession.setActionHandler('nexttrack', () => changeTrack(true));
     });
 
-    navigator.mediaSession.setActionHandler('previoustrack', () => changeTrack());
-    navigator.mediaSession.setActionHandler('nexttrack', () => changeTrack(true));
+    return () => {
+      unsubscribe();
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.setActionHandler('previoustrack', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+      }
+    };
   }, [changeTrack, mediaState.currentTrack, mediaState.work]);
 
   if (!mediaState.open) return null;
@@ -105,22 +118,7 @@ export default function MediaPlayer() {
     <div className="relative h-15 max-sm:z-10">
       <div className="fixed bottom-0 w-full">
         <VidstackPlayer
-          ref={el => {
-            if (!el) return;
-
-            const unsubscribe = el.subscribe(state => {
-              setupMediaSession(state.playing);
-            });
-
-            return () => {
-              unsubscribe();
-              if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = null;
-                navigator.mediaSession.setActionHandler('previoustrack', null);
-                navigator.mediaSession.setActionHandler('nexttrack', null);
-              }
-            };
-          }}
+          ref={setupMediaSession}
           autoPlay
           src={mediaState.currentTrack?.mediaStreamUrl}
           onLoadStart={onLoadStart}
