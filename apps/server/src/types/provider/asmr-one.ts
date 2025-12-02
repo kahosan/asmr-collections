@@ -65,7 +65,7 @@ export interface Recommender {
       edition_id: number
       edition_type: string
       display_order: number
-    }>
+    }> | Record<string, unknown>
     original_workno: string | null
     other_language_editions_in_db: Array<{
       id: number

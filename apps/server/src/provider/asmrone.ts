@@ -67,11 +67,13 @@ export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): 
       },
       createdAt: new Date(work.create_date),
       updatedAt: new Date(work.create_date),
-      languageEditions: work.language_editions.map(edition => ({
-        workId: edition.workno,
-        label: edition.label,
-        lang: edition.lang
-      })),
+      languageEditions: Array.isArray(work.language_editions)
+        ? work.language_editions.map(edition => ({
+          workId: edition.workno,
+          label: edition.label,
+          lang: edition.lang
+        }))
+        : [],
       subtitles: false
     }));
 
