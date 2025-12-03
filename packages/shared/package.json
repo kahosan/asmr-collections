@@ -1,6 +1,6 @@
 {
   "name": "@asmr-collections/shared",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "type": "module",
   "exports": {
     ".": {
