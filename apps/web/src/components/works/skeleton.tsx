@@ -6,7 +6,7 @@ export function WorkSkeleton() {
   return (
     <Card className="dark:bg-zinc-900 gap-2 py-0">
       <CardHeader className="px-0 pt-0 pb-1">
-        <Skeleton className="w-full pb-[65%]" />
+        <Skeleton className="w-full pb-[65%] rounded-b-none" />
       </CardHeader>
       <CardContent className="pt-2 px-2 flex flex-col gap-4">
         <Skeleton className="mb-2 h-12" />
