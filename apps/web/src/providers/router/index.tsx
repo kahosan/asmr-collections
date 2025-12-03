@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, ViewTransition } from 'react';
 
 import {
   RouterProvider as TanstackRouter,
@@ -80,9 +80,11 @@ const workDetailsRoute = createRoute({
     const id = workDetailsRoute.useParams().id;
     return (
       <ErrorBoundary key={id}>
-        <Suspense fallback={<WorkDetailsSkeleton />}>
-          <WorkDetails />
-        </Suspense>
+        <ViewTransition>
+          <Suspense fallback={<WorkDetailsSkeleton />}>
+            <WorkDetails />
+          </Suspense>
+        </ViewTransition>
       </ErrorBoundary>
     );
   },
