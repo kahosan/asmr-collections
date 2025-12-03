@@ -50,11 +50,14 @@ app.use('/assets/*', serveStatic({
   }
 }));
 
+// spa
+const spaRoutes = ['/work-details/'];
+// static files (png, ico, webmanifest)
 app.use('*', etag());
 app.use('*', serveStatic({
   root: CLIENT_DIST,
   rewriteRequestPath(path) {
-    if (path.startsWith('/work-details/'))
+    if (spaRoutes.some(route => path.startsWith(route)))
       return '/index.html';
 
     return path;
@@ -71,7 +74,10 @@ app.use('*', serveStatic({
 app.use('*', serveStatic({
   root: CLIENT_DIST,
   rewriteRequestPath: () => '/index.html',
-  onFound: (_, c) => c.header('Cache-Control', 'public, max-age=0, must-revalidate')
+  onFound(_, c) {
+    c.status(404);
+    c.header('Cache-Control', 'public, max-age=0, must-revalidate');
+  }
 }));
 
 // init
