@@ -1,7 +1,4 @@
-import { Suspense } from 'react';
-
 import Works from './components/works';
-import WorkSkeletons from './components/works/skeleton';
 import PreloadNextWorks from './components/works/preload-next';
 
 import { useSearch } from '@tanstack/react-router';
@@ -19,9 +16,7 @@ export default function App() {
 
   return (
     <>
-      <Suspense fallback={<WorkSkeletons />}>
-        <Works swrKey={key} />
-      </Suspense>
+      <Works swrKey={key} />
       {/** 预渲染下一页的数据 */}
       <div className="hidden" aria-hidden="true">
         <PreloadNextWorks swrKey={nextKey} />
