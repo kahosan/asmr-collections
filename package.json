@@ -26,6 +26,11 @@
     "simple-git-hooks": "^2.13.0",
     "typescript": "~5.9.3"
   },
+  "pnpm": {
+    "overrides": {
+      "vite": "8.0.0-beta.0"
+    }
+  },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged && pnpm typecheck"
   },

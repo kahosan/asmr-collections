@@ -1,5 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 import info from 'unplugin-info/vite';
@@ -52,19 +52,51 @@ export default defineConfig(({ mode }) => {
         : undefined
     },
     build: {
-      minify: true,
-      cssMinify: true,
       chunkSizeWarningLimit: 1000,
-      rollupOptions: {
+      rolldownOptions: {
         plugins: [visualizer({ open: false })],
         output: {
-          manualChunks(id) {
-            const chunks = ['vidstack', '@dnd-kit', 'lightgallery'];
-            if (chunks.some(chunk => id.includes(chunk)))
-              return chunks.find(chunk => id.includes(chunk));
-
-            if (id.includes('node_modules'))
-              return 'vendor';
+          advancedChunks: {
+            groups: [
+              {
+                test: /node_modules[/\\](framer-motion|motion-dom)/,
+                name: 'framer-motion'
+              },
+              {
+                test: /node_modules[/\\]@tanstack/,
+                name: 'tanstack'
+              },
+              {
+                test: /node_modules[/\\]?@vidstack/,
+                name: 'vidstack'
+              },
+              {
+                test: /node_modules[/\\]@dnd-kit/,
+                name: 'dnd-kit'
+              },
+              {
+                test: /node_modules[/\\]lightgallery/,
+                name: 'lightgallery'
+              },
+              {
+                test: /node_modules[/\\]@zip.js/,
+                name: 'zipjs'
+              },
+              {
+                test: /node_modules[/\\]react/,
+                name: 'react',
+                priority: 5
+              },
+              {
+                test: /.css$/,
+                name: 'styles',
+                priority: 10
+              },
+              {
+                test: /node_modules/,
+                name: 'vendor'
+              }
+            ]
           }
         }
       }
