@@ -2,6 +2,7 @@ import { MediaPlayer as VidstackPlayer, MediaProvider, MEDIA_KEY_SHORTCUTS, Text
 import type { MediaLoadedDataEvent, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
 
 import { useAtom } from 'jotai';
+import { createPortal } from 'react-dom';
 import { useCallback, useRef } from 'react';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
@@ -100,7 +101,7 @@ export default function MediaPlayer() {
 
   if (!mediaState.open) return null;
 
-  return (
+  return createPortal(
     <div className="relative h-15 max-sm:z-10">
       <div className="fixed bottom-0 w-full">
         <VidstackPlayer
@@ -121,6 +122,7 @@ export default function MediaPlayer() {
           />
         </VidstackPlayer>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
