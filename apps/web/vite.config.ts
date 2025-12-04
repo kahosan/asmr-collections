@@ -71,10 +71,6 @@ export default defineConfig(({ mode }) => {
                 name: 'vidstack'
               },
               {
-                test: /node_modules[/\\]@dnd-kit/,
-                name: 'dnd-kit'
-              },
-              {
                 test: /node_modules[/\\]lightgallery/,
                 name: 'lightgallery'
               },
