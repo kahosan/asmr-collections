@@ -1,5 +1,3 @@
-import { Suspense, ViewTransition } from 'react';
-
 import {
   RouterProvider as TanstackRouter,
   Outlet,
@@ -12,13 +10,10 @@ import type { InferFullSearchSchema } from '@tanstack/react-router';
 
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
-import Layout from '~/layout';
-import NotFound from '~/components/not-found';
-import ErrorBoundary from '~/components/error-boundary';
-
 import App from '~/app';
-import WorkDetails from '~/pages/work-details';
-import WorkDetailsSkeleton from '~/pages/work-details/skeleton';
+import RootLayout from '~/layout';
+
+import NotFound from '~/components/not-found';
 
 import { preloadWorkDetails } from './preload';
 import { RootSearchSchema, IndexSearchSchema, WorkDetailsSearchSchema } from './schemas';
@@ -29,12 +24,10 @@ export type RootSearchParams = InferFullSearchSchema<typeof rootRoute>;
 
 const rootRoute = createRootRoute({
   component: () => (
-    <ErrorBoundary>
-      <Layout>
-        <Outlet />
-        <TanStackRouterDevtools position="bottom-right" />
-      </Layout>
-    </ErrorBoundary>
+    <RootLayout>
+      <Outlet />
+      <TanStackRouterDevtools position="bottom-right" />
+    </RootLayout>
   ),
   validateSearch: RootSearchSchema,
   search: {
@@ -59,11 +52,7 @@ const indexRoute = createRoute({
   search: {
     middlewares: [stripSearchParams(INDEX_DEFAULT_SEARCH_VALUES)]
   },
-  component: () => (
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  )
+  component: () => <App />
 });
 
 export type WorkDetailsSearchParams = InferFullSearchSchema<typeof workDetailsRoute>;
@@ -76,20 +65,8 @@ const workDetailsRoute = createRoute({
     const id = params.id;
     preloadWorkDetails(id, cause);
   },
-  component() {
-    const id = workDetailsRoute.useParams().id;
-    return (
-      <ErrorBoundary key={id}>
-        <ViewTransition>
-          <Suspense fallback={<WorkDetailsSkeleton />}>
-            <WorkDetails />
-          </Suspense>
-        </ViewTransition>
-      </ErrorBoundary>
-    );
-  },
   validateSearch: WorkDetailsSearchSchema
-});
+}).lazy(() => import('~/pages/work-details').then(d => d.default));
 
 const router = createRouter({
   routeTree: rootRoute.addChildren([indexRoute, workDetailsRoute]),

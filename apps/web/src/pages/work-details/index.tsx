@@ -1,7 +1,7 @@
-import { getRouteApi, Link, useMatchRoute } from '@tanstack/react-router';
+import { createLazyRoute, getRouteApi, Link, useMatchRoute } from '@tanstack/react-router';
 
 import { motion } from 'framer-motion';
-import { Activity, useCallback } from 'react';
+import { Activity, Suspense, useCallback, ViewTransition } from 'react';
 
 import { formatChineseDate } from '@asmr-collections/shared';
 
@@ -14,8 +14,11 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 
+import ErrorBoundary from '~/components/error-boundary';
+
 import SimilarWorks from './similar';
 import TracksTabale from './tracks-table';
+import WorkDetailsSkeleton from './skeleton';
 import TracksSkeleton from './tracks-skeleton';
 
 import { useAtomValue } from 'jotai';
@@ -31,8 +34,7 @@ import { cn } from '~/lib/utils';
 
 const route = getRouteApi('/work-details/$id');
 
-export default function WorkDetails() {
-  const { id } = route.useParams();
+function WorkDetails({ id}: { id: string }) {
   const navigate = route.useNavigate();
   const searchPath = route.useSearch({ select: ({ path }) => path });
   const matchRoute = useMatchRoute();
@@ -244,3 +246,23 @@ export default function WorkDetails() {
     </>
   );
 }
+
+function WorkDetailsWrapper() {
+  const { id } = route.useParams();
+
+  return (
+    <ErrorBoundary key={id}>
+      <ViewTransition>
+        <Suspense fallback={<WorkDetailsSkeleton />}>
+          <WorkDetails id={id} />
+        </Suspense>
+      </ViewTransition>
+    </ErrorBoundary>
+  );
+}
+
+const Route = createLazyRoute('/work-details/$id')({
+  component: WorkDetailsWrapper
+});
+
+export default Route;
