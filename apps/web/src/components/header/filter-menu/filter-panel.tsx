@@ -57,7 +57,7 @@ export default function FilterPanel<T extends string | number>({
       />
       <Virtualized asChild className="overscroll-contain">
         <CommandList className="h-48 no-scrollbar">
-          <Activity mode={!error && !isLoading && (filtered?.length === 0) ? 'visible' : 'hidden'}>
+          <Activity mode={!error && !isLoading && (filtered.length === 0) ? 'visible' : 'hidden'}>
             <CommandEmpty>无结果</CommandEmpty>
           </Activity>
           <CommandGroup>

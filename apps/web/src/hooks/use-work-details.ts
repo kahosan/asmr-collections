@@ -115,7 +115,7 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
       }
       : {};
 
-    let workTracks: Tracks | null = null;
+    let workTracks: Tracks;
     try {
       const key = withQuery(`/api/tracks/${id}`, query);
       workTracks = await fetcher<Tracks>(key);
