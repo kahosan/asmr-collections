@@ -311,7 +311,7 @@ importers:
         specifier: ^1.136.1
         version: 1.136.1(@tanstack/react-router@1.136.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(@tanstack/router-core@1.136.1)(@types/node@24.10.1)(csstype@3.2.3)(esbuild@0.25.4)(jiti@2.6.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(solid-js@1.9.10)(tsx@4.19.2)(yaml@2.8.0)
       '@types/node':
-        specifier: ^24.10.1
+        specifier: 'catalog:'
         version: 24.10.1
       '@types/react':
         specifier: ^19.2.7
