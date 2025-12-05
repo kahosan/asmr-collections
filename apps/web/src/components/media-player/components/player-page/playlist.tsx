@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { GripVerticalIcon, X } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 
 import { useAtom } from 'jotai';
@@ -68,7 +68,7 @@ export default function Playlist() {
 
 function SortableItem(props: { current?: Track, track: Track, index: number, onChange: () => void, removeTrack: () => void }) {
   const { current, track, index, onChange, removeTrack } = props;
-  const { ref } = useSortable({ id: track.title, index });
+  const { handleRef, ref, isDragging } = useSortable({ id: track.title, index });
 
   const isActive = current?.title === track.title;
 
@@ -78,13 +78,25 @@ function SortableItem(props: { current?: Track, track: Track, index: number, onC
       className={cn(
         'flex items-center justify-between px-2 py-1 text-sm mb-2 rounded-sm transition-colors',
         'hover:bg-accent',
-        isActive && 'bg-blue-500 text-white hover:bg-blue-500'
+        isActive && 'bg-blue-500 text-white hover:bg-blue-500',
+        isDragging && !isActive && 'bg-accent'
       )}
       title={track.title}
       onClick={onChange}
     >
-      <div className="max-w-64 sm:max-w-60.5 truncate">
-        {track.title}
+      <div className="flex items-center gap-1">
+        <Button
+          ref={handleRef}
+          type="button"
+          variant="link"
+          size="icon-sm"
+          className="cursor-grab"
+        >
+          <GripVerticalIcon className={isActive ? 'text-white' : 'text-black dark:text-white'} />
+        </Button>
+        <div className="max-w-54 sm:max-w-50.5 truncate cursor-pointer">
+          {track.title}
+        </div>
       </div>
       <Button
         type="button"
