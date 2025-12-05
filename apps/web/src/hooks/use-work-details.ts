@@ -40,7 +40,7 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     if (!tracks) return;
 
     if (tracks.error)
-      notifyError(tracks.error.cause, tracks.error.message);
+      notifyError(tracks.error.cause, tracks.error.message, { id: `work-tracks-error-${id}` });
 
     if (tracks.fallback) {
       toast.success('成功回退至 ASMR.ONE 获取数据', {

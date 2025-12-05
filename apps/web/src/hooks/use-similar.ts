@@ -23,7 +23,7 @@ export function useSimilar(id: string) {
   const key = withQuery(`/api/work/similar/${id}`, query);
 
   return useSWRImmutable<Work[]>(key, fetcher, {
-    onError: e => notifyError(e, '获取相似作品失败'),
+    onError: e => notifyError(e, '获取相似作品失败', { id: `work-similar-error-${id}` }),
     errorRetryCount: 0
   });
 };
