@@ -391,7 +391,8 @@ export const ModelName = {
   Illustrator: 'Illustrator',
   Genre: 'Genre',
   SubtitlesData: 'SubtitlesData',
-  TranslationInfo: 'TranslationInfo'
+  TranslationInfo: 'TranslationInfo',
+  Storage: 'Storage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "work" | "circle" | "series" | "artist" | "illustrator" | "genre" | "subtitlesData" | "translationInfo"
+    modelProps: "work" | "circle" | "series" | "artist" | "illustrator" | "genre" | "subtitlesData" | "translationInfo" | "storage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1003,6 +1004,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Storage: {
+      payload: Prisma.$StoragePayload<ExtArgs>
+      fields: Prisma.StorageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StorageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StorageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>
+        }
+        findFirst: {
+          args: Prisma.StorageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StorageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>
+        }
+        findMany: {
+          args: Prisma.StorageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>[]
+        }
+        create: {
+          args: Prisma.StorageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>
+        }
+        createMany: {
+          args: Prisma.StorageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StorageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>[]
+        }
+        delete: {
+          args: Prisma.StorageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>
+        }
+        update: {
+          args: Prisma.StorageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>
+        }
+        deleteMany: {
+          args: Prisma.StorageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StorageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StorageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>[]
+        }
+        upsert: {
+          args: Prisma.StorageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StoragePayload>
+        }
+        aggregate: {
+          args: Prisma.StorageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStorage>
+        }
+        groupBy: {
+          args: Prisma.StorageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StorageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StorageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StorageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1131,12 +1206,33 @@ export const TranslationInfoScalarFieldEnum = {
 export type TranslationInfoScalarFieldEnum = (typeof TranslationInfoScalarFieldEnum)[keyof typeof TranslationInfoScalarFieldEnum]
 
 
+export const StorageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  priority: 'priority',
+  config: 'config',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StorageScalarFieldEnum = (typeof StorageScalarFieldEnum)[keyof typeof StorageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1153,6 +1249,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1249,6 +1354,13 @@ export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Bytes[]'
  */
 export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 /**
@@ -1354,6 +1466,7 @@ export type GlobalOmitConfig = {
   genre?: Prisma.GenreOmit
   subtitlesData?: Prisma.SubtitlesDataOmit
   translationInfo?: Prisma.TranslationInfoOmit
+  storage?: Prisma.StorageOmit
 }
 
 /* Types for Logging */

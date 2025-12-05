@@ -99,3 +99,16 @@ model TranslationInfo {
   childWorknos            String[]
   lang                    String?
 }
+
+model Storage {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String
+  priority    Int      @default(0)
+  config      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([priority])
+}

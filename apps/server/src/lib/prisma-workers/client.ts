@@ -76,3 +76,8 @@ export type SubtitlesData = Prisma.SubtitlesDataModel
  * 
  */
 export type TranslationInfo = Prisma.TranslationInfoModel
+/**
+ * Model Storage
+ * 
+ */
+export type Storage = Prisma.StorageModel
