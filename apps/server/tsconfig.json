@@ -10,7 +10,6 @@
 
     "moduleResolution": "bundler",
 
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
     },
