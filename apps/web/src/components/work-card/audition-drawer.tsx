@@ -25,7 +25,7 @@ export default function AuditionDrawer({ workId, originalId }: { workId: string,
           <DrawerTitle>试听</DrawerTitle>
           <DrawerDescription>试听DLsite作品音频</DrawerDescription>
         </DrawerHeader>
-        {open && <WorkPreview workId={workId} originalId={originalId} className="mt-4 min-h-64" />}
+        {open && <WorkPreview workId={workId} originalId={originalId} className="min-h-64" />}
       </DrawerContent>
     </Drawer>
   );
