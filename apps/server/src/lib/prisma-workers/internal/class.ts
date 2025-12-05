@@ -17,8 +17,8 @@ import type * as Prisma from "./prismaNamespace.ts"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.0.0",
-  "engineVersion": "0c19ccc313cf9911a90d99d2ac2eb0280c76c513",
+  "clientVersion": "7.1.0",
+  "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
   "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/lib/prisma\"\n\n  runtime = \"bun\"\n}\n\ngenerator workers {\n  provider = \"prisma-client\"\n  output   = \"../src/lib/prisma-workers\"\n\n  runtime = \"workerd\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\n// Work Model\nmodel Work {\n  id               String                       @id\n  name             String\n  cover            String\n  intro            String\n  circleId         String\n  circle           Circle                       @relation(fields: [circleId], references: [id])\n  seriesId         String?\n  series           Series?                      @relation(fields: [seriesId], references: [id])\n  artists          Artist[]\n  illustrators     Illustrator[]\n  ageCategory      Int\n  genres           Genre[]\n  price            Int\n  sales            Int\n  wishlistCount    Int\n  rate             Float\n  rateCount        Int\n  reviewCount      Int\n  originalId       String?\n  translationInfo  TranslationInfo?\n  languageEditions Json[]\n  subtitles        Boolean                      @default(false)\n  subtitlesData    SubtitlesData?\n  embedding        Unsupported(\"vector(1024)\")?\n  releaseDate      DateTime\n  createdAt        DateTime                     @default(now())\n  updatedAt        DateTime                     @updatedAt\n}\n\nmodel Circle {\n  id    String @id\n  name  String\n  works Work[]\n}\n\nmodel Series {\n  id    String @id\n  name  String\n  works Work[]\n}\n\nmodel Artist {\n  id    Int    @id @default(autoincrement())\n  name  String @unique\n  works Work[]\n}\n\nmodel Illustrator {\n  id    Int    @id @default(autoincrement())\n  name  String @unique\n  works Work[]\n}\n\nmodel Genre {\n  id    Int    @id\n  name  String\n  works Work[]\n}\n\nmodel SubtitlesData {\n  workId String @id\n  work   Work   @relation(fields: [workId], references: [id], onDelete: Cascade)\n  data   Bytes\n}\n\nmodel TranslationInfo {\n  workId                  String   @id\n  work                    Work     @relation(fields: [workId], references: [id], onDelete: Cascade)\n  isVolunteer             Boolean\n  isOriginal              Boolean\n  isParent                Boolean\n  isChild                 Boolean\n  isTranslationBonusChild Boolean\n  originalWorkno          String?\n  parentWorkno            String?\n  childWorknos            String[]\n  lang                    String?\n}\n",
   "runtimeDataModel": {
@@ -58,7 +58,7 @@ export interface PrismaClientConstructor {
    * const works = await prisma.work.findMany()
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   * Read more in our [docs](https://pris.ly/d/client).
    */
 
   new <
@@ -80,7 +80,7 @@ export interface PrismaClientConstructor {
  * const works = await prisma.work.findMany()
  * ```
  * 
- * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ * Read more in our [docs](https://pris.ly/d/client).
  */
 
 export interface PrismaClient<
@@ -109,7 +109,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -121,7 +121,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -132,7 +132,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -144,7 +144,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
