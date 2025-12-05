@@ -1,7 +1,7 @@
 import { createLazyRoute, getRouteApi, Link, useMatchRoute } from '@tanstack/react-router';
 
 import { motion } from 'framer-motion';
-import { Activity, Suspense, useCallback, ViewTransition } from 'react';
+import { Activity, Suspense, useCallback } from 'react';
 
 import { formatChineseDate } from '@asmr-collections/shared';
 
@@ -252,11 +252,9 @@ function WorkDetailsWrapper() {
 
   return (
     <ErrorBoundary key={id}>
-      <ViewTransition>
-        <Suspense fallback={<WorkDetailsSkeleton />}>
-          <WorkDetails id={id} />
-        </Suspense>
-      </ViewTransition>
+      <Suspense fallback={<WorkDetailsSkeleton />}>
+        <WorkDetails id={id} />
+      </Suspense>
     </ErrorBoundary>
   );
 }

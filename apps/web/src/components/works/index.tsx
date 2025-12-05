@@ -1,5 +1,3 @@
-import { ViewTransition } from 'react';
-
 import WorkSkeletons from './skeleton';
 
 import WorkCard from '../work-card';
@@ -22,16 +20,10 @@ export default function Works({ swrKey }: WorksProps) {
   });
 
   if (error) throw error;
-  if (isLoading) {
-    return (
-      <ViewTransition name="works">
-        <WorkSkeletons />;
-      </ViewTransition>
-    );
-  }
+  if (isLoading) return <WorkSkeletons />;
 
   return (
-    <ViewTransition name="works">
+    <>
       {data?.data.length === 0 && <div className="flex justify-center opacity-70 mt-[10%]">没有更多惹...</div>}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-4">
         {data?.data.map(work => (
@@ -41,6 +33,6 @@ export default function Works({ swrKey }: WorksProps) {
         ))}
       </div>
       <Pagination total={data?.total ?? 0} />
-    </ViewTransition>
+    </>
   );
 }
