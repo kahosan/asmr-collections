@@ -6,7 +6,10 @@ export type LocalStorageConfig = z.infer<typeof LocalStorageConfigSchema>;
 export const LocalStorageConfigSchema: z.ZodObject<{
   path: z.ZodString
 }> = z.object({
-  path: z.string().min(1, { message: '本地路径不能为空' })
+  path: z.string().min(1, { message: '本地路径不能为空' }).refine(val => {
+    // Must be an absolute path
+    return val.startsWith('/');
+  }, { message: '本地路径必须是绝对路径，如 /data/storage' })
 });
 
 export type WebDAVStorageConfig = z.infer<typeof WebDAVStorageConfigSchema>;
@@ -17,7 +20,10 @@ export const WebDAVStorageConfigSchema: z.ZodObject<{
   password: z.ZodString
 }> = z.object({
   url: z.url({ message: '请输入有效的 URL 地址' }),
-  path: z.string().default('/'),
+  path: z.string().default('/').refine(val => {
+    // Must be an absolute path
+    return val.startsWith('/');
+  }, { message: 'WebDAV 路径必须是绝对路径，如 /remote.php/webdav' }),
   username: z.string().min(1, { message: '用户名不能为空' }),
   password: z.string().min(1, { message: '密码不能为空' })
 });
