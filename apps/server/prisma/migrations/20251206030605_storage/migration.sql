@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Storage" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
     "type" TEXT NOT NULL,

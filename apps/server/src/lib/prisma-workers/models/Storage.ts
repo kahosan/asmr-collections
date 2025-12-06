@@ -27,15 +27,17 @@ export type AggregateStorage = {
 }
 
 export type StorageAvgAggregateOutputType = {
+  id: number | null
   priority: number | null
 }
 
 export type StorageSumAggregateOutputType = {
+  id: number | null
   priority: number | null
 }
 
 export type StorageMinAggregateOutputType = {
-  id: string | null
+  id: number | null
   name: string | null
   description: string | null
   type: string | null
@@ -45,7 +47,7 @@ export type StorageMinAggregateOutputType = {
 }
 
 export type StorageMaxAggregateOutputType = {
-  id: string | null
+  id: number | null
   name: string | null
   description: string | null
   type: string | null
@@ -68,10 +70,12 @@ export type StorageCountAggregateOutputType = {
 
 
 export type StorageAvgAggregateInputType = {
+  id?: true
   priority?: true
 }
 
 export type StorageSumAggregateInputType = {
+  id?: true
   priority?: true
 }
 
@@ -194,7 +198,7 @@ export type StorageGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 export type StorageGroupByOutputType = {
-  id: string
+  id: number
   name: string
   description: string | null
   type: string
@@ -228,7 +232,7 @@ export type StorageWhereInput = {
   AND?: Prisma.StorageWhereInput | Prisma.StorageWhereInput[]
   OR?: Prisma.StorageWhereInput[]
   NOT?: Prisma.StorageWhereInput | Prisma.StorageWhereInput[]
-  id?: Prisma.StringFilter<"Storage"> | string
+  id?: Prisma.IntFilter<"Storage"> | number
   name?: Prisma.StringFilter<"Storage"> | string
   description?: Prisma.StringNullableFilter<"Storage"> | string | null
   type?: Prisma.StringFilter<"Storage"> | string
@@ -250,7 +254,7 @@ export type StorageOrderByWithRelationInput = {
 }
 
 export type StorageWhereUniqueInput = Prisma.AtLeast<{
-  id?: string
+  id?: number
   AND?: Prisma.StorageWhereInput | Prisma.StorageWhereInput[]
   OR?: Prisma.StorageWhereInput[]
   NOT?: Prisma.StorageWhereInput | Prisma.StorageWhereInput[]
@@ -283,7 +287,7 @@ export type StorageScalarWhereWithAggregatesInput = {
   AND?: Prisma.StorageScalarWhereWithAggregatesInput | Prisma.StorageScalarWhereWithAggregatesInput[]
   OR?: Prisma.StorageScalarWhereWithAggregatesInput[]
   NOT?: Prisma.StorageScalarWhereWithAggregatesInput | Prisma.StorageScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"Storage"> | string
+  id?: Prisma.IntWithAggregatesFilter<"Storage"> | number
   name?: Prisma.StringWithAggregatesFilter<"Storage"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Storage"> | string | null
   type?: Prisma.StringWithAggregatesFilter<"Storage"> | string
@@ -294,7 +298,6 @@ export type StorageScalarWhereWithAggregatesInput = {
 }
 
 export type StorageCreateInput = {
-  id?: string
   name: string
   description?: string | null
   type: string
@@ -305,7 +308,7 @@ export type StorageCreateInput = {
 }
 
 export type StorageUncheckedCreateInput = {
-  id?: string
+  id?: number
   name: string
   description?: string | null
   type: string
@@ -316,7 +319,6 @@ export type StorageUncheckedCreateInput = {
 }
 
 export type StorageUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -327,7 +329,7 @@ export type StorageUpdateInput = {
 }
 
 export type StorageUncheckedUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -338,7 +340,7 @@ export type StorageUncheckedUpdateInput = {
 }
 
 export type StorageCreateManyInput = {
-  id?: string
+  id?: number
   name: string
   description?: string | null
   type: string
@@ -349,7 +351,6 @@ export type StorageCreateManyInput = {
 }
 
 export type StorageUpdateManyMutationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -360,7 +361,7 @@ export type StorageUpdateManyMutationInput = {
 }
 
 export type StorageUncheckedUpdateManyInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -382,6 +383,7 @@ export type StorageCountOrderByAggregateInput = {
 }
 
 export type StorageAvgOrderByAggregateInput = {
+  id?: Prisma.SortOrder
   priority?: Prisma.SortOrder
 }
 
@@ -406,6 +408,7 @@ export type StorageMinOrderByAggregateInput = {
 }
 
 export type StorageSumOrderByAggregateInput = {
+  id?: Prisma.SortOrder
   priority?: Prisma.SortOrder
 }
 
@@ -461,7 +464,7 @@ export type $StoragePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Storage"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: string
+    id: number
     name: string
     description: string | null
     type: string
@@ -892,7 +895,7 @@ export interface Prisma__StorageClient<T, Null = never, ExtArgs extends runtime.
  * Fields of the Storage model
  */
 export interface StorageFieldRefs {
-  readonly id: Prisma.FieldRef<"Storage", 'String'>
+  readonly id: Prisma.FieldRef<"Storage", 'Int'>
   readonly name: Prisma.FieldRef<"Storage", 'String'>
   readonly description: Prisma.FieldRef<"Storage", 'String'>
   readonly type: Prisma.FieldRef<"Storage", 'String'>

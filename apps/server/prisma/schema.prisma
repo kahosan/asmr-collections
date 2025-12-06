@@ -101,7 +101,7 @@ model TranslationInfo {
 }
 
 model Storage {
-  id          String   @id @default(cuid())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
   type        String
