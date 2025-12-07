@@ -55,7 +55,8 @@ export class LocalStorageAdapter implements StorageAdapter {
     const file = Bun.file(this.resolvePath(path));
 
     function stream(begin?: number, end?: number): ReadableStream {
-      return file.slice(begin, end).stream();
+      // 206 的 end 要 size - 1，但 slice 如果 -1 会丢失最后一个字节，所以这里 +1
+      return file.slice(begin, end ? end + 1 : undefined).stream();
     }
 
     return Promise.resolve({
