@@ -2,15 +2,14 @@ import type { ServerWork } from '@asmr-collections/shared';
 
 import type { Prisma, PrismaClient } from '~/lib/prisma/client';
 
-import { readdir } from 'node:fs/promises';
-
 import { Hono } from 'hono';
 import { IndexSearchQuerySchema } from '@asmr-collections/shared';
 
+import { storage } from '~/storage';
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
+import { formatError } from '~/router/utils';
 import { generateEmbedding } from '~/ai/jina';
-import { formatError, getVoiceLibraryEnv } from '~/router/utils';
 
 type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -139,18 +138,16 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
 
   if (existsLocal) {
     try {
-      const { VOICE_LIBRARY } = getVoiceLibraryEnv();
-
-      const { existsIds, noExistsIds } = await getLocalWorkIds(VOICE_LIBRARY);
+      const { stored, orphaned } = await categorizeWorks();
       if (existsLocal === 'only') {
         queryArgs.where = {
           ...queryArgs.where,
-          id: { in: existsIds }
+          id: { in: stored }
         };
       } else {
         queryArgs.where = {
           ...queryArgs.where,
-          id: { in: noExistsIds }
+          id: { in: orphaned }
         };
       }
     } catch (e) {
@@ -259,23 +256,23 @@ async function queryWorksByEmbedding(text: string, buildQuery: (ids: string[]) =
   };
 };
 
-async function getLocalWorkIds(voiceLibrary: string) {
+async function categorizeWorks() {
   const prisma = getPrisma();
 
-  const files = await readdir(voiceLibrary);
+  const files = await storage.list();
   const st = new Set(files);
 
   const ids = await prisma.work.findMany({ select: { id: true } });
 
-  const existsIds: string[] = [];
-  const noExistsIds: string[] = [];
+  const stored: string[] = [];
+  const orphaned: string[] = [];
 
   ids.forEach(({ id }) => {
     if (st.has(id))
-      existsIds.push(id);
+      stored.push(id);
     else
-      noExistsIds.push(id);
+      orphaned.push(id);
   });
 
-  return { existsIds, noExistsIds };
+  return { stored, orphaned };
 }

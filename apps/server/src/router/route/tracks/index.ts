@@ -1,21 +1,24 @@
+import type { IAudioMetadata } from 'music-metadata';
 import type { Track, Tracks } from '@asmr-collections/shared';
 
+import type { StorageAdapter } from '~/types/storage/adapters';
+
+import { Readable } from 'node:stream';
 import { extname, join } from 'node:path';
-import { readdir } from 'node:fs/promises';
 
 import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { newQueue } from '@henrygd/queue';
-import { parseFile } from 'music-metadata';
 import { joinURL } from '@asmr-collections/shared';
-import { exists } from '@asmr-collections/shared/server';
+import { parseFile, parseStream } from 'music-metadata';
 
 import * as z from 'zod';
 
+import { storage } from '~/storage';
 import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
+import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';
-import { formatError, getVoiceLibraryEnv } from '~/router/utils';
 
 const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
@@ -52,16 +55,13 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
       return c.json(data);
     }
 
-    const { VOICE_LIBRARY } = getVoiceLibraryEnv();
-
-    const workPath = join(VOICE_LIBRARY, id);
-    const workIsExist = await exists(workPath);
-    if (!workIsExist)
+    const adapter = await storage.find(id);
+    if (!adapter)
       return c.json({ message: '作品不存在于本地音声库' }, 404);
 
     const data = await tracksCache({
       cacheKey: `tracks-${id}`,
-      getFreshValue: () => generateTracks(workPath, VOICE_LIBRARY),
+      getFreshValue: () => generateTracks(id, adapter),
       ctx: c
     });
 
@@ -91,9 +91,6 @@ tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async 
       return c.json({ message: `${id} 缓存已清除` });
     }
 
-    // check voice library env
-    getVoiceLibraryEnv();
-
     await clearTracksCache(`tracks-${id}`);
     await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
     return c.json({ message: `${id} 缓存已清除` });
@@ -102,23 +99,21 @@ tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async 
   }
 });
 
-async function generateTracks(path: string, basePath: string): Promise<Tracks> {
-  const entries = await readdir(path, { withFileTypes: true });
+async function generateTracks(path: string, adapter: StorageAdapter): Promise<Tracks> {
+  const entries = await adapter.readdir(path);
 
   const folders = entries
-    .filter(e => e.isDirectory())
+    .filter(e => e.type === 'directory')
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
   const files = entries
-    .filter(e => e.isFile())
+    .filter(e => e.type === 'file')
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-
-  const relativePath = path.replace(basePath, '');
 
   const [folderTracks, fileTracks] = await Promise.all([
     folderQueue.all(
       folders
-        .map(folder => generateTracks(join(path, folder.name), basePath)
+        .map(folder => generateTracks(join(path, folder.name), adapter)
           .then(children => ({ type: 'folder' as const, title: folder.name, children })))
     ),
     fileQueue.all(
@@ -131,20 +126,33 @@ async function generateTracks(path: string, basePath: string): Promise<Tracks> {
           .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
           .otherwise(() => 'other' as const);
 
-        const encodename = encodeURIComponent(file.name);
         const item: Track = {
           type: ft,
           title: file.name,
-          mediaDownloadUrl: joinURL('/download', relativePath, encodename),
-          mediaStreamUrl: joinURL('/stream', relativePath, encodename)
+          mediaDownloadUrl: joinURL('/download', path, file.name),
+          mediaStreamUrl: joinURL('/stream', path, file.name)
         };
 
         if (ft === 'audio') {
           try {
-            const metadata = await parseFile(join(path, file.name), {
-              skipCovers: true,
-              duration: true
-            });
+            const AUDIO_HEADER_SIZE = 512 * 1024; // 512KB
+            let metadata: IAudioMetadata | undefined;
+
+            if (adapter.type === 'local') {
+              const _f = await adapter.file(join(path, file.name));
+              const filepath = _f.path;
+
+              metadata = await parseFile(filepath, {
+                skipCovers: true,
+                duration: true
+              });
+            } else {
+              const _f = await adapter.file(join(path, file.name));
+              const head = await _f.stream(0, AUDIO_HEADER_SIZE);
+
+              metadata = await parseStream(Readable.fromWeb(head));
+            }
+
             const duration = metadata.format.duration;
             if (duration)
               item.duration = duration;

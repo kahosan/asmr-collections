@@ -1,9 +1,8 @@
-import { basename, join } from 'node:path';
-
 import { Hono } from 'hono';
 
+import { storage } from '~/storage';
+
 import { formatError } from './utils';
-import { getVoiceLibraryEnv } from './utils';
 
 export const mediaApp = new Hono();
 
@@ -11,14 +10,10 @@ mediaApp.get('/:path{.+}', async c => {
   const path = c.req.param('path');
 
   try {
-    const { VOICE_LIBRARY } = getVoiceLibraryEnv();
+    const decodePath = decodeURIComponent(path);
+    const file = await storage.file(decodePath);
 
-    const filePath = join(VOICE_LIBRARY, decodeURIComponent(path));
-    const file = Bun.file(filePath);
-
-    const filename = basename(filePath);
-
-    if (!(await file.exists()))
+    if (!file)
       return c.json(formatError('文件不存在'), 404);
 
     const fileSize = file.size;
@@ -38,7 +33,7 @@ mediaApp.get('/:path{.+}', async c => {
       'Content-Type': file.type,
       'Cache-Control': 'public, max-age=86400',
       'Last-Modified': new Date(lastModified).toUTCString(),
-      'Content-Disposition': `filename="${encodeURIComponent(filename)}"`,
+      'Content-Disposition': `filename="${encodeURIComponent(file.name)}"`,
       ETag: etagVal
     });
 
@@ -55,23 +50,22 @@ mediaApp.get('/:path{.+}', async c => {
       }
 
       const chunksize = (end - start) + 1;
-      const fileChunk = file.slice(start, end + 1);
 
       headers.set('Content-Range', `bytes ${start}-${end}/${fileSize}`);
       headers.set('Content-Length', chunksize.toString());
 
-      return new Response(fileChunk, {
+      return new Response(await file.stream(start, end), {
         status: 206,
         headers
       });
     }
 
     headers.set('Content-Length', fileSize.toString());
-    return new Response(file, {
+    return new Response(await file.stream(), {
       status: 200,
       headers
     });
   } catch (e) {
-    return c.json(formatError(e));
+    return c.json(formatError(e), 500);
   }
 });

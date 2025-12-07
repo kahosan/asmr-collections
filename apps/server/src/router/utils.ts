@@ -1,12 +1,10 @@
 import { join } from 'node:path';
-import { readdir } from 'node:fs/promises';
 
 import { exists } from '@asmr-collections/shared/server';
-import { WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 import { HTTPError } from '~/lib/fetcher';
-import { COVERS_PATH, HOST_URL, IS_WORKERS, VOICE_LIBRARY } from '~/lib/constant';
+import { COVERS_PATH, IS_WORKERS } from '~/lib/constant';
 
 export function findwork(id: string) {
   const prisma = getPrisma();
@@ -26,17 +24,6 @@ export function formatError(e: unknown, text?: string) {
   const error = e ? JSON.stringify(e).replaceAll(/^"|"$/g, '') : undefined;
   return { message: text ? (error ? text + ': ' + error : error) : error };
 }
-
-/**
- * Get VOICE_LIBRARY and HOST_URL from environment variables, throw error if not configured
- * @returns VOICE_LIBRARY and HOST_URL
- */
-export function getVoiceLibraryEnv() {
-  if (!VOICE_LIBRARY || !HOST_URL)
-    throw new Error('本地音声库或域名没有配置');
-
-  return { VOICE_LIBRARY, HOST_URL };
-};
 
 export async function saveCoverImage(url: string, id: string) {
   if (IS_WORKERS) {
@@ -77,16 +64,4 @@ export async function saveCoverImage(url: string, id: string) {
   } finally {
     clearTimeout(timer);
   }
-}
-
-export async function getAllLocalVoiceLibraryIds() {
-  const { VOICE_LIBRARY } = getVoiceLibraryEnv();
-
-  return readdir(VOICE_LIBRARY, { withFileTypes: true }).then(dir => {
-    return dir.reduce<string[]>((ids, file) => {
-      if (file.isDirectory() && WORK_ID_EXACT_REGEX.test(file.name))
-        ids.push(file.name);
-      return ids;
-    }, []);
-  });
 }
