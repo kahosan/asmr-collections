@@ -37,6 +37,9 @@ export const storageApp = new Hono()
     const body = c.req.valid('json');
 
     try {
+      const ok = await storageManager.test(body.type, body.config);
+      if (!ok) return c.json(formatError('存储配置验证失败，请检查配置项是否正确'), 400);
+
       const prisma = getPrisma();
 
       const storage = await prisma.storage.create({
@@ -56,6 +59,9 @@ export const storageApp = new Hono()
     const data = c.req.valid('json');
 
     try {
+      const ok = await storageManager.test(data.type, data.config);
+      if (!ok) return c.json(formatError('存储配置验证失败，请检查配置项是否正确'), 400);
+
       const prisma = getPrisma();
       const storage = await prisma.storage.findUnique({
         where: { id }
@@ -69,7 +75,6 @@ export const storageApp = new Hono()
         data
       });
 
-      // 清除缓存
       storageManager.invalidateCache();
 
       return c.json(updated);
@@ -93,7 +98,6 @@ export const storageApp = new Hono()
         where: { id }
       });
 
-      // 清除缓存
       storageManager.invalidateCache();
 
       return c.json({ message: `存储 ${storage.name} 已删除` });

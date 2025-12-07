@@ -1,13 +1,16 @@
 /* eslint-disable no-await-in-loop -- sequential checks are intended */
 
+import type { StorageConfig, StorageType } from '@asmr-collections/shared';
+
 import type { AdapterFile, StorageAdapter } from '~/types/storage/adapters';
 
 import { match } from 'ts-pattern';
-import { LocalStorageConfigSchema, STORAGE_TYPES, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
+import { LocalStorageConfigSchema, STORAGE_TYPES, WebDAVStorageConfigSchema, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 
 import { LocalStorageAdapter } from './adapters/local';
+import { WebDAVStorageAdapter } from './adapters/webdav';
 
 export class StorageManager {
   private adaptersCache: StorageAdapter[] | null = null;
@@ -29,18 +32,35 @@ export class StorageManager {
           return new LocalStorageAdapter(storage.id, storage.name, config);
         })
         .with(STORAGE_TYPES.WEBDAV, () => {
-          // pass
+          const config = WebDAVStorageConfigSchema.parse(storage.config);
+          return new WebDAVStorageAdapter(storage.id, storage.name, config);
         })
         .otherwise(() => {
           throw new Error(`发现未知存储类型: ${storage.type}, ID: ${storage.id}`);
         });
 
-      if (adapter) adapters.push(adapter);
+      adapters.push(adapter);
     }
 
     this.adaptersCache = adapters;
     return adapters;
   }
+
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- ignore
+  test(type: StorageType, config: StorageConfig): Promise<boolean> {
+    return match(type)
+      .with(STORAGE_TYPES.LOCAL, () => {
+        const localConfig = LocalStorageConfigSchema.parse(config);
+        return LocalStorageAdapter.test(localConfig);
+      })
+      .with(STORAGE_TYPES.WEBDAV, () => {
+        const webdavConfig = WebDAVStorageConfigSchema.parse(config);
+        return WebDAVStorageAdapter.test(webdavConfig);
+      })
+      .otherwise(() => {
+        throw new Error(`发现未知存储类型: ${type}`);
+      });
+  };
 
   async find(path: string): Promise<StorageAdapter | undefined> {
     const adapters = await this.getAdapters();

@@ -1,6 +1,4 @@
-import type { STORAGE_TYPES } from '@asmr-collections/shared';
-
-type StorageType = typeof STORAGE_TYPES;
+import type { StorageConfig, StorageType } from '@asmr-collections/shared';
 
 /**
  * 文件/目录的基础元数据
@@ -10,36 +8,47 @@ export interface FileStat {
   type: 'file' | 'directory'
 }
 
-export interface StorageAdapter {
-  readonly id: number
-  readonly name: string
-  readonly type: StorageType[keyof StorageType]
+export abstract class StorageAdapter {
+  abstract readonly id: number;
+  abstract readonly name: string;
+  abstract readonly type: StorageType;
 
   /**
    * 初始化/连接 (可选，视具体实现而定)
    */
-  init?: () => Promise<void>
+  abstract init?: () => Promise<void> | void;
+
+  /**
+   * 解析路径，结合存储的根路径
+   */
+  abstract resolvePath(path: string): string;
+
+  /**
+   * 测试存储连接是否可用，创建实例前使用
+   * @param config 存储配置
+   */
+  static readonly test: (config: StorageConfig) => Promise<boolean>;
 
   /**
    * 测试存储连接是否可用
    */
-  test: () => Promise<boolean>
+  abstract test: () => Promise<boolean>;
 
   /**
    * 检查文件或目录是否存在
    */
-  exists: (path: string) => Promise<boolean>
+  abstract exists(path: string): Promise<boolean>;
 
   /**
    * 读取目录内容
    * @param path 目录路径，默认为根目录
    */
-  readdir: (path?: string) => Promise<FileStat[]>
+  abstract readdir(path?: string): Promise<FileStat[]>;
 
   /**
    * 类似于 BunFile
    */
-  file: (path: string) => Promise<AdapterFile>
+  abstract file(path: string): Promise<AdapterFile> | AdapterFile;
 }
 
 export interface AdapterFile {
@@ -74,5 +83,5 @@ export interface AdapterFile {
    * @param begin - start offset in bytes
    * @param end - absolute offset in bytes (relative to 0)
    */
-  stream(begin?: number, end?: number): ReadableStream
+  stream(begin?: number, end?: number): Promise<ReadableStream> | ReadableStream
 }

@@ -23,6 +23,16 @@ export class LocalStorageAdapter implements StorageAdapter {
     return p.resolve(this.baseDir, path);
   }
 
+  static readonly test = async (config: LocalStorageConfig): Promise<boolean> => {
+    try {
+      await fs.access(config.path, fs.constants.R_OK | fs.constants.W_OK);
+      return true;
+    } catch (e) {
+      console.error(`本地存储检测连接失败 ${config.path}:`, e);
+      return false;
+    }
+  };
+
   async test(): Promise<boolean> {
     try {
       await fs.access(this.baseDir, fs.constants.R_OK | fs.constants.W_OK);
@@ -51,7 +61,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     }));
   }
 
-  file(path: string): Promise<AdapterFile> {
+  file(path: string): AdapterFile {
     const file = Bun.file(this.resolvePath(path));
 
     function stream(begin?: number, end?: number): ReadableStream {
@@ -59,13 +69,13 @@ export class LocalStorageAdapter implements StorageAdapter {
       return file.slice(begin, end ? end + 1 : undefined).stream();
     }
 
-    return Promise.resolve({
+    return {
       size: file.size,
       type: file.type,
       name: p.basename(path),
       path: this.resolvePath(path),
       lastModified: file.lastModified,
       stream
-    });
+    };
   }
 }

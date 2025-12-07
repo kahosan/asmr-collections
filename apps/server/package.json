@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@asmr-collections/shared": "workspace:*",
+    "@asmr-collections/webdav": "workspace:*",
     "@epic-web/cachified": "^5.6.0",
     "@henrygd/queue": "^1.2.0",
     "@hono/zod-validator": "^0.7.5",

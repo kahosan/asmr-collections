@@ -66,6 +66,16 @@ export const StorageConfigBodySchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
   })
 ]);
 
+export type StorageConfig = z.infer<typeof StorageConfigSchema>;
+export const StorageConfigSchema: z.ZodUnion<[z.ZodObject<{
+  path: z.ZodString
+}>, z.ZodObject<{
+  url: z.ZodURL
+  path: z.ZodDefault<z.ZodString>
+  username: z.ZodString
+  password: z.ZodString
+}>]> = LocalStorageConfigSchema.or(WebDAVStorageConfigSchema);
+
 export type Storage = z.infer<typeof StorageSchema>;
 export const StorageSchema: z.ZodObject<{
   id: z.ZodNumber
@@ -99,3 +109,5 @@ export const StorageParamSchema: z.ZodObject<{
 }> = z.object({
   id: z.coerce.number().int().positive()
 });
+
+export type StorageType = typeof STORAGE_TYPES[keyof typeof STORAGE_TYPES];
