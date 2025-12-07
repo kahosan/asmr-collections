@@ -7,6 +7,8 @@ import * as fs from 'node:fs/promises';
 
 import { STORAGE_TYPES } from '@asmr-collections/shared';
 
+import { resolveSecurePath } from '../utils';
+
 export class LocalStorageAdapter implements StorageAdapter {
   readonly id: number;
   readonly name: string;
@@ -20,7 +22,7 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   resolvePath(path: string): string {
-    return p.resolve(this.baseDir, path);
+    return resolveSecurePath(this.baseDir, path);
   }
 
   static readonly test = async (config: LocalStorageConfig): Promise<boolean> => {

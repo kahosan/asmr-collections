@@ -3,10 +3,10 @@ import type { WebDAVStorageConfig } from '@asmr-collections/shared';
 
 import type { AdapterFile, FileStat, StorageAdapter } from '~/types/storage/adapters';
 
-import * as p from 'node:path';
-
 import { createClient } from '@asmr-collections/webdav';
 import { STORAGE_TYPES } from '@asmr-collections/shared';
+
+import { resolveSecurePath } from '../utils';
 
 export class WebDAVStorageAdapter implements StorageAdapter {
   readonly id: number;
@@ -28,7 +28,7 @@ export class WebDAVStorageAdapter implements StorageAdapter {
   }
 
   resolvePath(path: string): string {
-    return p.resolve(this.config.path, path);
+    return resolveSecurePath(this.config.path, path);
   }
 
   static readonly test = async (config: WebDAVStorageConfig): Promise<boolean> => {
