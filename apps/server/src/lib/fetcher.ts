@@ -16,8 +16,8 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
   headers.set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
   if (options?.headers) {
-    for (const [key, value] of Object.entries(options.headers))
-      headers.set(key, value);
+    const optionsHeaders = new Headers(options.headers);
+    optionsHeaders.forEach((value, key) => headers.set(key, value));
   }
 
   const res = await fetch(url, {
