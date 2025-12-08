@@ -1,6 +1,7 @@
 {
   "name": "@asmr-collections/server",
   "version": "0.3.9",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "bun --env-file=../../.env run --hot src/index.ts",
