@@ -14,7 +14,6 @@ import { newQueue } from '@henrygd/queue/rl';
 
 import { storage } from '~/storage';
 import { getPrisma } from '~/lib/db';
-import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
 import { formatError, saveCoverImage } from '~/router/utils';
@@ -162,7 +161,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           try {
             embedding = await generateEmbedding(data);
           } catch (e) {
-            const message = (e instanceof HTTPError || e instanceof Error) ? e.message : '未知错误';
+            const message = (e instanceof Error) ? e.message : '未知错误';
             console.error(`${id} 生成向量失败:`, message);
             await sendEvent('log', { type: 'warning', message: `${id} 生成向量失败` });
           }

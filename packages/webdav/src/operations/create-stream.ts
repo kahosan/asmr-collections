@@ -1,6 +1,8 @@
 import type { CreateReadableStreamOptions, WebDAVClientContext } from '../types';
 
-import { fetcher, HTTPError } from '../lib/fetcher';
+import { HTTPError } from '@asmr-collections/shared';
+
+import { fetcher } from '../lib/fetcher';
 
 export async function createReadableStream(
   context: WebDAVClientContext,

@@ -1,18 +1,7 @@
 import type { WebDAVClientContext } from '../types';
 
-import { joinURL } from '@asmr-collections/shared';
 import { encodePath } from '@asmr-collections/shared';
-
-export class HTTPError<T> extends Error {
-  status: number;
-  data?: T;
-  constructor(message: string, status: number, data?: T) {
-    super(message);
-    this.name = 'HTTPError';
-    this.status = status;
-    this.data = data;
-  }
-}
+import { HTTPError, joinURL } from '@asmr-collections/shared';
 
 export function createRequestOptions(
   context: WebDAVClientContext,

@@ -2,7 +2,9 @@ import type { ServerWork, Tracks } from '@asmr-collections/shared';
 
 import type { Recommender } from '~/types/provider/asmr-one';
 
-import { fetcher, HTTPError } from '~/lib/fetcher';
+import { HTTPError } from '@asmr-collections/shared';
+
+import { fetcher } from '~/lib/fetcher';
 import { processArtists } from '~/router/route/work/info';
 
 // TODO: 热门推荐和用户推荐

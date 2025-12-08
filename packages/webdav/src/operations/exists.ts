@@ -1,7 +1,8 @@
 import type { WebDAVClientContext } from '../types';
 
+import { HTTPError } from '@asmr-collections/shared';
+
 import { stat } from './stat';
-import { HTTPError } from '../lib/fetcher';
 
 export async function exists(
   context: WebDAVClientContext,

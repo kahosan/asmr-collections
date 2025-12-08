@@ -1,7 +1,9 @@
 import type { FileStat, WebDAVClientContext } from '../types';
 
+import { HTTPError } from '@asmr-collections/shared';
+
+import { fetcher } from '../lib/fetcher';
 import { parseStat, parseXML } from '../utils/dav';
-import { fetcher, HTTPError } from '../lib/fetcher';
 
 export async function stat(
   context: WebDAVClientContext,

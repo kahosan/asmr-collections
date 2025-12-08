@@ -2,10 +2,10 @@ import type { DAVResult, FileStat, GetDirectoryContentsOptions, WebDAVClientCont
 
 import path from 'node:path';
 
-import { withLeadingSlash, withoutHost } from '@asmr-collections/shared';
+import { HTTPError, withLeadingSlash, withoutHost } from '@asmr-collections/shared';
 
+import { fetcher } from '../lib/fetcher';
 import { normalizePath } from '../utils';
-import { fetcher, HTTPError } from '../lib/fetcher';
 import { parseXML, prepareFileFromProps } from '../utils/dav';
 
 export async function getDirectoryContents(

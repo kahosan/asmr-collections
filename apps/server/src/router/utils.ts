@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 
+import { HTTPError } from '@asmr-collections/shared';
 import { exists } from '@asmr-collections/shared/server';
 
 import { getPrisma } from '~/lib/db';
-import { HTTPError } from '~/lib/fetcher';
 import { COVERS_PATH, IS_WORKERS } from '~/lib/constant';
 
 export function findwork(id: string) {

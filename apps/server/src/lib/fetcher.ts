@@ -1,15 +1,4 @@
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
-
-export class HTTPError extends Error {
-  status: ContentfulStatusCode;
-  data?: any;
-  constructor(message: string, status: number, data?: any) {
-    super(message);
-    this.name = 'HTTPError';
-    this.status = status as ContentfulStatusCode;
-    this.data = data;
-  }
-}
+import { HTTPError } from '@asmr-collections/shared';
 
 export async function fetcher<T>(url: string, options?: RequestInit) {
   const headers = new Headers();

@@ -2,7 +2,9 @@ import useSWRImmutable from 'swr/immutable';
 
 import { notifyError } from '~/utils';
 import { logger } from '~/lib/logger';
-import { fetcher, HTTPError } from '~/lib/fetcher';
+import { fetcher } from '~/lib/fetcher';
+
+import { HTTPError } from '@asmr-collections/shared';
 
 import type { Work } from '@asmr-collections/shared';
 import type { BareFetcher, SWRConfiguration } from 'swr';

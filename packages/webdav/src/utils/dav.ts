@@ -4,9 +4,9 @@ import path from 'node:path';
 
 import { XMLParser } from 'fast-xml-parser';
 import { getProperty, setProperty } from 'dot-prop';
+import { HTTPError } from '@asmr-collections/shared';
 
 import { normalizePath } from '.';
-import { HTTPError } from '../lib/fetcher';
 
 type PropertyType = typeof PropertyType[keyof typeof PropertyType];
 const PropertyType = {

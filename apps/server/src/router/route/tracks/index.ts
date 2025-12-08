@@ -9,13 +9,12 @@ import { extname, join } from 'node:path';
 import { Hono } from 'hono';
 import { match } from 'ts-pattern';
 import { newQueue } from '@henrygd/queue';
-import { joinURL } from '@asmr-collections/shared';
 import { parseFile, parseStream } from 'music-metadata';
+import { HTTPError, joinURL } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
 import { storage } from '~/storage';
-import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';
