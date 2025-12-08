@@ -2,20 +2,18 @@ import type { DAVResult, FileStat, GetDirectoryContentsOptions, WebDAVClientCont
 
 import path from 'node:path';
 
-import { encodePath, joinURL, withLeadingSlash, withoutHost } from '@asmr-collections/shared';
+import { withLeadingSlash, withoutHost } from '@asmr-collections/shared';
 
 import { normalizePath } from '../utils';
+import { fetcher, HTTPError } from '../lib/fetcher';
 import { parseXML, prepareFileFromProps } from '../utils/dav';
-import { createRequestOptions, HTTPError } from '../lib/fetcher';
 
 export async function getDirectoryContents(
   context: WebDAVClientContext,
   remotePath: string,
   options?: GetDirectoryContentsOptions
 ) {
-  const url = joinURL(context.remoteURL, encodePath(remotePath), '/');
-
-  const requestOptions = createRequestOptions(context, {
+  const response = await fetcher(remotePath, context, {
     method: 'PROPFIND',
     headers: {
       Accept: 'text/plain,application/xml',
@@ -23,15 +21,10 @@ export async function getDirectoryContents(
     }
   });
 
-  const response = await fetch(url, requestOptions);
-
-  if (!response.ok)
-    throw new HTTPError(`Could not get directory contents for ${remotePath}`, response.status);
-
   const text = await response.text();
 
   if (!text)
-    throw new HTTPError(`Empty response when getting directory contents for ${remotePath}`, response.status);
+    throw new HTTPError(`Empty response when getting directory contents for ${remotePath}`, response.status, { remotePath, options });
 
   const resp = await parseXML(text, context.parsing);
 
