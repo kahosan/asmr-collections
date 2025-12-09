@@ -5,7 +5,7 @@ import type { AdapterFile, FileStat, StorageAdapter } from '~/types/storage/adap
 import * as p from 'node:path';
 import * as fs from 'node:fs/promises';
 
-import { STORAGE_TYPES } from '@asmr-collections/shared';
+import { STORAGE_TYPES, withoutTrailingSlash } from '@asmr-collections/shared';
 
 import { resolveSecurePath } from '../utils';
 
@@ -21,7 +21,8 @@ export class LocalStorageAdapter implements StorageAdapter {
     this.baseDir = config.path;
   }
 
-  resolvePath(path: string): string {
+  resolvePath(path?: string): string {
+    if (!path || path === '/') return withoutTrailingSlash(this.baseDir);
     return resolveSecurePath(this.baseDir, path);
   }
 
@@ -55,7 +56,7 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   async readdir(path?: string): Promise<FileStat[]> {
-    const entries = await fs.readdir(this.resolvePath(path ?? ''), { withFileTypes: true });
+    const entries = await fs.readdir(this.resolvePath(path), { withFileTypes: true });
 
     return entries.map(entry => ({
       name: entry.name,
