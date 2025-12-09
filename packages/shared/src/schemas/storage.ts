@@ -2,6 +2,10 @@ import * as z from 'zod';
 
 import { STORAGE_TYPES } from './constants';
 
+export type StorageType = z.infer<typeof StorageTypeSchema>;
+export const StorageTypeSchema: z.ZodUnion<readonly [z.ZodLiteral<'local'>, z.ZodLiteral<'webdav'>]> =
+  z.union([z.literal(STORAGE_TYPES.LOCAL), z.literal(STORAGE_TYPES.WEBDAV)]);
+
 export type LocalStorageConfig = z.infer<typeof LocalStorageConfigSchema>;
 export const LocalStorageConfigSchema: z.ZodObject<{
   path: z.ZodString
@@ -9,7 +13,7 @@ export const LocalStorageConfigSchema: z.ZodObject<{
   path: z.string().min(1, { message: '本地路径不能为空' }).refine(val => {
     // Must be an absolute path
     return val.startsWith('/');
-  }, { message: '本地路径必须是绝对路径，如 /data/storage' })
+  }, { message: '本地路径必须是绝对路径' })
 });
 
 export type WebDAVStorageConfig = z.infer<typeof WebDAVStorageConfigSchema>;
@@ -23,19 +27,19 @@ export const WebDAVStorageConfigSchema: z.ZodObject<{
   path: z.string().default('/').refine(val => {
     // Must be an absolute path
     return val.startsWith('/');
-  }, { message: 'WebDAV 路径必须是绝对路径，如 /remote.php/webdav' }),
+  }, { message: 'WebDAV 路径必须是绝对路径' }),
   username: z.string().min(1, { message: '用户名不能为空' }),
   password: z.string().min(1, { message: '密码不能为空' })
 });
 
 const CommonFields = z.object({
-  description: z.string().optional(),
+  description: z.string().nullish(),
   priority: z.number().int().optional()
 });
 
 export type StorageConfigBody = z.infer<typeof StorageConfigBodySchema>;
 export const StorageConfigBodySchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
-  description: z.ZodOptional<z.ZodString>
+  description: z.ZodOptional<z.ZodNullable<z.ZodString>>
   priority: z.ZodOptional<z.ZodNumber>
   name: z.ZodDefault<z.ZodString>
   type: z.ZodLiteral<'local'>
@@ -43,7 +47,7 @@ export const StorageConfigBodySchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     path: z.ZodString
   }>
 }>, z.ZodObject<{
-  description: z.ZodOptional<z.ZodString>
+  description: z.ZodOptional<z.ZodNullable<z.ZodString>>
   priority: z.ZodOptional<z.ZodNumber>
   name: z.ZodDefault<z.ZodString>
   type: z.ZodLiteral<'webdav'>
@@ -77,37 +81,37 @@ export const StorageConfigSchema: z.ZodUnion<[z.ZodObject<{
 }>]> = LocalStorageConfigSchema.or(WebDAVStorageConfigSchema);
 
 export type Storage = z.infer<typeof StorageSchema>;
-export const StorageSchema: z.ZodObject<{
-  id: z.ZodNumber
-  name: z.ZodString
-  description: z.ZodNullable<z.ZodString>
-  type: z.ZodString
-  priority: z.ZodNumber
-  config: z.ZodUnion<readonly [z.ZodObject<{
+export const StorageSchema: z.ZodIntersection<z.ZodDiscriminatedUnion<[z.ZodObject<{
+  description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  priority: z.ZodOptional<z.ZodNumber>
+  name: z.ZodDefault<z.ZodString>
+  type: z.ZodLiteral<'local'>
+  config: z.ZodObject<{
     path: z.ZodString
-  }>, z.ZodObject<{
+  }>
+}>, z.ZodObject<{
+  description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  priority: z.ZodOptional<z.ZodNumber>
+  name: z.ZodDefault<z.ZodString>
+  type: z.ZodLiteral<'webdav'>
+  config: z.ZodObject<{
     url: z.ZodURL
     path: z.ZodDefault<z.ZodString>
     username: z.ZodString
     password: z.ZodString
-  }>]>
+  }>
+}>], 'type'>, z.ZodObject<{
+  id: z.ZodNumber
   createdAt: z.ZodCoercedDate
   updatedAt: z.ZodCoercedDate
-}> = z.object({
+}>> = z.intersection(StorageConfigBodySchema, z.object({
   id: z.number().int().positive(),
-  name: z.string(),
-  description: z.string().nullable(),
-  type: z.string(),
-  priority: z.number().int(),
-  config: z.union([LocalStorageConfigSchema, WebDAVStorageConfigSchema]),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date()
-});
+}));
 
 export const StorageParamSchema: z.ZodObject<{
   id: z.ZodCoercedNumber
 }> = z.object({
   id: z.coerce.number().int().positive()
 });
-
-export type StorageType = typeof STORAGE_TYPES[keyof typeof STORAGE_TYPES];

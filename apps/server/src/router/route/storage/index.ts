@@ -10,7 +10,7 @@ export const storageApp = new Hono()
   .get('/', async c => {
     try {
       const prisma = getPrisma();
-      const storages = await prisma.storage.findMany();
+      const storages = await prisma.storage.findMany({ orderBy: { priority: 'desc' } });
       return c.json(storages);
     } catch (e) {
       return c.json(formatError(e), 500);
@@ -100,7 +100,7 @@ export const storageApp = new Hono()
 
       storageManager.invalidateCache();
 
-      return c.json({ message: `存储 ${storage.name} 已删除` });
+      return c.json({ message: `${storage.name} 已删除` });
     } catch (e) {
       return c.json(formatError(e), 500);
     }

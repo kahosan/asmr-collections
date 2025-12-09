@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 
-import type { SettingOptions } from '~/hooks/use-setting-options';
-
 import { SettingItem } from './setting-item';
 import { SettingInput } from './setting-input';
+
+import type { SettingOptions } from '~/hooks/use-setting-options';
 
 interface SmartPathSettingsProps {
   options: SettingOptions['smartPath']
@@ -25,7 +25,7 @@ export function SmartPathSettings({ options, setOptions }: SmartPathSettingsProp
       </SettingItem>
 
       <motion.div
-        className="mt-4 ml-4 overflow-hidden"
+        className="mt-4 ml-4 overflow-hidden p-1"
         initial={false}
         animate={
           options.enable

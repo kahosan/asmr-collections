@@ -12,15 +12,12 @@ import GoToDetail from '../go-to-detail';
 import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
-import { useSetAtom } from 'jotai';
-
-import { showSettingDialogAtom } from '~/lib/store';
-
 export function WorkDetailsMenu() {
-  const { useParams } = getRouteApi('/work-details/$id');
+  const { useParams, useNavigate } = getRouteApi('/work-details/$id');
   const { id } = useParams();
 
-  const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
+  const navigate = useNavigate();
+
   const [showSleepModeDialog, setShowSleepModeDialog] = useState(false);
 
   return (
@@ -47,7 +44,7 @@ export function WorkDetailsMenu() {
           <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSleepModeDialog(p => !p)}>
             睡眠模式
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSettingsDialog(p => !p)}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate({ to: '/settings' })}>
             设置
             <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
           </DropdownMenuItem>

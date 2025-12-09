@@ -68,8 +68,17 @@ const workDetailsRoute = createRoute({
   validateSearch: WorkDetailsSearchSchema
 }).lazy(() => import('~/pages/work-details').then(d => d.default));
 
+const SettingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/settings'
+}).lazy(() => import('~/pages/settings').then(d => d.default));
+
 const router = createRouter({
-  routeTree: rootRoute.addChildren([indexRoute, workDetailsRoute]),
+  routeTree: rootRoute.addChildren([
+    indexRoute,
+    workDetailsRoute,
+    SettingsRoute
+  ]),
   defaultNotFoundComponent: NotFound,
   defaultPreload: 'intent',
   scrollRestoration: true,

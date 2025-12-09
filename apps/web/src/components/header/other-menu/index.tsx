@@ -11,12 +11,11 @@ import HiddenImage from '../hidden-image';
 import ThemeToggle from '../theme-toggle';
 
 import { useState } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
+import { useNavigate } from '@tanstack/react-router';
 
 import { useShortcut } from '~/hooks/use-shortcut';
 import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
-
-import { showSettingDialogAtom } from '~/lib/store';
 
 export default function OtherMenu() {
   const [showAddWorkDialog, setShowAddWorkDialog] = useState(false);
@@ -26,7 +25,7 @@ export default function OtherMenu() {
 
   const useVoiceLibrary = useAtomValue(voiceLibraryOptionsAtom).useLocalVoiceLibrary;
 
-  const setShowSettingsDialog = useSetAtom(showSettingDialogAtom);
+  const navigate = useNavigate();
 
   useShortcut('u', () => setShowBatchUpdateDialog(p => !p));
   useShortcut('i', () => setShowAddWorkDialog(p => !p));
@@ -61,7 +60,7 @@ export default function OtherMenu() {
           <MenubarSeparator />
           <ThemeToggle menuType="menubar" />
           <MenubarSeparator />
-          <MenubarItem onClick={() => setShowSettingsDialog(p => !p)} className="cursor-pointer">
+          <MenubarItem onClick={() => navigate({ to: '/settings' })} className="cursor-pointer">
             设置
             <MenubarShortcut>⌘,</MenubarShortcut>
           </MenubarItem>
