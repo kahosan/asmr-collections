@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 
 import useSWRMutation from 'swr/mutation';
 
-import { fetcher, HTTPError } from '~/lib/fetcher';
+import { fetcher } from '~/lib/fetcher';
+import { HTTPError } from '@asmr-collections/shared';
+
 import type { FetcherKey } from '~/types/fetcher';
 
 interface Arg {
@@ -40,6 +42,7 @@ type ToastMutationKeys =
   | 'upload'
   | 'subtitles'
   | 'random'
+  | `storage-${string}`
   | `clear-${string}-cache`;
 
 export function useToastMutation<T>(key: ToastMutationKeys) {

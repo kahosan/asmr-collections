@@ -1,9 +1,7 @@
 import { toast } from 'sonner';
 import type { ExternalToast } from 'sonner';
 
-import { extname, WORK_ID_REGEX } from '@asmr-collections/shared';
-
-import { HTTPError } from '~/lib/fetcher';
+import { extname, HTTPError, WORK_ID_REGEX } from '@asmr-collections/shared';
 
 import type { Tracks } from '@asmr-collections/shared';
 

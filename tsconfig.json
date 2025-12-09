@@ -6,7 +6,8 @@
   "references": [
     { "path": "./apps/web/tsconfig.json" },
     { "path": "./apps/server/tsconfig.json" },
-    { "path": "./packages/shared/tsconfig.json" }
+    { "path": "./packages/shared/tsconfig.json" },
+    { "path": "./packages/webdav/tsconfig.json" }
   ],
   "files": []
 }

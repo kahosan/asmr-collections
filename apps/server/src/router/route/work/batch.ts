@@ -12,11 +12,11 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { newQueue } from '@henrygd/queue/rl';
 
+import { storage } from '~/storage';
 import { getPrisma } from '~/lib/db';
-import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
-import { formatError, getAllLocalVoiceLibraryIds, saveCoverImage } from '~/router/utils';
+import { formatError, saveCoverImage } from '~/router/utils';
 
 import { createWork } from './create';
 import { updateWork } from './update';
@@ -44,7 +44,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
       targetIds = ids;
       // 如果是同步本地音声库，则使用获取到的所有本地库 id
-      if (sync) targetIds = await getAllLocalVoiceLibraryIds();
+      if (sync) targetIds = await storage.list();
 
       return c.json({ targetIds });
     } catch (e) {
@@ -161,7 +161,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           try {
             embedding = await generateEmbedding(data);
           } catch (e) {
-            const message = (e instanceof HTTPError || e instanceof Error) ? e.message : '未知错误';
+            const message = (e instanceof Error) ? e.message : '未知错误';
             console.error(`${id} 生成向量失败:`, message);
             await sendEvent('log', { type: 'warning', message: `${id} 生成向量失败` });
           }

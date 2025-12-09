@@ -10,11 +10,9 @@ services:
       - REDIS_URL=redis://redis:6379 # 不用 redis 也可以，但推荐开启以持久化缓存
       # 从 https://jina.ai 获取 API Key
       - JINA_API_KEY=
-      # - VOICE_LIBRARY_PATH=/app/voices # 如果要使用本地库，取消注释这行
-      # - HOST_URL=http://localhost:3000 # 同时设置为你的反代地址
     volumes:
       - ./covers:/app/covers # 封面文件夹
-      # - ./voices:/app/voices # 左边的路径修改为你本地的音频文件夹路径
+      # - ./VoiceWork:/media # 左边的路径修改为你本地的音频文件夹路径
     depends_on:
       database:
         condition: service_healthy

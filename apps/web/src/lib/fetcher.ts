@@ -1,17 +1,8 @@
 import { match } from 'ts-pattern';
-import type { FetcherKey } from '~/types/fetcher';
 import { logger } from './logger';
+import { HTTPError } from '@asmr-collections/shared';
 
-export class HTTPError extends Error {
-  status: number;
-  data?: any;
-  constructor(message: string, status: number, data?: any) {
-    super(message);
-    this.name = 'HTTPError';
-    this.status = status;
-    this.data = data;
-  }
-}
+import type { FetcherKey } from '~/types/fetcher';
 
 export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promise<T> {
   try {

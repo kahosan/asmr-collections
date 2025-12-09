@@ -3,7 +3,7 @@
   "version": "0.3.9",
   "type": "module",
   "scripts": {
-    "dev": "pnpm -r dev",
+    "dev": "pnpm -r --parallel dev",
     "lint": "eslint .",
     "web:dev": "pnpm --filter @asmr-collections/web dev",
     "server:dev": "pnpm --filter @asmr-collections/server dev",

@@ -34,6 +34,7 @@ export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__'
     pattern: ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus']
   }
 }, undefined, { getOnInit: true });
+
 export const useSettingOptions = () => useAtom(settingOptionsAtom);
 
 export const voiceLibraryOptionsAtom = focusAtom(settingOptionsAtom, optic => optic.prop('voiceLibraryOptions'));

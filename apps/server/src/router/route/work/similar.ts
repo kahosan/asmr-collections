@@ -1,11 +1,11 @@
 import type { ServerWork } from '@asmr-collections/shared';
 
 import { Hono } from 'hono';
+import { HTTPError } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
 import { getPrisma } from '~/lib/db';
-import { HTTPError } from '~/lib/fetcher';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';

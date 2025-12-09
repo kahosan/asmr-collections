@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import Loading from '~/components/loading';
 
-import { HTTPError } from '~/lib/fetcher';
+import { HTTPError } from '@asmr-collections/shared';
 
 import type { Data } from '@asmr-collections/shared';
 

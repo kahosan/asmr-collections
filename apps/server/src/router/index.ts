@@ -6,6 +6,7 @@ import { fieldApp } from './route/field';
 import { worksApp } from './route/works';
 import { tracksApp } from './route/tracks';
 import { libraryApp } from './route/library';
+import { storageApp } from './route/storage';
 
 export const api = new Hono()
   .use(cors())
@@ -13,4 +14,5 @@ export const api = new Hono()
   .route('/works', worksApp)
   .route('/field', fieldApp)
   .route('/tracks', tracksApp)
-  .route('/library', libraryApp);
+  .route('/library', libraryApp)
+  .route('/storage', storageApp);

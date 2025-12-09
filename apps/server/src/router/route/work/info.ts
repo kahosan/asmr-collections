@@ -1,9 +1,9 @@
 import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 
 import { Hono } from 'hono';
+import { HTTPError } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
-import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';

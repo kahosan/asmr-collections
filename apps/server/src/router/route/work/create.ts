@@ -1,9 +1,9 @@
 import type { WorkInfo } from '~/types/source';
 
 import { Hono } from 'hono';
+import { HTTPError } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
-import { HTTPError } from '~/lib/fetcher';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
 import { findwork, formatError, saveCoverImage } from '~/router/utils';

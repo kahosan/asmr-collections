@@ -1,23 +1,12 @@
-import type { ContentfulStatusCode } from 'hono/utils/http-status';
-
-export class HTTPError extends Error {
-  status: ContentfulStatusCode;
-  data?: any;
-  constructor(message: string, status: number, data?: any) {
-    super(message);
-    this.name = 'HTTPError';
-    this.status = status as ContentfulStatusCode;
-    this.data = data;
-  }
-}
+import { HTTPError } from '@asmr-collections/shared';
 
 export async function fetcher<T>(url: string, options?: RequestInit) {
   const headers = new Headers();
   headers.set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
   if (options?.headers) {
-    for (const [key, value] of Object.entries(options.headers))
-      headers.set(key, value);
+    const optionsHeaders = new Headers(options.headers);
+    optionsHeaders.forEach((value, key) => headers.set(key, value));
   }
 
   const res = await fetch(url, {
