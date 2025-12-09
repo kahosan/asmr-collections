@@ -1,8 +1,6 @@
 import Works from './components/works';
 import PreloadNextWorks from './components/works/preload-next';
 
-import ErrorBoundary from './components/error-boundary';
-
 import { useSearch } from '@tanstack/react-router';
 import { withQuery } from '@asmr-collections/shared';
 
@@ -17,12 +15,12 @@ export default function App() {
   const nextKey = withQuery('/api/works', { ...search, page: search.page + 1 });
 
   return (
-    <ErrorBoundary>
+    <>
       <Works swrKey={key} />
       {/** 预渲染下一页的数据 */}
       <div className="hidden" aria-hidden="true">
         <PreloadNextWorks swrKey={nextKey} />
       </div>
-    </ErrorBoundary>
+    </>
   );
 }
