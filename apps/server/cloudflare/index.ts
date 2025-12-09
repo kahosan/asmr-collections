@@ -27,6 +27,10 @@ app.get('/work-details/*', c => {
   return c.env.ASSETS.fetch(new URL('/index.html', c.req.url));
 });
 
+app.get('/settings*', c => {
+  return c.env.ASSETS.fetch(new URL('/index.html', c.req.url));
+});
+
 export default {
   fetch: app.fetch,
   idleTimeout: 60
