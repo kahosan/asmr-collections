@@ -41,6 +41,10 @@ const sortOptions = [
   {
     label: '发售时间',
     value: 'releaseDate'
+  },
+  {
+    label: '随机排序',
+    value: 'random'
   }
 ];
 

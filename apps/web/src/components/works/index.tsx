@@ -3,7 +3,7 @@ import WorkSkeletons from './skeleton';
 import WorkCard from '../work-card';
 import Pagination from '../pagination';
 
-import useSWR from 'swr';
+import useSWRImmutable from 'swr/immutable';
 
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
@@ -15,7 +15,7 @@ interface WorksProps {
 }
 
 export default function Works({ swrKey }: WorksProps) {
-  const { data, error, isLoading } = useSWR<WorksResponse>(swrKey, fetcher, {
+  const { data, error, isLoading } = useSWRImmutable<WorksResponse>(swrKey, fetcher, {
     onError: err => notifyError(err, '获取作品列表失败')
   });
 

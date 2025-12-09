@@ -1,6 +1,6 @@
 import type { ServerWork } from '@asmr-collections/shared';
 
-import type { Prisma, PrismaClient } from '~/lib/prisma/client';
+import type { Prisma, PrismaClient, Work } from '~/lib/prisma/client';
 
 import { Hono } from 'hono';
 import { IndexSearchQuerySchema } from '@asmr-collections/shared';
@@ -182,6 +182,43 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
   const prisma = getPrisma();
 
   try {
+    if (sort === 'random') {
+      const allIds = await prisma.work.findMany({
+        where: queryArgs.where,
+        select: { id: true }
+      });
+
+      // 这里可能重复随机到相同的 id
+      // TODO: 可以用 seed 优化，保证每次分页结果不重复 但是懒得做
+      const shuffledIds = allIds
+        .map(item => item.id)
+        .sort(() => Math.random() - 0.5);
+
+      const total = shuffledIds.length;
+
+      const offset = (page - 1) * limit;
+      const slicedIds = shuffledIds.slice(offset, offset + limit);
+
+      const works = await prisma.work.findMany({
+        where: { id: { in: slicedIds } },
+        include: queryArgs.include
+      });
+
+      const worksMap = new Map(works.map(w => [w.id, w]));
+      const sorted = slicedIds.reduce<Work[]>((acc, id) => {
+        const work = worksMap.get(id);
+        if (work) acc.push(work);
+        return acc;
+      }, []);
+
+      return c.json({
+        page,
+        limit,
+        total,
+        data: sorted
+      });
+    }
+
     if (artistCount) {
       const works = await prisma.work.findMany(queryArgs)
         .then(works => {

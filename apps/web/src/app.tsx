@@ -12,7 +12,9 @@ export default function App() {
   const search = { ...rest, limit, page };
 
   const key = withQuery('/api/works', search);
-  const nextKey = withQuery('/api/works', { ...search, page: search.page + 1 });
+  const nextKey = search.sort === 'random'
+    ? null
+    : withQuery('/api/works', { ...search, page: search.page + 1 });
 
   return (
     <>
