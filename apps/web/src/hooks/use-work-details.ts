@@ -21,7 +21,7 @@ export type TracksData =
     error: Error
     data?: undefined
     fallback?: undefined
-    existsInLocal?: undefined
+    existsInLocal: boolean
     externalSubtitles?: undefined
   } | {
     data: Tracks
@@ -95,7 +95,8 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     } catch (e) {
       logger.error(e, '检查本地库状态失败');
       return {
-        error: new Error('获取是否存在于本地库失败', { cause: e })
+        error: new Error('获取是否存在于本地库失败', { cause: e }),
+        existsInLocal: false
       };
     }
 
@@ -125,7 +126,10 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
         : '获取本地音频数据失败';
 
       logger.error(e, '预加载作品音轨失败');
-      return { error: new Error(errorMessage, { cause: e }) };
+      return {
+        error: new Error(errorMessage, { cause: e }),
+        existsInLocal: false
+      };
     }
 
     const tracksData = {
