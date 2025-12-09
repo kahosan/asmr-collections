@@ -29,7 +29,7 @@ export default function WorkPreview({ workId, originalId, ...props }: WorkPrevie
 
   const embed = data?.works.at(0);
 
-  const shouldShowLoading = isLoading || iframeLoading;
+  const shouldShowLoading = (isLoading || iframeLoading) && !!embed;
 
   return (
     <div {...props} className={cn('w-full flex flex-col justify-center py-4', props.className)}>
