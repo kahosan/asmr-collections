@@ -21,6 +21,7 @@ import TracksTabale from './components/tracks-table';
 import WorkDetailsSkeleton from './components/skeleton';
 import TracksSkeleton from './components/tracks-skeleton';
 
+import { match } from 'ts-pattern';
 import { useAtomValue } from 'jotai';
 
 import { useWorkInfo } from '~/hooks/use-work-info';
@@ -81,6 +82,22 @@ function WorkDetails({ id}: { id: string }) {
                 {data.id}
                 {data.subtitles ? <span>带字幕</span> : null}
                 {data.exists === false ? <span>未收藏</span> : null}
+              </Badge>
+              <Badge
+                className={cn(
+                  'absolute top-10 left-2 dark:text-white shadow-md font-bold',
+                  match(data.ageCategory)
+                    .with(3, () => 'bg-red-500')
+                    .with(2, () => 'bg-blue-500')
+                    .otherwise(() => 'bg-emerald-500')
+                )}
+              >
+                {
+                  match(data.ageCategory)
+                    .with(1, () => '全年龄')
+                    .with(2, () => 'R15')
+                    .otherwise(() => 'R18')
+                }
               </Badge>
               {tracks?.existsInLocal === false && (
                 <motion.div
