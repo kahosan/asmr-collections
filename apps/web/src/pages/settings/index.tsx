@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { motion } from 'framer-motion';
 import { useImmerAtom } from 'jotai-immer';
 import { createLazyRoute } from '@tanstack/react-router';
 
@@ -19,7 +20,12 @@ function Settings() {
   const voiceLibOps = options.voiceLibraryOptions;
 
   return (
-    <div className="flex flex-col gap-4.5 max-w-2xl mx-auto mt-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col gap-4.5 max-w-2xl mx-auto mt-4"
+    >
       <SettingInput
         id="kikoeru"
         name="kikoeru"
@@ -136,7 +142,7 @@ function Settings() {
           </a>
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
