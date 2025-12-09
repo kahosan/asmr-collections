@@ -29,7 +29,6 @@ curl -O https://raw.githubusercontent.com/kahosan/asmr-collections/main/docker-c
 
 # 修改 docker-compose.yaml 中的环境变量
 # JINA_API_KEY 填入从 jina.ai 获取的 key
-# 如果要使用本地库，取消注释 VOICE_LIBRARY_PATH 和 HOST_URL 两行，并将 HOST_URL 修改为你的访问地址
 
 # 启动服务
 docker compose up -d
@@ -71,11 +70,9 @@ pm2 start pnpm --name asmr-collections -- run server:build-start
 
 当没有启用本地库时，会从 [asmr.one](https://asmr.one) 获取作品数据，并支持在线播放
 
-本地库功能需要在 `.env` 文件中或 compose 文件中填写本地库的路径与你部署的网站的域名（默认是本地地址，如果你部署在局域网内的某部机器上并且没有配置反向代理，可以用 <机器 IP>:3000）
-
 本地库内的文件夹，都需要是以 RJ、VJ、BJ 号命名的文件夹，否则无法识别
 
-第一次使用时可以在网站右上角的菜单 -> 设置中打开「使用本地音声库」选项并点击「同步音声库」按钮
+第一次使用时可以在网站右上角的菜单 -> 设置中打开「使用本地音声库」选项，然后点击菜单里的「同步音声库」按钮
 
 此操作可以将所有本地音声库的作品同步到数据库中
 
