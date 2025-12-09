@@ -17,7 +17,6 @@ import { useShortcut } from '~/hooks/use-shortcut';
 import { hiddenImageAtom } from '~/hooks/use-hidden-image';
 
 export default function Header() {
-  const isIndexPage = useIsRoute('/');
   const isDetailsPage = useIsRoute('/work-details/$id');
 
   const search = useSearch({
@@ -38,23 +37,15 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <SearchBar search={search} key={search.keyword} />
 
-          {
-            isIndexPage
-              ? (
-                <Menubar className="min-w-max">
-                  <FilterMenu />
-                  <SortMenu />
-                  <OtherMenu />
-                </Menubar>
-              )
-              : null
-          }
-
-          {
-            isDetailsPage
-              ? <WorkDetailsMenu />
-              : null
-          }
+          {isDetailsPage
+            ? <WorkDetailsMenu />
+            : (
+              <Menubar className="min-w-max">
+                <FilterMenu />
+                <SortMenu />
+                <OtherMenu />
+              </Menubar>
+            )}
 
         </div>
       </div>
