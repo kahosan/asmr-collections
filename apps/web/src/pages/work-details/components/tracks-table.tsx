@@ -4,7 +4,7 @@ import { FileImage, FileText, FolderClosed } from 'lucide-react';
 
 import { Link } from '@tanstack/react-router';
 
-import FolderBreadcrumb from '../../components/breadcrumb/folder-breadcrumb';
+import FolderBreadcrumb from '~/components/breadcrumb/folder-breadcrumb';
 
 import VideoItem from './video-item';
 import AudioItem from './audio-item';
@@ -32,7 +32,7 @@ import 'lightgallery/css/lg-rotate.css';
 import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-thumbnail.css';
 
-import { SubtitleMatcher, collectSubtitles } from '../../lib/subtitle-matcher';
+import { SubtitleMatcher, collectSubtitles } from '~/lib/subtitle-matcher';
 
 import type { MediaTrack, SubtitleInfo } from '~/hooks/use-media-state';
 

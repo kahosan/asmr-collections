@@ -16,10 +16,10 @@ import { Separator } from '~/components/ui/separator';
 
 import ErrorBoundary from '~/components/error-boundary';
 
-import SimilarWorks from './similar';
-import TracksTabale from './tracks-table';
-import WorkDetailsSkeleton from './skeleton';
-import TracksSkeleton from './tracks-skeleton';
+import SimilarWorks from './components/similar';
+import TracksTabale from './components/tracks-table';
+import WorkDetailsSkeleton from './components/skeleton';
+import TracksSkeleton from './components/tracks-skeleton';
 
 import { useAtomValue } from 'jotai';
 
