@@ -1,8 +1,16 @@
 import Works from './components/works';
+import Pagination from './components/pagination';
+import WorkSkeletons from './components/works/skeleton';
 import PreloadNextWorks from './components/works/preload-next';
 
+import useSWRImmutable from 'swr/immutable';
 import { useSearch } from '@tanstack/react-router';
 import { withQuery } from '@asmr-collections/shared';
+
+import { notifyError } from '~/utils';
+import { fetcher } from '~/lib/fetcher';
+
+import type { WorksResponse } from '@asmr-collections/shared';
 
 export default function App() {
   const _search = useSearch({ from: '/' });
@@ -16,13 +24,20 @@ export default function App() {
     ? null
     : withQuery('/api/works', { ...search, page: search.page + 1 });
 
+  const { data, error, isLoading } = useSWRImmutable<WorksResponse>(key, fetcher, {
+    onError: err => notifyError(err, '获取作品列表失败')
+  });
+
+  if (error) throw error;
+  if (isLoading || !data) return <WorkSkeletons />;
+
   return (
     <>
-      <Works swrKey={key} />
+      <Works data={data} />
+      <Pagination total={data.total} current={search.page} limit={search.limit} />
+
       {/** 预渲染下一页的数据 */}
-      <div className="hidden" aria-hidden="true">
-        <PreloadNextWorks swrKey={nextKey} />
-      </div>
+      <PreloadNextWorks swrKey={nextKey} />
     </>
   );
 }
