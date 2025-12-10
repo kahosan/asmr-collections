@@ -1,9 +1,8 @@
-import useSWRImmutable from 'swr/immutable';
-
+import useSWR from 'swr';
 import { fetcher } from '~/lib/fetcher';
 
 export default function PreloadNextWorks({ swrKey }: { swrKey: string | null }) {
-  useSWRImmutable(swrKey, fetcher);
+  useSWR(swrKey, fetcher);
 
   return null;
 }
