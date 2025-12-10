@@ -1,20 +1,17 @@
-import { createLink, useSearch } from '@tanstack/react-router';
+import { createLink } from '@tanstack/react-router';
 import { PaginationContent, PaginationEllipsis, PaginationLink, PaginationNext, PaginationPrevious, Pagination as SPagination } from '../ui/pagination';
-
-interface Props {
-  total: number
-}
 
 const PLink = createLink(PaginationLink);
 const PPrevious = createLink(PaginationPrevious);
 const PNext = createLink(PaginationNext);
 
-export default function Pagination({ total }: Props) {
-  const search = useSearch({ from: '/' });
+interface PaginationProps {
+  total: number
+  current: number
+  limit: number
+}
 
-  const current = search.page;
-  const limit = search.limit;
-
+export default function Pagination({ total, current, limit }: PaginationProps) {
   const pages = [];
 
   const totalPages = Math.ceil(total / limit);
@@ -25,11 +22,13 @@ export default function Pagination({ total }: Props) {
   for (let i = startPage; i <= endPage; i++)
     pages.push(i);
 
+  if (totalPages <= 1) return null;
+
   return (
     <SPagination className="mt-4">
       <PaginationContent>
-        <PPrevious to="/" search={{ ...search, page: Math.max(1, current - 1) }} className="[&_span]:hidden" />
-        <PLink isActive={current === 1} to="/" search={{ ...search, page: 1 }}>1</PLink>
+        <PPrevious to="." search={p => ({ ...p, page: Math.max(1, current - 1) })} className="[&_span]:hidden" />
+        <PLink isActive={current === 1} to="." search={p => ({ ...p, page: 1 })}>1</PLink>
 
         {(current > 3 && totalPages > 8) && <PaginationEllipsis />}
 
@@ -37,8 +36,8 @@ export default function Pagination({ total }: Props) {
           <PLink
             key={page}
             isActive={current === page}
-            to="/"
-            search={{ ...search, page }}
+            to="."
+            search={p => ({ ...p, page })}
           >
             {page}
           </PLink>
@@ -46,8 +45,8 @@ export default function Pagination({ total }: Props) {
 
         {(current < totalPages - 2 && totalPages > 8) && <PaginationEllipsis />}
 
-        {totalPages > 1 && <PLink isActive={current === totalPages} to="/" search={{ ...search, page: totalPages }}>{totalPages}</PLink>}
-        <PNext to="/" search={{ ...search, page: Math.min(totalPages, current + 1) }} className="[&_span]:hidden" />
+        {totalPages > 1 && <PLink isActive={current === totalPages} to="." search={p => ({ ...p, page: totalPages })}>{totalPages}</PLink>}
+        <PNext to="." search={p => ({ ...p, page: Math.min(totalPages, current + 1) })} className="[&_span]:hidden" />
       </PaginationContent>
     </SPagination>
   );
