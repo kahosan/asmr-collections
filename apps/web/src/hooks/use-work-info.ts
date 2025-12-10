@@ -31,7 +31,7 @@ export async function workInfoFetcher(id: string, cause: 'preload' | 'enter' | '
   }
 }
 
-export function useWorkInfo(id: string, config?: SWRConfiguration<Work | null, any, BareFetcher<Work | null>>) {
+export function useWorkInfo(id: string, config?: SWRConfiguration<Work | null, Error, BareFetcher<Work | null>>) {
   return useSWRImmutable<Work | null>(
     `work-info-${id}`,
     () => workInfoFetcher(id, 'enter'),
