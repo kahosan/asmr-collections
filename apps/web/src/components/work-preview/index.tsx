@@ -25,11 +25,17 @@ export default function WorkPreview({ workId, originalId, ...props }: WorkPrevie
   const key = withQuery('https://chobit.cc/api/v1/dlsite/embed', { workno: originalId ?? workId });
   const [iframeLoading, setIframeLoading] = useState(true);
 
-  const { data, isLoading } = useSWR<Embed>(key, fetcher);
+  const { data, isLoading } = useSWR<Embed>(key, fetcher, {
+    onError: () => setIframeLoading(false),
+    onSuccess(data) {
+      if (data.works.length === 0)
+        setIframeLoading(false);
+    }
+  });
 
   const embed = data?.works.at(0);
 
-  const shouldShowLoading = (isLoading || iframeLoading) && !!embed;
+  const shouldShowLoading = (isLoading || iframeLoading);
 
   return (
     <div {...props} className={cn('w-full flex flex-col justify-center py-4', props.className)}>
