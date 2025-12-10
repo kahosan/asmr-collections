@@ -4,8 +4,8 @@ import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
-import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';
+import { formatError, formatMessage } from '~/router/utils';
 
 const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResponse<ServerWork> | null>({
   ttl: ttl.day(1)
@@ -79,7 +79,7 @@ infoApp.get('/info/:id', async c => {
 
     if (!data) {
       await clearDLsiteCache(`dlsite-work-info-${id}`);
-      return c.json({ message: 'DLsite 不存在此作品' }, 404);
+      return c.json(formatMessage('DLsite 不存在此作品'), 404);
     }
 
     return c.json(data);

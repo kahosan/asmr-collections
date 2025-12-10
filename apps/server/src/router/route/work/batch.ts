@@ -16,7 +16,7 @@ import { storage } from '~/storage';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
-import { formatError, saveCoverImage } from '~/router/utils';
+import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { createWork } from './create';
 import { updateWork } from './update';
@@ -38,7 +38,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
   if (c.req.header('Content-Type') === 'application/json') {
     try {
       if (isBatchRunning)
-        return c.json(formatError('已有批量任务正在进行中，请稍后再试'), 400);
+        return c.json(formatMessage('已有批量任务正在进行中，请稍后再试'), 400);
 
       const { ids, sync } = await c.req.json<{ ids: string[], sync: boolean }>();
 

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
-import { findwork, formatError } from '~/router/utils';
+import { findwork, formatError, formatMessage } from '~/router/utils';
 
 import { infoApp } from './info';
 import { batchApp } from './batch';
@@ -41,7 +41,7 @@ workApp.get('/:id', async c => {
     });
 
     if (!work)
-      return c.json({ message: '收藏不存在' }, 404);
+      return c.json(formatMessage('收藏不存在'), 404);
 
     return c.json(work);
   } catch (e) {
@@ -54,7 +54,7 @@ workApp.get('/subtitles/:id', async c => {
 
   try {
     if (!await findwork(id))
-      return c.json({ message: '收藏不存在' }, 404);
+      return c.json(formatMessage('收藏不存在'), 404);
 
     const prisma = getPrisma();
 
@@ -64,7 +64,7 @@ workApp.get('/subtitles/:id', async c => {
     });
 
     if (!subtitlesData?.data)
-      return c.json({ message: '字幕不存在' }, 404);
+      return c.json(formatMessage('字幕不存在'), 404);
 
     const data = new Uint8Array(subtitlesData.data);
 

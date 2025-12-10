@@ -16,8 +16,8 @@ import * as z from 'zod';
 
 import { storage } from '~/storage';
 import { zValidator } from '~/lib/validator';
-import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';
+import { formatError, formatMessage } from '~/router/utils';
 
 const folderQueue = newQueue(50);
 const fileQueue = newQueue(50);
@@ -56,7 +56,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
 
     const adapter = await storage.find(id);
     if (!adapter)
-      return c.json({ message: '作品不存在于本地音声库' }, 404);
+      return c.json(formatMessage('作品不存在于本地音声库'), 404);
 
     const data = await tracksCache({
       cacheKey: `tracks-${id}`,
@@ -87,12 +87,12 @@ tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async 
 
     if (!local) {
       await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
-      return c.json({ message: `${id} 缓存已清除` });
+      return c.json(formatMessage(`${id} 缓存已清除`));
     }
 
     await clearTracksCache(`tracks-${id}`);
     await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
-    return c.json({ message: `${id} 缓存已清除` });
+    return c.json(formatMessage(`${id} 缓存已清除`));
   } catch (e) {
     return c.json(formatError(e), 500);
   }

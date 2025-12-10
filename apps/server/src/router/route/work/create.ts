@@ -6,7 +6,7 @@ import { HTTPError } from '@asmr-collections/shared';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
-import { findwork, formatError, saveCoverImage } from '~/router/utils';
+import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
 
@@ -25,11 +25,11 @@ createApp.post('/create/:id', async c => {
     return c.json(formatError(e), 500);
   }
 
-  if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
+  if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
 
   try {
     if (await findwork(id))
-      return c.json({ message: '作品已收藏' }, 400);
+      return c.json(formatMessage('作品已收藏'), 400);
   } catch (e) {
     return c.json(formatError(e), 500);
   }
@@ -64,10 +64,7 @@ createApp.post('/create/:id', async c => {
       await clearSimilarCache(id);
     }
 
-    return c.json({
-      data: work,
-      message: embeddingError ? `Jina API 生成向量失败: ${embeddingError.data?.detail ?? embeddingError.message}` : undefined
-    });
+    return c.json(formatMessage(embeddingError ? `Jina API 生成向量失败: ${embeddingError.data?.detail ?? embeddingError.message}` : '', work));
   } catch (e) {
     return c.json(formatError(e), 500);
   }

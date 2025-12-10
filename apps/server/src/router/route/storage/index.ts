@@ -3,8 +3,8 @@ import { StorageConfigBodySchema, StorageParamSchema } from '@asmr-collections/s
 
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { formatError } from '~/router/utils';
 import { storage as storageManager } from '~/storage';
+import { formatError, formatMessage } from '~/router/utils';
 
 export const storageApp = new Hono()
   .get('/', async c => {
@@ -26,7 +26,7 @@ export const storageApp = new Hono()
       });
 
       if (!storage)
-        return c.json(formatError('存储不存在'), 404);
+        return c.json(formatMessage('存储不存在'), 404);
 
       return c.json(storage);
     } catch (e) {
@@ -38,7 +38,7 @@ export const storageApp = new Hono()
 
     try {
       const ok = await storageManager.test(body.type, body.config);
-      if (!ok) return c.json(formatError('存储配置验证失败，请检查配置项是否正确'), 400);
+      if (!ok) return c.json(formatMessage('存储配置验证失败，请检查配置项是否正确'), 400);
 
       const prisma = getPrisma();
 
@@ -60,7 +60,7 @@ export const storageApp = new Hono()
 
     try {
       const ok = await storageManager.test(data.type, data.config);
-      if (!ok) return c.json(formatError('存储配置验证失败，请检查配置项是否正确'), 400);
+      if (!ok) return c.json(formatMessage('存储配置验证失败，请检查配置项是否正确'), 400);
 
       const prisma = getPrisma();
       const storage = await prisma.storage.findUnique({
@@ -68,7 +68,7 @@ export const storageApp = new Hono()
       });
 
       if (!storage)
-        return c.json(formatError('存储不存在'), 404);
+        return c.json(formatMessage('存储不存在'), 404);
 
       const updated = await prisma.storage.update({
         where: { id },
@@ -92,7 +92,7 @@ export const storageApp = new Hono()
       });
 
       if (!storage)
-        return c.json(formatError('存储不存在'), 404);
+        return c.json(formatMessage('存储不存在'), 404);
 
       await prisma.storage.delete({
         where: { id }
@@ -100,7 +100,7 @@ export const storageApp = new Hono()
 
       storageManager.invalidateCache();
 
-      return c.json({ message: `${storage.name} 已删除` });
+      return c.json(formatMessage(`${storage.name} 已删除`));
     } catch (e) {
       return c.json(formatError(e), 500);
     }

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 import { storage } from '~/storage';
 
-import { formatError } from './utils';
+import { formatError, formatMessage } from './utils';
 
 export const mediaApp = new Hono();
 
@@ -14,7 +14,7 @@ mediaApp.get('/:path{.+}', async c => {
     const file = await storage.file(decodePath);
 
     if (!file)
-      return c.json(formatError('文件不存在'), 404);
+      return c.json(formatMessage('文件不存在'), 404);
 
     const fileSize = file.size;
     const lastModified = file.lastModified; // 时间戳

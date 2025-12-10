@@ -22,7 +22,11 @@ export function formatError(e: unknown, text?: string) {
     return { message: e };
 
   const error = e ? JSON.stringify(e).replaceAll(/^"|"$/g, '') : undefined;
-  return { message: text ? (error ? text + ': ' + error : error) : error };
+  return { message: text ? (error ? text + '：' + error : error) : error };
+}
+
+export function formatMessage(message: string, data?: unknown) {
+  return { message, data };
 }
 
 export async function saveCoverImage(url: string, id: string) {

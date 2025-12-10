@@ -7,8 +7,8 @@ import * as z from 'zod';
 
 import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { formatError } from '~/router/utils';
 import { createCachified, ttl } from '~/lib/cachified';
+import { formatError, formatMessage } from '~/router/utils';
 
 const [similarCache, clear] = createCachified<ServerWork[]>();
 
@@ -32,7 +32,7 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
         ctx: c
       });
       if (works.length === 0)
-        return c.json(formatError('作品不存在于 ASMR.ONE 或没有向量信息'), 404);
+        return c.json(formatMessage('作品不存在于 ASMR.ONE 或没有向量信息'), 404);
 
       return c.json(works);
     }
@@ -46,7 +46,7 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
 
     // 检查是否找到结果
     if (similarWorks.length === 0)
-      return c.json(formatError('作品不存在或没有向量信息'), 404);
+      return c.json(formatMessage('作品不存在或没有向量信息'), 404);
 
     return c.json(similarWorks);
   } catch (e) {

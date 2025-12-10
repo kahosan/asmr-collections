@@ -5,7 +5,7 @@ import { Hono } from 'hono';
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
-import { findwork, formatError, saveCoverImage } from '~/router/utils';
+import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
 
@@ -16,7 +16,7 @@ updateApp.put('/update/:id', async c => {
 
   try {
     if (!await findwork(id))
-      return c.json(formatError('收藏不存在'), 400);
+      return c.json(formatMessage('收藏不存在'), 400);
   } catch (e) {
     return c.json(formatError(e), 500);
   }
@@ -29,7 +29,7 @@ updateApp.put('/update/:id', async c => {
     return c.json(formatError(e), 500);
   }
 
-  if (!data) return c.json(formatError('DLsite 不存在此作品'), 404);
+  if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
 
   try {
     const coverPath = await saveCoverImage(data.image_main, id);
@@ -53,7 +53,7 @@ updateApp.put('/update/embedding/:id', async c => {
 
   try {
     if (!await findwork(id))
-      return c.json(formatError('收藏不存在'), 400);
+      return c.json(formatMessage('收藏不存在'), 400);
   } catch (e) {
     return c.json(formatError(e), 500);
   }
@@ -66,7 +66,7 @@ updateApp.put('/update/embedding/:id', async c => {
     return c.json(formatError(e), 500);
   }
 
-  if (!data) return c.json(formatError('DLsite 不存在此作品'), 404);
+  if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
   const prisma = getPrisma();
 
   try {
@@ -77,7 +77,7 @@ updateApp.put('/update/embedding/:id', async c => {
       await clearSimilarCache(id);
     }
 
-    return c.json({ message: '向量更新成功' });
+    return c.json(formatMessage('向量更新成功'));
   } catch (e) {
     console.error(e);
     return c.json(formatError(e, '生成向量失败'), 500);
