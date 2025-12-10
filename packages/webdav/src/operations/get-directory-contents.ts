@@ -1,6 +1,6 @@
 import type { DAVResult, FileStat, GetDirectoryContentsOptions, WebDAVClientContext } from '../types';
 
-import path from 'node:path';
+import path from 'node:path/posix';
 
 import { HTTPError, withLeadingSlash, withoutHost } from '@asmr-collections/shared';
 

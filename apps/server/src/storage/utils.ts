@@ -1,18 +1,22 @@
 import * as p from 'node:path';
+import * as pp from 'node:path/posix';
 
 import { withoutLeadingSlash } from '@asmr-collections/shared';
 
-export function resolveSecurePath(base: string, path: string): string {
-  const sanitized = withoutLeadingSlash(path);
+export function resolveSecurePath(base: string, targetPath: string, posix = false): string {
+  const path = posix ? pp : p;
 
-  const fullPath = p.resolve(base, sanitized);
+  const normalizedBase = path.resolve(base);
 
-  const normalizedBase = p.resolve(base);
-  const relativePath = p.relative(normalizedBase, fullPath);
+  const sanitized = withoutLeadingSlash(targetPath);
 
-  const safe = !relativePath.startsWith('..') && !p.isAbsolute(relativePath);
+  const fullPath = path.resolve(normalizedBase, sanitized);
 
-  if (!safe) throw new Error(`Access denied: Path "${path}" resolves outside base directory`);
+  const relativePath = path.relative(normalizedBase, fullPath);
+
+  // Ensure the resolved path is within the base directory
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath))
+    throw new Error(`Access denied: Path "${targetPath}" resolves outside base directory`);
 
   return fullPath;
 }

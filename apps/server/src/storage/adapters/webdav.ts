@@ -29,7 +29,7 @@ export class WebDAVStorageAdapter implements StorageAdapter {
 
   resolvePath(path?: string): string {
     if (!path || path === '/') return withoutTrailingSlash(this.config.path);
-    return resolveSecurePath(this.config.path, path);
+    return resolveSecurePath(this.config.path, path, true);
   }
 
   static readonly test = async (config: WebDAVStorageConfig): Promise<boolean> => {

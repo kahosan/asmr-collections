@@ -1,6 +1,6 @@
 import type { DAVResult, DAVResultPropstatResponse, DAVResultRaw, DAVResultResponse, DAVResultResponseProps, FileStat, WebDAVParsingContext } from '../types';
 
-import path from 'node:path';
+import path from 'node:path/posix';
 
 import { XMLParser } from 'fast-xml-parser';
 import { getProperty, setProperty } from 'dot-prop';
