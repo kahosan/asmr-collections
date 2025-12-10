@@ -16,7 +16,7 @@ export function formatError(e: unknown, text?: string) {
     return { message: text ?? e.message, data: e.data };
 
   if (e instanceof Error)
-    return { message: text ? text + ': ' + e.message : e.message };
+    return { message: text ? text + '：' + e.message : e.message };
 
   if (typeof e === 'string')
     return { message: e };

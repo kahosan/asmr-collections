@@ -22,7 +22,7 @@ createApp.post('/create/:id', async c => {
     data = await fetchWorkInfo(id);
   } catch (e) {
     console.error(e);
-    return c.json(formatError('获取作品信息失败'), 500);
+    return c.json(formatError(e), 500);
   }
 
   if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);

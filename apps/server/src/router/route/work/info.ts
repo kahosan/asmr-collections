@@ -1,7 +1,6 @@
 import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 
 import { Hono } from 'hono';
-import { HTTPError } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
 import { fetchWorkInfo } from '~/lib/dlsite';
@@ -85,10 +84,7 @@ infoApp.get('/info/:id', async c => {
 
     return c.json(data);
   } catch (e) {
-    if (e instanceof HTTPError)
-      return c.json(formatError(`获取作品信息失败，返回 Code：${e.status}`), 500);
-
-    return c.json(formatError('获取作品信息失败'), 500);
+    return c.json(formatError(e), 500);
   }
 });
 

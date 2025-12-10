@@ -16,7 +16,7 @@ updateApp.put('/update/:id', async c => {
 
   try {
     if (!await findwork(id))
-      return c.json({ message: '收藏不存在' }, 400);
+      return c.json(formatError('收藏不存在'), 400);
   } catch (e) {
     return c.json(formatError(e), 500);
   }
@@ -25,11 +25,11 @@ updateApp.put('/update/:id', async c => {
 
   try {
     data = await fetchWorkInfo(id);
-  } catch {
-    return c.json({ message: '获取作品信息失败' }, 500);
+  } catch (e) {
+    return c.json(formatError(e), 500);
   }
 
-  if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
+  if (!data) return c.json(formatError('DLsite 不存在此作品'), 404);
 
   try {
     const coverPath = await saveCoverImage(data.image_main, id);
@@ -53,7 +53,7 @@ updateApp.put('/update/embedding/:id', async c => {
 
   try {
     if (!await findwork(id))
-      return c.json({ message: '收藏不存在' }, 400);
+      return c.json(formatError('收藏不存在'), 400);
   } catch (e) {
     return c.json(formatError(e), 500);
   }
@@ -62,12 +62,11 @@ updateApp.put('/update/embedding/:id', async c => {
 
   try {
     data = await fetchWorkInfo(id);
-  } catch {
-    return c.json({ message: '获取作品信息失败' }, 500);
+  } catch (e) {
+    return c.json(formatError(e), 500);
   }
 
-  if (!data) return c.json({ message: 'DLsite 不存在此作品' }, 404);
-
+  if (!data) return c.json(formatError('DLsite 不存在此作品'), 404);
   const prisma = getPrisma();
 
   try {

@@ -52,11 +52,15 @@ async function parserWorkHTML(id: string) {
       Cookie: 'locale=zh-cn'
     }
   });
+
   const $ = cheerio.load(str);
 
   const maker = $('table#work_maker').find('span.maker_name > a');
-  const makerId = maker.attr('href')?.split('/').pop()?.replaceAll('.html', '') ?? '';
+  const makerId = maker.attr('href')?.split('/').pop()?.replaceAll('.html', '');
   const makerName = maker.text().trim();
+
+  if (!makerId || !makerName)
+    throw new Error('解析社团信息时未能找到社团 ID 或名称');
 
   let artists: string[] = [];
   let illustrators: string[] = [];
