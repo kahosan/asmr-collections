@@ -18,8 +18,8 @@ interface Props<T extends string | number> {
   error: unknown
   errorText: string
   data?: Array<Data<T>>
-  sort: (a: Data<T>, b: Data<T>) => number
   handleSelect: (id: T) => void
+  selectedData?: T[] | T
   isCheck: (data: Data<T>) => boolean | 'indeterminate'
 }
 
@@ -29,23 +29,56 @@ export default function FilterPanel<T extends string | number>({
   error,
   errorText,
   data,
-  sort,
   handleSelect,
+  selectedData,
   isCheck
 }: Props<T>) {
   const [input, setInput] = useState('');
 
   const filtered = useMemo(() => {
     if (!data) return [];
-    let result: Array<Data<T>>;
 
-    if (input)
-      result = data.filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()));
-    else
-      result = [...data];
+    const result = input
+      ? data.filter(({ name }) => name.toLowerCase().includes(input.toLowerCase()))
+      : data;
 
-    return result.sort(sort);
-  }, [data, input, sort]);
+    const selectedArray = Array.isArray(selectedData)
+      ? selectedData
+      : (selectedData === undefined ? [] : [selectedData]);
+
+    return result.toSorted((a, b) => {
+      // eslint-disable-next-line sukka/unicorn/consistent-function-scoping -- 误报
+      const getIndex = (item: Data<T>) => {
+        if (selectedArray.length === 0) return -1;
+
+        return selectedArray.findIndex(val => {
+          if (val === item.id) return true;
+
+          if (typeof val === 'number' && typeof item.id === 'number')
+            return Math.abs(val) === item.id;
+
+          if (typeof val === 'string' && typeof item.id === 'string')
+            return val === `-${item.id}`;
+
+          return false;
+        });
+      };
+
+      const indexA = getIndex(a);
+      const indexB = getIndex(b);
+
+      const isSelectedA = indexA !== -1;
+      const isSelectedB = indexB !== -1;
+
+      if (isSelectedA && isSelectedB)
+        return indexA - indexB;
+
+      if (isSelectedA) return -1;
+      if (isSelectedB) return 1;
+
+      return 0;
+    });
+  }, [data, input, selectedData]);
 
   return (
     <Command className="max-[400px]:max-w-36">

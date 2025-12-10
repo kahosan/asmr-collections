@@ -45,12 +45,6 @@ export default function IllustratorsFilter() {
     }
   }, [exclude, navigate, search.illustratorId]);
 
-  const sortFn = useCallback(({ id }: Data<number>) => {
-    if (search.illustratorId === id) return -1;
-    if (search.illustratorId === -id) return -1;
-    return 0;
-  }, [search.illustratorId]);
-
   const isChecked = useCallback(({ id }: Data<number>) => {
     if (search.illustratorId === id) return true;
     if (search.illustratorId === -id) return 'indeterminate';
@@ -69,8 +63,8 @@ export default function IllustratorsFilter() {
           error={error}
           errorText="获取画师列表失败"
           data={data}
-          sort={sortFn}
           handleSelect={handleSelect}
+          selectedData={search.illustratorId}
           isCheck={isChecked}
         />
       </MenubarSubContent>

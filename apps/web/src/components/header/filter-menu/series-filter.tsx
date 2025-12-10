@@ -47,12 +47,6 @@ export default function SeriesFilter() {
     }
   }, [exclude, navigate, search.seriesId]);
 
-  const sortFn = useCallback(({ id }: Data<string>) => {
-    if (search.seriesId === id) return -1;
-    if (search.seriesId === `-${id}`) return -1;
-    return 0;
-  }, [search.seriesId]);
-
   const isChecked = useCallback(({ id }: Data<string>) => {
     if (search.seriesId === id) return true;
     if (search.seriesId === `-${id}`) return 'indeterminate';
@@ -71,8 +65,8 @@ export default function SeriesFilter() {
           error={error}
           errorText="获取系列列表失败"
           data={data}
-          sort={sortFn}
           handleSelect={handleSelect}
+          selectedData={search.seriesId}
           isCheck={isChecked}
         />
       </MenubarSubContent>

@@ -47,12 +47,6 @@ export default function CircleFilter() {
     }
   }, [exclude, navigate, search.circleId]);
 
-  const sortFn = useCallback(({ id }: Data<string>) => {
-    if (search.circleId === id) return -1;
-    if (search.circleId === `-${id}`) return -1;
-    return 0;
-  }, [search.circleId]);
-
   const isCheck = ({ id }: Data<string>) => {
     if (search.circleId === id) return true;
     if (search.circleId === `-${id}`) return 'indeterminate'; // 字符串加前缀判断
@@ -71,8 +65,8 @@ export default function CircleFilter() {
           error={error}
           errorText="获取社团列表失败"
           data={data}
-          sort={sortFn}
           handleSelect={handleSelect}
+          selectedData={search.circleId}
           isCheck={isCheck}
         />
       </MenubarSubContent>

@@ -45,29 +45,6 @@ export default function ArtistsFilter() {
       navigate({ to: '/', search: exclude(['keyword', 'page'], { artistId: newList }) });
   }, [exclude, navigate, search.artistId]);
 
-  const sortFn = useCallback((a: Data<number>, b: Data<number>) => {
-    const list = search.artistId || [];
-
-    const getListIndex = (id: number) => {
-      const posIndex = list.indexOf(id);
-      if (posIndex !== -1) return posIndex;
-      return list.indexOf(-id);
-    };
-
-    const indexA = getListIndex(a.id);
-    const indexB = getListIndex(b.id);
-    const isAInList = indexA !== -1;
-    const isBInList = indexB !== -1;
-
-    if (isAInList && isBInList)
-      return indexA - indexB;
-
-    if (isAInList && !isBInList) return -1;
-    if (!isAInList && isBInList) return 1;
-
-    return a.id - b.id;
-  }, [search.artistId]);
-
   const isCheck = useCallback((data: Data<number>) => {
     if (search.artistId?.includes(data.id)) return true;
     if (search.artistId?.includes(-data.id)) return 'indeterminate';
@@ -109,8 +86,8 @@ export default function ArtistsFilter() {
           error={error}
           errorText="获取声优列表失败"
           data={data}
-          sort={sortFn}
           handleSelect={handleSelect}
+          selectedData={search.artistId}
           isCheck={isCheck}
         />
       </MenubarSubContent>

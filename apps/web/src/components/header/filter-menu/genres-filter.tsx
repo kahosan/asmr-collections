@@ -45,29 +45,6 @@ export default function GenresFilter() {
       navigate({ to: '/', search: exclude(['keyword', 'page'], { genres: newList }) });
   }, [exclude, navigate, search.genres]);
 
-  const sortFn = useCallback((a: Data<number>, b: Data<number>) => {
-    const list = search.genres || [];
-
-    const getListIndex = (id: number) => {
-      const posIndex = list.indexOf(id);
-      if (posIndex !== -1) return posIndex;
-      return list.indexOf(-id);
-    };
-
-    const indexA = getListIndex(a.id);
-    const indexB = getListIndex(b.id);
-    const isAInList = indexA !== -1;
-    const isBInList = indexB !== -1;
-
-    if (isAInList && isBInList)
-      return indexA - indexB;
-
-    if (isAInList && !isBInList) return -1;
-    if (!isAInList && isBInList) return 1;
-
-    return a.id - b.id;
-  }, [search.genres]);
-
   // 2. 获取当前状态 (True / False / 'indeterminate')
   const isChecked = ({ id }: Data<number>) => {
     if (search.genres?.includes(id)) return true;
@@ -87,8 +64,8 @@ export default function GenresFilter() {
           error={error}
           errorText="获取标签列表失败"
           data={data}
-          sort={sortFn}
           handleSelect={handleSelect}
+          selectedData={search.genres}
           isCheck={isChecked}
         />
       </MenubarSubContent>
