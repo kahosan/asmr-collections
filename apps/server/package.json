@@ -34,7 +34,6 @@
     "lru-cache": "^11.2.4",
     "music-metadata": "^11.10.3",
     "prisma": "^7.1.0",
-    "redis": "^5.10.0",
     "ts-pattern": "catalog:",
     "zod": "catalog:"
   },

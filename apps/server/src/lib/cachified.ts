@@ -3,9 +3,9 @@ import type { Cache, CacheEntry, CachifiedOptions, GetFreshValue } from '@epic-w
 
 import cachified, { softPurge, totalTtl, verboseReporter } from '@epic-web/cachified';
 
+import { RedisClient } from 'bun';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- use cachified
 import { LRUCache } from 'lru-cache';
-import { createClient } from 'redis';
 import { redisCacheAdapter } from 'cachified-redis-adapter';
 
 import { IS_WORKERS, REDIS_URL } from './constant';
@@ -14,7 +14,7 @@ const redisCache = REDIS_URL
   // eslint-disable-next-line antfu/no-top-level-await -- top-level await is allowed in this file
   ? await (async () => {
     try {
-      const client = createClient({ url: REDIS_URL });
+      const client = new RedisClient(REDIS_URL);
       await client.connect();
 
       return redisCacheAdapter(client);
