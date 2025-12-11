@@ -40,6 +40,7 @@ mediaApp.get('/:path{.+}', async c => {
     const rangeHeader = c.req.header('range');
     if (rangeHeader) {
       const parts = rangeHeader.replace(/bytes=/, '').split('-');
+      // gemini 说这里可能是 NaN，如果是 bytes=-500，parts 为 ['', '500']，暂时没遇到过这种情况，以后再说
       const start = Number.parseInt(parts[0], 10);
       const end = parts[1] ? Number.parseInt(parts[1], 10) : fileSize - 1;
 
