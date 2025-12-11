@@ -50,18 +50,19 @@ mediaApp.get('/:path{.+}', async c => {
       }
 
       const chunksize = (end - start) + 1;
+      const chunk = file.chunk?.(start, end) ?? await file.stream(start, end);
 
       headers.set('Content-Range', `bytes ${start}-${end}/${fileSize}`);
       headers.set('Content-Length', chunksize.toString());
 
-      return new Response(await file.stream(start, end), {
+      return new Response(chunk, {
         status: 206,
         headers
       });
     }
 
     headers.set('Content-Length', fileSize.toString());
-    return new Response(await file.stream(), {
+    return new Response(file.raw ?? await file.stream(), {
       status: 200,
       headers
     });
