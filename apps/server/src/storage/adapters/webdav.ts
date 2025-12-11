@@ -1,14 +1,14 @@
 import type { WebDAVClient } from '@asmr-collections/webdav';
 import type { WebDAVStorageConfig } from '@asmr-collections/shared';
 
-import type { AdapterFile, FileStat, StorageAdapter } from '~/types/storage/adapters';
+import type { FileResult, FileStat, StorageAdapterBase } from '~/types/storage/adapters';
 
 import { createClient } from '@asmr-collections/webdav';
 import { STORAGE_TYPES, withoutTrailingSlash } from '@asmr-collections/shared';
 
 import { resolveSecurePath } from '../utils';
 
-export class WebDAVStorageAdapter implements StorageAdapter {
+export class WebDAVStorageAdapter implements StorageAdapterBase<'webdav'> {
   readonly id: number;
   readonly name: string;
   readonly type = STORAGE_TYPES.WEBDAV;
@@ -72,7 +72,7 @@ export class WebDAVStorageAdapter implements StorageAdapter {
     }));
   }
 
-  async file(path: string): Promise<AdapterFile> {
+  async file(path: string): FileResult<'webdav'> {
     const file = await this.client.stat(this.resolvePath(path));
 
     const stream = (begin?: number, end?: number): Promise<ReadableStream> => {

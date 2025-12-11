@@ -138,7 +138,7 @@ async function generateTracks(path: string, adapter: StorageAdapter): Promise<Tr
             let metadata: IAudioMetadata | undefined;
 
             if (adapter.type === 'local') {
-              const _f = await adapter.file(join(path, file.name));
+              const _f = adapter.file(join(path, file.name));
               const filepath = _f.path;
 
               metadata = await parseFile(filepath, {

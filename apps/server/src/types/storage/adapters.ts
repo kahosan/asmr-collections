@@ -1,4 +1,17 @@
+import type { BunFile } from 'bun';
 import type { StorageConfig, StorageType } from '@asmr-collections/shared';
+
+export type StreamResult<T extends StorageType = StorageType> = T extends 'local'
+  ? BunFile
+  : Promise<ReadableStream>;
+
+export type FileResult<T extends StorageType = StorageType> = T extends 'local'
+  ? AdapterFile<'local'>
+  : Promise<AdapterFile<T>>;
+
+export type StorageAdapter<T extends StorageType = StorageType> = T extends unknown
+  ? StorageAdapterBase<T>
+  : never;
 
 /**
  * 文件/目录的基础元数据
@@ -8,10 +21,10 @@ export interface FileStat {
   type: 'file' | 'directory'
 }
 
-export abstract class StorageAdapter {
+export abstract class StorageAdapterBase<T extends StorageType = StorageType> {
   abstract readonly id: number;
   abstract readonly name: string;
-  abstract readonly type: StorageType;
+  abstract readonly type: T;
 
   /**
    * 初始化/连接 (可选，视具体实现而定)
@@ -48,10 +61,10 @@ export abstract class StorageAdapter {
   /**
    * 类似于 BunFile
    */
-  abstract file(path: string): Promise<AdapterFile> | AdapterFile;
+  abstract file(path: string): FileResult<T>;
 }
 
-export interface AdapterFile {
+interface AdapterFile<T extends StorageType> {
   /**
    * A UNIX timestamp indicating when the file was last modified.
    */
@@ -83,5 +96,5 @@ export interface AdapterFile {
    * @param begin - start offset in bytes
    * @param end - absolute offset in bytes (relative to 0)
    */
-  stream(begin?: number, end?: number): Promise<ReadableStream> | ReadableStream
+  stream(begin?: number, end?: number): StreamResult<T>
 }

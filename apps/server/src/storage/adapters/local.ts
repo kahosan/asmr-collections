@@ -1,6 +1,7 @@
+import type { BunFile } from 'bun';
 import type { LocalStorageConfig } from '@asmr-collections/shared';
 
-import type { AdapterFile, FileStat, StorageAdapter } from '~/types/storage/adapters';
+import type { FileResult, FileStat, StorageAdapterBase } from '~/types/storage/adapters';
 
 import * as p from 'node:path';
 import * as fs from 'node:fs/promises';
@@ -9,7 +10,7 @@ import { STORAGE_TYPES, withoutTrailingSlash } from '@asmr-collections/shared';
 
 import { resolveSecurePath } from '../utils';
 
-export class LocalStorageAdapter implements StorageAdapter {
+export class LocalStorageAdapter implements StorageAdapterBase<'local'> {
   readonly id: number;
   readonly name: string;
   readonly type = STORAGE_TYPES.LOCAL;
@@ -64,12 +65,16 @@ export class LocalStorageAdapter implements StorageAdapter {
     }));
   }
 
-  file(path: string): AdapterFile {
+  file(path: string): FileResult<'local'> {
     const file = Bun.file(this.resolvePath(path));
 
-    function stream(begin?: number, end?: number): ReadableStream {
-      // 206 的 end 要 size - 1，但 slice 如果 -1 会丢失最后一个字节，所以这里 +1
-      return file.slice(begin, end ? end + 1 : undefined).stream();
+    function stream(begin?: number, end?: number): BunFile {
+      if (typeof begin === 'number') {
+        // 206 的 end 要 size - 1，但 slice 如果 -1 会丢失最后一个字节，所以这里 +1
+        return file.slice(begin, end ? end + 1 : undefined);
+      }
+
+      return file;
     }
 
     return {

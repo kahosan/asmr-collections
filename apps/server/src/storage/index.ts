@@ -2,7 +2,7 @@
 
 import type { StorageConfig, StorageType } from '@asmr-collections/shared';
 
-import type { AdapterFile, StorageAdapter } from '~/types/storage/adapters';
+import type { FileResult, StorageAdapter } from '~/types/storage/adapters';
 
 import { match } from 'ts-pattern';
 import { LocalStorageConfigSchema, STORAGE_TYPES, WebDAVStorageConfigSchema, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
@@ -81,7 +81,7 @@ export class StorageManager {
     return !!adapter;
   }
 
-  async file(path: string): Promise<AdapterFile | undefined> {
+  async file(path: string): Promise<FileResult | undefined> {
     const adapter = await this.find(path);
     if (adapter) return adapter.file(path);
   }
