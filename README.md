@@ -61,6 +61,34 @@ pm2 start pnpm --name asmr-collections -- run server:build-start
 
 可根据需要自行选择，不过一般只使用 `server:build-start` 即可
 
+### Nginx 配置示例
+
+```nginx
+# 这一段是为了适配 SSE
+location ~ ^/api/work/batch/(create|update) {
+    proxy_pass http://127.0.0.1:3000;
+
+    proxy_buffering off;
+    proxy_read_timeout 24h;
+}
+
+location / {
+    proxy_pass http://127.0.0.1:3000;
+
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header Range $http_range;
+    proxy_set_header If-Range $http_if_range;
+}
+```
+
 ## 使用提示
 
 > [!IMPORTANT]
