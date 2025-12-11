@@ -125,11 +125,13 @@ async function generateTracks(path: string, adapter: StorageAdapter): Promise<Tr
           .with('.jpg', '.jpeg', '.png', '.gif', '.webp', () => 'image' as const)
           .otherwise(() => 'other' as const);
 
+        const encodePath = encodeURIComponent(joinURL(path, file.name));
+
         const item: Track = {
           type: ft,
           title: file.name,
-          mediaDownloadUrl: joinURL('/download', path, file.name),
-          mediaStreamUrl: joinURL('/stream', path, file.name)
+          mediaDownloadUrl: joinURL('/download', encodePath),
+          mediaStreamUrl: joinURL('/stream', encodePath)
         };
 
         if (ft === 'audio') {
