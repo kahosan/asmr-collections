@@ -66,7 +66,7 @@ workApp.get('/subtitles/:id', async c => {
     if (!subtitlesData?.data)
       return c.json(formatMessage('字幕不存在'), 404);
 
-    const data = new Uint8Array(subtitlesData.data);
+    const data = subtitlesData.data;
 
     return c.body(data, 200, {
       'Content-Type': 'application/zip',
