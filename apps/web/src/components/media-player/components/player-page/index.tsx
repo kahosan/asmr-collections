@@ -2,6 +2,7 @@ import { useBlocker } from '@tanstack/react-router';
 import { useState } from 'react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
+import { useIsMobile } from '~/hooks/use-is-mobile';
 import { usePlayerExpand } from '../../hooks/use-player-expand';
 
 import PlayerCover from './cover';
@@ -20,6 +21,8 @@ export default function PlayerPage() {
 
   const [mainExpand, setMainExpand] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('');
+
+  const isMobile = useIsMobile();
 
   if (!expand && !mainExpand) {
     setMainExpand(true);
@@ -40,8 +43,6 @@ export default function PlayerPage() {
     setMainExpand(p => !p);
     setActiveTab('');
   };
-
-  const isMobile = window.innerWidth <= 640;
 
   useBlocker({
     shouldBlockFn() {
