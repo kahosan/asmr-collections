@@ -64,7 +64,7 @@ export abstract class StorageAdapterBase<T extends StorageType = StorageType> {
   abstract file(path: string): FileResult<T>;
 }
 
-type AdapterFile<T extends StorageType> = {
+export type AdapterFile<T extends StorageType> = {
   /**
    * A UNIX timestamp indicating when the file was last modified.
    */

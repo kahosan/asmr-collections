@@ -1,8 +1,9 @@
 /* eslint-disable no-await-in-loop -- sequential checks are intended */
 
+import type { BunFile } from 'bun';
 import type { StorageConfig, StorageType } from '@asmr-collections/shared';
 
-import type { FileResult, StorageAdapter } from '~/types/storage/adapters';
+import type { AdapterFile, FileResult, StorageAdapter } from '~/types/storage/adapters';
 
 import { match } from 'ts-pattern';
 import { LocalStorageConfigSchema, STORAGE_TYPES, WebDAVStorageConfigSchema, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
@@ -117,3 +118,32 @@ export class StorageManager {
 }
 
 export const storage = new StorageManager();
+
+/**
+ * 将 BunFile 转换为本地 AdapterFile
+ * @param file BunFile 对象
+ * @param name 文件名
+ * @param path 文件路径
+ * @returns 本地 AdapterFile 对象
+ */
+export function BunFileToAdapterFile(file: BunFile, name: string, path: string): AdapterFile<'local'> {
+  function chunk(begin = 0, end?: number): BunFile {
+    if (begin === 0 && typeof end === 'undefined')
+      return file;
+
+    // 206 的 end 要 size - 1，但 slice 如果 -1 会丢失最后一个字节，所以这里 +1
+    const _end = typeof end === 'number' ? end + 1 : undefined;
+    return file.slice(begin, _end);
+  }
+
+  return {
+    size: file.size,
+    type: file.type,
+    name,
+    path,
+    lastModified: file.lastModified,
+    raw: file,
+    chunk,
+    stream: (begin, end) => chunk(begin ?? 0, end).stream()
+  };
+}

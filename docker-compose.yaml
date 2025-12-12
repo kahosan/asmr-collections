@@ -12,6 +12,7 @@ services:
       - JINA_API_KEY=
     volumes:
       - ./covers:/app/covers # 封面文件夹
+      # - ./transcode_cache:/app/transcode_cache # 转码缓存文件夹，如果需要转码功能，丢一个 ffmpeg 可执行文件到这个文件夹
       # - ./VoiceWork:/media # 左边的路径修改为你本地的音频文件夹路径
     depends_on:
       database:
