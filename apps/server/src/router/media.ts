@@ -78,9 +78,10 @@ mediaApp.get('/:path{.+}', async c => {
         console.log(`开始转码: ${file.name} -> AAC ${bitrate}k`);
 
         const taskExecutor = async () => {
-          const proc = createFFmpegProc(bitrate, file.path, tempPath);
+          let proc: ReturnType<typeof createFFmpegProc> | null = null;
 
           try {
+            proc = createFFmpegProc(bitrate, file.path, tempPath);
             await proc.exited;
 
             if (proc.exitCode !== 0) throw new Error('FFmpeg 转码出错');
@@ -88,19 +89,18 @@ mediaApp.get('/:path{.+}', async c => {
             await rename(tempPath, cachePath);
             console.log(`转码完成: ${file.name} -> AAC ${bitrate}k`);
           } catch (e) {
-            proc.kill();
+            proc?.kill();
             console.error(`转码失败: ${file.name} -> AAC ${bitrate}k`, e);
             Bun.file(tempPath).delete().catch(() => { /* 忽略删除错误 */ });
 
             if (e instanceof Error)
               transcodeErrors.set(cachePath, e);
-          } finally {
-            transcodeTasks.delete(cachePath);
           }
         };
 
         const task = taskExecutor();
         transcodeTasks.set(cachePath, task);
+        task.finally(() => transcodeTasks.delete(cachePath));
 
         return c.body(null, 202, {
           'X-Transcode-Status': encodeURIComponent(`正在转码：${file.name} -> AAC ${bitrate}k`)
