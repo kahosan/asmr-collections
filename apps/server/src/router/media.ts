@@ -42,8 +42,11 @@ mediaApp.get('/:path{.+}', async c => {
     ) {
       const bitrate = Number.parseInt(_bitrate, 10);
 
-      if (Number.isNaN(bitrate) || bitrate < 32 || bitrate > 512)
-        return c.json(formatMessage('比特率参数错误'), 400);
+      if (Number.isNaN(bitrate) || bitrate < 32 || bitrate > 512) {
+        return c.body(null, 400, {
+          'X-Transcode-Status': encodeURIComponent('无效的比特率参数')
+        });
+      }
 
       const cacheKey = getCacheKey(decodePath, file.lastModified, bitrate);
       const cachePath = join(TRANSCODE_CACHE_PATH, cacheKey);
@@ -51,13 +54,18 @@ mediaApp.get('/:path{.+}', async c => {
 
       const filename = file.name.replace(/\.[^.]+$/, '.m4a');
 
-      if (transcodeTasks.has(cachePath))
-        return c.text(`正在转码：${file.name} -> AAC ${bitrate}k`, 202);
+      if (transcodeTasks.has(cachePath)) {
+        return c.body(null, 202, {
+          'X-Transcode-Status': encodeURIComponent(`正在转码：${file.name} -> AAC ${bitrate}k`)
+        });
+      }
 
       const taskError = transcodeErrors.get(cachePath);
       if (taskError) {
         transcodeErrors.delete(cachePath);
-        return c.json(formatError(taskError), 500);
+        return c.body(null, 500, {
+          'X-Transcode-Status': encodeURIComponent(taskError.message)
+        });
       }
 
       const cacheFile = Bun.file(cachePath);
@@ -94,7 +102,9 @@ mediaApp.get('/:path{.+}', async c => {
         const task = taskExecutor();
         transcodeTasks.set(cachePath, task);
 
-        return c.text(`正在转码：${file.name} -> AAC ${bitrate}k`, 202);
+        return c.body(null, 202, {
+          'X-Transcode-Status': encodeURIComponent(`正在转码：${file.name} -> AAC ${bitrate}k`)
+        });
       }
     }
 
