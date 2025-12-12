@@ -23,12 +23,15 @@ const bitrateOptions = [
 
 export function TranscodeSettings({ disabled }: { disabled?: boolean }) {
   const [options, setOptions] = useTranscodeOptions();
-  const { data, isLoading } = useSWRImmutable<{ exists: boolean }>('/api/library/ffmpeg', fetcher, {
+  const { data, error, isLoading } = useSWRImmutable<{ exists: boolean }>('/api/library/ffmpeg', fetcher, {
     onError: e => notifyError(e, 'FFmpeg 状态获取失败')
   });
 
   const onValueChange = (value: string) => {
     const newValue = value as TranscodeMode;
+
+    if (error)
+      return notifyError(error, 'FFmpeg 状态获取失败');
 
     if (isLoading || !data)
       return toast.warning('正在获取 FFmpeg 状态，请稍后再试');
