@@ -10,7 +10,7 @@ import { serveStatic } from 'hono/bun';
 import { api } from './router';
 import { mediaApp } from './router/media';
 import { proxyApp } from './router/proxy';
-import { COVERS_PATH } from './lib/constant';
+import { COVERS_PATH, TRANSCODE_CACHE_PATH } from './lib/constant';
 
 const CLIENT_DIST = process.env.DIST_PATH || path.resolve(import.meta.dirname, '../../web/dist');
 const COVERS_DIR = path.resolve(process.cwd(), 'covers');
@@ -83,6 +83,7 @@ app.use('*', serveStatic({
 // init
 try {
   await fs.mkdir(COVERS_PATH, { recursive: true });
+  await fs.mkdir(TRANSCODE_CACHE_PATH, { recursive: true });
 } catch (error) {
   console.error('Failed to create covers directory:', error);
 }
