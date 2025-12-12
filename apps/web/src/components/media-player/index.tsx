@@ -84,8 +84,7 @@ export default function MediaPlayer() {
   const onTimeUpdate = useCallback((detail: MediaTimeUpdateEventDetail) => {
     const currentTime = detail.currentTime;
 
-    // currentTime 更新太快了，1s 已足够
-    if (currentTime > 30 && currentTime <= 31)
+    if (currentTime > 30)
       preTranscodeNext(nextTrack?.mediaStreamUrl);
 
     throttledUpdateHistory(currentTime);
