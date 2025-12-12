@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { useImmerAtom } from 'jotai-immer';
+import { useImmerAtom, useSetImmerAtom } from 'jotai-immer';
 import { createLazyRoute } from '@tanstack/react-router';
 
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
+import { transcodeTempAtom } from '~/hooks/use-transcode-options';
 
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
@@ -11,11 +12,13 @@ import { Separator } from '~/components/ui/separator';
 import { StorageSettings } from './components/storage';
 import { SettingItem } from './components/setting-item';
 import { SettingInput } from './components/setting-input';
+import { TranscodeSettings } from './components/transcode';
 import { StorageSkeleton } from './components/storage-skeleton';
 import { SmartPathSettings } from './components/smart-path-settings';
 
 function Settings() {
   const [options, setOptions] = useImmerAtom(settingOptionsAtom);
+  const setTranscodeTemp = useSetImmerAtom(transcodeTempAtom);
 
   const voiceLibOps = options.voiceLibraryOptions;
 
@@ -87,8 +90,11 @@ function Settings() {
         onCheckedChange={checked => {
           setOptions(d => {
             d.voiceLibraryOptions.useLocalVoiceLibrary = checked;
-            if (!checked)
+            if (!checked) {
               d.voiceLibraryOptions.showMissingTagsInLocalVL = false;
+              d.voiceLibraryOptions.transcode.enable = false;
+              setTranscodeTemp(d => { d.enable = false; });
+            }
           });
         }}
       >
@@ -116,6 +122,8 @@ function Settings() {
       >
         无法在本地库中找到音声时使用 ASMR.ONE
       </SettingItem>
+
+      <TranscodeSettings disabled={!voiceLibOps.useLocalVoiceLibrary} />
 
       <Separator />
 

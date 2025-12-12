@@ -349,6 +349,9 @@ importers:
 
   packages/shared:
     dependencies:
+      es-toolkit:
+        specifier: ^1.42.0
+        version: 1.42.0
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
@@ -3149,6 +3152,9 @@ packages:
 
   error-stack-parser-es@1.0.5:
     resolution: {integrity: sha512-5qucVt2XcuGMcEGgWI7i+yZpmpByQ8J1lHhcL7PwqCwu9FPP3VUXzT4ltHe5i2z9dePwEHcDVOAfSnHsOlCXRA==}
+
+  es-toolkit@1.42.0:
+    resolution: {integrity: sha512-SLHIyY7VfDJBM8clz4+T2oquwTQxEzu263AyhVK4jREOAwJ+8eebaa4wM3nlvnAqhDrMm2EsA6hWHaQsMPQ1nA==}
 
   esbuild@0.23.1:
     resolution: {integrity: sha512-VVNz/9Sa0bs5SELtn3f7qhJCDPCF5oMEl5cO9/SSinpE9hbPVvxbd572HH5AKiP7WD8INO53GgfDDhRjkylHEg==}
@@ -7565,6 +7571,8 @@ snapshots:
   environment@1.1.0: {}
 
   error-stack-parser-es@1.0.5: {}
+
+  es-toolkit@1.42.0: {}
 
   esbuild@0.23.1:
     optionalDependencies:

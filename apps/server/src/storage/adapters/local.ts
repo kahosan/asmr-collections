@@ -68,13 +68,13 @@ export class LocalStorageAdapter implements StorageAdapterBase<'local'> {
   file(path: string): FileResult<'local'> {
     const file = Bun.file(this.resolvePath(path));
 
-    function stream(begin?: number, end?: number): BunFile {
-      if (typeof begin === 'number') {
-        // 206 的 end 要 size - 1，但 slice 如果 -1 会丢失最后一个字节，所以这里 +1
-        return file.slice(begin, end ? end + 1 : undefined);
-      }
+    function chunk(begin = 0, end?: number): BunFile {
+      if (begin === 0 && typeof end === 'undefined')
+        return file;
 
-      return file;
+      // 206 的 end 要 size - 1，但 slice 如果 -1 会丢失最后一个字节，所以这里 +1
+      const _end = typeof end === 'number' ? end + 1 : undefined;
+      return file.slice(begin, _end);
     }
 
     return {
@@ -83,7 +83,9 @@ export class LocalStorageAdapter implements StorageAdapterBase<'local'> {
       name: p.basename(path),
       path: this.resolvePath(path),
       lastModified: file.lastModified,
-      stream
+      raw: file,
+      chunk,
+      stream: (begin, end) => chunk(begin, end).stream()
     };
   }
 }

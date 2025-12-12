@@ -2,7 +2,7 @@ import type { BunFile } from 'bun';
 import type { StorageConfig, StorageType } from '@asmr-collections/shared';
 
 export type StreamResult<T extends StorageType = StorageType> = T extends 'local'
-  ? BunFile
+  ? ReadableStream
   : Promise<ReadableStream>;
 
 export type FileResult<T extends StorageType = StorageType> = T extends 'local'
@@ -64,7 +64,7 @@ export abstract class StorageAdapterBase<T extends StorageType = StorageType> {
   abstract file(path: string): FileResult<T>;
 }
 
-interface AdapterFile<T extends StorageType> {
+export type AdapterFile<T extends StorageType> = {
   /**
    * A UNIX timestamp indicating when the file was last modified.
    */
@@ -97,4 +97,16 @@ interface AdapterFile<T extends StorageType> {
    * @param end - absolute offset in bytes (relative to 0)
    */
   stream(begin?: number, end?: number): StreamResult<T>
-}
+
+  /**
+   * 仅本地存储可用，返回 BunFile 对象
+   */
+  raw?: BunFile
+
+  /**
+   * 仅本地存储可用，返回指定范围的 BunFile 切片
+   * @param begin - start offset in bytes
+   * @param end - absolute offset in bytes (relative to 0)
+   */
+  chunk?: (begin: number, end?: number) => BunFile
+} & (T extends 'local' ? { raw: BunFile, chunk: (begin: number, end?: number) => BunFile } : object);

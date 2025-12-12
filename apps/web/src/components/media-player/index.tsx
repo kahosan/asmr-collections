@@ -1,21 +1,33 @@
 import { MediaPlayer as VidstackPlayer, MediaProvider, MEDIA_KEY_SHORTCUTS, TextTrack } from '@vidstack/react';
 import type { MediaLoadedDataEvent, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
 
+import { AudioPlayerLayout } from './layout';
+
 import { useAtom } from 'jotai';
 import { createPortal } from 'react-dom';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 
+import { throttle } from '@asmr-collections/shared';
+
+import { useMediaSrc } from './hooks/use-media-src';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 import { usePlayHistoryUpdate } from '~/hooks/use-play-history';
 
-import { AudioPlayerLayout } from './layout';
 import { fetchTextTrackContent } from './utils';
 
 export default function MediaPlayer() {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);
   const updateHistory = usePlayHistoryUpdate();
 
-  const saveTimeRef = useRef<number | null>(null);
+  const { mediaSrc, preTranscodeNext } = useMediaSrc(mediaState.currentTrack?.mediaStreamUrl);
+
+  const nextTrack = useMemo(() => {
+    const currentIndex = mediaState.tracks?.findIndex(track => track.title === mediaState.currentTrack?.title);
+    if (currentIndex === undefined || currentIndex === -1) return null;
+
+    const nextIndex = currentIndex + 1;
+    return mediaState.tracks?.at(nextIndex) || null;
+  }, [mediaState.currentTrack?.title, mediaState.tracks]);
 
   const changeTrack = useCallback((next = false) => {
     const currentIndex = mediaState.tracks?.findIndex(track => track.title === mediaState.currentTrack?.title);
@@ -56,7 +68,6 @@ export default function MediaPlayer() {
 
     if (!mediaState.work || !mediaState.currentTrack) return;
 
-    if (saveTimeRef.current) clearTimeout(saveTimeRef.current);
     updateHistory(mediaState.work.id, -1, mediaState.currentTrack);
   }, [changeTrack, mediaState.currentTrack, mediaState.work, updateHistory]);
 
@@ -65,17 +76,19 @@ export default function MediaPlayer() {
       e.target.currentTime = mediaState.currentTrack.lastPlayedAt;
   }, [mediaState.currentTrack]);
 
-  const onTimeUpdate = useCallback((detail: MediaTimeUpdateEventDetail) => {
-    if (saveTimeRef.current) return;
+  const throttledUpdateHistory = useMemo(() => throttle((currentTime: number) => {
+    if (!mediaState.work || !mediaState.currentTrack) return;
+    updateHistory(mediaState.work.id, currentTime, mediaState.currentTrack);
+  }, 3000), [mediaState.currentTrack, mediaState.work, updateHistory]);
 
+  const onTimeUpdate = useCallback((detail: MediaTimeUpdateEventDetail) => {
     const currentTime = detail.currentTime;
 
-    saveTimeRef.current = window.setTimeout(() => {
-      if (!mediaState.work || !mediaState.currentTrack) return;
-      updateHistory(mediaState.work.id, currentTime, mediaState.currentTrack);
-      saveTimeRef.current = null;
-    }, 2000);
-  }, [mediaState.currentTrack, mediaState.work, updateHistory]);
+    if (currentTime > 30)
+      preTranscodeNext(nextTrack?.mediaStreamUrl);
+
+    throttledUpdateHistory(currentTime);
+  }, [nextTrack?.mediaStreamUrl, preTranscodeNext, throttledUpdateHistory]);
 
   const updateMediaMetadata = useCallback(() => {
     if (
@@ -106,7 +119,7 @@ export default function MediaPlayer() {
       <div className="fixed bottom-0 w-full">
         <VidstackPlayer
           autoPlay
-          src={mediaState.currentTrack?.mediaStreamUrl}
+          src={mediaSrc}
           onLoadStart={onLoadStart}
           onLoadedData={onLoadedData}
           onTimeUpdate={onTimeUpdate}

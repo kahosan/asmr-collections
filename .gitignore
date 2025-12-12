@@ -35,3 +35,4 @@ query
 .wrangler
 
 covers
+transcode_cache

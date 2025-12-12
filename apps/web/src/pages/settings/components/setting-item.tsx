@@ -4,7 +4,7 @@ import { cn } from '~/lib/utils';
 
 export function SettingItem({ id, children, ...props }: React.ComponentPropsWithoutRef<typeof Switch>) {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between items-center">
       <Label
         htmlFor={id}
         className={cn(props.disabled ? 'opacity-60' : '', 'max-w-[80%] leading-6')}
