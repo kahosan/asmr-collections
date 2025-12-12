@@ -1,7 +1,9 @@
 import { useAtom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 
 import { focusAtom } from 'jotai-optics';
+
+import { toMerged } from '@asmr-collections/shared';
 
 export interface SettingOptions {
   kikoeru: string
@@ -23,7 +25,7 @@ export interface SettingOptions {
   }
 }
 
-export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__', {
+const DEFAULT_SETTINGS = {
   kikoeru: 'https://asmr.one/work',
   asmrOneApi: 'https://api.asmr.one',
   useAsmrOneRecommender: false,
@@ -41,7 +43,26 @@ export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__'
     enable: true,
     pattern: ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus']
   }
-}, undefined, { getOnInit: true });
+};
+
+const storage = createJSONStorage<SettingOptions>(() => localStorage);
+const deepMergeStorage = {
+  ...storage,
+  getItem(key: string, initialValue: SettingOptions) {
+    const storedValue = storage.getItem(key, initialValue);
+    if (storedValue === initialValue)
+      return initialValue;
+
+    return toMerged(initialValue, storedValue);
+  }
+};
+
+export const settingOptionsAtom = atomWithStorage<SettingOptions>(
+  '__settings__',
+  DEFAULT_SETTINGS,
+  deepMergeStorage,
+  { getOnInit: true }
+);
 
 export const useSettingOptions = () => useAtom(settingOptionsAtom);
 
