@@ -18,7 +18,7 @@ export function useMediaSrc(url: string | undefined) {
     const newURL = withQuery(url, { bitrate: options.bitrate });
     const response = await fetch(newURL, { method: 'HEAD' });
 
-    const transcodeStatus = decodeURIComponent(response.headers.get('x-transcode-status') ?? ' 未知转码状态');
+    const transcodeStatus = decodeURIComponent(response.headers.get('x-transcode-status') ?? '未知转码状态');
 
     if (response.status === 200 || response.status === 206 || response.status === 304) {
       toast.dismiss('transcode-status');
