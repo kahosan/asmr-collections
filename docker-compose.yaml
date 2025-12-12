@@ -12,7 +12,7 @@ services:
       - JINA_API_KEY=
     volumes:
       - ./covers:/app/covers # 封面文件夹
-      # - ./transcode_cache:/app/transcode_cache # 转码缓存文件夹，如果需要转码功能，丢一个 ffmpeg 可执行文件到这个文件夹
+      # - ./transcode_cache:/app/transcode_cache # 转码缓存文件夹。如果需要转码功能，请将一个带有 libfdk_aac 编码器支持的 ffmpeg 可执行文件（建议使用静态编译版本）放入此文件夹。可从 https://johnvansickle.com/ffmpeg/ 或自行编译获取，确保 ffmpeg 支持 libfdk_aac，否则部分转码功能无法使用。
       # - ./VoiceWork:/media # 左边的路径修改为你本地的音频文件夹路径
     depends_on:
       database:
