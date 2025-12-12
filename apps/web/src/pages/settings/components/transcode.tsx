@@ -39,7 +39,7 @@ export function TranscodeSettings({ disabled }: { disabled?: boolean }) {
             启用转码功能
           </Label>
           <p className="opacity-60 text-xs">
-            仅对 WAV 以及 FLAC 格式的音频文件生效
+            仅对 WAV 以及 FLAC 格式的音频文件生效，不支持 WebDAV
           </p>
         </div>
         <Select
