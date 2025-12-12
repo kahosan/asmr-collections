@@ -16,7 +16,8 @@ export type TracksAPI =
   | 'tracks/:id'
   | 'tracks/:id/cache/clear';
 export type LibraryAPI =
-  | 'library/exists/:id';
+  | 'library/exists/:id'
+  | 'library/ffmpeg';
 
 export type FetcherKey =
   | `${Base}/${WorkAPI}`

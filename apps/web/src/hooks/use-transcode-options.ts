@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { match } from 'ts-pattern';
 import { atom, useAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 
@@ -38,19 +39,19 @@ export function useTranscodeOptions() {
       enable: false
     };
 
-    switch (draft.mode) {
-      case 'persistence':
+    match(draft.mode)
+      .with('persistence', () => {
         nextStorageState.enable = true;
         setTempOptions({ enable: false });
-        break;
-      case 'temporary':
+      })
+      .with('temporary', () => {
         setTempOptions({ enable: true });
-        break;
-      default:
+      })
+      .with('disable', () => {
         // disable
         setTempOptions({ enable: false });
-        break;
-    }
+      })
+      .exhaustive();
 
     setStorageOptions(nextStorageState);
   }, [options, setStorageOptions, setTempOptions]);
