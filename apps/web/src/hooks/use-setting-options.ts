@@ -12,6 +12,10 @@ export interface SettingOptions {
     useLocalVoiceLibrary: boolean
     showMissingTagsInLocalVL: boolean
     fallbackToAsmrOneApi: boolean
+    transcode: {
+      enable: boolean
+      bitrate: number
+    }
   }
   smartPath: {
     enable: boolean
@@ -27,7 +31,11 @@ export const settingOptionsAtom = atomWithStorage<SettingOptions>('__settings__'
   voiceLibraryOptions: {
     useLocalVoiceLibrary: false,
     showMissingTagsInLocalVL: false,
-    fallbackToAsmrOneApi: true
+    fallbackToAsmrOneApi: true,
+    transcode: {
+      enable: false,
+      bitrate: 128
+    }
   },
   smartPath: {
     enable: true,
