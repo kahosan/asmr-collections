@@ -31,7 +31,7 @@ export const tracksApp = new Hono();
 const schema = z.discriminatedUnion('provider', [
   z.object({
     provider: z.literal('asmrone'),
-    asmrOneApi: z.string()
+    api: z.string()
   }),
   z.object({
     provider: z.undefined()
@@ -46,8 +46,8 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
     if (query.provider === 'asmrone') {
       const { fetchAsmrOneTracks } = await import('~/provider/asmrone');
       const data = await tracksCache({
-        cacheKey: `asmrone-tracks-${id}-${encodeURIComponent(query.asmrOneApi)}`,
-        getFreshValue: () => fetchAsmrOneTracks(id, query.asmrOneApi),
+        cacheKey: `asmrone-tracks-${id}-${encodeURIComponent(query.api)}`,
+        getFreshValue: () => fetchAsmrOneTracks(id, query.api),
         ttl: ttl.hour(1),
         ctx: c
       });
