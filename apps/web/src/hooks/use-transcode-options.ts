@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 import { atom, useAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 
-import { voiceLibraryOptionsAtom } from './use-setting-options';
+import { storageOptionsAtom } from './use-setting-options';
 
 export type TranscodeMode = 'persistence' | 'temporary' | 'disable';
 export interface TranscodeOptions {
@@ -12,17 +12,17 @@ export interface TranscodeOptions {
   bitrate: number
 }
 
-export const transcodeStorageAtom = focusAtom(voiceLibraryOptionsAtom, optic => optic.prop('transcode'));
-export const transcodeTempAtom = atom({ enable: false });
+export const transcodeStorageAtom = focusAtom(storageOptionsAtom, optic => optic.prop('transcode'));
+export const transcodeTempAtom = atom({ enabled: false });
 
 export function useTranscodeOptions() {
   const [storageOptions, setStorageOptions] = useAtom(transcodeStorageAtom);
   const [tempOptions, setTempOptions] = useAtom(transcodeTempAtom);
 
   let mode: TranscodeMode = 'disable';
-  if (storageOptions.enable)
+  if (storageOptions.enabled)
     mode = 'persistence';
-  else if (tempOptions.enable)
+  else if (tempOptions.enabled)
     mode = 'temporary';
 
   const options = useMemo(() => ({
@@ -36,20 +36,20 @@ export function useTranscodeOptions() {
 
     const nextStorageState = {
       bitrate: draft.bitrate,
-      enable: false
+      enabled: false
     };
 
     match(draft.mode)
       .with('persistence', () => {
-        nextStorageState.enable = true;
-        setTempOptions({ enable: false });
+        nextStorageState.enabled = true;
+        setTempOptions({ enabled: false });
       })
       .with('temporary', () => {
-        setTempOptions({ enable: true });
+        setTempOptions({ enabled: true });
       })
       .with('disable', () => {
         // disable
-        setTempOptions({ enable: false });
+        setTempOptions({ enabled: false });
       })
       .exhaustive();
 

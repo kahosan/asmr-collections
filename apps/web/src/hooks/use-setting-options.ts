@@ -10,17 +10,17 @@ export interface SettingOptions {
   asmrOneApi: string
   useAsmrOneRecommender: boolean
   showWorkDetail: boolean
-  voiceLibraryOptions: {
-    useLocalVoiceLibrary: boolean
-    showMissingTagsInLocalVL: boolean
+  storage: {
+    enabled: boolean
+    showMissingTags: boolean
     fallbackToAsmrOneApi: boolean
     transcode: {
-      enable: boolean
+      enabled: boolean
       bitrate: number
     }
   }
   smartPath: {
-    enable: boolean
+    enabled: boolean
     pattern: string[]
   }
 }
@@ -30,17 +30,17 @@ const DEFAULT_SETTINGS = {
   asmrOneApi: 'https://api.asmr.one',
   useAsmrOneRecommender: false,
   showWorkDetail: true,
-  voiceLibraryOptions: {
-    useLocalVoiceLibrary: false,
-    showMissingTagsInLocalVL: false,
+  storage: {
+    enabled: false,
+    showMissingTags: false,
     fallbackToAsmrOneApi: true,
     transcode: {
-      enable: false,
+      enabled: false,
       bitrate: 128
     }
   },
   smartPath: {
-    enable: true,
+    enabled: true,
     pattern: ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus']
   }
 };
@@ -66,8 +66,8 @@ export const settingOptionsAtom = atomWithStorage<SettingOptions>(
 
 export const useSettingOptions = () => useAtom(settingOptionsAtom);
 
-export const voiceLibraryOptionsAtom = focusAtom(settingOptionsAtom, optic => optic.prop('voiceLibraryOptions'));
-export const useVoiceLibraryOptions = () => useAtom(voiceLibraryOptionsAtom);
+export const storageOptionsAtom = focusAtom(settingOptionsAtom, optic => optic.prop('storage'));
+export const useStorageOptions = () => useAtom(storageOptionsAtom);
 
 export const smartPathOptionsAtom = focusAtom(settingOptionsAtom, optic => optic.prop('smartPath'));
 export const useSmartPathOptions = () => useAtom(smartPathOptionsAtom);

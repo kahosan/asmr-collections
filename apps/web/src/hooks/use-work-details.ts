@@ -34,7 +34,7 @@ export type TracksData =
 // eslint-disable-next-line sukka/bool-param-default -- Need to distinguish undefined
 export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[]) => void, hasSubtitles?: boolean, searchPath?: string[]) {
   const settings = useAtomValue(settingOptionsAtom);
-  const voiceLibrary = settings.voiceLibraryOptions;
+  const storage = settings.storage;
 
   const onSuccess = useCallback((tracks: TracksData) => {
     if (!tracks) return;
@@ -51,7 +51,7 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     }
 
     if (
-      settings.smartPath.enable
+      settings.smartPath.enabled
       && !searchPath
       && tracks.data
     ) {
@@ -60,34 +60,32 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
       if (targetPath && targetPath.length > 0)
         smartNavigate(targetPath);
     }
-  }, [id, searchPath, settings.smartPath.enable, settings.smartPath.pattern, smartNavigate]);
+  }, [id, searchPath, settings.smartPath.enabled, settings.smartPath.pattern, smartNavigate]);
 
   const key = match(hasSubtitles)
     .with(true, () => {
-      return voiceLibrary.useLocalVoiceLibrary ? `work-tracks-${id}-local` : `work-tracks-${id}`;
+      return storage.enabled ? `work-tracks-${id}-local` : `work-tracks-${id}`;
     })
     .with(false, () => {
-      return voiceLibrary.useLocalVoiceLibrary ? `work-tracks-${id}-local-no-subtitles` : `work-tracks-${id}-no-subtitles`;
+      return storage.enabled ? `work-tracks-${id}-local-no-subtitles` : `work-tracks-${id}-no-subtitles`;
     })
     .with(undefined, () => null)
     .exhaustive();
 
   // 拿出来是为了当 hasSubtitles 变化时重新请求
   const fetchFn = async () => {
-    const enableLibrary = voiceLibrary.useLocalVoiceLibrary;
-
     let useAsmrOne: boolean | null = null;
 
     let exists: boolean | null = null;
 
     try {
-      if (enableLibrary) {
+      if (storage.enabled) {
         const isExists = await fetcher<{ exists: boolean }>(`/api/library/exists/${id}`);
         exists = isExists.exists;
 
         if (exists)
           useAsmrOne = false;
-        else if (voiceLibrary.fallbackToAsmrOneApi)
+        else if (storage.fallbackToAsmrOneApi)
           useAsmrOne = true;
       } else {
         useAsmrOne = true;

@@ -17,9 +17,9 @@ export function SmartPathSettings({ options, setOptions }: SmartPathSettingsProp
   return (
     <div>
       <SettingItem
-        id="enable-smart-path"
-        checked={options.enable}
-        onCheckedChange={checked => setOptions('enable', checked)}
+        id="enabled-smart-path"
+        checked={options.enabled}
+        onCheckedChange={checked => setOptions('enabled', checked)}
       >
         启用智能路径
       </SettingItem>
@@ -28,7 +28,7 @@ export function SmartPathSettings({ options, setOptions }: SmartPathSettingsProp
         className="mt-4 ml-4 overflow-hidden p-1"
         initial={false}
         animate={
-          options.enable
+          options.enabled
             ? {
               height: 'auto',
               opacity: 1,

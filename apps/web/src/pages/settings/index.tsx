@@ -20,7 +20,7 @@ function Settings() {
   const [options, setOptions] = useImmerAtom(settingOptionsAtom);
   const setTranscodeTemp = useSetImmerAtom(transcodeTempAtom);
 
-  const voiceLibOps = options.voiceLibraryOptions;
+  const storage = options.storage;
 
   return (
     <motion.div
@@ -85,15 +85,15 @@ function Settings() {
       <Separator />
 
       <SettingItem
-        id="use-local-voice-library"
-        checked={voiceLibOps.useLocalVoiceLibrary}
+        id="storage-enabled"
+        checked={storage.enabled}
         onCheckedChange={checked => {
           setOptions(d => {
-            d.voiceLibraryOptions.useLocalVoiceLibrary = checked;
+            d.storage.enabled = checked;
             if (!checked) {
-              d.voiceLibraryOptions.showMissingTagsInLocalVL = false;
-              d.voiceLibraryOptions.transcode.enable = false;
-              setTranscodeTemp(d => { d.enable = false; });
+              d.storage.showMissingTags = false;
+              d.storage.transcode.enabled = false;
+              setTranscodeTemp(d => { d.enabled = false; });
             }
           });
         }}
@@ -102,28 +102,28 @@ function Settings() {
       </SettingItem>
 
       <SettingItem
-        id="is-use-local-vl-show-exist-tag"
-        checked={voiceLibOps.showMissingTagsInLocalVL}
+        id="storage-show-missing-tags"
+        checked={storage.showMissingTags}
         onCheckedChange={checked => setOptions(d => {
-          d.voiceLibraryOptions.showMissingTagsInLocalVL = checked;
+          d.storage.showMissingTags = checked;
         })}
-        disabled={!voiceLibOps.useLocalVoiceLibrary}
+        disabled={!storage.enabled}
       >
         当启用本地库时显示不存在于本地库的标签
       </SettingItem>
 
       <SettingItem
-        id="fallback-to-asmrone-api"
-        checked={voiceLibOps.fallbackToAsmrOneApi}
+        id="storage-fallback-to-asmr-one-api"
+        checked={storage.fallbackToAsmrOneApi}
         onCheckedChange={checked => setOptions(d => {
-          d.voiceLibraryOptions.fallbackToAsmrOneApi = checked;
+          d.storage.fallbackToAsmrOneApi = checked;
         })}
-        disabled={!voiceLibOps.useLocalVoiceLibrary}
+        disabled={!storage.enabled}
       >
         无法在本地库中找到音声时使用 ASMR.ONE
       </SettingItem>
 
-      <TranscodeSettings disabled={!voiceLibOps.useLocalVoiceLibrary} />
+      <TranscodeSettings disabled={!storage.enabled} />
 
       <Separator />
 

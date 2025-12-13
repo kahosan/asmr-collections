@@ -4,7 +4,7 @@ import RandomWork from './random-work';
 import AddWorkDialog from './add-work';
 import BatchAddDialog from './batch-add';
 import BatchUpdateDialog from './batch-update';
-import SyncVoiceLibraryDialog from './sync-voice-library';
+import SyncStorageDialog from './sync-storage';
 
 import GoToDetail from '../go-to-detail';
 import HiddenImage from '../hidden-image';
@@ -15,15 +15,15 @@ import { useAtomValue } from 'jotai';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useShortcut } from '~/hooks/use-shortcut';
-import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
+import { storageOptionsAtom } from '~/hooks/use-setting-options';
 
 export default function OtherMenu() {
   const [showAddWorkDialog, setShowAddWorkDialog] = useState(false);
   const [showBatchAddDialog, setShowBatchAddDialog] = useState(false);
   const [showBatchUpdateDialog, setShowBatchUpdateDialog] = useState(false);
-  const [showSyncVoiceLibraryDialog, setShowSyncVoiceLibraryDialog] = useState(false);
+  const [showSyncStorageDialog, setShowSyncStorageDialog] = useState(false);
 
-  const useVoiceLibrary = useAtomValue(voiceLibraryOptionsAtom).useLocalVoiceLibrary;
+  const storage = useAtomValue(storageOptionsAtom);
 
   const navigate = useNavigate();
 
@@ -39,20 +39,33 @@ export default function OtherMenu() {
         <MenubarContent align="end">
           <GoToDetail />
           <MenubarSeparator />
-          <MenubarItem onClick={() => setShowAddWorkDialog(p => !p)} className="cursor-pointer">
+          <MenubarItem
+            onClick={() => setShowAddWorkDialog(p => !p)}
+            className="cursor-pointer"
+          >
             添加作品
             <MenubarShortcut>⌘I</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem onClick={() => setShowBatchAddDialog(p => !p)} className="cursor-pointer">
+          <MenubarItem
+            onClick={() => setShowBatchAddDialog(p => !p)}
+            className="cursor-pointer"
+          >
             批量添加
           </MenubarItem>
-          <MenubarItem onClick={() => setShowBatchUpdateDialog(p => !p)} className="cursor-pointer">
+          <MenubarItem
+            onClick={() => setShowBatchUpdateDialog(p => !p)}
+            className="cursor-pointer"
+          >
             批量更新
             <MenubarShortcut>⌘U</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
           <RandomWork />
-          <MenubarItem onClick={() => setShowSyncVoiceLibraryDialog(p => !p)} className="cursor-pointer" disabled={!useVoiceLibrary}>
+          <MenubarItem
+            onClick={() => setShowSyncStorageDialog(p => !p)}
+            className="cursor-pointer"
+            disabled={!storage.enabled}
+          >
             同步音声库
           </MenubarItem>
           <MenubarSeparator />
@@ -69,7 +82,7 @@ export default function OtherMenu() {
       <BatchUpdateDialog open={showBatchUpdateDialog} setOpen={setShowBatchUpdateDialog} />
       <BatchAddDialog open={showBatchAddDialog} setOpen={setShowBatchAddDialog} />
       <AddWorkDialog open={showAddWorkDialog} setOpen={setShowAddWorkDialog} />
-      <SyncVoiceLibraryDialog open={showSyncVoiceLibraryDialog} setOpen={setShowSyncVoiceLibraryDialog} />
+      <SyncStorageDialog open={showSyncStorageDialog} setOpen={setShowSyncStorageDialog} />
     </>
   );
 }

@@ -53,7 +53,7 @@ export function TranscodeSettings({ disabled }: { disabled?: boolean }) {
   return (
     <>
       <SettingItem
-        id="transcode-mode"
+        id="storage-transcode-mode"
         disabled={disabled}
         description="仅对 WAV 以及 FLAC 格式的音频文件生效，不支持 WebDAV"
         action={
@@ -78,7 +78,7 @@ export function TranscodeSettings({ disabled }: { disabled?: boolean }) {
         启用转码功能
       </SettingItem>
       <SettingItem
-        id="transcode-bitrate"
+        id="storage-transcode-bitrate"
         disabled={disabled}
         description="转码后音频的比特率，数值越大音质越好但文件体积也越大"
         action={

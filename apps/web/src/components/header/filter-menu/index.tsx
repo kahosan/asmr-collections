@@ -11,13 +11,13 @@ import { Activity } from 'react';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from '@tanstack/react-router';
 import { useGenerateSearch } from '~/hooks/use-generate-search';
-import { voiceLibraryOptionsAtom } from '~/hooks/use-setting-options';
+import { storageOptionsAtom } from '~/hooks/use-setting-options';
 
 export default function FilterMenu() {
   const { search, exclude } = useGenerateSearch();
   const navigate = useNavigate();
 
-  const settings = useAtomValue(voiceLibraryOptionsAtom);
+  const settings = useAtomValue(storageOptionsAtom);
 
   return (
     <MenubarMenu>
@@ -53,7 +53,7 @@ export default function FilterMenu() {
           >
             带字幕
           </MenubarCheckboxItem>
-          <Activity mode={settings.useLocalVoiceLibrary ? 'visible' : 'hidden'}>
+          <Activity mode={settings.enabled ? 'visible' : 'hidden'}>
             <MenubarCheckboxItem
               checked={search.existsLocal === 'exclude' ? 'indeterminate' : !!search.existsLocal}
               onCheckedChange={() => {

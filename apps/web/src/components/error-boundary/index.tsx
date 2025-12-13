@@ -20,7 +20,6 @@ function ErrorFallback({ error }: FallbackProps) {
     message += typeof error.data === 'object' ? Object.values(error.data).join(', ') : error.data;
   }
 
-  const showDesc = typeof message === 'string' && message.includes('useLocalVoiceLibrary');
   return (
     <div className="mt-24 space-y-4 px-4">
       <h2 className="font-bold text-3xl">遇到了一些问题</h2>
@@ -35,10 +34,9 @@ function ErrorFallback({ error }: FallbackProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>错误详情</AlertDialogTitle>
             </AlertDialogHeader>
-            <AlertDialogDescription className={showDesc ? '' : 'sr-only'}>
-              <span>尝试清除网页数据后重试</span>
+            <AlertDialogDescription className="font-mono text-sm break-all">
+              {message}
             </AlertDialogDescription>
-            <div className="font-mono text-sm opacity-60 break-all">{message}</div>
             <AlertDialogFooter>
               <AlertDialogCancel>关闭</AlertDialogCancel>
             </AlertDialogFooter>
