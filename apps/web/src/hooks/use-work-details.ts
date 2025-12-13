@@ -65,7 +65,7 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
     if (provider === 'asmrone') {
       return {
         provider: 'asmrone',
-        api: settings.asmrOneApi
+        api: settings.asmrone.api
       };
     }
     return {};

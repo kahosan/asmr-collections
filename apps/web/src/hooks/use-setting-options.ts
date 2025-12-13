@@ -7,9 +7,11 @@ import { toMerged } from '@asmr-collections/shared';
 
 export interface SettingOptions {
   kikoeru: string
-  asmrOneApi: string
-  useAsmrOneRecommender: boolean
   showWorkDetail: boolean
+  asmrone: {
+    api: string
+    recommender: boolean
+  }
   storage: {
     enabled: boolean
     showMissingTags: boolean
@@ -27,8 +29,10 @@ export interface SettingOptions {
 
 const DEFAULT_SETTINGS = {
   kikoeru: 'https://asmr.one/work',
-  asmrOneApi: 'https://api.asmr.one',
-  useAsmrOneRecommender: false,
+  asmrone: {
+    api: 'https://api.asmr.one',
+    recommender: false
+  },
   showWorkDetail: true,
   storage: {
     enabled: false,

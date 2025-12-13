@@ -44,10 +44,10 @@ function Settings() {
       <SettingInput
         id="asmr-one-api"
         name="asmr-one-api"
-        placeholder={options.asmrOneApi}
-        value={options.asmrOneApi}
+        placeholder={options.asmrone.api}
+        value={options.asmrone.api}
         onChange={e => setOptions(d => {
-          d.asmrOneApi = e.target.value;
+          d.asmrone.api = e.target.value;
         })}
       >
         ASMR.ONE API
@@ -57,9 +57,9 @@ function Settings() {
 
       <SettingItem
         id="use-asmr-one-recommender"
-        checked={options.useAsmrOneRecommender}
+        checked={options.asmrone.recommender}
         onCheckedChange={checked => setOptions(d => {
-          d.useAsmrOneRecommender = checked;
+          d.asmrone.recommender = checked;
         })}
       >
         使用 ASMR.ONE 的推荐

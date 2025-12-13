@@ -5,24 +5,19 @@ import { withQuery } from '@asmr-collections/shared';
 import { DropdownMenuItem } from '~/components/ui/dropdown-menu';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
-import { settingOptionsAtom, storageOptionsAtom } from '~/hooks/use-setting-options';
+import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
 import { mutateTracks } from '~/lib/mutation';
 
-const storageEnabled = focusAtom(storageOptionsAtom, optic => optic.prop('enabled'));
-const asmrOneApiAtom = focusAtom(settingOptionsAtom, optic => optic.prop('asmrOneApi'));
+const apiAtom = focusAtom(settingOptionsAtom, optic => optic.prop('asmrone').prop('api'));
 
 export default function ClearCacheMenu({ id}: { id: string }) {
   const [clearTracksAction, m1] = useToastMutation('clear-tracks-cache');
-  const local = useAtomValue(storageEnabled);
-  const asmrOneApi = useAtomValue(asmrOneApiAtom);
+  const api = useAtomValue(apiAtom);
 
   const isMutating = m1;
 
-  const key = withQuery(`/api/tracks/${id}/cache/clear`, {
-    local,
-    asmrOneApi
-  });
+  const key = withQuery(`/api/tracks/${id}/cache/clear`, { api });
 
   const handleClear = () => {
     clearTracksAction({

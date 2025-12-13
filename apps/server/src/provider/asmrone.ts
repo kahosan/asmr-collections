@@ -9,9 +9,9 @@ import { processArtists } from '~/router/route/work/info';
 
 // TODO: 热门推荐和用户推荐
 
-export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
+export async function fetchAsmroneTracks(id: string, host: string) {
   try {
-    return await fetcher<Tracks>(`${asmrOneApi}/api/tracks/${id.replace('RJ', '')}`);
+    return await fetcher<Tracks>(`${host}/api/tracks/${id.replace('RJ', '')}`);
   } catch (e) {
     if (e instanceof HTTPError && e.status === 404)
       throw new HTTPError(e.data?.error || '作品不存在于 asmr.one', 404);
@@ -20,9 +20,9 @@ export async function fetchAsmrOneTracks(id: string, asmrOneApi: string) {
   };
 }
 
-export async function fetchAsmrOneSimilarWorks(id: string, asmrOneApi: string): Promise<ServerWork[]> {
+export async function fetchAsmroneSimilarWorks(id: string, host: string): Promise<ServerWork[]> {
   try {
-    const data = await fetcher<Recommender>(`${asmrOneApi}/api/recommender/item-neighbors`, {
+    const data = await fetcher<Recommender>(`${host}/api/recommender/item-neighbors`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

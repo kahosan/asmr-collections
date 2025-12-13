@@ -17,6 +17,7 @@ import * as z from 'zod';
 import { storage } from '~/storage';
 import { zValidator } from '~/lib/validator';
 import { createCachified, ttl } from '~/lib/cachified';
+import { fetchAsmroneTracks } from '~/provider/asmrone';
 import { formatError, formatMessage } from '~/router/utils';
 
 const folderQueue = newQueue(50);
@@ -44,10 +45,9 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
 
   try {
     if (query.provider === 'asmrone') {
-      const { fetchAsmrOneTracks } = await import('~/provider/asmrone');
       const data = await tracksCache({
         cacheKey: `asmrone-tracks-${id}-${encodeURIComponent(query.api)}`,
-        getFreshValue: () => fetchAsmrOneTracks(id, query.api),
+        getFreshValue: () => fetchAsmroneTracks(id, query.api),
         ttl: ttl.hour(1),
         ctx: c
       });
@@ -74,24 +74,16 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
 });
 
 const schemaClearCache = z.object({
-  asmrOneApi: z.string(),
-  local: z.coerce.boolean()
+  api: z.string()
 });
 
 tracksApp.post('/:id/cache/clear', zValidator('query', schemaClearCache), async c => {
   const { id } = c.req.param();
-  const { asmrOneApi, local } = c.req.valid('query');
+  const { api } = c.req.valid('query');
 
   try {
-    const encodedAsmrOneApi = encodeURIComponent(asmrOneApi);
-
-    if (!local) {
-      await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
-      return c.json(formatMessage(`${id} 缓存已清除`));
-    }
-
     await clearTracksCache(`tracks-${id}`);
-    await clearTracksCache(`asmrone-tracks-${id}-${encodedAsmrOneApi}`);
+    await clearTracksCache(`asmrone-tracks-${id}-${encodeURIComponent(api)}`);
     return c.json(formatMessage(`${id} 缓存已清除`));
   } catch (e) {
     return c.json(formatError(e), 500);

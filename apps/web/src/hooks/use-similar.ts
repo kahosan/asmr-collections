@@ -12,14 +12,12 @@ import { fetcher } from '~/lib/fetcher';
 
 import type { Work } from '@asmr-collections/shared';
 
-const useRecommenderAtom = focusAtom(settingOptionsAtom, optic => optic.prop('useAsmrOneRecommender'));
-const asmrOneApi = focusAtom(settingOptionsAtom, optic => optic.prop('asmrOneApi'));
+const asmroneOptions = focusAtom(settingOptionsAtom, optic => optic.prop('asmrone'));
 
 export function useSimilar(id: string) {
-  const useRecommender = useAtomValue(useRecommenderAtom);
-  const asmrOneApiUrl = useAtomValue(asmrOneApi);
+  const options = useAtomValue(asmroneOptions);
 
-  const query = useRecommender ? { asmrOneApi: asmrOneApiUrl } : {};
+  const query = options.recommender ? { api: options.api } : {};
   const key = withQuery(`/api/work/similar/${id}`, query);
 
   return useSWRImmutable<Work[]>(key, fetcher, {

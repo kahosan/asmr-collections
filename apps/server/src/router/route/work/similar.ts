@@ -9,25 +9,25 @@ import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { createCachified, ttl } from '~/lib/cachified';
 import { formatError, formatMessage } from '~/router/utils';
+import { fetchAsmroneSimilarWorks } from '~/provider/asmrone';
 
 const [similarCache, clear] = createCachified<ServerWork[]>();
 
 export const similarApp = new Hono();
 
 const schema = z.object({
-  asmrOneApi: z.url().optional()
+  api: z.url().optional()
 });
 
 similarApp.get('/similar/:id', zValidator('query', schema), async c => {
   const { id } = c.req.param();
-  const { asmrOneApi } = c.req.valid('query');
+  const { api } = c.req.valid('query');
 
   try {
-    if (asmrOneApi) {
-      const { fetchAsmrOneSimilarWorks } = await import('~/provider/asmrone');
+    if (api) {
       const works = await similarCache({
-        cacheKey: `asmrone-similar-work-${id}-${encodeURIComponent(asmrOneApi)}`,
-        getFreshValue: () => fetchAsmrOneSimilarWorks(id, asmrOneApi),
+        cacheKey: `asmrone-similar-work-${id}-${encodeURIComponent(api)}`,
+        getFreshValue: () => fetchAsmroneSimilarWorks(id, api),
         ttl: ttl.day(7),
         ctx: c
       });
