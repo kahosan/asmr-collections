@@ -42,6 +42,7 @@ type ToastMutationKeys =
   | 'upload'
   | 'subtitles'
   | 'random'
+  | 'genres-sync'
   | `storage-${string}`
   | `clear-${string}-cache`;
 

@@ -111,3 +111,31 @@ export interface Recommender {
     totalCount: number
   }
 }
+
+export type Tags = Array<{
+  id: number
+  name: string
+  i18n: {
+    'en-us': {
+      name?: string
+      history?: Array<{
+        name: string
+        deprecatedAt: number
+      }>
+      censored?: string
+    }
+    'ja-jp': {
+      name?: string
+      censored?: string
+    }
+    'zh-cn': {
+      name?: string
+      history?: Array<{
+        name: string
+        deprecatedAt: number
+      }>
+      censored?: string
+    }
+  }
+  count: number
+}>;

@@ -9,6 +9,7 @@ import { transcodeTempAtom } from '~/hooks/use-transcode-options';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 
+import { GenresSettings } from './components/genres';
 import { StorageSettings } from './components/storage';
 import { SettingItem } from './components/setting-item';
 import { SettingInput } from './components/setting-input';
@@ -64,6 +65,8 @@ function Settings() {
       >
         使用 ASMR.ONE 的推荐
       </SettingItem>
+
+      <GenresSettings api={options.asmrone.api} />
 
       <SettingItem
         id="show-work-details"

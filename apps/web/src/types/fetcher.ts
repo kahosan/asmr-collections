@@ -12,6 +12,7 @@ export type WorkAPI =
 
 export type WorksAPI = 'works';
 export type FieldAPI = 'field/:field';
+export type GenresAPI = 'genres/sync';
 export type TracksAPI =
   | 'tracks/:id'
   | 'tracks/:id/cache/clear';
@@ -23,6 +24,7 @@ export type FetcherKey =
   | `${Base}/${WorkAPI}`
   | `${Base}/${WorksAPI}`
   | `${Base}/${FieldAPI}`
+  | `${Base}/${GenresAPI}`
   | `${Base}/${TracksAPI}`
   | `${Base}/${LibraryAPI}`
   | (string & {});

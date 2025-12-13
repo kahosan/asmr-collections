@@ -1,6 +1,6 @@
 import type { ServerWork, Tracks } from '@asmr-collections/shared';
 
-import type { Recommender } from '~/types/provider/asmr-one';
+import type { Recommender, Tags } from '~/types/provider/asmr-one';
 
 import { HTTPError } from '@asmr-collections/shared';
 
@@ -18,6 +18,10 @@ export async function fetchAsmroneTracks(id: string, host: string) {
 
     throw e;
   };
+}
+
+export function fetchTags(host: string) {
+  return fetcher<Tags>(`${host}/api/tags/`);
 }
 
 export async function fetchAsmroneSimilarWorks(id: string, host: string): Promise<ServerWork[]> {
