@@ -39,6 +39,7 @@ export function useMediaSrc(url: string | undefined) {
     url ? [url, options.bitrate, options.mode] : null,
     fetcher,
     {
+      keepPreviousData: true,
       onErrorRetry(error, _key, _config, revalidate) {
         if (error instanceof HTTPError && error.status === 202) {
           // eslint-disable-next-line sukka/prefer-timer-id -- ignore
