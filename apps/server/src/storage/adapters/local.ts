@@ -49,7 +49,7 @@ export class LocalStorageAdapter implements StorageAdapterBase<'local'> {
 
   async exists(path: string): Promise<boolean> {
     try {
-      await fs.stat(this.resolvePath(path));
+      await fs.access(this.resolvePath(path));
       return true;
     } catch {
       return false;
