@@ -46,7 +46,7 @@ export async function fetchAsmroneSimilarWorks(id: string, host: string): Promis
       series: null,
       artists: await processArtists(work.vas.map(va => va.name)),
       illustrators: [],
-      ageCategory: work.age_category_string === 'R18' ? 3 : (work.age_category_string === 'R15' ? 2 : 1) as (1 | 2 | 3),
+      ageCategory: work.age_category_string === 'adult' ? 3 : (work.age_category_string === 'r15' ? 2 : 1) as (1 | 2 | 3),
       genres: work.tags.map(tag => ({ id: tag.id, name: tag.name })),
       price: work.price,
       sales: work.dl_count,
