@@ -55,18 +55,18 @@ export default function FilterMenu() {
           </MenubarCheckboxItem>
           <Activity mode={settings.enabled ? 'visible' : 'hidden'}>
             <MenubarCheckboxItem
-              checked={search.existsLocal === 'exclude' ? 'indeterminate' : !!search.existsLocal}
+              checked={search.storageFilter === 'exclude' ? 'indeterminate' : !!search.storageFilter}
               onCheckedChange={() => {
-                if (!search.existsLocal)
-                  navigate({ to: '/', search: exclude(['keyword', 'page'], { existsLocal: 'only' }) });
-                else if (search.existsLocal === 'only')
-                  navigate({ to: '/', search: exclude(['keyword', 'page'], { existsLocal: 'exclude' }) });
+                if (!search.storageFilter)
+                  navigate({ to: '/', search: exclude(['keyword', 'page'], { storageFilter: 'only' }) });
+                else if (search.storageFilter === 'only')
+                  navigate({ to: '/', search: exclude(['keyword', 'page'], { storageFilter: 'exclude' }) });
                 else
-                  navigate({ to: '/', search: exclude(['keyword', 'page', 'existsLocal']) });
+                  navigate({ to: '/', search: exclude(['keyword', 'page', 'storageFilter']) });
               }}
               onSelect={e => e.preventDefault()}
             >
-              本地{search.existsLocal === 'exclude' ? '没' : ''}有
+              本地{search.storageFilter === 'exclude' ? '没' : ''}有
             </MenubarCheckboxItem>
           </Activity>
           <MenubarSeparator />

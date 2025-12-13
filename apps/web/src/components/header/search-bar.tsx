@@ -17,14 +17,14 @@ export default function SearchBar({ search }: SearchBarProps) {
   const [keyword, setKeyword] = useState(() => search.keyword ?? '');
   const [isEmbedding, setIsEmbedding] = useState(() => !!search.embedding);
 
-  const { include } = useGenerateSearch();
+  const { exclude } = useGenerateSearch();
   const navigate = useNavigate();
 
   const onSearch = () => {
     navigate({
       to: '/',
-      search: include(
-        ['sort', 'order', 'filterOp'],
+      search: exclude(
+        ['page'],
         { keyword, embedding: isEmbedding ? keyword : undefined }
       )
     });

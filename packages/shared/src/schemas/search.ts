@@ -8,7 +8,7 @@ export const RootBaseSearchSchema: z.ZodObject<{
   seriesId: z.ZodOptional<z.ZodString>
   keyword: z.ZodOptional<z.ZodString>
   embedding: z.ZodOptional<z.ZodString>
-  existsLocal: z.ZodOptional<z.ZodEnum<{
+  storageFilter: z.ZodOptional<z.ZodEnum<{
     only: 'only'
     exclude: 'exclude'
   }>>
@@ -33,7 +33,7 @@ export const RootBaseSearchSchema: z.ZodObject<{
   seriesId: z.string().optional(),
   keyword: z.string().optional(),
   embedding: z.string().optional(),
-  existsLocal: z.enum(['only', 'exclude']).optional(),
+  storageFilter: z.enum(['only', 'exclude']).optional(),
 
   sort: z.string().default(ROOT_DEFAULT_SEARCH_VALUES.sort),
   order: z.enum(['asc', 'desc']).default(ROOT_DEFAULT_SEARCH_VALUES.order),
@@ -54,7 +54,7 @@ export const RootSearchQuerySchema: z.ZodObject<{
   seriesId: z.ZodOptional<z.ZodString>
   keyword: z.ZodOptional<z.ZodString>
   embedding: z.ZodOptional<z.ZodString>
-  existsLocal: z.ZodOptional<z.ZodEnum<{
+  storageFilter: z.ZodOptional<z.ZodEnum<{
     only: 'only'
     exclude: 'exclude'
   }>>
@@ -98,7 +98,7 @@ export const IndexSearchQuerySchema: z.ZodObject<{
   seriesId: z.ZodOptional<z.ZodString>
   keyword: z.ZodOptional<z.ZodString>
   embedding: z.ZodOptional<z.ZodString>
-  existsLocal: z.ZodOptional<z.ZodEnum<{
+  storageFilter: z.ZodOptional<z.ZodEnum<{
     only: 'only'
     exclude: 'exclude'
   }>>
