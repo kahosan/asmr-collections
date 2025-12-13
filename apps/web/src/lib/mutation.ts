@@ -2,6 +2,10 @@ import { mutate } from 'swr';
 
 function mutateKey(prefix: string): (key: unknown) => boolean {
   return (key: unknown): boolean => {
+    if (Array.isArray(key)) {
+      const _key = key.at(0);
+      return typeof _key === 'string' && _key.startsWith(prefix);
+    }
     return typeof key === 'string' && key.startsWith(prefix);
   };
 };
