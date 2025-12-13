@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
   const enableHttps = !!(devEnv.SSL_KEY && devEnv.SSL_CERT);
 
   return {
-    plugins: [react(), tailwindcss(), info()],
+    plugins: [react({ babel: { plugins: ['babel-plugin-react-compiler'] } }), tailwindcss(), info()],
     resolve: {
       alias: {
         '~': path.resolve(__dirname, './src')
