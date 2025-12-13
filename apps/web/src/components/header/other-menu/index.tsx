@@ -41,20 +41,17 @@ export default function OtherMenu() {
           <MenubarSeparator />
           <MenubarItem
             onClick={() => setShowAddWorkDialog(p => !p)}
-            className="cursor-pointer"
           >
             添加作品
             <MenubarShortcut>⌘I</MenubarShortcut>
           </MenubarItem>
           <MenubarItem
             onClick={() => setShowBatchAddDialog(p => !p)}
-            className="cursor-pointer"
           >
             批量添加
           </MenubarItem>
           <MenubarItem
             onClick={() => setShowBatchUpdateDialog(p => !p)}
-            className="cursor-pointer"
           >
             批量更新
             <MenubarShortcut>⌘U</MenubarShortcut>
@@ -63,7 +60,6 @@ export default function OtherMenu() {
           <RandomWork />
           <MenubarItem
             onClick={() => setShowSyncStorageDialog(p => !p)}
-            className="cursor-pointer"
             disabled={!storage.enabled}
           >
             同步音声库
@@ -73,7 +69,7 @@ export default function OtherMenu() {
           <MenubarSeparator />
           <ThemeToggle menuType="menubar" />
           <MenubarSeparator />
-          <MenubarItem onClick={() => navigate({ to: '/settings' })} className="cursor-pointer">
+          <MenubarItem onClick={() => navigate({ to: '/settings' })}>
             设置
             <MenubarShortcut>⌘,</MenubarShortcut>
           </MenubarItem>

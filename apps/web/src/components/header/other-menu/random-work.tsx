@@ -20,7 +20,7 @@ export default function RandomWork() {
   };
 
   return (
-    <MenubarItem onClick={handleClick} disabled={loading} className="cursor-pointer">
+    <MenubarItem onClick={handleClick} disabled={loading}>
       随心听
     </MenubarItem>
   );
