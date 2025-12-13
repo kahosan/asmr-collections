@@ -1,17 +1,23 @@
 import { mutate } from 'swr';
 
+function mutateKey(prefix: string): (key: unknown) => boolean {
+  return (key: unknown): boolean => {
+    return typeof key === 'string' && key.startsWith(prefix);
+  };
+};
+
 export function mutateWorkInfo(id: string) {
   return mutate(`work-info-${id}`);
 }
 
 export function mutateWorks() {
-  return mutate(key => typeof key === 'string' && key.startsWith('/api/works'));
+  return mutate(mutateKey('/api/works'));
 }
 
 export function mutateTracks(id: string) {
-  mutate(key => typeof key === 'string' && key.startsWith(`work-tracks-${id}`));
+  return mutate(mutateKey(`work-tracks-${id}`));
 }
 
 export function mutateSimilar(id: string) {
-  return mutate(`/api/work/similar/${id}?`);
+  return mutate(mutateKey(`/api/work/similar/${id}`));
 };
