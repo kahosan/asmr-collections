@@ -16,8 +16,8 @@ import * as z from 'zod';
 
 import { storage } from '~/storage';
 import { zValidator } from '~/lib/validator';
+import { fetchTracks } from '~/provider/asmrone';
 import { createCachified, ttl } from '~/lib/cachified';
-import { fetchAsmroneTracks } from '~/provider/asmrone';
 import { formatError, formatMessage } from '~/router/utils';
 
 const folderQueue = newQueue(50);
@@ -47,7 +47,7 @@ tracksApp.get('/:id', zValidator('query', schema), async c => {
     if (query.provider === 'asmrone') {
       const data = await tracksCache({
         cacheKey: `asmrone-tracks-${id}-${encodeURIComponent(query.api)}`,
-        getFreshValue: () => fetchAsmroneTracks(id, query.api),
+        getFreshValue: () => fetchTracks(id, query.api),
         ttl: ttl.hour(1),
         ctx: c
       });

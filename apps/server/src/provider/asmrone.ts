@@ -9,7 +9,7 @@ import { processArtists } from '~/router/route/work/info';
 
 // TODO: 热门推荐和用户推荐
 
-export async function fetchAsmroneTracks(id: string, host: string) {
+export async function fetchTracks(id: string, host: string) {
   try {
     return await fetcher<Tracks>(`${host}/api/tracks/${id.replace('RJ', '')}`);
   } catch (e) {
@@ -24,7 +24,7 @@ export function fetchTags(host: string) {
   return fetcher<Tags>(`${host}/api/tags/`);
 }
 
-export async function fetchAsmroneSimilarWorks(id: string, host: string): Promise<ServerWork[]> {
+export async function fetchSimilarWorks(id: string, host: string): Promise<ServerWork[]> {
   try {
     const data = await fetcher<Recommender>(`${host}/api/recommender/item-neighbors`, {
       method: 'POST',
