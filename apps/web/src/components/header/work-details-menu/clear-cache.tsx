@@ -38,7 +38,6 @@ export function ClearCacheMenu({ id}: { id: string }) {
     <DropdownMenuItem
       title="清理获取 tracks 的缓存"
       disabled={isMutating}
-      className="cursor-pointer"
       onClick={handleClear}
     >
       清理缓存

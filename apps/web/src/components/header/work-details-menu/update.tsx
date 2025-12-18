@@ -39,10 +39,10 @@ export function UpdateMenu({ id }: { id: string }) {
 
   return (
     <>
-      <DropdownMenuItem disabled={updateIsMutating} className="cursor-pointer" onClick={update}>
+      <DropdownMenuItem disabled={updateIsMutating} onClick={update}>
         更新信息
       </DropdownMenuItem>
-      <DropdownMenuItem disabled={updateIsMutating} className="cursor-pointer" onClick={updateVector}>
+      <DropdownMenuItem disabled={updateIsMutating} onClick={updateVector}>
         更新向量
       </DropdownMenuItem>
     </>

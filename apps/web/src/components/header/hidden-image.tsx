@@ -2,7 +2,7 @@ import { match } from 'ts-pattern';
 import { MenubarCheckboxItem, MenubarShortcut } from '../ui/menubar';
 
 import { useHiddenImage } from '~/hooks/use-hidden-image';
-import { DropdownMenuCheckboxItem } from '../ui/dropdown-menu';
+import { DropdownMenuCheckboxItem, DropdownMenuShortcut } from '../ui/dropdown-menu';
 
 interface HiddenImageProps {
   menuType: 'menubar' | 'dropdown'
@@ -21,7 +21,7 @@ export function HiddenImage({ menuType }: HiddenImageProps) {
     .with('dropdown', () => (
       <DropdownMenuCheckboxItem checked={isHidden} onCheckedChange={() => setIsHidden(p => !p)}>
         无图模式
-        <MenubarShortcut>⌘K</MenubarShortcut>
+        <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
       </DropdownMenuCheckboxItem>
     ))
     .exhaustive();

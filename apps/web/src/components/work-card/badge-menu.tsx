@@ -35,6 +35,7 @@ export function BadgeMenu({ search, metaType, text, isFilter }: Props) {
           <Link disabled={isFilter} to="/" search={search} onClick={() => setOpen(false)}>筛选</Link>
         </DropdownMenuItem>
         <DropdownMenuItem
+          className="cursor-pointer"
           onClick={() => {
             writeClipboard(text);
             setOpen(false);

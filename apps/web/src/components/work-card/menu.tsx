@@ -87,14 +87,13 @@ export const Menu = memo(({ work }: Props) => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem disabled={updateIsMutating} onClick={handleUpdate} className="cursor-pointer">
+          <DropdownMenuItem disabled={updateIsMutating} onClick={handleUpdate}>
             数据更新
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteIsMutating}
-            className="cursor-pointer"
           >
             删除收藏
           </DropdownMenuItem>
@@ -252,11 +251,11 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
               className="hidden"
               onChange={e => uploadSubtitles(e.target.files)}
             />
-            <Label htmlFor="subtitles-file-upload" className="leading-5 cursor-pointer w-full">
+            <Label htmlFor="subtitles-file-upload" className="leading-5 w-full">
               上传字幕
             </Label>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDownload} disabled={subtitlesIsMutating} className="cursor-pointer">
+          <DropdownMenuItem onClick={handleDownload} disabled={subtitlesIsMutating}>
             下载字幕
           </DropdownMenuItem>
         </DropdownMenuSubContent>
