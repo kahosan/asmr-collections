@@ -30,7 +30,7 @@ export function Image({
   const isHiddenImage = useAtomValue(hiddenImageAtom);
 
   const [isLoading, setIsLoading] = useState(true);
-  const [showIndicator, setShowIndicator] = useState(false);
+  const [showIndicator, setShowIndicator] = useState(!props.src);
 
   const setupImg = useCallback((img: HTMLImageElement | null) => {
     if (!img) return;
@@ -94,7 +94,7 @@ export function Image({
         </div>
       )}
 
-      <img
+      {props.src && <img
         {...props}
         ref={setupImg}
         alt={props.alt || 'image'}
@@ -109,7 +109,7 @@ export function Image({
           opacity: isLoading ? 0 : 1,
           ...style
         }}
-      />
+      />}
     </div>
   );
 }

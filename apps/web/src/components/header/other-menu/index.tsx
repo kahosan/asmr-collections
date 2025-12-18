@@ -69,6 +69,9 @@ export function OtherMenu() {
           <MenubarSeparator />
           <ThemeToggle menuType="menubar" />
           <MenubarSeparator />
+          <MenubarItem onClick={() => navigate({ to: '/playback' })}>
+            播放记录
+          </MenubarItem>
           <MenubarItem onClick={() => navigate({ to: '/settings' })}>
             设置
             <MenubarShortcut>⌘,</MenubarShortcut>

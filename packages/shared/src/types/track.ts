@@ -15,4 +15,13 @@ export interface Track {
   mediaDownloadUrl?: string
   streamLowQualityUrl?: string
   duration?: number
+  subtitles?: SubtitleInfo
+  position?: number
+}
+
+export interface SubtitleInfo {
+  title: string
+  url?: string
+  content?: string
+  type: 'vtt' | 'srt'
 }

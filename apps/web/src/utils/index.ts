@@ -109,3 +109,28 @@ export const externalUrl = {
   dlsiteKeyword: (text: string) => `https://www.dlsite.com/maniax/fsr/=/keyword_creater/"${text}"`,
   one: (id: string) => `https://asmr.one/work/${id}`
 };
+
+export function formatTimeAgoIntl(date: Date | string | number, lang = 'zh-CN'): string {
+  const time = new Date(date).getTime();
+  const now = Date.now();
+  const diff = (time - now) / 1000; // 注意：Intl 需要负数表示过去
+
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+
+  const minute = 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+  const month = day * 30;
+  const year = day * 365;
+
+  // 取绝对值方便比较
+  const absDiff = Math.abs(diff);
+
+  if (absDiff < minute) return rtf.format(Math.round(diff), 'second'); // "几秒前" 或 "现在"
+  if (absDiff < hour) return rtf.format(Math.round(diff / minute), 'minute');
+  if (absDiff < day) return rtf.format(Math.round(diff / hour), 'hour');
+  if (absDiff < month) return rtf.format(Math.round(diff / day), 'day');
+  if (absDiff < year) return rtf.format(Math.round(diff / month), 'month');
+
+  return rtf.format(Math.round(diff / year), 'year');
+}

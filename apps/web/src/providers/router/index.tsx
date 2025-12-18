@@ -16,7 +16,7 @@ import RootLayout from '~/layout';
 import { NotFound } from '~/components/not-found';
 
 import { preloadWorkDetails } from './preload';
-import { RootSearchSchema, IndexSearchSchema, WorkDetailsSearchSchema } from './schemas';
+import { RootSearchSchema, IndexSearchSchema, PlaybackSearchSchema, WorkDetailsSearchSchema } from './schemas';
 
 import { INDEX_DEFAULT_SEARCH_VALUES, ROOT_DEFAULT_SEARCH_VALUES } from '@asmr-collections/shared';
 
@@ -73,11 +73,21 @@ const SettingsRoute = createRoute({
   path: '/settings'
 }).lazy(() => import('~/pages/settings').then(d => d.default));
 
+const PlaybackRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/playback',
+  validateSearch: PlaybackSearchSchema,
+  search: {
+    middlewares: [stripSearchParams(INDEX_DEFAULT_SEARCH_VALUES)]
+  }
+}).lazy(() => import('~/pages/playback').then(d => d.default));
+
 const router = createRouter({
   routeTree: rootRoute.addChildren([
     indexRoute,
     workDetailsRoute,
-    SettingsRoute
+    SettingsRoute,
+    PlaybackRoute
   ]),
   defaultNotFoundComponent: NotFound,
   defaultPreload: 'intent',

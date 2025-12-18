@@ -44,6 +44,7 @@ type ToastMutationKeys =
   | 'random'
   | 'genres-sync'
   | `storage-${string}`
+  | `playback-${string}`
   | `clear-${string}-cache`;
 
 export function useToastMutation<T>(key: ToastMutationKeys) {

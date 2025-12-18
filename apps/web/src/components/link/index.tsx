@@ -44,7 +44,7 @@ function BaseLink({
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
       className={cn(
-        'underline decoration-transparent underline-offset-4',
+        underline ? 'underline decoration-transparent underline-offset-4' : undefined,
         underline === 'hover' && 'hover:decoration-current transition-[text-decoration-color]',
         underline === 'always' && 'decoration-current',
         props.className,

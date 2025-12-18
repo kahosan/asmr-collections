@@ -41,9 +41,12 @@ export function WorkDetailsMenu() {
           <HiddenImage menuType="dropdown" />
           <DropdownMenuSeparator />
           <ThemeToggle menuType="dropdown" />
-          <DropdownMenuSeparator />
           <DropdownMenuItem className="cursor-pointer" onClick={() => setShowSleepModeDialog(p => !p)}>
             睡眠模式
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="cursor-pointer" onClick={() => navigate({ to: '/playback' })}>
+            播放记录
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer" onClick={() => navigate({ to: '/settings' })}>
             设置
