@@ -247,7 +247,13 @@ function WorkDetails({ id}: { id: string }) {
       )}
 
       {!isLoading && tracks?.data && (
-        <TracksTabale work={data} searchPath={searchPath} tracks={tracks.data} externalSubtitles={tracks.externalSubtitles} />
+        <TracksTabale
+          work={data}
+          searchPath={searchPath}
+          tracks={tracks.data}
+          externalSubtitles={tracks.externalSubtitles}
+          playback={data.playback}
+        />
       )}
 
       {!isLoading && !tracks?.data && (

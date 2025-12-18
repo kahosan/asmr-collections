@@ -1,5 +1,5 @@
 import { MediaPlayer as VidstackPlayer, MediaProvider, MEDIA_KEY_SHORTCUTS, TextTrack } from '@vidstack/react';
-import type { MediaLoadedDataEvent, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
+import type { MediaLoadedDataEvent, MediaPauseEvent, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
 
 import { AudioPlayerLayout } from './layout';
 
@@ -13,8 +13,8 @@ import { throttle } from '@asmr-collections/shared';
 import { useMediaSrc } from './hooks/use-media-src';
 import { usePrefetchNext } from './hooks/use-prefetch-next';
 
+import { usePlayback } from '~/hooks/use-playback';
 import { mediaStateAtom } from '~/hooks/use-media-state';
-import { usePlayHistoryUpdate } from '~/hooks/use-play-history';
 
 import { fetchTextTrackContent } from './utils';
 
@@ -30,7 +30,7 @@ export function MediaPlayer() {
 
 function MediaPlayerInstance() {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);
-  const updateHistory = usePlayHistoryUpdate();
+  const { trigger: updatePlayback } = usePlayback();
 
   const { mediaSrc, isTranscoded } = useMediaSrc(mediaState.currentTrack?.mediaStreamUrl);
 
@@ -88,18 +88,30 @@ function MediaPlayerInstance() {
 
     if (!mediaState.work || !mediaState.currentTrack) return;
 
-    updateHistory(mediaState.work.id, -1, mediaState.currentTrack);
-  }, [changeTrack, mediaState.currentTrack, mediaState.work, updateHistory]);
+    const id = mediaState.work.id;
+    const track = mediaState.currentTrack;
+
+    updatePlayback({ id, track, position: 0 });
+  }, [changeTrack, mediaState.currentTrack, mediaState.work, updatePlayback]);
 
   const onLoadedData = useCallback((e: MediaLoadedDataEvent) => {
-    if (mediaState.currentTrack?.lastPlayedAt)
-      e.target.currentTime = mediaState.currentTrack.lastPlayedAt;
+    if (mediaState.currentTrack?.position)
+      e.target.currentTime = mediaState.currentTrack.position;
   }, [mediaState.currentTrack]);
 
-  const throttledUpdateHistory = useMemo(() => throttle((currentTime: number) => {
+  const updatePlaybackFn = useCallback((currentTime: number, isSeeked = false) => {
     if (!mediaState.work || !mediaState.currentTrack) return;
-    updateHistory(mediaState.work.id, currentTime, mediaState.currentTrack);
-  }, 3000), [mediaState.currentTrack, mediaState.work, updateHistory]);
+    const id = mediaState.work.id;
+    const track = mediaState.currentTrack;
+
+    const position = Math.floor(currentTime);
+
+    if (position === 0 && !isSeeked) return;
+
+    updatePlayback({ id, track, position });
+  }, [mediaState.currentTrack, mediaState.work, updatePlayback]);
+
+  const throttledUpdatePlayback = useMemo(() => throttle(updatePlaybackFn, 10000), [updatePlaybackFn]);
 
   const onTimeUpdate = useCallback((detail: MediaTimeUpdateEventDetail) => {
     const currentTime = detail.currentTime;
@@ -107,8 +119,17 @@ function MediaPlayerInstance() {
     if (currentTime > 30)
       triggerPrefetch();
 
-    throttledUpdateHistory(currentTime);
-  }, [triggerPrefetch, throttledUpdateHistory]);
+    throttledUpdatePlayback(currentTime);
+  }, [triggerPrefetch, throttledUpdatePlayback]);
+
+  const onPause = useCallback((e: MediaPauseEvent) => {
+    const currentTime = e.target.currentTime;
+    updatePlaybackFn(currentTime);
+  }, [updatePlaybackFn]);
+
+  const onSeeked = useCallback((detail: number) => {
+    updatePlaybackFn(detail, true);
+  }, [updatePlaybackFn]);
 
   const updateMediaMetadata = useCallback(() => {
     if (
@@ -143,6 +164,8 @@ function MediaPlayerInstance() {
           onTimeUpdate={onTimeUpdate}
           onCanPlay={updateMediaMetadata}
           onEnded={onEnded}
+          onPause={onPause}
+          onSeeked={onSeeked}
           keyTarget="document"
           keyShortcuts={MEDIA_KEY_SHORTCUTS}
         >

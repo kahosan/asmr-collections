@@ -1,4 +1,4 @@
-import useSWRImmutable from 'swr/immutable';
+import useSWR from 'swr';
 
 import { notifyError } from '~/utils';
 import { logger } from '~/lib/logger';
@@ -32,7 +32,7 @@ export async function workInfoFetcher(id: string, cause: 'preload' | 'enter' | '
 }
 
 export function useWorkInfo(id: string, config?: SWRConfiguration<Work | null, Error, BareFetcher<Work | null>>) {
-  return useSWRImmutable<Work | null>(
+  return useSWR<Work | null>(
     `work-info-${id}`,
     () => workInfoFetcher(id, 'enter'),
     config
