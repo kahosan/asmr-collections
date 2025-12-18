@@ -115,4 +115,20 @@ export const playbackApp = new Hono()
       console.error(e);
       return c.json(formatError(e), 500);
     }
+  })
+  .delete('/:id', async c => {
+    const id = c.req.param('id');
+
+    try {
+      const prisma = getPrisma();
+
+      await prisma.playback.delete({
+        where: { workId: id }
+      });
+
+      return c.json(formatMessage('已删除播放记录'));
+    } catch (e) {
+      console.error(e);
+      return c.json(formatError(e), 500);
+    }
   });
