@@ -59,6 +59,7 @@ export const ModelName = {
   Genre: 'Genre',
   SubtitlesData: 'SubtitlesData',
   TranslationInfo: 'TranslationInfo',
+  Playback: 'Playback',
   Storage: 'Storage'
 } as const
 
@@ -165,6 +166,19 @@ export const TranslationInfoScalarFieldEnum = {
 } as const
 
 export type TranslationInfoScalarFieldEnum = (typeof TranslationInfoScalarFieldEnum)[keyof typeof TranslationInfoScalarFieldEnum]
+
+
+export const PlaybackScalarFieldEnum = {
+  workId: 'workId',
+  track: 'track',
+  position: 'position',
+  count: 'count',
+  lastAt: 'lastAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlaybackScalarFieldEnum = (typeof PlaybackScalarFieldEnum)[keyof typeof PlaybackScalarFieldEnum]
 
 
 export const StorageScalarFieldEnum = {

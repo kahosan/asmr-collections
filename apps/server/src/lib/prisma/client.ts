@@ -80,6 +80,11 @@ export type SubtitlesData = Prisma.SubtitlesDataModel
  */
 export type TranslationInfo = Prisma.TranslationInfoModel
 /**
+ * Model Playback
+ * 
+ */
+export type Playback = Prisma.PlaybackModel
+/**
  * Model Storage
  * 
  */

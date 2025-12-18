@@ -40,6 +40,7 @@ model Work {
   rateCount        Int
   reviewCount      Int
   originalId       String?
+  playback         Playback?
   translationInfo  TranslationInfo?
   languageEditions Json[]
   subtitles        Boolean                      @default(false)
@@ -98,6 +99,17 @@ model TranslationInfo {
   parentWorkno            String?
   childWorknos            String[]
   lang                    String?
+}
+
+model Playback {
+  workId    String   @id
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  track     Json
+  position  Int      @default(0)
+  count     Int      @default(0)
+  lastAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Storage {

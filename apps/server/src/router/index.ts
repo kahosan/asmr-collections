@@ -8,6 +8,7 @@ import { genresApp } from './route/genres';
 import { tracksApp } from './route/tracks';
 import { libraryApp } from './route/library';
 import { storageApp } from './route/storage';
+import { playbackApp } from './route/playback';
 
 export const api = new Hono()
   .use(cors())
@@ -17,4 +18,5 @@ export const api = new Hono()
   .route('/genres', genresApp)
   .route('/tracks', tracksApp)
   .route('/library', libraryApp)
-  .route('/storage', storageApp);
+  .route('/storage', storageApp)
+  .route('/playback', playbackApp);

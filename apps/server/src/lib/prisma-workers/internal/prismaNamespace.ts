@@ -392,6 +392,7 @@ export const ModelName = {
   Genre: 'Genre',
   SubtitlesData: 'SubtitlesData',
   TranslationInfo: 'TranslationInfo',
+  Playback: 'Playback',
   Storage: 'Storage'
 } as const
 
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "work" | "circle" | "series" | "artist" | "illustrator" | "genre" | "subtitlesData" | "translationInfo" | "storage"
+    modelProps: "work" | "circle" | "series" | "artist" | "illustrator" | "genre" | "subtitlesData" | "translationInfo" | "playback" | "storage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1004,6 +1005,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Playback: {
+      payload: Prisma.$PlaybackPayload<ExtArgs>
+      fields: Prisma.PlaybackFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlaybackFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlaybackFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>
+        }
+        findFirst: {
+          args: Prisma.PlaybackFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlaybackFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>
+        }
+        findMany: {
+          args: Prisma.PlaybackFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>[]
+        }
+        create: {
+          args: Prisma.PlaybackCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>
+        }
+        createMany: {
+          args: Prisma.PlaybackCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PlaybackCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>[]
+        }
+        delete: {
+          args: Prisma.PlaybackDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>
+        }
+        update: {
+          args: Prisma.PlaybackUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>
+        }
+        deleteMany: {
+          args: Prisma.PlaybackDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlaybackUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PlaybackUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>[]
+        }
+        upsert: {
+          args: Prisma.PlaybackUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackPayload>
+        }
+        aggregate: {
+          args: Prisma.PlaybackAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlayback>
+        }
+        groupBy: {
+          args: Prisma.PlaybackGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlaybackGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlaybackCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlaybackCountAggregateOutputType> | number
+        }
+      }
+    }
     Storage: {
       payload: Prisma.$StoragePayload<ExtArgs>
       fields: Prisma.StorageFieldRefs
@@ -1204,6 +1279,19 @@ export const TranslationInfoScalarFieldEnum = {
 } as const
 
 export type TranslationInfoScalarFieldEnum = (typeof TranslationInfoScalarFieldEnum)[keyof typeof TranslationInfoScalarFieldEnum]
+
+
+export const PlaybackScalarFieldEnum = {
+  workId: 'workId',
+  track: 'track',
+  position: 'position',
+  count: 'count',
+  lastAt: 'lastAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlaybackScalarFieldEnum = (typeof PlaybackScalarFieldEnum)[keyof typeof PlaybackScalarFieldEnum]
 
 
 export const StorageScalarFieldEnum = {
@@ -1466,6 +1554,7 @@ export type GlobalOmitConfig = {
   genre?: Prisma.GenreOmit
   subtitlesData?: Prisma.SubtitlesDataOmit
   translationInfo?: Prisma.TranslationInfoOmit
+  playback?: Prisma.PlaybackOmit
   storage?: Prisma.StorageOmit
 }
 

@@ -58,6 +58,7 @@ export async function fetchSimilarWorks(id: string, host: string): Promise<Serve
       rate: work.rate_average_2dp,
       rateCount: work.rate_count,
       originalId: work.original_workno,
+      playback: null,
       reviewCount: work.review_count,
       releaseDate: new Date(work.release),
       translationInfo: {

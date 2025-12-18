@@ -1,0 +1,15 @@
+-- CreateTable
+CREATE TABLE "Playback" (
+    "workId" TEXT NOT NULL,
+    "track" JSONB NOT NULL,
+    "position" INTEGER NOT NULL DEFAULT 0,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "lastAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Playback_pkey" PRIMARY KEY ("workId")
+);
+
+-- AddForeignKey
+ALTER TABLE "Playback" ADD CONSTRAINT "Playback_workId_fkey" FOREIGN KEY ("workId") REFERENCES "Work"("id") ON DELETE CASCADE ON UPDATE CASCADE;

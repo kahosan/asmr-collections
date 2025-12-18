@@ -1,4 +1,5 @@
 import type { Jsonify } from '../utils';
+import type { Playback } from './playback';
 
 export interface Data<T extends string | number> { id: T, name: string }
 
@@ -26,6 +27,7 @@ export interface ServerWork {
   rate: number
   rateCount: number
   originalId: string | null
+  playback: Playback | null
   reviewCount: number
   releaseDate: Date
   translationInfo: {

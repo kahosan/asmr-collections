@@ -118,6 +118,7 @@ async function getInfo(id: string): Promise<WorkInfoResponse<ServerWork> | null>
     rate: data.rating ?? 0,
     rateCount: data.rating_count ?? 0,
     originalId: data.translation_info.original_workno,
+    playback: null,
     reviewCount: data.review_count ?? 0,
     releaseDate: data.release_date,
     subtitles: false,

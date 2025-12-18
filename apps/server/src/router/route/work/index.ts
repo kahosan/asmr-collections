@@ -36,7 +36,8 @@ workApp.get('/:id', async c => {
         artists: true,
         illustrators: true,
         genres: true,
-        translationInfo: true
+        translationInfo: true,
+        playback: true
       }
     });
 

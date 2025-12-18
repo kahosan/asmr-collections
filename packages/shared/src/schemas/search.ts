@@ -131,3 +131,19 @@ export const WorkDetailsBaseSearchSchema: z.ZodObject<{
 }> = z.object({
   path: z.array(z.string()).optional()
 });
+
+export const PlaybackBaseSearchSchema: z.ZodObject<{
+  page: z.ZodDefault<z.ZodNumber>
+  limit: z.ZodDefault<z.ZodNumber>
+}> = z.object({
+  page: z.number().default(INDEX_DEFAULT_SEARCH_VALUES.page),
+  limit: z.number().default(INDEX_DEFAULT_SEARCH_VALUES.limit)
+});
+
+export const PlaybackSearchQuerySchema: z.ZodObject<{
+  page: z.ZodCoercedNumber
+  limit: z.ZodCoercedNumber
+}> = PlaybackBaseSearchSchema.extend({
+  page: z.coerce.number(),
+  limit: z.coerce.number()
+});

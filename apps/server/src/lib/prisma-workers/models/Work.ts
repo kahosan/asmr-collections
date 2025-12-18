@@ -353,6 +353,7 @@ export type WorkWhereInput = {
   artists?: Prisma.ArtistListRelationFilter
   illustrators?: Prisma.IllustratorListRelationFilter
   genres?: Prisma.GenreListRelationFilter
+  playback?: Prisma.XOR<Prisma.PlaybackNullableScalarRelationFilter, Prisma.PlaybackWhereInput> | null
   translationInfo?: Prisma.XOR<Prisma.TranslationInfoNullableScalarRelationFilter, Prisma.TranslationInfoWhereInput> | null
   subtitlesData?: Prisma.XOR<Prisma.SubtitlesDataNullableScalarRelationFilter, Prisma.SubtitlesDataWhereInput> | null
 }
@@ -382,6 +383,7 @@ export type WorkOrderByWithRelationInput = {
   artists?: Prisma.ArtistOrderByRelationAggregateInput
   illustrators?: Prisma.IllustratorOrderByRelationAggregateInput
   genres?: Prisma.GenreOrderByRelationAggregateInput
+  playback?: Prisma.PlaybackOrderByWithRelationInput
   translationInfo?: Prisma.TranslationInfoOrderByWithRelationInput
   subtitlesData?: Prisma.SubtitlesDataOrderByWithRelationInput
 }
@@ -414,6 +416,7 @@ export type WorkWhereUniqueInput = Prisma.AtLeast<{
   artists?: Prisma.ArtistListRelationFilter
   illustrators?: Prisma.IllustratorListRelationFilter
   genres?: Prisma.GenreListRelationFilter
+  playback?: Prisma.XOR<Prisma.PlaybackNullableScalarRelationFilter, Prisma.PlaybackWhereInput> | null
   translationInfo?: Prisma.XOR<Prisma.TranslationInfoNullableScalarRelationFilter, Prisma.TranslationInfoWhereInput> | null
   subtitlesData?: Prisma.XOR<Prisma.SubtitlesDataNullableScalarRelationFilter, Prisma.SubtitlesDataWhereInput> | null
 }, "id">
@@ -493,6 +496,7 @@ export type WorkCreateInput = {
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
@@ -520,6 +524,7 @@ export type WorkUncheckedCreateInput = {
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
@@ -547,6 +552,7 @@ export type WorkUpdateInput = {
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
@@ -574,6 +580,7 @@ export type WorkUncheckedUpdateInput = {
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
@@ -1023,6 +1030,20 @@ export type WorkUpdateOneRequiredWithoutTranslationInfoNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkUpdateToOneWithWhereWithoutTranslationInfoInput, Prisma.WorkUpdateWithoutTranslationInfoInput>, Prisma.WorkUncheckedUpdateWithoutTranslationInfoInput>
 }
 
+export type WorkCreateNestedOneWithoutPlaybackInput = {
+  create?: Prisma.XOR<Prisma.WorkCreateWithoutPlaybackInput, Prisma.WorkUncheckedCreateWithoutPlaybackInput>
+  connectOrCreate?: Prisma.WorkCreateOrConnectWithoutPlaybackInput
+  connect?: Prisma.WorkWhereUniqueInput
+}
+
+export type WorkUpdateOneRequiredWithoutPlaybackNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkCreateWithoutPlaybackInput, Prisma.WorkUncheckedCreateWithoutPlaybackInput>
+  connectOrCreate?: Prisma.WorkCreateOrConnectWithoutPlaybackInput
+  upsert?: Prisma.WorkUpsertWithoutPlaybackInput
+  connect?: Prisma.WorkWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkUpdateToOneWithWhereWithoutPlaybackInput, Prisma.WorkUpdateWithoutPlaybackInput>, Prisma.WorkUncheckedUpdateWithoutPlaybackInput>
+}
+
 export type WorkCreateWithoutCircleInput = {
   id: string
   name: string
@@ -1045,6 +1066,7 @@ export type WorkCreateWithoutCircleInput = {
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
@@ -1071,6 +1093,7 @@ export type WorkUncheckedCreateWithoutCircleInput = {
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
@@ -1148,6 +1171,7 @@ export type WorkCreateWithoutSeriesInput = {
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
@@ -1174,6 +1198,7 @@ export type WorkUncheckedCreateWithoutSeriesInput = {
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
@@ -1226,6 +1251,7 @@ export type WorkCreateWithoutArtistsInput = {
   series?: Prisma.SeriesCreateNestedOneWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
@@ -1252,6 +1278,7 @@ export type WorkUncheckedCreateWithoutArtistsInput = {
   updatedAt?: Date | string
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
@@ -1299,6 +1326,7 @@ export type WorkCreateWithoutIllustratorsInput = {
   series?: Prisma.SeriesCreateNestedOneWithoutWorksInput
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
@@ -1325,6 +1353,7 @@ export type WorkUncheckedCreateWithoutIllustratorsInput = {
   updatedAt?: Date | string
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
@@ -1372,6 +1401,7 @@ export type WorkCreateWithoutGenresInput = {
   series?: Prisma.SeriesCreateNestedOneWithoutWorksInput
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
@@ -1398,6 +1428,7 @@ export type WorkUncheckedCreateWithoutGenresInput = {
   updatedAt?: Date | string
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
@@ -1446,6 +1477,7 @@ export type WorkCreateWithoutSubtitlesDataInput = {
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
 }
 
@@ -1472,6 +1504,7 @@ export type WorkUncheckedCreateWithoutSubtitlesDataInput = {
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
 }
 
@@ -1514,6 +1547,7 @@ export type WorkUpdateWithoutSubtitlesDataInput = {
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
 }
 
@@ -1540,6 +1574,7 @@ export type WorkUncheckedUpdateWithoutSubtitlesDataInput = {
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
 }
 
@@ -1566,6 +1601,7 @@ export type WorkCreateWithoutTranslationInfoInput = {
   artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
 }
 
@@ -1592,6 +1628,7 @@ export type WorkUncheckedCreateWithoutTranslationInfoInput = {
   artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
   illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
   genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  playback?: Prisma.PlaybackUncheckedCreateNestedOneWithoutWorkInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
 }
 
@@ -1634,6 +1671,7 @@ export type WorkUpdateWithoutTranslationInfoInput = {
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
 
@@ -1660,6 +1698,131 @@ export type WorkUncheckedUpdateWithoutTranslationInfoInput = {
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
+  subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
+}
+
+export type WorkCreateWithoutPlaybackInput = {
+  id: string
+  name: string
+  cover: string
+  intro: string
+  ageCategory: number
+  price: number
+  sales: number
+  wishlistCount: number
+  rate: number
+  rateCount: number
+  reviewCount: number
+  originalId?: string | null
+  languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
+  subtitles?: boolean
+  releaseDate: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  circle: Prisma.CircleCreateNestedOneWithoutWorksInput
+  series?: Prisma.SeriesCreateNestedOneWithoutWorksInput
+  artists?: Prisma.ArtistCreateNestedManyWithoutWorksInput
+  illustrators?: Prisma.IllustratorCreateNestedManyWithoutWorksInput
+  genres?: Prisma.GenreCreateNestedManyWithoutWorksInput
+  translationInfo?: Prisma.TranslationInfoCreateNestedOneWithoutWorkInput
+  subtitlesData?: Prisma.SubtitlesDataCreateNestedOneWithoutWorkInput
+}
+
+export type WorkUncheckedCreateWithoutPlaybackInput = {
+  id: string
+  name: string
+  cover: string
+  intro: string
+  circleId: string
+  seriesId?: string | null
+  ageCategory: number
+  price: number
+  sales: number
+  wishlistCount: number
+  rate: number
+  rateCount: number
+  reviewCount: number
+  originalId?: string | null
+  languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
+  subtitles?: boolean
+  releaseDate: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  artists?: Prisma.ArtistUncheckedCreateNestedManyWithoutWorksInput
+  illustrators?: Prisma.IllustratorUncheckedCreateNestedManyWithoutWorksInput
+  genres?: Prisma.GenreUncheckedCreateNestedManyWithoutWorksInput
+  translationInfo?: Prisma.TranslationInfoUncheckedCreateNestedOneWithoutWorkInput
+  subtitlesData?: Prisma.SubtitlesDataUncheckedCreateNestedOneWithoutWorkInput
+}
+
+export type WorkCreateOrConnectWithoutPlaybackInput = {
+  where: Prisma.WorkWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkCreateWithoutPlaybackInput, Prisma.WorkUncheckedCreateWithoutPlaybackInput>
+}
+
+export type WorkUpsertWithoutPlaybackInput = {
+  update: Prisma.XOR<Prisma.WorkUpdateWithoutPlaybackInput, Prisma.WorkUncheckedUpdateWithoutPlaybackInput>
+  create: Prisma.XOR<Prisma.WorkCreateWithoutPlaybackInput, Prisma.WorkUncheckedCreateWithoutPlaybackInput>
+  where?: Prisma.WorkWhereInput
+}
+
+export type WorkUpdateToOneWithWhereWithoutPlaybackInput = {
+  where?: Prisma.WorkWhereInput
+  data: Prisma.XOR<Prisma.WorkUpdateWithoutPlaybackInput, Prisma.WorkUncheckedUpdateWithoutPlaybackInput>
+}
+
+export type WorkUpdateWithoutPlaybackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  cover?: Prisma.StringFieldUpdateOperationsInput | string
+  intro?: Prisma.StringFieldUpdateOperationsInput | string
+  ageCategory?: Prisma.IntFieldUpdateOperationsInput | number
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  sales?: Prisma.IntFieldUpdateOperationsInput | number
+  wishlistCount?: Prisma.IntFieldUpdateOperationsInput | number
+  rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  rateCount?: Prisma.IntFieldUpdateOperationsInput | number
+  reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
+  subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  circle?: Prisma.CircleUpdateOneRequiredWithoutWorksNestedInput
+  series?: Prisma.SeriesUpdateOneWithoutWorksNestedInput
+  artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
+  illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
+  genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
+  subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
+}
+
+export type WorkUncheckedUpdateWithoutPlaybackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  cover?: Prisma.StringFieldUpdateOperationsInput | string
+  intro?: Prisma.StringFieldUpdateOperationsInput | string
+  circleId?: Prisma.StringFieldUpdateOperationsInput | string
+  seriesId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ageCategory?: Prisma.IntFieldUpdateOperationsInput | number
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  sales?: Prisma.IntFieldUpdateOperationsInput | number
+  wishlistCount?: Prisma.IntFieldUpdateOperationsInput | number
+  rate?: Prisma.FloatFieldUpdateOperationsInput | number
+  rateCount?: Prisma.IntFieldUpdateOperationsInput | number
+  reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
+  subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
+  illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
+  genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
 
@@ -1706,6 +1869,7 @@ export type WorkUpdateWithoutCircleInput = {
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
@@ -1732,6 +1896,7 @@ export type WorkUncheckedUpdateWithoutCircleInput = {
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
@@ -1800,6 +1965,7 @@ export type WorkUpdateWithoutSeriesInput = {
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
@@ -1826,6 +1992,7 @@ export type WorkUncheckedUpdateWithoutSeriesInput = {
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
@@ -1873,6 +2040,7 @@ export type WorkUpdateWithoutArtistsInput = {
   series?: Prisma.SeriesUpdateOneWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
@@ -1899,6 +2067,7 @@ export type WorkUncheckedUpdateWithoutArtistsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
@@ -1947,6 +2116,7 @@ export type WorkUpdateWithoutIllustratorsInput = {
   series?: Prisma.SeriesUpdateOneWithoutWorksNestedInput
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
@@ -1973,6 +2143,7 @@ export type WorkUncheckedUpdateWithoutIllustratorsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   genres?: Prisma.GenreUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
@@ -2021,6 +2192,7 @@ export type WorkUpdateWithoutGenresInput = {
   series?: Prisma.SeriesUpdateOneWithoutWorksNestedInput
   artists?: Prisma.ArtistUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUpdateOneWithoutWorkNestedInput
 }
@@ -2047,6 +2219,7 @@ export type WorkUncheckedUpdateWithoutGenresInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   artists?: Prisma.ArtistUncheckedUpdateManyWithoutWorksNestedInput
   illustrators?: Prisma.IllustratorUncheckedUpdateManyWithoutWorksNestedInput
+  playback?: Prisma.PlaybackUncheckedUpdateOneWithoutWorkNestedInput
   translationInfo?: Prisma.TranslationInfoUncheckedUpdateOneWithoutWorkNestedInput
   subtitlesData?: Prisma.SubtitlesDataUncheckedUpdateOneWithoutWorkNestedInput
 }
@@ -2147,6 +2320,7 @@ export type WorkSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   artists?: boolean | Prisma.Work$artistsArgs<ExtArgs>
   illustrators?: boolean | Prisma.Work$illustratorsArgs<ExtArgs>
   genres?: boolean | Prisma.Work$genresArgs<ExtArgs>
+  playback?: boolean | Prisma.Work$playbackArgs<ExtArgs>
   translationInfo?: boolean | Prisma.Work$translationInfoArgs<ExtArgs>
   subtitlesData?: boolean | Prisma.Work$subtitlesDataArgs<ExtArgs>
   _count?: boolean | Prisma.WorkCountOutputTypeDefaultArgs<ExtArgs>
@@ -2229,6 +2403,7 @@ export type WorkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   artists?: boolean | Prisma.Work$artistsArgs<ExtArgs>
   illustrators?: boolean | Prisma.Work$illustratorsArgs<ExtArgs>
   genres?: boolean | Prisma.Work$genresArgs<ExtArgs>
+  playback?: boolean | Prisma.Work$playbackArgs<ExtArgs>
   translationInfo?: boolean | Prisma.Work$translationInfoArgs<ExtArgs>
   subtitlesData?: boolean | Prisma.Work$subtitlesDataArgs<ExtArgs>
   _count?: boolean | Prisma.WorkCountOutputTypeDefaultArgs<ExtArgs>
@@ -2250,6 +2425,7 @@ export type $WorkPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     artists: Prisma.$ArtistPayload<ExtArgs>[]
     illustrators: Prisma.$IllustratorPayload<ExtArgs>[]
     genres: Prisma.$GenrePayload<ExtArgs>[]
+    playback: Prisma.$PlaybackPayload<ExtArgs> | null
     translationInfo: Prisma.$TranslationInfoPayload<ExtArgs> | null
     subtitlesData: Prisma.$SubtitlesDataPayload<ExtArgs> | null
   }
@@ -2672,6 +2848,7 @@ export interface Prisma__WorkClient<T, Null = never, ExtArgs extends runtime.Typ
   artists<T extends Prisma.Work$artistsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Work$artistsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   illustrators<T extends Prisma.Work$illustratorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Work$illustratorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IllustratorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   genres<T extends Prisma.Work$genresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Work$genresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GenrePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  playback<T extends Prisma.Work$playbackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Work$playbackArgs<ExtArgs>>): Prisma.Prisma__PlaybackClient<runtime.Types.Result.GetResult<Prisma.$PlaybackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   translationInfo<T extends Prisma.Work$translationInfoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Work$translationInfoArgs<ExtArgs>>): Prisma.Prisma__TranslationInfoClient<runtime.Types.Result.GetResult<Prisma.$TranslationInfoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   subtitlesData<T extends Prisma.Work$subtitlesDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Work$subtitlesDataArgs<ExtArgs>>): Prisma.Prisma__SubtitlesDataClient<runtime.Types.Result.GetResult<Prisma.$SubtitlesDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -3206,6 +3383,25 @@ export type Work$genresArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.GenreScalarFieldEnum | Prisma.GenreScalarFieldEnum[]
+}
+
+/**
+ * Work.playback
+ */
+export type Work$playbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Playback
+   */
+  select?: Prisma.PlaybackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Playback
+   */
+  omit?: Prisma.PlaybackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PlaybackInclude<ExtArgs> | null
+  where?: Prisma.PlaybackWhereInput
 }
 
 /**
