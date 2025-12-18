@@ -83,36 +83,31 @@ function MediaPlayerInstance() {
     track.setMode('showing');
   }, [mediaState.currentTrack]);
 
-  const onEnded = useCallback(() => {
-    changeTrack(true);
-
-    if (!mediaState.work || !mediaState.currentTrack) return;
-
-    const id = mediaState.work.id;
-    const track = mediaState.currentTrack;
-    const tracks = mediaState.tracks;
-
-    updatePlayback({ id, track, tracks, position: 0 });
-  }, [changeTrack, mediaState.currentTrack, mediaState.tracks, mediaState.work, updatePlayback]);
-
   const onLoadedData = useCallback((e: MediaLoadedDataEvent) => {
     if (mediaState.currentTrack?.position)
       e.target.currentTime = mediaState.currentTrack.position;
   }, [mediaState.currentTrack]);
 
-  const updatePlaybackFn = useCallback((currentTime: number, isSeeked = false) => {
+  const updatePlaybackFn = useCallback((currentTime: number, force = false) => {
     if (!mediaState.work || !mediaState.currentTrack) return;
     const id = mediaState.work.id;
     const track = mediaState.currentTrack;
+    const tracks = mediaState.tracks;
 
     const position = Math.floor(currentTime);
 
-    if (position === 0 && !isSeeked) return;
+    if (position === 0 && !force) return;
 
-    updatePlayback({ id, track, position });
-  }, [mediaState.currentTrack, mediaState.work, updatePlayback]);
+    updatePlayback({ id, track, tracks, position });
+  }, [mediaState.currentTrack, mediaState.tracks, mediaState.work, updatePlayback]);
 
   const throttledUpdatePlayback = useMemo(() => throttle(updatePlaybackFn, 10000), [updatePlaybackFn]);
+
+  const onEnded = useCallback(() => {
+    changeTrack(true);
+
+    updatePlaybackFn(0, true);
+  }, [changeTrack, updatePlaybackFn]);
 
   const onTimeUpdate = useCallback((detail: MediaTimeUpdateEventDetail) => {
     const currentTime = detail.currentTime;
