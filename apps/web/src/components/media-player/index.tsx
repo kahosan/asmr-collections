@@ -90,9 +90,10 @@ function MediaPlayerInstance() {
 
     const id = mediaState.work.id;
     const track = mediaState.currentTrack;
+    const tracks = mediaState.tracks;
 
-    updatePlayback({ id, track, position: 0 });
-  }, [changeTrack, mediaState.currentTrack, mediaState.work, updatePlayback]);
+    updatePlayback({ id, track, tracks, position: 0 });
+  }, [changeTrack, mediaState.currentTrack, mediaState.tracks, mediaState.work, updatePlayback]);
 
   const onLoadedData = useCallback((e: MediaLoadedDataEvent) => {
     if (mediaState.currentTrack?.position)

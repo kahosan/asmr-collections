@@ -15,6 +15,12 @@ const PLAYBACK_SELECT = {
       id: true,
       name: true,
       cover: true,
+      artists: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
       circle: {
         select: {
           id: true,
@@ -77,7 +83,7 @@ export const playbackApp = new Hono()
   })
   .put('/:id', zValidator('json', PlaybackUpsertSchema), async c => {
     const id = c.req.param('id');
-    const { track, position, incrementCount } = c.req.valid('json');
+    const { track, tracks, position, incrementCount } = c.req.valid('json');
 
     try {
       const prisma = getPrisma();
@@ -87,12 +93,14 @@ export const playbackApp = new Hono()
         create: {
           workId: id,
           track,
+          tracks,
           position,
           count: 1,
           lastAt: new Date()
         },
         update: {
           track,
+          tracks,
           position,
           count: incrementCount ? { increment: 1 } : undefined,
           lastAt: new Date()

@@ -11,8 +11,7 @@ import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
 import { readerZipFileSubtitles } from '~/lib/subtitle-matcher';
 
-import type { SubtitleInfo } from './use-media-state';
-import type { Tracks, TracksResponse } from '@asmr-collections/shared';
+import type { Tracks, TracksResponse, SubtitleInfo } from '@asmr-collections/shared';
 
 export type TracksData =
   {

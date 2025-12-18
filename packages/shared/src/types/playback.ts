@@ -3,7 +3,7 @@ import type { Jsonify } from '../utils';
 import type { ServerWork } from './work';
 
 export interface ServerPlayback {
-  work: Pick<ServerWork, 'id' | 'name' | 'cover' | 'circle'>
+  work: Pick<ServerWork, 'id' | 'name' | 'cover' | 'circle' | 'artists'>
   track: Track
   position: number
   count: number

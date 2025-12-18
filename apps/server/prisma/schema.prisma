@@ -105,6 +105,7 @@ model Playback {
   workId    String   @id
   work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
   track     Json
+  tracks    Json[]   @default([])
   position  Int      @default(0)
   count     Int      @default(0)
   lastAt    DateTime @default(now())

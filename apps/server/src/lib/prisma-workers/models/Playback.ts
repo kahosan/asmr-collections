@@ -57,6 +57,7 @@ export type PlaybackMaxAggregateOutputType = {
 export type PlaybackCountAggregateOutputType = {
   workId: number
   track: number
+  tracks: number
   position: number
   count: number
   lastAt: number
@@ -97,6 +98,7 @@ export type PlaybackMaxAggregateInputType = {
 export type PlaybackCountAggregateInputType = {
   workId?: true
   track?: true
+  tracks?: true
   position?: true
   count?: true
   lastAt?: true
@@ -194,6 +196,7 @@ export type PlaybackGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type PlaybackGroupByOutputType = {
   workId: string
   track: runtime.JsonValue
+  tracks: runtime.JsonValue[]
   position: number
   count: number
   lastAt: Date
@@ -227,6 +230,7 @@ export type PlaybackWhereInput = {
   NOT?: Prisma.PlaybackWhereInput | Prisma.PlaybackWhereInput[]
   workId?: Prisma.StringFilter<"Playback"> | string
   track?: Prisma.JsonFilter<"Playback">
+  tracks?: Prisma.JsonNullableListFilter<"Playback">
   position?: Prisma.IntFilter<"Playback"> | number
   count?: Prisma.IntFilter<"Playback"> | number
   lastAt?: Prisma.DateTimeFilter<"Playback"> | Date | string
@@ -238,6 +242,7 @@ export type PlaybackWhereInput = {
 export type PlaybackOrderByWithRelationInput = {
   workId?: Prisma.SortOrder
   track?: Prisma.SortOrder
+  tracks?: Prisma.SortOrder
   position?: Prisma.SortOrder
   count?: Prisma.SortOrder
   lastAt?: Prisma.SortOrder
@@ -252,6 +257,7 @@ export type PlaybackWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PlaybackWhereInput[]
   NOT?: Prisma.PlaybackWhereInput | Prisma.PlaybackWhereInput[]
   track?: Prisma.JsonFilter<"Playback">
+  tracks?: Prisma.JsonNullableListFilter<"Playback">
   position?: Prisma.IntFilter<"Playback"> | number
   count?: Prisma.IntFilter<"Playback"> | number
   lastAt?: Prisma.DateTimeFilter<"Playback"> | Date | string
@@ -263,6 +269,7 @@ export type PlaybackWhereUniqueInput = Prisma.AtLeast<{
 export type PlaybackOrderByWithAggregationInput = {
   workId?: Prisma.SortOrder
   track?: Prisma.SortOrder
+  tracks?: Prisma.SortOrder
   position?: Prisma.SortOrder
   count?: Prisma.SortOrder
   lastAt?: Prisma.SortOrder
@@ -281,6 +288,7 @@ export type PlaybackScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PlaybackScalarWhereWithAggregatesInput | Prisma.PlaybackScalarWhereWithAggregatesInput[]
   workId?: Prisma.StringWithAggregatesFilter<"Playback"> | string
   track?: Prisma.JsonWithAggregatesFilter<"Playback">
+  tracks?: Prisma.JsonNullableListFilter<"Playback">
   position?: Prisma.IntWithAggregatesFilter<"Playback"> | number
   count?: Prisma.IntWithAggregatesFilter<"Playback"> | number
   lastAt?: Prisma.DateTimeWithAggregatesFilter<"Playback"> | Date | string
@@ -290,6 +298,7 @@ export type PlaybackScalarWhereWithAggregatesInput = {
 
 export type PlaybackCreateInput = {
   track: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackCreatetracksInput | runtime.InputJsonValue[]
   position?: number
   count?: number
   lastAt?: Date | string
@@ -301,6 +310,7 @@ export type PlaybackCreateInput = {
 export type PlaybackUncheckedCreateInput = {
   workId: string
   track: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackCreatetracksInput | runtime.InputJsonValue[]
   position?: number
   count?: number
   lastAt?: Date | string
@@ -310,6 +320,7 @@ export type PlaybackUncheckedCreateInput = {
 
 export type PlaybackUpdateInput = {
   track?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackUpdatetracksInput | runtime.InputJsonValue[]
   position?: Prisma.IntFieldUpdateOperationsInput | number
   count?: Prisma.IntFieldUpdateOperationsInput | number
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -321,6 +332,7 @@ export type PlaybackUpdateInput = {
 export type PlaybackUncheckedUpdateInput = {
   workId?: Prisma.StringFieldUpdateOperationsInput | string
   track?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackUpdatetracksInput | runtime.InputJsonValue[]
   position?: Prisma.IntFieldUpdateOperationsInput | number
   count?: Prisma.IntFieldUpdateOperationsInput | number
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -331,6 +343,7 @@ export type PlaybackUncheckedUpdateInput = {
 export type PlaybackCreateManyInput = {
   workId: string
   track: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackCreatetracksInput | runtime.InputJsonValue[]
   position?: number
   count?: number
   lastAt?: Date | string
@@ -340,6 +353,7 @@ export type PlaybackCreateManyInput = {
 
 export type PlaybackUpdateManyMutationInput = {
   track?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackUpdatetracksInput | runtime.InputJsonValue[]
   position?: Prisma.IntFieldUpdateOperationsInput | number
   count?: Prisma.IntFieldUpdateOperationsInput | number
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,6 +364,7 @@ export type PlaybackUpdateManyMutationInput = {
 export type PlaybackUncheckedUpdateManyInput = {
   workId?: Prisma.StringFieldUpdateOperationsInput | string
   track?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackUpdatetracksInput | runtime.InputJsonValue[]
   position?: Prisma.IntFieldUpdateOperationsInput | number
   count?: Prisma.IntFieldUpdateOperationsInput | number
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -365,6 +380,7 @@ export type PlaybackNullableScalarRelationFilter = {
 export type PlaybackCountOrderByAggregateInput = {
   workId?: Prisma.SortOrder
   track?: Prisma.SortOrder
+  tracks?: Prisma.SortOrder
   position?: Prisma.SortOrder
   count?: Prisma.SortOrder
   lastAt?: Prisma.SortOrder
@@ -432,8 +448,18 @@ export type PlaybackUncheckedUpdateOneWithoutWorkNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PlaybackUpdateToOneWithWhereWithoutWorkInput, Prisma.PlaybackUpdateWithoutWorkInput>, Prisma.PlaybackUncheckedUpdateWithoutWorkInput>
 }
 
+export type PlaybackCreatetracksInput = {
+  set: runtime.InputJsonValue[]
+}
+
+export type PlaybackUpdatetracksInput = {
+  set?: runtime.InputJsonValue[]
+  push?: runtime.InputJsonValue | runtime.InputJsonValue[]
+}
+
 export type PlaybackCreateWithoutWorkInput = {
   track: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackCreatetracksInput | runtime.InputJsonValue[]
   position?: number
   count?: number
   lastAt?: Date | string
@@ -443,6 +469,7 @@ export type PlaybackCreateWithoutWorkInput = {
 
 export type PlaybackUncheckedCreateWithoutWorkInput = {
   track: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackCreatetracksInput | runtime.InputJsonValue[]
   position?: number
   count?: number
   lastAt?: Date | string
@@ -468,6 +495,7 @@ export type PlaybackUpdateToOneWithWhereWithoutWorkInput = {
 
 export type PlaybackUpdateWithoutWorkInput = {
   track?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackUpdatetracksInput | runtime.InputJsonValue[]
   position?: Prisma.IntFieldUpdateOperationsInput | number
   count?: Prisma.IntFieldUpdateOperationsInput | number
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -477,6 +505,7 @@ export type PlaybackUpdateWithoutWorkInput = {
 
 export type PlaybackUncheckedUpdateWithoutWorkInput = {
   track?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  tracks?: Prisma.PlaybackUpdatetracksInput | runtime.InputJsonValue[]
   position?: Prisma.IntFieldUpdateOperationsInput | number
   count?: Prisma.IntFieldUpdateOperationsInput | number
   lastAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -489,6 +518,7 @@ export type PlaybackUncheckedUpdateWithoutWorkInput = {
 export type PlaybackSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   workId?: boolean
   track?: boolean
+  tracks?: boolean
   position?: boolean
   count?: boolean
   lastAt?: boolean
@@ -500,6 +530,7 @@ export type PlaybackSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type PlaybackSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   workId?: boolean
   track?: boolean
+  tracks?: boolean
   position?: boolean
   count?: boolean
   lastAt?: boolean
@@ -511,6 +542,7 @@ export type PlaybackSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type PlaybackSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   workId?: boolean
   track?: boolean
+  tracks?: boolean
   position?: boolean
   count?: boolean
   lastAt?: boolean
@@ -522,6 +554,7 @@ export type PlaybackSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type PlaybackSelectScalar = {
   workId?: boolean
   track?: boolean
+  tracks?: boolean
   position?: boolean
   count?: boolean
   lastAt?: boolean
@@ -529,7 +562,7 @@ export type PlaybackSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PlaybackOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"workId" | "track" | "position" | "count" | "lastAt" | "createdAt" | "updatedAt", ExtArgs["result"]["playback"]>
+export type PlaybackOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"workId" | "track" | "tracks" | "position" | "count" | "lastAt" | "createdAt" | "updatedAt", ExtArgs["result"]["playback"]>
 export type PlaybackInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   work?: boolean | Prisma.WorkDefaultArgs<ExtArgs>
 }
@@ -548,6 +581,7 @@ export type $PlaybackPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     workId: string
     track: runtime.JsonValue
+    tracks: runtime.JsonValue[]
     position: number
     count: number
     lastAt: Date
@@ -979,6 +1013,7 @@ export interface Prisma__PlaybackClient<T, Null = never, ExtArgs extends runtime
 export interface PlaybackFieldRefs {
   readonly workId: Prisma.FieldRef<"Playback", 'String'>
   readonly track: Prisma.FieldRef<"Playback", 'Json'>
+  readonly tracks: Prisma.FieldRef<"Playback", 'Json[]'>
   readonly position: Prisma.FieldRef<"Playback", 'Int'>
   readonly count: Prisma.FieldRef<"Playback", 'Int'>
   readonly lastAt: Prisma.FieldRef<"Playback", 'DateTime'>

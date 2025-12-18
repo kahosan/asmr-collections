@@ -1,25 +1,13 @@
 import { atom } from 'jotai';
 
-import type { Work, Track } from '@asmr-collections/shared';
-
-export interface SubtitleInfo {
-  title: string
-  url?: string
-  content?: string
-  type: 'vtt' | 'srt'
-}
-
-export interface MediaTrack extends Track {
-  subtitles?: SubtitleInfo
-  position?: number
-}
+import type { Work, Track, Tracks, SubtitleInfo } from '@asmr-collections/shared';
 
 export interface MediaState {
   open: boolean
-  tracks?: MediaTrack[]
-  currentTrack?: MediaTrack
+  tracks?: Tracks
+  currentTrack?: Track
   allSubtitles?: SubtitleInfo[]
-  work?: Work
+  work?: Pick<Work, 'id' | 'name' | 'cover' | 'artists'>
 }
 
 export const mediaStateAtom = atom<MediaState>({

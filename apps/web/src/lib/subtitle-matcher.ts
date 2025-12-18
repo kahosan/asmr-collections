@@ -5,8 +5,7 @@ import { extname } from '@asmr-collections/shared';
 import { HttpReader, Uint8ArrayWriter, ZipReader } from '@zip.js/zip.js';
 
 import type { IFuseOptions } from 'fuse.js';
-import type { Tracks } from '@asmr-collections/shared';
-import type { SubtitleInfo } from '~/hooks/use-media-state';
+import type { Tracks, SubtitleInfo } from '@asmr-collections/shared';
 
 export class SubtitleMatcher {
   private readonly fuses: Array<Fuse<SubtitleInfo>>;

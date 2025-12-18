@@ -4,13 +4,13 @@ import { FileMusic } from 'lucide-react';
 
 import { formatDuration } from '@asmr-collections/shared';
 
-import type { MediaTrack } from '~/hooks/use-media-state';
+import type { Track } from '@asmr-collections/shared';
 
 interface AudioItemProps {
   existCurrentTrack?: boolean
-  track: MediaTrack
+  track: Track
   onPlay: () => void
-  enqueueTrack: (track: MediaTrack) => void
+  enqueueTrack: (track: Track) => void
 }
 
 export function AudioItem({ existCurrentTrack, track, onPlay, enqueueTrack }: AudioItemProps) {

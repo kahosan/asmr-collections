@@ -34,9 +34,7 @@ import 'lightgallery/css/lg-thumbnail.css';
 
 import { SubtitleMatcher, collectSubtitles } from '~/lib/subtitle-matcher';
 
-import type { MediaTrack, SubtitleInfo } from '~/hooks/use-media-state';
-
-import type { Playback, Work, Tracks } from '@asmr-collections/shared';
+import type { Playback, Work, Tracks, SubtitleInfo, Track } from '@asmr-collections/shared';
 
 interface TracksTableProps {
   work: Work
@@ -90,29 +88,28 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
     [groupByType?.media]
   );
 
-  const handlePlay = (track: MediaTrack, position?: number) => {
+  const handlePlay = (track: Track, position?: number) => {
     const currentSubtitle = subtitleMatcher.find(track.title);
-    updatePlayback({ id: work.id, track, incrementCount: true });
-    setMediaState({
-      work,
-      open: true,
-      allSubtitles,
-      tracks: filterTracks?.map(item => {
-        const subtitles = subtitleMatcher.find(item.title);
-        return {
-          ...item,
-          subtitles
-        };
-      }),
-      currentTrack: {
-        ...track,
-        subtitles: currentSubtitle,
-        position
-      }
+
+    const currentTrack = {
+      ...track,
+      subtitles: currentSubtitle,
+      position
+    };
+
+    const tracks = filterTracks?.map(item => {
+      const subtitles = subtitleMatcher.find(item.title);
+      return {
+        ...item,
+        subtitles
+      };
     });
+
+    updatePlayback({ id: work.id, track: currentTrack, tracks, incrementCount: true });
+    setMediaState({ work, open: true, allSubtitles, tracks, currentTrack });
   };
 
-  const enqueueTrack = (track: MediaTrack) => {
+  const enqueueTrack = (track: Track) => {
     if (mediaState.tracks?.find(item => item.title === track.title)) return;
 
     const subtitles = subtitleMatcher.find(track.title);

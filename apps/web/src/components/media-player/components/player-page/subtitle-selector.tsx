@@ -4,11 +4,12 @@ import { useMemo } from 'react';
 import { focusAtom } from 'jotai-optics';
 import { useAtom, useAtomValue } from 'jotai';
 import { mediaStateAtom } from '~/hooks/use-media-state';
-import type { SubtitleInfo } from '~/hooks/use-media-state';
 
 import { NativeSelect, NativeSelectOption } from '~/components/ui/native-select';
 
 import { fetchTextTrackContent } from '../../utils';
+
+import type { SubtitleInfo } from '@asmr-collections/shared';
 
 const currentTrackAtom = focusAtom(mediaStateAtom, optic => optic.prop('currentTrack'));
 const allSubtitlesAtom = focusAtom(mediaStateAtom, optic => optic.prop('allSubtitles'));

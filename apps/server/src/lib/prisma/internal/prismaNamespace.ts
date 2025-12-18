@@ -1284,6 +1284,7 @@ export type TranslationInfoScalarFieldEnum = (typeof TranslationInfoScalarFieldE
 export const PlaybackScalarFieldEnum = {
   workId: 'workId',
   track: 'track',
+  tracks: 'tracks',
   position: 'position',
   count: 'count',
   lastAt: 'lastAt',
