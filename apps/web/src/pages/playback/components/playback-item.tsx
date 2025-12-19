@@ -31,7 +31,8 @@ export function PlaybackItem({ playback, mutate }: Props) {
     setMediaState({
       open: true,
       work: playback.work,
-      currentTrack: playback.track
+      currentTrack: playback.track,
+      tracks: playback.tracks
     });
   };
 

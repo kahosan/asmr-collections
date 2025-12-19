@@ -5,28 +5,14 @@ import { getPrisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { formatError, formatMessage } from '~/router/utils';
 
-const PLAYBACK_SELECT = {
-  position: true,
-  track: true,
-  count: true,
-  lastAt: true,
+const PLAYBACK_INCLUDE = {
   work: {
     select: {
       id: true,
       name: true,
       cover: true,
-      artists: {
-        select: {
-          id: true,
-          name: true
-        }
-      },
-      circle: {
-        select: {
-          id: true,
-          name: true
-        }
-      }
+      artists: true,
+      circle: true
     }
   }
 };
@@ -44,7 +30,7 @@ export const playbackApp = new Hono()
           skip: (page - 1) * limit,
           take: limit,
           orderBy: { lastAt: 'desc' },
-          select: PLAYBACK_SELECT
+          include: PLAYBACK_INCLUDE
         })
       ]);
 
@@ -69,7 +55,7 @@ export const playbackApp = new Hono()
 
       const playback = await prisma.playback.findUnique({
         where: { workId: id },
-        select: PLAYBACK_SELECT
+        include: PLAYBACK_INCLUDE
       });
 
       if (!playback)
