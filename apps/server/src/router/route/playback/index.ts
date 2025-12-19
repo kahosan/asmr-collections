@@ -1,3 +1,5 @@
+import type { Prisma } from '~/lib/prisma/client';
+
 import { Hono } from 'hono';
 import { PlaybackSearchQuerySchema, PlaybackUpsertSchema } from '@asmr-collections/shared';
 
@@ -69,7 +71,11 @@ export const playbackApp = new Hono()
   })
   .put('/:id', zValidator('json', PlaybackUpsertSchema), async c => {
     const id = c.req.param('id');
-    const { track, tracks, position, incrementCount } = c.req.valid('json');
+    const { track: _t, tracks: _ts, position, incrementCount } = c.req.valid('json');
+
+    // eslint-disable-next-line sukka/type/no-force-cast-via-top-type -- 直接强制转换了，JSON 没有类型验证或者用这个库：https://github.com/arthurfiorette/prisma-json-types-generator
+    const track = _t as unknown as Prisma.InputJsonValue;
+    const tracks = _ts as unknown as Prisma.InputJsonValue[];
 
     try {
       const prisma = getPrisma();
