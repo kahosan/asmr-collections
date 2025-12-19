@@ -6,6 +6,7 @@ import { Hono } from 'hono';
 import { etag } from 'hono/etag';
 import { logger } from 'hono/logger';
 import { serveStatic } from 'hono/bun';
+import { compress } from 'hono/compress';
 
 import { api } from './router';
 import { mediaApp } from './router/media';
@@ -17,12 +18,8 @@ const COVERS_DIR = path.resolve(process.cwd(), 'covers');
 
 export const app = new Hono();
 
-app.use(
-  '*',
-  logger((message, ...rest) => {
-    return console.info(message, ...rest);
-  })
-);
+app.use(logger());
+app.use(compress());
 
 app.route('/api', api);
 app.route('/proxy', proxyApp);
