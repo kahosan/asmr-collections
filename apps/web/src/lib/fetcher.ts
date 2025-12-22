@@ -29,8 +29,8 @@ export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promis
         .with({ error: P.string }, ({ error }) => {
           throw new HTTPError(error, res.status, data?.data);
         })
-        .otherwise(() => {
-          throw new HTTPError(res.statusText || '请求失败', res.status, data?.data);
+        .otherwise(unmatched => {
+          throw new HTTPError(res.statusText || '请求失败', res.status, unmatched);
         });
     }
 
