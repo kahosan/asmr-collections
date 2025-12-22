@@ -30,9 +30,8 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
       const message = '服务请求失败';
 
       // If the response is HTML, short-circuit before pattern matching on data
-      if (contentType?.includes('text/html')) {
+      if (contentType?.includes('text/html'))
         throw new HTTPError(message, res.status, { detail: '服务暂时不可用，返回了 HTML 页面' });
-      }
 
       match(data)
         .with({ detail: P.string }, d => {
