@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
-import { fetchWorkInfo } from '~/lib/dlsite';
+import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
@@ -19,7 +19,7 @@ createApp.post('/create/:id', async c => {
   let embedding: number[] | undefined;
 
   try {
-    data = await fetchWorkInfo(id);
+    data = await fetchDLsiteInfo(id);
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);
@@ -64,7 +64,9 @@ createApp.post('/create/:id', async c => {
       await clearSimilarCache(id);
     }
 
-    return c.json(formatMessage(embeddingError ? `Jina API 生成向量失败: ${embeddingError.data?.detail ?? embeddingError.message}` : '', work));
+    const errorText = embeddingError ? `Jina API 生成向量失败: ${embeddingError.data?.detail ?? embeddingError.message}` : '';
+
+    return c.json(formatMessage(errorText, work));
   } catch (e) {
     return c.json(formatError(e), 500);
   }

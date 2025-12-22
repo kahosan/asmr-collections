@@ -21,20 +21,14 @@ export function notifyError(error: unknown, text: string, options?: ExternalToas
     id = options.id;
 
   if (error instanceof HTTPError) {
-    let message = error.message;
-    if (error.data) {
-      message += ': ';
-      message += typeof error.data === 'object' ? Object.values(error.data).join(', ') : error.data;
-    }
-    toast.error(text, {
+    return toast.error(text, {
       ...options,
       id,
-      description: options?.description ?? message
+      description: options?.description ?? `${error.message}${error.data?.detail ? `：${error.data.detail}` : ''}`
     });
-    return;
   }
 
-  toast.error(text, {
+  return toast.error(text, {
     ...options,
     id,
     description: error instanceof Error ? error.message : undefined

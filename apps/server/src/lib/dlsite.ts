@@ -6,14 +6,14 @@ import { fetcher } from './fetcher';
 
 const BASE_URI = 'https://www.dlsite.com';
 
-export async function fetchWorkInfo(id: string): Promise<WorkInfo | null> {
+export async function fetchDLsiteInfo(id: string): Promise<WorkInfo | null> {
   const product = await fetcher<Record<string, DLsiteResponse> | unknown[]>(`${BASE_URI}/home/product/info/ajax?product_id=${id}&locale=zh_CN`);
 
   if (Array.isArray(product))
     return null;
 
   const data = product[id];
-  const other = await parserWorkHTML(id);
+  const other = await parserDLsiteHTML(id);
 
   return {
     id,
@@ -46,7 +46,7 @@ export async function fetchWorkInfo(id: string): Promise<WorkInfo | null> {
   };
 }
 
-async function parserWorkHTML(id: string) {
+async function parserDLsiteHTML(id: string) {
   const str = await fetcher<string>(`${BASE_URI}/maniax/work/=/product_id/${id}.html/?locale=zh_CN`, {
     headers: {
       Cookie: 'locale=zh-cn'

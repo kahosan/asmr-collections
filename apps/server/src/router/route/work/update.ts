@@ -3,7 +3,7 @@ import type { WorkInfo } from '~/types/source';
 import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
-import { fetchWorkInfo } from '~/lib/dlsite';
+import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
@@ -24,7 +24,7 @@ updateApp.put('/update/:id', async c => {
   let data: WorkInfo | null;
 
   try {
-    data = await fetchWorkInfo(id);
+    data = await fetchDLsiteInfo(id);
   } catch (e) {
     return c.json(formatError(e), 500);
   }
@@ -61,7 +61,7 @@ updateApp.put('/update/embedding/:id', async c => {
   let data: WorkInfo | null;
 
   try {
-    data = await fetchWorkInfo(id);
+    data = await fetchDLsiteInfo(id);
   } catch (e) {
     return c.json(formatError(e), 500);
   }

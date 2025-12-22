@@ -14,7 +14,7 @@ import { newQueue } from '@henrygd/queue/rl';
 
 import { storage } from '~/storage';
 import { getPrisma } from '~/lib/db';
-import { fetchWorkInfo } from '~/lib/dlsite';
+import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
@@ -387,7 +387,7 @@ async function fetchValidData(
     if (abortSignal.aborted) return;
 
     try {
-      const data = await fetchWorkInfo(id);
+      const data = await fetchDLsiteInfo(id);
       if (!data) {
         failed.push({ id, error: 'DLsite 不存在此作品' });
 

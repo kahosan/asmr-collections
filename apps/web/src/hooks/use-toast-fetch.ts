@@ -63,16 +63,8 @@ export function useToastMutation<T>(key: ToastMutationKeys) {
     success: toastOps?.success,
     error: toastOps?.error,
     description(data: T) {
-      if (data instanceof HTTPError) {
-        let text = data.message;
-        if (data.data) {
-          text += ': ';
-          text += typeof data.data === 'object'
-            ? Object.values(data.data).join(', ')
-            : data.data;
-        }
-        return text;
-      }
+      if (data instanceof HTTPError)
+        return `${data.message}${data.data?.detail ? `：${data.data.detail}` : ''}`;
 
       if (data instanceof Error)
         return data.message;

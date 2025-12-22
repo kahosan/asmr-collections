@@ -1,3 +1,5 @@
+import type { ErrorData } from '@asmr-collections/shared';
+
 import { join } from 'node:path';
 
 import { HTTPError } from '@asmr-collections/shared';
@@ -11,18 +13,21 @@ export function findwork(id: string) {
   return prisma.work.findUnique({ where: { id }, select: { id: true } });
 }
 
-export function formatError(e: unknown, text?: string) {
+export function formatError(e: unknown, text?: string): { message: string, data?: ErrorData } {
   if (e instanceof HTTPError)
     return { message: text ?? e.message, data: e.data };
 
-  if (e instanceof Error)
-    return { message: text ? text + '：' + e.message : e.message };
+  if (e instanceof Error) {
+    if (!text) return { message: e.message };
+
+    return { message: text, data: { detail: e.message } };
+  }
 
   if (typeof e === 'string')
     return { message: e };
 
-  const error = e ? JSON.stringify(e).replaceAll(/^"|"$/g, '') : undefined;
-  return { message: text ? (error ? text + '：' + error : error) : error };
+  console.error('未知错误', e);
+  return { message: '发生未知错误', data: { detail: '请查看服务端日志' } };
 }
 
 export function formatMessage(message: string, data?: unknown) {

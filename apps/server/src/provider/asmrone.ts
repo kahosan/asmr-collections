@@ -14,7 +14,7 @@ export async function fetchTracks(id: string, host: string) {
     return await fetcher<Tracks>(`${host}/api/tracks/${id.replace('RJ', '')}`);
   } catch (e) {
     if (e instanceof HTTPError && e.status === 404)
-      throw new HTTPError(e.data?.error || '作品不存在于 asmr.one', 404);
+      throw new HTTPError(e.data?.detail || '作品不存在于 asmr.one', 404);
 
     throw e;
   };
@@ -87,7 +87,7 @@ export async function fetchSimilarWorks(id: string, host: string): Promise<Serve
     return await Promise.all(p);
   } catch (e) {
     if (e instanceof HTTPError && e.status === 404)
-      throw new HTTPError(e.data?.error || '作品不存在于 asmr.one', e.status);
+      throw new HTTPError(e.data?.detail || '作品不存在于 asmr.one', e.status);
 
     throw e;
   };

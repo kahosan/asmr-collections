@@ -1,3 +1,4 @@
+import { match, P } from 'ts-pattern';
 import { HTTPError } from '@asmr-collections/shared';
 
 export async function fetcher<T>(url: string, options?: RequestInit) {
@@ -15,22 +16,44 @@ export async function fetcher<T>(url: string, options?: RequestInit) {
   });
 
   try {
-    const data = res.headers.get('content-type')?.includes('application/json')
+    const contentType = res.headers.get('content-type');
+    const data = contentType?.includes('application/json')
       ? await res.json()
       : await res.text();
 
     if (!res.ok) {
-      const stringData = typeof data === 'string' ? data : JSON.stringify(data);
-      if (stringData.includes('<!DOCTYPE html>'))
-        throw new HTTPError(`请求 ${url} 失败，服务器发生错误：${res.status}`, res.status);
+      if (contentType?.includes('text/html'))
+        console.error('请求返回 HTML', { url, status: res.status });
+      else
+        console.error('请求失败', { url, status: res.status, data });
 
-      throw new HTTPError(`请求 ${url} 失败`, res.status, data);
+      const message = '服务请求失败';
+      match(data)
+        .when(() => contentType?.includes('text/html'), () => {
+          throw new HTTPError(message, res.status, { detail: '服务暂时不可用，返回了 HTML 页面' });
+        })
+        .with({ detail: P.string }, d => {
+          // jina error
+          throw new HTTPError(message, res.status, d);
+        })
+        .with({ error: P.string }, d => {
+          // asmr.one error
+          throw new HTTPError(message, res.status, { detail: d.error });
+        })
+        .with(P.string, d => {
+          throw new HTTPError(message, res.status, { detail: d });
+        })
+        .otherwise(() => {
+          throw new HTTPError(message, res.status);
+        });
     }
 
     return data as T;
   } catch (error) {
-    if (error instanceof SyntaxError)
-      throw new Error(`解析 JSON 失败：${error.message}`);
+    if (error instanceof SyntaxError) {
+      console.error('解析错误', error);
+      throw new HTTPError('数据解析失败，请查看日志', res.status);
+    }
 
     throw error;
   }

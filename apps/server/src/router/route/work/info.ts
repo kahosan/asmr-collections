@@ -3,7 +3,7 @@ import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 import { Hono } from 'hono';
 
 import { getPrisma } from '~/lib/db';
-import { fetchWorkInfo } from '~/lib/dlsite';
+import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { createCachified, ttl } from '~/lib/cachified';
 import { formatError, formatMessage } from '~/router/utils';
 
@@ -89,7 +89,7 @@ infoApp.get('/info/:id', async c => {
 });
 
 async function getInfo(id: string): Promise<WorkInfoResponse<ServerWork> | null> {
-  const data = await fetchWorkInfo(id);
+  const data = await fetchDLsiteInfo(id);
 
   if (!data)
     return null;
