@@ -173,7 +173,7 @@ export const Menu = memo(({ work }: Props) => {
 export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string, existsSubtitles: boolean, onClose?: () => void }) {
   const [subtitlesAction, subtitlesIsMutating] = useToastMutation('subtitles');
 
-  const uploadSubtitles = async (subtitles?: FileList | null) => {
+  const handleUpload = async (subtitles?: FileList | null) => {
     if (!subtitles || subtitles.length === 0) {
       toast.error('请选择字幕文件');
       return;
@@ -233,6 +233,33 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
     window.open(withQuery(`/api/subtitles/${id}`, { action: 'download' }));
   };
 
+  const handleDelete = async () => {
+    if (!existsSubtitles)
+      return toast.error('字幕不存在');
+
+    const yes = await confirm({
+      title: '确定要删除字幕吗?',
+      description: '认真考虑哦'
+    });
+
+    if (!yes) return;
+
+    subtitlesAction({
+      key: `/api/subtitles/${id}`,
+      fetchOps: {
+        method: 'DELETE'
+      },
+      toastOps: {
+        loading: `${id} 字幕删除中...`,
+        success() {
+          mutateWorkInfo(id);
+          return `${id} 字幕删除成功`;
+        },
+        error: `${id} 字幕删除失败`
+      }
+    });
+  };
+
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>字幕</DropdownMenuSubTrigger>
@@ -243,7 +270,7 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
               type="file"
               id="subtitles-file-upload"
               className="hidden"
-              onChange={e => uploadSubtitles(e.target.files)}
+              onChange={e => handleUpload(e.target.files)}
             />
             <Label htmlFor="subtitles-file-upload" className="leading-5 w-full">
               上传字幕
@@ -251,6 +278,9 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleDownload} disabled={subtitlesIsMutating}>
             下载字幕
+          </DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" onClick={handleDelete} disabled={subtitlesIsMutating}>
+            删除字幕
           </DropdownMenuItem>
         </DropdownMenuSubContent>
       </DropdownMenuPortal>

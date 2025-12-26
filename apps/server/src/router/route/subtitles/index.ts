@@ -55,7 +55,7 @@ export const subtitlesApp = new Hono()
 
     try {
       if (!await findwork(id))
-        return c.json(formatMessage('收藏不存在'), 400);
+        return c.json(formatMessage('收藏不存在'), 404);
 
       const prisma = getPrisma();
 
@@ -77,6 +77,34 @@ export const subtitlesApp = new Hono()
       return c.json({ id });
     } catch (e) {
       console.error(e);
+      return c.json(formatError(e), 500);
+    }
+  })
+  .delete('/:id', async c => {
+    const { id } = c.req.param();
+
+    try {
+      if (!await findwork(id))
+        return c.json(formatMessage('收藏不存在'), 404);
+
+      const prisma = getPrisma();
+
+      await prisma.work.update({
+        where: { id },
+        data: {
+          subtitles: false,
+          subtitlesData: {
+            delete: true
+          }
+        }
+      });
+
+      return c.body(null, 204);
+    } catch (e) {
+      // @ts-expect-error -- TODO: use prisma error type
+      if (e?.code === 'P2025')
+        return c.json(formatMessage('字幕不存在'), 404);
+
       return c.json(formatError(e), 500);
     }
   });
