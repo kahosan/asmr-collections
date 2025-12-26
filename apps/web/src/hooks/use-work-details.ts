@@ -9,7 +9,6 @@ import { findSmartPath, notifyError } from '~/utils';
 
 import { logger } from '~/lib/logger';
 import { fetcher } from '~/lib/fetcher';
-import { readerZipFileSubtitles } from '~/lib/subtitle-matcher';
 
 import type { Tracks, TracksResponse, SubtitleInfo } from '@asmr-collections/shared';
 
@@ -136,7 +135,9 @@ export function useWorkDetailsTracks(id: string, smartNavigate: (path: string[])
 
     if (hasSubtitles) {
       try {
-        const externalSubtitles = await readerZipFileSubtitles(`/api/work/subtitles/${id}`);
+        const response = await fetch(`/api/subtitles/${id}`);
+        const externalSubtitles: SubtitleInfo[] = await response.json();
+
         return { ...tracksData, externalSubtitles };
       } catch (e) {
         logger.error(e, '尝试加载数据库字幕失败');

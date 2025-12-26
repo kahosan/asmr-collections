@@ -8,12 +8,19 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemHeader, ItemTitle 
 import { Link } from '~/components/link';
 import { Image } from '~/components/image';
 
+import useSWRMutation from 'swr/mutation';
+
 import { mediaStateAtom } from '~/hooks/use-media-state';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
+import { SubtitleMatcher } from '@asmr-collections/shared';
+
 import { formatTimeAgoIntl } from '~/utils';
 
-import type { Playback } from '@asmr-collections/shared';
+import { logger } from '~/lib/logger';
+import { fetcher } from '~/lib/fetcher';
+
+import type { SubtitleInfo, Playback } from '@asmr-collections/shared';
 
 interface Props {
   playback: Playback
@@ -25,13 +32,39 @@ export function PlaybackItem({ playback, mutate }: Props) {
 
   const setMediaState = useSetAtom(mediaStateAtom);
 
+  const { trigger: fetchSubtitles, isMutating: isLoadingSubtitles } = useSWRMutation<SubtitleInfo[]>(
+    `/api/subtitles/${playback.work.id}`,
+    (key: string) => fetcher<SubtitleInfo[]>(key)
+  );
+
   const [deletePlayback, isLoading] = useToastMutation('playback-delete');
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
+    let subtitles: SubtitleInfo[] = [];
+    let subtitleMatcher: SubtitleMatcher | undefined;
+
+    try {
+      if (playback.work.subtitles) {
+        subtitles = await fetchSubtitles();
+        subtitleMatcher = new SubtitleMatcher([subtitles]);
+      }
+    } catch (e) {
+      logger.error(e, '获取字幕失败');
+    }
+
     const currentTrack = {
       ...playback.track,
+      subtitles: subtitleMatcher?.find(playback.track.title),
       position: playback.position
     };
+
+    const tracks = playback.tracks.map(item => {
+      const subtitles = subtitleMatcher?.find(item.title);
+      return {
+        ...item,
+        subtitles
+      };
+    });
 
     const work = {
       ...playback.work,
@@ -41,8 +74,9 @@ export function PlaybackItem({ playback, mutate }: Props) {
     setMediaState({
       open: true,
       work,
+      allSubtitles: subtitles,
       currentTrack,
-      tracks: playback.tracks
+      tracks
     });
   };
 
@@ -95,7 +129,7 @@ export function PlaybackItem({ playback, mutate }: Props) {
         </ItemDescription>
         <ItemActions className="sm:hidden mt-2">
           <ButtonGroup className="w-full *:flex-1">
-            <Button size="lg" variant="secondary" onClick={handlePlay}>
+            <Button size="lg" variant="secondary" onClick={handlePlay} disabled={isLoadingSubtitles}>
               播放
             </Button>
             <Button size="lg" variant="secondary" asChild>
@@ -109,7 +143,7 @@ export function PlaybackItem({ playback, mutate }: Props) {
       </ItemContent>
       <ItemActions className="max-sm:hidden">
         <ButtonGroup>
-          <Button variant="secondary" onClick={handlePlay}>
+          <Button variant="secondary" onClick={handlePlay} disabled={isLoadingSubtitles}>
             播放
           </Button>
           <Button variant="secondary" asChild>

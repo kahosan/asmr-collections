@@ -5,8 +5,6 @@ export type WorkAPI =
   | 'work/delete/:id'
   | 'work/info/:id'
   | 'work/:id'
-  | 'work/upload/subtitles/:id'
-  | 'work/subtitles/:id'
   | 'work/similar/:id'
   | 'work/batch/create' | 'work/batch/update';
 
@@ -19,6 +17,8 @@ export type TracksAPI =
 export type LibraryAPI =
   | 'library/exists/:id'
   | 'library/ffmpeg';
+export type SubtitlesAPI =
+  | 'subtitles/:id';
 
 export type FetcherKey =
   | `${Base}/${WorkAPI}`

@@ -31,7 +31,7 @@ export function SubtitleSelector({ allSubtitles }: Props) {
   }, [allSubtitles]);
 
   const handleChange = async (title: string) => {
-    const subtitles = allSubtitles?.find(subtitle => subtitle.title === title);
+    const subtitles = allSubtitles.find(subtitle => subtitle.title === title);
 
     if (subtitles && currentTrack && player) {
       setCurrentTrack({

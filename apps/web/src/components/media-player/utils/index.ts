@@ -1,9 +1,7 @@
-import { extname } from '@asmr-collections/shared';
+import { decodeText, extname, lrcToVtt } from '@asmr-collections/shared';
 
 import { fetcher } from '~/lib/fetcher';
 import { logger } from '~/lib/logger';
-
-import { decodeText, lrcToVtt } from '~/lib/subtitle-matcher';
 
 export async function fetchTextTrackContent(src: string | undefined) {
   if (!src) return;

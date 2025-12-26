@@ -13,7 +13,7 @@ import { throttle } from '@asmr-collections/shared';
 import { useMediaSrc } from './hooks/use-media-src';
 import { usePrefetchNext } from './hooks/use-prefetch-next';
 
-import { usePlayback } from '~/hooks/use-playback';
+import { preperTracks, usePlayback } from '~/hooks/use-playback';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { fetchTextTrackContent } from './utils';
@@ -104,7 +104,7 @@ function MediaPlayerInstance() {
 
     if (position === 0 && !force) return;
 
-    updatePlayback({ id, track, tracks, position });
+    updatePlayback({ id, track: preperTracks(track), tracks: preperTracks(tracks), position });
   }, [mediaState.currentTrack, mediaState.tracks, mediaState.work, updatePlayback]);
 
   const throttledUpdatePlayback = useMemo(() => throttle(updatePlaybackFn, 10000), [updatePlaybackFn]);

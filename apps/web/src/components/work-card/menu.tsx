@@ -7,7 +7,7 @@ import { Link } from '../link';
 
 import { MenuIcon } from 'lucide-react';
 
-import { extname, formatISODate } from '@asmr-collections/shared';
+import { extname, formatISODate, withQuery } from '@asmr-collections/shared';
 
 import { toast } from 'sonner';
 import { memo, useState } from 'react';
@@ -206,7 +206,7 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
     }
 
     subtitlesAction({
-      key: `/api/work/upload/subtitles/${id}`,
+      key: `/api/subtitles/${id}`,
       fetchOps: {
         method: 'PUT',
         body: formdata
@@ -227,16 +227,10 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
   };
 
   const handleDownload = () => {
-    subtitlesAction({
-      key: `/api/work/subtitles/${id}`,
-      toastOps: {
-        success() {
-          window.open(`/api/work/subtitles/${id}`);
-          return `${id} 字幕下载成功`;
-        },
-        error: `${id} 字幕下载失败`
-      }
-    });
+    if (!existsSubtitles)
+      return toast.error('字幕不存在');
+
+    window.open(withQuery(`/api/subtitles/${id}`, { action: 'download' }));
   };
 
   return (

@@ -14,7 +14,8 @@ const PLAYBACK_INCLUDE = {
       name: true,
       cover: true,
       artists: true,
-      circle: true
+      circle: true,
+      subtitles: true
     }
   }
 };

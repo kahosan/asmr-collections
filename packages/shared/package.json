@@ -20,13 +20,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@zip.js/zip.js": "^2.8.11",
     "date-fns": "catalog:",
     "es-toolkit": "^1.42.0",
+    "fuse.js": "^7.1.0",
     "pathe": "^2.0.3",
     "ufo": "^1.6.1",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:"
+    "@types/bun": "catalog:"
   }
 }

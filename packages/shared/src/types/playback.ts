@@ -16,6 +16,6 @@ export interface ServerPlayback {
 export type Playback = Jsonify<
   Omit<ServerPlayback, 'work'>
   & {
-    work: Pick<Work, 'id' | 'name' | 'cover' | 'circle' | 'artists' | 'exists'>
+    work: Pick<Work, 'id' | 'name' | 'cover' | 'circle' | 'artists' | 'exists' | 'subtitles'>
   }
 >;

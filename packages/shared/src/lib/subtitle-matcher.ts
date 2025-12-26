@@ -1,11 +1,12 @@
+import type { IFuseOptions } from 'fuse.js';
+
+import type { SubtitleInfo, Tracks } from '../types';
+
 import Fuse from 'fuse.js';
 
-import { extname } from '@asmr-collections/shared';
+import { configure, Uint8ArrayReader, Uint8ArrayWriter, ZipReader } from '@zip.js/zip.js';
 
-import { HttpReader, Uint8ArrayWriter, ZipReader } from '@zip.js/zip.js';
-
-import type { IFuseOptions } from 'fuse.js';
-import type { Tracks, SubtitleInfo } from '@asmr-collections/shared';
+import { extname } from '../utils';
 
 export class SubtitleMatcher {
   private readonly fuses: Array<Fuse<SubtitleInfo>>;
@@ -32,7 +33,7 @@ export class SubtitleMatcher {
     this.fallbackFuse = new Fuse(subtitles.flat(), { ...fuseOptions, threshold: 1 });
   }
 
-  find(trackTitle: string, scoreThreshold = 0.4) {
+  find(trackTitle: string, scoreThreshold = 0.4): SubtitleInfo | undefined {
     let resultItem: { item: SubtitleInfo, score: number } | undefined;
 
     for (const fuse of this.fuses) {
@@ -106,8 +107,9 @@ export function collectSubtitles(data: Tracks | undefined | null, recursive = fa
 /**
  * 获取数据库中的字幕文件
  */
-export async function readerZipFileSubtitles(src: string): Promise<SubtitleInfo[]> {
-  const zipReader = new ZipReader(new HttpReader(src));
+configure({ useWebWorkers: false });
+export async function readerZipFileSubtitles(data: Uint8Array<ArrayBuffer>): Promise<SubtitleInfo[]> {
+  const zipReader = new ZipReader(new Uint8ArrayReader(data));
 
   const subtitles: SubtitleInfo[] = [];
   const supportedExtensions = new Set(['srt', 'lrc', 'vtt']);
@@ -137,7 +139,8 @@ export async function readerZipFileSubtitles(src: string): Promise<SubtitleInfo[
 }
 
 export function decodeText(data: ArrayBuffer | Uint8Array): string {
-  const encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- bun 的类型还没更新 https://github.com/oven-sh/bun/pull/21835
+  const encodings = ['utf-8', 'gbk', 'gb18030'/* , 'gb2312' */] as any; // 'gb2312' 未支持
 
   for (const encoding of encodings) {
     try {

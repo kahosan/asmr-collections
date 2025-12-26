@@ -15,13 +15,13 @@ import { useMemo, useRef } from 'react';
 
 import { match } from 'ts-pattern';
 
-import { usePlayback } from '~/hooks/use-playback';
 import { mediaStateAtom } from '~/hooks/use-media-state';
+import { usePlayback, preperTracks } from '~/hooks/use-playback';
 
 import LightGallery from 'lightgallery/react';
 import type { LightGallery as LightGalleryType } from 'lightgallery/lightgallery';
 
-import { extname } from '@asmr-collections/shared';
+import { extname, SubtitleMatcher, collectSubtitles } from '@asmr-collections/shared';
 
 import lgZoom from 'lightgallery/plugins/zoom';
 import lgRotate from 'lightgallery/plugins/rotate';
@@ -31,8 +31,6 @@ import 'lightgallery/css/lg-zoom.css';
 import 'lightgallery/css/lg-rotate.css';
 import 'lightgallery/css/lightgallery.css';
 import 'lightgallery/css/lg-thumbnail.css';
-
-import { SubtitleMatcher, collectSubtitles } from '~/lib/subtitle-matcher';
 
 import type { Playback, Work, Tracks, SubtitleInfo, Track } from '@asmr-collections/shared';
 
@@ -106,7 +104,7 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
     });
 
     if (work.exists)
-      updatePlayback({ id: work.id, track: currentTrack, tracks, incrementCount: true });
+      updatePlayback({ id: work.id, track: preperTracks(currentTrack), tracks: preperTracks(tracks), incrementCount: true });
 
     setMediaState({ work, open: true, allSubtitles, tracks, currentTrack });
   };
