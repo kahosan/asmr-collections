@@ -21,9 +21,9 @@ export function usePlayback() {
   return useSWRMutation('/api/playback', fetcher);
 }
 
-export function preperTracks(tracks: Track): Track;
-export function preperTracks(tracks: Tracks | undefined): Tracks | undefined;
-export function preperTracks(tracks: Track | (Tracks | undefined)): Track | Tracks | undefined {
+export function prepareTracks(tracks: Track): Track;
+export function prepareTracks(tracks: Tracks | undefined): Tracks | undefined;
+export function prepareTracks(tracks: Track | (Tracks | undefined)): Track | Tracks | undefined {
   if (!tracks) return tracks;
 
   // 有 content 代表是从数据库中加载的字幕
