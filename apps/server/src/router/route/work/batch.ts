@@ -14,8 +14,8 @@ import { newQueue } from '@henrygd/queue/rl';
 
 import { storage } from '~/storage';
 import { getPrisma } from '~/lib/db';
-import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
+import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { createWork } from './create';

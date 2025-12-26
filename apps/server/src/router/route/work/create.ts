@@ -4,8 +4,8 @@ import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
 
 import { getPrisma } from '~/lib/db';
-import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { generateEmbedding } from '~/ai/jina';
+import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
