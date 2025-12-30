@@ -10,7 +10,7 @@ services:
       # 从 https://jina.ai 获取 API Key
       - JINA_API_KEY=
     volumes:
-      - ./data:/app/data # 数据文件夹
+      - ./data:/app/data # 数据文件夹，包含封面 covers、转码缓存 transcode_cache 和 SQLite 缓存数据库 cache.db，升级时请迁移这些数据
       # - ./VoiceWork:/media # 左边的路径修改为你本地的音频文件夹路径
     depends_on:
       database:
