@@ -14,7 +14,6 @@ import { proxyApp } from './router/proxy';
 import { COVERS_PATH, TRANSCODE_CACHE_PATH } from './lib/constant';
 
 const CLIENT_DIST = process.env.DIST_PATH || path.resolve(import.meta.dirname, '../../web/dist');
-const COVERS_DIR = path.resolve(process.cwd(), 'covers');
 
 export const app = new Hono();
 
@@ -31,7 +30,7 @@ app.route('/download', mediaApp);
 // cover images
 app.use('/covers/*', etag());
 app.use('/covers/*', serveStatic({
-  root: COVERS_DIR,
+  root: COVERS_PATH,
   rewriteRequestPath: p => p.replace(/^\/covers/, ''),
   onFound(_, c) {
     c.header('Cache-Control', 'public, max-age=604800');

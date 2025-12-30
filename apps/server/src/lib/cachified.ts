@@ -1,3 +1,4 @@
+import type Database from 'bun:sqlite';
 import type { Context, ExecutionContext } from 'hono';
 import type { Cache, CacheEntry, CachifiedOptions, GetFreshValue } from '@epic-web/cachified';
 
@@ -5,25 +6,38 @@ import cachified, { softPurge, totalTtl, verboseReporter } from '@epic-web/cachi
 
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- use cachified
 import { LRUCache } from 'lru-cache';
-import { createClient } from 'redis';
-import { redisCacheAdapter } from 'cachified-redis-adapter';
+import { bunSqliteCacheAdapter, createBunSqliteCacheTable } from 'cachified-adapter-sqlite/bun';
 
-import { IS_WORKERS, REDIS_URL } from './constant';
+import { IS_WORKERS, SQLITE_DB_PATH } from './constant';
 
-const redisCache = REDIS_URL
-  // eslint-disable-next-line antfu/no-top-level-await -- top-level await is allowed in this file
-  ? await (async () => {
+let databaseInstance: Database | null = null;
+
+async function getDatabaseInstance(tableName: string) {
+  if (!databaseInstance) {
+    // cf workers do not support bun
+    const module = 'bun:sqlite';
+    const SQLITE_DB: typeof Database = await import(module).then(mod => mod.default);
+    databaseInstance = new SQLITE_DB(SQLITE_DB_PATH, { create: true });
+    databaseInstance.run('PRAGMA journal_mode = WAL;');
+    createBunSqliteCacheTable(databaseInstance, tableName);
+  }
+  return databaseInstance;
+}
+
+const sqliteCache = IS_WORKERS
+  ? null
+  // eslint-disable-next-line antfu/no-top-level-await -- only used in server env
+  : await (async () => {
     try {
-      const client = createClient({ url: REDIS_URL });
-      await client.connect();
-
-      return redisCacheAdapter(client);
-    } catch (error) {
-      console.error('Failed to create Redis client for cachified:', error);
+      const tableName = 'cachified_cache';
+      const database = await getDatabaseInstance(tableName);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cachified types
+      return bunSqliteCacheAdapter<any>({ database, tableName });
+    } catch (e) {
+      console.error('[Cache] Failed to initialize bun:sqlite cache adapter:', e);
       return null;
     }
-  })()
-  : null;
+  })();
 
 const MINUTE_MS = 60 * 1000;
 const HOUR_MS = 60 * MINUTE_MS;
@@ -81,9 +95,9 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
       });
 
       try {
-        await redisCache?.set(key, value);
+        await sqliteCache?.set(key, value);
       } catch (error) {
-        console.error('Failed to set cache in Redis:', error);
+        console.error('Failed to set cache in SQLite:', error);
       }
     },
     async get(key) {
@@ -91,7 +105,7 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
       if (entry) return entry;
 
       try {
-        entry = await redisCache?.get(key);
+        entry = await sqliteCache?.get(key);
         if (entry) {
           const ttl = totalTtl(entry.metadata);
           lru.set(key, entry, {
@@ -102,16 +116,16 @@ export function createCachified<T>(options?: CreateCachifiedOptions<T>) {
 
         return entry;
       } catch (error) {
-        console.error('Failed to get cache from Redis:', error);
+        console.error('Failed to get cache from SQLite:', error);
         return null;
       }
     },
     async delete(key) {
       lru.delete(key);
       try {
-        await redisCache?.delete(key);
+        await sqliteCache?.delete(key);
       } catch (error) {
-        console.error('Failed to delete cache from Redis:', error);
+        console.error('Failed to delete cache from SQLite:', error);
       }
     }
   };

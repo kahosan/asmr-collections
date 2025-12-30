@@ -1,11 +1,13 @@
 import { join } from 'node:path';
 
+const DATA_PATH = process.env.DATA_PATH || join(process.cwd(), 'data');
+
 export const IS_WORKERS = process.env.RUNTIME === 'workers';
 
-export const REDIS_URL = process.env.REDIS_URL;
+export const COVERS_PATH = join(DATA_PATH, 'covers');
 
-export const COVERS_PATH = join(process.cwd(), 'covers');
+export const TRANSCODE_CACHE_PATH = join(DATA_PATH, 'transcode_cache');
 
-export const TRANSCODE_CACHE_PATH = join(process.cwd(), 'transcode_cache');
+export const SQLITE_DB_PATH = join(DATA_PATH, 'cache.db');
 
 export const TRANSCODE_FORMATS = ['.wav', '.flac'];
