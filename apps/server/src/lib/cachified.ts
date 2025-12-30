@@ -12,14 +12,16 @@ import { IS_WORKERS, SQLITE_DB_PATH } from './constant';
 
 let databaseInstance: Database | null = null;
 
-async function getDatabaseInstance(tableName: string) {
+const TABLE_NAME = 'cachified_cache';
+
+async function getDatabaseInstance() {
   if (!databaseInstance) {
     // cf workers do not support bun
     const module = 'bun:sqlite';
     const SQLITE_DB: typeof Database = await import(module).then(mod => mod.default);
     databaseInstance = new SQLITE_DB(SQLITE_DB_PATH, { create: true });
     databaseInstance.run('PRAGMA journal_mode = WAL;');
-    createBunSqliteCacheTable(databaseInstance, tableName);
+    createBunSqliteCacheTable(databaseInstance, TABLE_NAME);
   }
   return databaseInstance;
 }
@@ -29,10 +31,9 @@ const sqliteCache = IS_WORKERS
   // eslint-disable-next-line antfu/no-top-level-await -- only used in server env
   : await (async () => {
     try {
-      const tableName = 'cachified_cache';
-      const database = await getDatabaseInstance(tableName);
+      const database = await getDatabaseInstance();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cachified types
-      return bunSqliteCacheAdapter<any>({ database, tableName });
+      return bunSqliteCacheAdapter<any>({ database, tableName: TABLE_NAME });
     } catch (e) {
       console.error('[Cache] Failed to initialize bun:sqlite cache adapter:', e);
       return null;
