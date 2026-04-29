@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 import { useActiveCue } from '../../hooks/use-active-cue';
 import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
+import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
 import { Button } from '~/components/ui/button';
 import { PictureInPicture2Icon, PictureInPictureIcon, RefreshCwIcon, RefreshCwOffIcon } from 'lucide-react';
@@ -16,6 +17,7 @@ import { PictureInPicture2Icon, PictureInPictureIcon, RefreshCwIcon, RefreshCwOf
 import { SubtitleSelector } from './subtitle-selector';
 
 import { cn } from '~/lib/utils';
+import { logger } from '~/lib/logger';
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600)
@@ -34,6 +36,7 @@ function formatTime(seconds: number): string {
 }
 
 const allSubtitlesAtom = focusAtom(mediaStateAtom, optic => optic.prop('allSubtitles'));
+const keepScreenOnAtom = focusAtom(settingOptionsAtom, optic => optic.prop('keepScreenOn'));
 
 interface SubtitlesProps {
   scrollAreaRef: React.RefObject<HTMLDivElement | null>
@@ -48,6 +51,7 @@ export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const [autoScroll, setAutoScroll] = useState(true);
 
   const allSubtitles = useAtomValue(allSubtitlesAtom);
+  const keepScreenOn = useAtomValue(keepScreenOnAtom);
   const [openPipCaptions, setOpenPipCaptions] = useAtom(pipCaptionsOpenAtom);
 
   const currentTime = media.$state.currentTime();
@@ -82,6 +86,34 @@ export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
       viewport?.removeEventListener('touchmove', onUserScroll);
     };
   }, []);
+
+  useEffect(() => {
+    if (!keepScreenOn)
+      return;
+
+    let wakeLock: WakeLockSentinel | null = null;
+
+    const requestWakeLock = async () => {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch (e) {
+        logger.error(e, '阻止锁屏失败');
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible')
+        requestWakeLock();
+    };
+
+    requestWakeLock();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      wakeLock?.release();
+    };
+  }, [keepScreenOn]);
 
   if (!allSubtitles || allSubtitles.length === 0)
     return <div className="w-full my-8 text-center text-sm">暂无字幕</div>;

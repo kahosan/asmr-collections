@@ -7,6 +7,7 @@ import { toMerged } from '@asmr-collections/shared';
 
 export interface SettingOptions {
   showWorkDetail: boolean
+  keepScreenOn: boolean
   asmrone: {
     api: string
     priority: boolean
@@ -36,6 +37,7 @@ const DEFAULT_SETTINGS: SettingOptions = {
     recommender: false
   },
   showWorkDetail: true,
+  keepScreenOn: false,
   storage: {
     enabled: false,
     showMissingTags: false,

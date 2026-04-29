@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useImmerAtom, useSetImmerAtom } from 'jotai-immer';
 import { createLazyRoute } from '@tanstack/react-router';
 
+import { toast } from 'sonner';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 import { transcodeTempAtom } from '~/hooks/use-transcode-options';
 
@@ -87,6 +88,20 @@ function Settings() {
         })}
       >
         作品详情页显示详细信息
+      </SettingItem>
+
+      <SettingItem
+        id="keep-screen-on"
+        checked={options.keepScreenOn}
+        onCheckedChange={checked => setOptions(d => {
+          if (!('wakeLock' in navigator)) {
+            toast.error('浏览器不支持 Screen Wake Lock API');
+            return;
+          }
+          d.keepScreenOn = checked;
+        })}
+      >
+        在字幕界面保持屏幕常亮
       </SettingItem>
 
       <SmartPathSettings
