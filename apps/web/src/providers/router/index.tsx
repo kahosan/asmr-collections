@@ -2,116 +2,55 @@ import {
   RouterProvider as TanstackRouter,
   Outlet,
   createRootRoute,
-  createRoute,
-  createRouter,
-  stripSearchParams
+  createRouter
 } from '@tanstack/react-router';
 import type { InferFullSearchSchema } from '@tanstack/react-router';
 
+import { z } from 'zod';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 
-import App from '~/app';
 import RootLayout from '~/layout';
+
+import {
+  indexLayoutRoute,
+  indexRoute,
+  workDetailsRoute,
+  settingsRoute,
+  playbackRoute,
+  playlistsRoute,
+  playlistRoute
+} from './route';
 
 import { NotFound } from '~/components/not-found';
 
-import { preloadWorkDetails } from './preload';
-import { RootSearchSchema, IndexSearchSchema, PlaybackSearchSchema, WorkDetailsSearchSchema, PlaylistSearchSchema } from './schemas';
-
-import { createRandomSeed } from '~/utils';
-
-import { INDEX_DEFAULT_SEARCH_VALUES, ROOT_DEFAULT_SEARCH_VALUES } from '@asmr-collections/shared';
-
 export type RootSearchParams = InferFullSearchSchema<typeof rootRoute>;
 
-const rootRoute = createRootRoute({
+// eslint-disable-next-line react-refresh/only-export-components -- router
+export const rootRoute = createRootRoute({
   component: () => (
     <RootLayout>
       <Outlet />
       <TanStackRouterDevtools position="bottom-right" />
     </RootLayout>
   ),
-  validateSearch: RootSearchSchema,
-  search: {
-    middlewares: [stripSearchParams(ROOT_DEFAULT_SEARCH_VALUES)]
-  }
+  validateSearch: z.object({
+    keyword: z.string().optional(),
+    embedding: z.string().optional()
+  })
 });
 
 export type IndexSearchParams = InferFullSearchSchema<typeof indexRoute>;
 
-const indexRoute = createRoute({
-  validateSearch: IndexSearchSchema,
-  getParentRoute: () => rootRoute,
-  path: '/',
-  search: {
-    middlewares: [
-      stripSearchParams(INDEX_DEFAULT_SEARCH_VALUES),
-      ({ search, next }) => {
-        const result = next(search);
-
-        if (result.sort === 'random' && !result.seed)
-          return { ...result, seed: createRandomSeed() };
-
-        return result;
-      }
-    ]
-  },
-  component: () => <App />
-});
-
-export type WorkDetailsSearchParams = InferFullSearchSchema<typeof workDetailsRoute>;
-
-const workDetailsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/work-details/$id',
-  staleTime: Infinity,
-  loader({ params, cause }) {
-    const id = params.id;
-    preloadWorkDetails(id, cause);
-  },
-  validateSearch: WorkDetailsSearchSchema
-}).lazy(() => import('~/pages/work-details').then(d => d.default));
-
-const SettingsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/settings'
-}).lazy(() => import('~/pages/settings').then(d => d.default));
-
-const PlaybackRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/playback',
-  validateSearch: PlaybackSearchSchema,
-  search: {
-    middlewares: [stripSearchParams(INDEX_DEFAULT_SEARCH_VALUES)]
-  }
-}).lazy(() => import('~/pages/playback').then(d => d.default));
-
-const PlaylistsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/playlists',
-  validateSearch: PlaylistSearchSchema,
-  search: {
-    middlewares: [stripSearchParams(INDEX_DEFAULT_SEARCH_VALUES)]
-  }
-}).lazy(() => import('~/pages/playlists').then(d => d.default));
-
-const PlaylistRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/playlists/$id',
-  validateSearch: PlaylistSearchSchema,
-  search: {
-    middlewares: [stripSearchParams(INDEX_DEFAULT_SEARCH_VALUES)]
-  }
-}).lazy(() => import('~/pages/playlists/playlist').then(d => d.default));
-
 const router = createRouter({
   routeTree: rootRoute.addChildren([
-    indexRoute,
-    workDetailsRoute,
-    SettingsRoute,
-    PlaybackRoute,
-    PlaylistsRoute,
-    PlaylistRoute
+    indexLayoutRoute.addChildren([
+      indexRoute,
+      settingsRoute,
+      playbackRoute,
+      playlistsRoute,
+      playlistRoute
+    ]),
+    workDetailsRoute
   ]),
   defaultNotFoundComponent: NotFound,
   defaultPreload: 'intent',
