@@ -8,17 +8,18 @@ import { PlaylistDialog } from './components/playlist-dialog';
 import useSWR from 'swr';
 import { Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { createLazyRoute, useSearch } from '@tanstack/react-router';
+import { createLazyRoute } from '@tanstack/react-router';
 
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
+import { playlistsRoute } from '~/providers/router/route';
 
 import { withQuery } from '@asmr-collections/shared';
 
 import type { PlaylistsResponse } from '@asmr-collections/shared';
 
 function Playlists() {
-  const search = useSearch({ from: '/playlists' });
+  const search = playlistsRoute.useSearch();
 
   const swrKey = withQuery('/api/playlist', {
     page: search.page,
@@ -79,7 +80,7 @@ function PlaylistsWrapper() {
   );
 }
 
-const Route = createLazyRoute('/playlists')({
+const Route = createLazyRoute('/index-layout/playlists')({
   component: PlaylistsWrapper
 });
 

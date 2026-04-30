@@ -5,16 +5,16 @@ import { WorkSkeletons } from './components/works/skeleton';
 
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
-import { useSearch } from '@tanstack/react-router';
 import { withQuery } from '@asmr-collections/shared';
 
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
+import { indexRoute } from './providers/router/route';
 
 import type { WorksResponse } from '@asmr-collections/shared';
 
 export default function App() {
-  const _search = useSearch({ from: '/' });
+  const _search = indexRoute.useSearch();
 
   // 确保 limit 和 page 在最后面，防止 key 变化
   const { page, limit, ...rest } = _search;

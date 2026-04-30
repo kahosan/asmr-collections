@@ -1,4 +1,4 @@
-import { createLazyRoute, getRouteApi, useMatchRoute } from '@tanstack/react-router';
+import { createLazyRoute, useMatchRoute } from '@tanstack/react-router';
 
 import { motion } from 'framer-motion';
 import { Activity, Suspense, useCallback } from 'react';
@@ -33,12 +33,13 @@ import { settingOptionsAtom } from '~/hooks/use-setting-options';
 import { externalUrl, writeClipboard } from '~/utils';
 
 import { cn } from '~/lib/utils';
+import { workDetailsRoute } from '~/providers/router/route';
 
-const route = getRouteApi('/work-details/$id');
+const { useNavigate, useSearch, useParams } = workDetailsRoute;
 
 function WorkDetails({ id}: { id: string }) {
-  const navigate = route.useNavigate();
-  const searchPath = route.useSearch({ select: ({ path }) => path });
+  const navigate = useNavigate();
+  const searchPath = useSearch({ select: ({ path }) => path });
   const matchRoute = useMatchRoute();
 
   const settings = useAtomValue(settingOptionsAtom);
@@ -266,7 +267,7 @@ function WorkDetails({ id}: { id: string }) {
 }
 
 function WorkDetailsWrapper() {
-  const { id } = route.useParams();
+  const { id } = useParams();
 
   return (
     <ErrorBoundary key={id}>

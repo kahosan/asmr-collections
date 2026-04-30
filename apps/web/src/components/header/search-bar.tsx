@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useGenerateSearch } from '~/hooks/use-generate-search';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '../ui/input-group';
 import { Search, Zap, ZapOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,16 +16,15 @@ export function SearchBar({ search }: SearchBarProps) {
   const [keyword, setKeyword] = useState(() => search.keyword ?? '');
   const [isEmbedding, setIsEmbedding] = useState(() => !!search.embedding);
 
-  const { exclude } = useGenerateSearch();
   const navigate = useNavigate();
 
   const onSearch = () => {
     if (!keyword.trim()) return;
 
     if (isEmbedding)
-      navigate({ to: '/', search: exclude(['page', 'keyword'], { embedding: keyword }) });
+      navigate({ to: '/', search: { embedding: keyword } });
     else
-      navigate({ to: '/', search: exclude(['page', 'embedding'], { keyword }) });
+      navigate({ to: '/', search: { keyword } });
   };
 
   return (

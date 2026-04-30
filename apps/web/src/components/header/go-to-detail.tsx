@@ -1,16 +1,14 @@
 import { useState } from 'react';
-import { getRouteApi } from '@tanstack/react-router';
 
 import { WorkInput } from '../work-input';
 import { ArrowRight } from 'lucide-react';
 
 import { parseWorkInput } from '@asmr-collections/shared';
-
-const route = getRouteApi('/work-details/$id');
+import { workDetailsRoute } from '~/providers/router/route';
 
 export function GoToDetail() {
   const [id, setId] = useState('');
-  const navigate = route.useNavigate();
+  const navigate = workDetailsRoute.useNavigate();
 
   const { validIds, isValid } = parseWorkInput(id);
 

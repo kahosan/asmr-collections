@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { createLazyRoute, useSearch } from '@tanstack/react-router';
+import { createLazyRoute } from '@tanstack/react-router';
 
 import { ItemGroup } from '~/components/ui/item';
 
@@ -14,11 +14,12 @@ import { notifyError } from '~/utils';
 import { withQuery } from '@asmr-collections/shared';
 
 import { fetcher } from '~/lib/fetcher';
+import { playbackRoute } from '~/providers/router/route';
 
 import type { PlaybacksResponse } from '@asmr-collections/shared';
 
 function Playback() {
-  const search = useSearch({ from: '/playback' });
+  const search = playbackRoute.useSearch();
 
   const swrKey = withQuery('/api/playback', {
     page: search.page,
@@ -76,7 +77,7 @@ function PlaybackSuspense() {
   );
 }
 
-const Route = createLazyRoute('/playback')({
+const Route = createLazyRoute('/index-layout/playback')({
   component: PlaybackSuspense
 });
 
