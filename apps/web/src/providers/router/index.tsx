@@ -23,8 +23,6 @@ import {
 
 import { NotFound } from '~/components/not-found';
 
-export type RootSearchParams = InferFullSearchSchema<typeof rootRoute>;
-
 // eslint-disable-next-line react-refresh/only-export-components -- router
 export const rootRoute = createRootRoute({
   component: () => (

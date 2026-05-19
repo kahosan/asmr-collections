@@ -11,16 +11,15 @@ import { MetaButton } from '../meta-button';
 import { useState } from 'react';
 
 import { externalUrl, writeClipboard } from '~/utils';
-import type { RootSearchParams } from '~/providers/router';
 
 interface Props {
-  search: RootSearchParams
   metaType: 'artists' | 'illustrators'
+  metaId: number
   text: string
   isFilter?: boolean
 }
 
-export function BadgeMenu({ search, metaType, text, isFilter }: Props) {
+export function BadgeMenu({ metaType, metaId, text, isFilter }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -32,7 +31,21 @@ export function BadgeMenu({ search, metaType, text, isFilter }: Props) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" onInteractOutside={() => setOpen(false)}>
         <DropdownMenuItem asChild>
-          <Link disabled={isFilter} to="/" search={search} onClick={() => setOpen(false)}>筛选</Link>
+          <Link
+            disabled={isFilter}
+            to="/"
+            search={p => {
+              const { page, keyword, ...rest } = p;
+              return {
+                ...rest,
+                artistId: metaType === 'artists' ? [metaId] : p.artistId,
+                illustratorId: metaType === 'illustrators' ? metaId : p.illustratorId
+              };
+            }}
+            onClick={() => setOpen(false)}
+          >
+            筛选
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
