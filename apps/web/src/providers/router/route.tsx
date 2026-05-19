@@ -15,10 +15,10 @@ import { createRandomSeed } from '~/utils';
 
 import { INDEX_DEFAULT_SEARCH_VALUES, ROOT_DEFAULT_SEARCH_VALUES } from '@asmr-collections/shared';
 
-export const indexLayoutRoute = createRoute({
+export const indexRoute = createRoute({
   validateSearch: IndexSearchSchema.extend(RootSearchSchema.shape),
   getParentRoute: () => rootRoute,
-  id: 'index-layout',
+  path: '/',
   search: {
     middlewares: [
       stripSearchParams({ ...ROOT_DEFAULT_SEARCH_VALUES, ...INDEX_DEFAULT_SEARCH_VALUES }),
@@ -34,13 +34,7 @@ export const indexLayoutRoute = createRoute({
         return result;
       }
     ]
-  }
-});
-
-export const indexRoute = createRoute({
-  getParentRoute: () => indexLayoutRoute,
-  path: '/',
-  validateSearch: IndexSearchSchema,
+  },
   component: () => <App />
 });
 
@@ -58,24 +52,24 @@ export const workDetailsRoute = createRoute({
 }).lazy(() => import('~/pages/work-details').then(d => d.default));
 
 export const settingsRoute = createRoute({
-  getParentRoute: () => indexLayoutRoute,
+  getParentRoute: () => indexRoute,
   path: '/settings'
 }).lazy(() => import('~/pages/settings').then(d => d.default));
 
 export const playbackRoute = createRoute({
-  getParentRoute: () => indexLayoutRoute,
+  getParentRoute: () => indexRoute,
   path: '/playback',
   validateSearch: PlaybackSearchSchema
 }).lazy(() => import('~/pages/playback').then(d => d.default));
 
 export const playlistsRoute = createRoute({
-  getParentRoute: () => indexLayoutRoute,
+  getParentRoute: () => indexRoute,
   path: '/playlists',
   validateSearch: PlaylistSearchSchema
 }).lazy(() => import('~/pages/playlists').then(d => d.default));
 
 export const playlistRoute = createRoute({
-  getParentRoute: () => indexLayoutRoute,
+  getParentRoute: () => indexRoute,
   path: '/playlists/$id',
   validateSearch: PlaylistSearchSchema
 }).lazy(() => import('~/pages/playlists/playlist').then(d => d.default));

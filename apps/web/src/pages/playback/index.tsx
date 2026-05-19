@@ -77,7 +77,7 @@ function PlaybackSuspense() {
   );
 }
 
-const Route = createLazyRoute('/index-layout/playback')({
+const Route = createLazyRoute('/playback')({
   component: PlaybackSuspense
 });
 

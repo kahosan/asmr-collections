@@ -37,7 +37,7 @@ import { workDetailsRoute } from '~/providers/router/route';
 
 const { useNavigate, useSearch, useParams } = workDetailsRoute;
 
-function WorkDetails({ id}: { id: string }) {
+function WorkDetails({ id }: { id: string }) {
   const navigate = useNavigate();
   const searchPath = useSearch({ select: ({ path }) => path });
   const matchRoute = useMatchRoute();
