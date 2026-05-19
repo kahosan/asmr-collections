@@ -47,6 +47,8 @@ export function PlaybackItem({ playback, mutate }: Props) {
       if (playback.work.subtitles) {
         subtitles = await fetchSubtitles();
         subtitleMatcher = new SubtitleMatcher([subtitles]);
+      } else {
+        subtitles = playback.tracks.flatMap(track => track.subtitles ?? []);
       }
     } catch (e) {
       logger.error(e, '获取字幕失败');
