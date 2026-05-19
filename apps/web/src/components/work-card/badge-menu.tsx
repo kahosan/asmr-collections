@@ -22,6 +22,11 @@ interface Props {
 export function BadgeMenu({ metaType, metaId, text, isFilter }: Props) {
   const [open, setOpen] = useState(false);
 
+  const search = {
+    artists: { artistId: [metaId] },
+    illustrators: { illustratorId: metaId }
+  }[metaType];
+
   return (
     <DropdownMenu open={open} key={String(open) /** 筛选只是添加了 url search，虽然有设置 open false，但是没用 */}>
       <DropdownMenuTrigger asChild>
@@ -30,18 +35,10 @@ export function BadgeMenu({ metaType, metaId, text, isFilter }: Props) {
         </MetaButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" onInteractOutside={() => setOpen(false)}>
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild disabled={isFilter}>
           <Link
-            disabled={isFilter}
             to="/"
-            search={p => {
-              const { page, keyword, ...rest } = p;
-              return {
-                ...rest,
-                artistId: metaType === 'artists' ? [metaId] : p.artistId,
-                illustratorId: metaType === 'illustrators' ? metaId : p.illustratorId
-              };
-            }}
+            search={search}
             onClick={() => setOpen(false)}
           >
             筛选
