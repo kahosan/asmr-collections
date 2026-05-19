@@ -14,10 +14,10 @@ type FullSearchParams = UnionToIntersection<
   RouterById[RouteIds]['types']['fullSearchSchema']
 >;
 
-export function useGenerateSearch<TFrom extends RouteIds = '/'>(from?: TFrom) {
-  const search = useSearch<RegisteredRouter, TFrom>({ from: from ?? '/' });
+export function useGenerateSearch<TFrom extends RouteIds = '/app'>(from?: TFrom) {
+  const search = useSearch<RegisteredRouter, TFrom>({ from: from ?? '/app' });
 
-  type SearchParams = TFrom extends '/'
+  type SearchParams = TFrom extends '__root__'
     ? FullSearchParams
     : RouterById[TFrom]['types']['fullSearchSchema'];
 

@@ -80,7 +80,7 @@ function PlaylistsWrapper() {
   );
 }
 
-const Route = createLazyRoute('/playlists')({
+const Route = createLazyRoute('/app/playlists')({
   component: PlaylistsWrapper
 });
 

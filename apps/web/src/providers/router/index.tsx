@@ -12,6 +12,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import RootLayout from '~/layout';
 
 import {
+  appRoute,
   indexRoute,
   workDetailsRoute,
   settingsRoute,
@@ -42,7 +43,8 @@ export type IndexSearchParams = InferFullSearchSchema<typeof indexRoute>;
 
 const router = createRouter({
   routeTree: rootRoute.addChildren([
-    indexRoute.addChildren([
+    appRoute.addChildren([
+      indexRoute,
       settingsRoute,
       playbackRoute,
       playlistsRoute,
