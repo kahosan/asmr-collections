@@ -26,11 +26,6 @@
     "simple-git-hooks": "^2.13.0",
     "typescript": "~5.9.3"
   },
-  "pnpm": {
-    "patchedDependencies": {
-      "lightgallery@2.9.0": "patches/lightgallery@2.9.0.patch"
-    }
-  },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged && pnpm typecheck"
   },

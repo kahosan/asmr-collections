@@ -8,3 +8,6 @@ catalog:
   date-fns: ^4.1.0
   ts-pattern: ^5.9.0
   zod: ^4.1.12
+
+patchedDependencies:
+  lightgallery@2.9.0: patches/lightgallery@2.9.0.patch
