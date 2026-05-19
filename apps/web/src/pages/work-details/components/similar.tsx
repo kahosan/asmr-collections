@@ -54,10 +54,10 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
               >
                 <Card className="bg-zinc-100 dark:bg-zinc-900 overflow-hidden grid grid-rows-[auto_auto_1fr] h-full py-0 gap-2">
                   <div className="pb-[65%] relative">
-                    <Link to="/work-details/$id" params={{ id: work.id }} title={work.name}>
+                    <Link to="/work-details/$id" params={{ id: similarWork.id }} title={similarWork.name}>
                       <Image
-                        src={work.cover}
-                        alt={work.name}
+                        src={similarWork.cover}
+                        alt={similarWork.name}
                         classNames={{
                           wrapper: 'absolute inset-0'
                         }}
@@ -69,9 +69,9 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                         'text-gray-300 max-w-[70%] truncate'
                       )}
                     >
-                      {formatISODate(work.releaseDate)}
+                      {formatISODate(similarWork.releaseDate)}
                     </div>
-                    {work.seriesId
+                    {similarWork.seriesId
                       ? (
                         <Link
                           className={cn(
@@ -79,36 +79,36 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                             'text-gray-300 max-w-[60%] truncate'
                           )}
                           to="/"
-                          search={{ seriesId: work.seriesId }}
+                          search={{ seriesId: similarWork.seriesId }}
                           underline="hover"
                         >
-                          {work.series?.name}
+                          {similarWork.series?.name}
                         </Link>
                       )
                       : null}
                   </div>
                   <div className="px-2 flex flex-col gap-2">
                     <CardTitle className="line-clamp-2 leading-6 mb-2 min-h-12">
-                      <Link to="/work-details/$id" params={{ id: work.id }} title={work.name}>
-                        {work.name}
+                      <Link to="/work-details/$id" params={{ id: similarWork.id }} title={similarWork.name}>
+                        {similarWork.name}
                       </Link>
                     </CardTitle>
                     <Link
                       className="text-muted-foreground max-w-max"
                       to="/"
-                      search={{ circleId: work.circleId }}
+                      search={{ circleId: similarWork.circleId }}
                       underline="hover"
                     >
-                      {work.circle.name}
+                      {similarWork.circle.name}
                     </Link>
                     <Separator className="dark:bg-zinc-700" />
                   </div>
                   <div className="space-y-2 flex flex-col px-2 pb-6">
                     <div className="flex-1 max-h-15">
-                      <div className="line-clamp-3 text-sm opacity-80">{work.intro}</div>
+                      <div className="line-clamp-3 text-sm opacity-80">{similarWork.intro}</div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {work.artists.map(artist => (
+                      {similarWork.artists.map(artist => (
                         <MetaButton
                           key={artist.id}
                           onPointerDown={e => e.preventDefault()}
@@ -119,7 +119,7 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                           <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
                         </MetaButton>
                       ))}
-                      {work.illustrators.map(illustrator => (
+                      {similarWork.illustrators.map(illustrator => (
                         <MetaButton
                           key={illustrator.id}
                           onPointerDown={e => e.preventDefault()}
@@ -133,7 +133,7 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                     </div>
                   </div>
                   <div className="flex p-6 pt-0 px-2 pb-2 gap-2 items-end w-full">
-                    <GenresPopover genres={work.genres} searchGenres={[]} />
+                    <GenresPopover genres={similarWork.genres} searchGenres={[]} />
                   </div>
                 </Card>
               </CarouselItem>
