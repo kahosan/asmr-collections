@@ -35,7 +35,7 @@ interface Props {
 export function WorkCard({ work, showMenus = true, showImageBadge = true }: Props) {
   const options = useAtomValue(storageOptionsAtom);
 
-  const { search, exclude, include } = useGenerateSearch();
+  const { search, include } = useGenerateSearch();
 
   const existsApi = options.showMissingTags && showImageBadge
     ? `/api/library/exists/${work.id}`
@@ -143,7 +143,7 @@ export function WorkCard({ work, showMenus = true, showImageBadge = true }: Prop
               key={artist.id}
               text={artist.name}
               metaType="artists"
-              search={exclude(['page', 'keyword'], { artistId: [artist.id] })}
+              metaId={artist.id}
               isFilter={search.artistId?.includes(artist.id)}
             />
           ))}
@@ -152,7 +152,7 @@ export function WorkCard({ work, showMenus = true, showImageBadge = true }: Prop
               key={illustrator.id}
               text={illustrator.name}
               metaType="illustrators"
-              search={exclude(['page', 'keyword'], { illustratorId: illustrator.id })}
+              metaId={illustrator.id}
               isFilter={search.illustratorId === illustrator.id}
             />
           ))}

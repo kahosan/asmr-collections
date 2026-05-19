@@ -1,7 +1,5 @@
 import { Suspense, useState } from 'react';
 
-import { getRouteApi } from '@tanstack/react-router';
-
 import { Button } from '~/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
 
@@ -12,7 +10,9 @@ import { GoToDetail } from '../go-to-detail';
 import { HiddenImage } from '../hidden-image';
 import { ThemeToggle } from '../theme-toggle';
 
-const { useParams, useNavigate } = getRouteApi('/work-details/$id');
+import { workDetailsRoute } from '~/providers/router/route';
+
+const { useParams, useNavigate } = workDetailsRoute;
 
 export function WorkDetailsMenu() {
   const { id } = useParams();

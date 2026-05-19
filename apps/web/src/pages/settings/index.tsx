@@ -173,7 +173,7 @@ function Settings() {
   );
 }
 
-const Route = createLazyRoute('/settings')({
+const Route = createLazyRoute('/app/settings')({
   component: Settings
 });
 

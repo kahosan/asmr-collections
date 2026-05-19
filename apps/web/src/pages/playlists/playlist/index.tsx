@@ -11,15 +11,16 @@ import { PlaylistDelete } from '../components/playlist-delete';
 import useSWR from 'swr';
 import { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { createLazyRoute, getRouteApi } from '@tanstack/react-router';
+import { createLazyRoute } from '@tanstack/react-router';
 
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
 import { withQuery } from '@asmr-collections/shared';
+import { playlistRoute } from '~/providers/router/route';
 
 import type { PlaylistResponse } from '@asmr-collections/shared';
 
-const { useSearch, useParams } = getRouteApi('/playlists/$id');
+const { useSearch, useParams } = playlistRoute;
 
 function Playlist() {
   const { id } = useParams();
@@ -83,7 +84,7 @@ function PlaylistWrapper() {
   );
 }
 
-const Route = createLazyRoute('/playlists/$id')({
+const Route = createLazyRoute('/app/playlists/$id')({
   component: PlaylistWrapper
 });
 

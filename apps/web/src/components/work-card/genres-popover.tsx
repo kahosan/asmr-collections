@@ -19,9 +19,6 @@ interface Props {
 export function GenresPopover({ genres, searchGenres }: Props) {
   const [selectedGenres, setSelectedGenres] = useState(searchGenres ?? []);
 
-  // 路由更新后，弹出框不受影响啊，只改了 search
-  const [forceClose, setForceClose] = useState<number>();
-
   const handleSelect = (id: number) => {
     setSelectedGenres(p => {
       const currentList = p;
@@ -54,7 +51,7 @@ export function GenresPopover({ genres, searchGenres }: Props) {
   };
 
   return (
-    <Popover key={forceClose}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="lg" className="flex-1">查看标签</Button>
       </PopoverTrigger>
@@ -93,8 +90,7 @@ export function GenresPopover({ genres, searchGenres }: Props) {
         <Button variant="outline" className="w-full" asChild>
           <Link
             to="/"
-            search={prev => ({ ...prev, genres: selectedGenres, page: undefined, keyword: undefined })}
-            onClick={() => setForceClose(Math.random())}
+            search={{ genres: selectedGenres }}
           >
             筛选
           </Link>

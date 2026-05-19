@@ -1,4 +1,9 @@
-import { WorkCard } from '~/components/work-card';
+import { Link } from '~/components/link';
+import { Image } from '~/components/image';
+import { Separator } from '~/components/ui/separator';
+import { MetaButton } from '~/components/meta-button';
+import { Card, CardTitle } from '~/components/ui/card';
+import { GenresPopover } from '~/components/work-card/genres-popover';
 import { Carousel, CarouselContent, CarouselItem } from '~/components/ui/carousel';
 
 import { memo, useRef } from 'react';
@@ -7,6 +12,7 @@ import { useSimilar } from '~/hooks/use-similar';
 import Autoplay from 'embla-carousel-autoplay';
 
 import { cn } from '~/lib/utils';
+import { formatISODate } from '@asmr-collections/shared';
 
 import type { Work } from '@asmr-collections/shared';
 
@@ -46,7 +52,90 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                 )}
                 key={similarWork.id}
               >
-                <WorkCard work={similarWork} showMenus={false} showImageBadge={false} />
+                <Card className="bg-zinc-100 dark:bg-zinc-900 overflow-hidden grid grid-rows-[auto_auto_1fr] h-full py-0 gap-2">
+                  <div className="pb-[65%] relative">
+                    <Link to="/work-details/$id" params={{ id: work.id }} title={work.name}>
+                      <Image
+                        src={work.cover}
+                        alt={work.name}
+                        classNames={{
+                          wrapper: 'absolute inset-0'
+                        }}
+                      />
+                    </Link>
+                    <div
+                      className={cn(
+                        'block p-2 py-1 absolute bottom-0 right-0 bg-zinc-800/80 rounded-none rounded-tl-md text-sm',
+                        'text-gray-300 max-w-[70%] truncate'
+                      )}
+                    >
+                      {formatISODate(work.releaseDate)}
+                    </div>
+                    {work.seriesId
+                      ? (
+                        <Link
+                          className={cn(
+                            'block p-2 py-1 absolute bottom-0 left-0 bg-zinc-800/80 rounded-none rounded-tr-md text-sm',
+                            'text-gray-300 max-w-[60%] truncate'
+                          )}
+                          to="/"
+                          search={{ seriesId: work.seriesId }}
+                          underline="hover"
+                        >
+                          {work.series?.name}
+                        </Link>
+                      )
+                      : null}
+                  </div>
+                  <div className="px-2 flex flex-col gap-2">
+                    <CardTitle className="line-clamp-2 leading-6 mb-2 min-h-12">
+                      <Link to="/work-details/$id" params={{ id: work.id }} title={work.name}>
+                        {work.name}
+                      </Link>
+                    </CardTitle>
+                    <Link
+                      className="text-muted-foreground max-w-max"
+                      to="/"
+                      search={{ circleId: work.circleId }}
+                      underline="hover"
+                    >
+                      {work.circle.name}
+                    </Link>
+                    <Separator className="dark:bg-zinc-700" />
+                  </div>
+                  <div className="space-y-2 flex flex-col px-2 pb-6">
+                    <div className="flex-1 max-h-15">
+                      <div className="line-clamp-3 text-sm opacity-80">{work.intro}</div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {work.artists.map(artist => (
+                        <MetaButton
+                          key={artist.id}
+                          onPointerDown={e => e.preventDefault()}
+                          metaType="artists"
+                          size="sm"
+                          asChild
+                        >
+                          <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
+                        </MetaButton>
+                      ))}
+                      {work.illustrators.map(illustrator => (
+                        <MetaButton
+                          key={illustrator.id}
+                          onPointerDown={e => e.preventDefault()}
+                          metaType="illustrators"
+                          size="sm"
+                          asChild
+                        >
+                          <Link to="/" search={{ illustratorId: illustrator.id }}>{illustrator.name}</Link>
+                        </MetaButton>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex p-6 pt-0 px-2 pb-2 gap-2 items-end w-full">
+                    <GenresPopover genres={work.genres} searchGenres={[]} />
+                  </div>
+                </Card>
               </CarouselItem>
             ))
           }

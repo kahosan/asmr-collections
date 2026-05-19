@@ -11,17 +11,21 @@ import { MetaButton } from '../meta-button';
 import { useState } from 'react';
 
 import { externalUrl, writeClipboard } from '~/utils';
-import type { RootSearchParams } from '~/providers/router';
 
 interface Props {
-  search: RootSearchParams
   metaType: 'artists' | 'illustrators'
+  metaId: number
   text: string
   isFilter?: boolean
 }
 
-export function BadgeMenu({ search, metaType, text, isFilter }: Props) {
+export function BadgeMenu({ metaType, metaId, text, isFilter }: Props) {
   const [open, setOpen] = useState(false);
+
+  const search = {
+    artists: { artistId: [metaId] },
+    illustrators: { illustratorId: metaId }
+  }[metaType];
 
   return (
     <DropdownMenu open={open} key={String(open) /** 筛选只是添加了 url search，虽然有设置 open false，但是没用 */}>
@@ -31,8 +35,14 @@ export function BadgeMenu({ search, metaType, text, isFilter }: Props) {
         </MetaButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" onInteractOutside={() => setOpen(false)}>
-        <DropdownMenuItem asChild>
-          <Link disabled={isFilter} to="/" search={search} onClick={() => setOpen(false)}>筛选</Link>
+        <DropdownMenuItem asChild disabled={isFilter}>
+          <Link
+            to="/"
+            search={search}
+            onClick={() => setOpen(false)}
+          >
+            筛选
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"

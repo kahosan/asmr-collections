@@ -14,8 +14,8 @@ type FullSearchParams = UnionToIntersection<
   RouterById[RouteIds]['types']['fullSearchSchema']
 >;
 
-export function useGenerateSearch<TFrom extends RouteIds = '__root__'>(from?: TFrom) {
-  const search = useSearch<RegisteredRouter, TFrom>({ from: from ?? '__root__' });
+export function useGenerateSearch<TFrom extends RouteIds = '/app'>(from?: TFrom) {
+  const search = useSearch<RegisteredRouter, TFrom>({ from: from ?? '/app' });
 
   type SearchParams = TFrom extends '__root__'
     ? FullSearchParams
@@ -54,7 +54,8 @@ export function useGenerateSearch<TFrom extends RouteIds = '__root__'>(from?: TF
 
       // 从当前搜索参数中提取指定的参数
       for (const key of params) {
-        const searchKey = key as keyof typeof search;
+        const searchKey = key;
+        // @ts-expect-error - is safe because we are checking the key existence in the search object
         if (search[searchKey] === undefined) continue;
         result[key as string] = search[searchKey];
       }
