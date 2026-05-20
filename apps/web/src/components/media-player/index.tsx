@@ -100,7 +100,7 @@ function MediaPlayerInstance() {
     // 作品未收藏时不更新播放进度
     if (
       !mediaState.work
-      || !mediaState.work.exists
+      || !mediaState.work.favorited
       || !currentTrack
     ) return;
 

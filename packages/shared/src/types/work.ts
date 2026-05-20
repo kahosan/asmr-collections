@@ -64,5 +64,5 @@ export interface ServerWork {
 
 export type Work = Jsonify<ServerWork> & {
   // 以下都为非数据库字段
-  exists?: boolean // 是否已收藏
+  favorited?: boolean // 是否已收藏
 };

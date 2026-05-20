@@ -7,7 +7,7 @@ export interface MediaState {
   tracks?: Tracks
   currentTrack?: Track
   allSubtitles?: SubtitleInfo[]
-  work?: Pick<Work, 'id' | 'name' | 'cover' | 'artists' | 'exists'>
+  work?: Pick<Work, 'id' | 'name' | 'cover' | 'artists' | 'favorited'>
 }
 
 export const mediaStateAtom = atom<MediaState>({

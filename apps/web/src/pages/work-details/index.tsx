@@ -83,7 +83,7 @@ function WorkDetails({ id }: { id: string }) {
             >
               {data.id}
               {data.subtitles ? <span>带字幕</span> : null}
-              {data.exists === false ? <span>未收藏</span> : null}
+              {data.favorited === false ? <span>未收藏</span> : null}
             </Badge>
             <Badge
               className={cn(
@@ -261,7 +261,7 @@ function WorkDetails({ id }: { id: string }) {
         <WorkPreview workId={data.id} originalId={data.originalId} className="block" />
       )}
 
-      <SimilarWorks work={data} exists={data.exists} />
+      <SimilarWorks work={data} exists={data.favorited} />
     </motion.div>
   );
 }

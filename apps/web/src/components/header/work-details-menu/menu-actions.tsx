@@ -63,7 +63,7 @@ export function MenuActions({ id}: { id: string }) {
   return (
     <DropdownMenuGroup>
       {
-        match(data?.exists)
+        match(data?.favorited)
           .with(true, () => (
             <>
               <UpdateMenu id={id} />

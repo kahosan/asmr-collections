@@ -12,13 +12,13 @@ import type { BareFetcher, SWRConfiguration } from 'swr';
 export async function workInfoFetcher(id: string, cause: 'preload' | 'enter' | 'stay'): Promise<Work | null> {
   try {
     const data = await fetcher<Work>(`/api/work/${id}`);
-    return { ...data, exists: true };
+    return { ...data, favorited: true };
   } catch (e) {
     if (e instanceof HTTPError && e.status === 404) {
       try {
         logger.warn(`${id} 不存在于数据库中，尝试使用 DLsite 预加载作品信息`);
         const data = await fetcher<Work>(`/api/work/info/${id}`);
-        return { ...data, exists: false };
+        return { ...data, favorited: false };
       } catch (e) {
         if (cause === 'enter') notifyError(e, '获取作品信息失败');
         logger.error(e, '预加载作品信息失败');

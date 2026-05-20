@@ -104,7 +104,7 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
       };
     });
 
-    if (work.exists) {
+    if (work.favorited) {
       // 仅第一次播放时增加播放次数
       const incrementCount = mediaState.work?.id !== work.id;
       updatePlayback({
