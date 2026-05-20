@@ -20,6 +20,11 @@ export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promis
 
     if (!res.ok) {
       match(data)
+        .with({ message: P.string, data: P.array() }, ({ message, data }) => { // zod error
+          throw new HTTPError(message, res.status, {
+            detail: data.map((item: unknown) => (typeof item === 'string' ? item : JSON.stringify(item))).join(', ')
+          });
+        })
         .with({ message: P.string }, ({ message }) => {
           throw new HTTPError(message, res.status, data?.data);
         })
