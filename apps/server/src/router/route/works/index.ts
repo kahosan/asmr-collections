@@ -15,7 +15,7 @@ import { ttl } from '~/lib/cachified';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 
-import { categorizeWorks, findManyByArtistCount, findManyByEmbedding, getIdsByArtistCount, sortIdsBySeed, whereBuilder } from './utils';
+import { categorizeWorks, findManyByEmbedding, sortIdsBySeed, whereBuilder } from './utils';
 
 export const worksApp = new Hono();
 
@@ -97,6 +97,22 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
 
     const prisma = getPrisma();
 
+    if (artistCount) {
+      const targetIds = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT w.id FROM "Work" w
+        JOIN "_ArtistToWork" aw ON aw."B" = w.id
+        GROUP BY w.id
+        HAVING COUNT(aw."A") = ${artistCount}
+      `;
+
+      queryArgs.where = {
+        AND: [
+          queryArgs.where || {},
+          { id: { in: targetIds.map(item => item.id) } }
+        ]
+      };
+    }
+
     if (sort === 'random') {
       const randomSeed = seed ?? 'random';
       const randomCacheKey = createRandomSortCacheKey({
@@ -107,18 +123,6 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
       let shuffledIds = randomSortCache.get(randomCacheKey);
 
       if (!shuffledIds) {
-        // fix artistCount
-        if (artistCount) {
-          const targetIds = await getIdsByArtistCount(artistCount);
-
-          queryArgs.where = {
-            AND: [
-              queryArgs.where || {},
-              { id: { in: targetIds.map(item => item.id) } }
-            ]
-          };
-        }
-
         const allIds = await prisma.work.findMany({
           where: queryArgs.where,
           select: { id: true }
@@ -152,9 +156,6 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
         data: sorted
       });
     }
-
-    if (artistCount)
-      return c.json(await findManyByArtistCount(queryArgs, artistCount, page, limit));
 
     const [works, total] = await prisma.$transaction([
       prisma.work.findMany({

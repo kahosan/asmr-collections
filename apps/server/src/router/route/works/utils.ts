@@ -155,47 +155,6 @@ export async function findManyByEmbedding(text: string, include: WorkInclude) {
   };
 };
 
-export function getIdsByArtistCount(count: number) {
-  const prisma = getPrisma();
-
-  return prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT w.id FROM "Work" w
-    JOIN "_ArtistToWork" aw ON aw."B" = w.id
-    GROUP BY w.id
-    HAVING COUNT(aw."A") = ${count}
-  `;
-}
-
-export async function findManyByArtistCount(queryArgs: FindManyWorksQuery, count: number, page: number, limit: number) {
-  const prisma = getPrisma();
-
-  const targetIds = await getIdsByArtistCount(count);
-
-  const where = {
-    AND: [
-      queryArgs?.where || {},
-      { id: { in: targetIds.map(item => item.id) } }
-    ]
-  };
-
-  const [works, total] = await prisma.$transaction([
-    prisma.work.findMany({
-      ...queryArgs,
-      where,
-      skip: (page - 1) * limit,
-      take: limit
-    }),
-    prisma.work.count({ where })
-  ]);
-
-  return {
-    page,
-    limit,
-    total,
-    data: works
-  };
-}
-
 export async function categorizeWorks() {
   const prisma = getPrisma();
 
