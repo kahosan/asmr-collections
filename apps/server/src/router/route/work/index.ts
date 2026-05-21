@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { formatError, formatMessage } from '~/router/utils';
 
 import { infoApp } from './info';
@@ -22,8 +22,6 @@ export const workApp = new Hono()
 
 workApp.get('/:id', async c => {
   const { id } = c.req.param();
-
-  const prisma = getPrisma();
 
   try {
     const work = await prisma.work.findUnique({
@@ -52,8 +50,6 @@ workApp.get('/:id', async c => {
     const { id } = c.req.param();
 
     try {
-      const prisma = getPrisma();
-
       const playlists = await prisma.playlist.findMany({
         where: {
           works: {

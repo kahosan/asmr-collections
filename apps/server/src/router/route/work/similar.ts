@@ -5,7 +5,7 @@ import { HTTPError } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { createCachified, ttl } from '~/lib/cachified';
 import { fetchSimilarWorks } from '~/provider/asmrone';
@@ -63,8 +63,6 @@ export function clearSimilarCache(id: string) {
 }
 
 async function getSimilar(id: string) {
-  const prisma = getPrisma();
-
   const similarIds = await prisma.$queryRaw<Array<{ id: string }>>`
     WITH target AS (
       SELECT embedding FROM "Work" WHERE id = ${id}

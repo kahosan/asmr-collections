@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { PlaylistSearchQuerySchema, PlaylistUpsertSchema } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { formatError, formatMessage } from '~/router/utils';
 
@@ -10,7 +10,6 @@ export const playlistApp = new Hono()
     const { page, limit } = c.req.valid('query');
 
     try {
-      const prisma = getPrisma();
       const [total, data] = await prisma.$transaction([
         prisma.playlist.count(),
         prisma.playlist.findMany({
@@ -53,7 +52,6 @@ export const playlistApp = new Hono()
     const id = c.req.param('id');
 
     try {
-      const prisma = getPrisma();
       const playlist = await prisma.playlist.findUnique({
         where: { id },
         include: {
@@ -103,7 +101,6 @@ export const playlistApp = new Hono()
     const { name, cover, description, works } = c.req.valid('json');
 
     try {
-      const prisma = getPrisma();
       const playlist = await prisma.playlist.create({
         data: { name, cover, description }
       });
@@ -129,7 +126,6 @@ export const playlistApp = new Hono()
     const { name, cover, description, works } = c.req.valid('json');
 
     try {
-      const prisma = getPrisma();
       const playlist = await prisma.playlist.update({
         where: { id },
         data: { name, cover, description }
@@ -155,7 +151,6 @@ export const playlistApp = new Hono()
     const { id, workId } = c.req.param();
 
     try {
-      const prisma = getPrisma();
       const playlistWork = await prisma.playlistWork.create({
         include: {
           playlist: {
@@ -194,7 +189,6 @@ export const playlistApp = new Hono()
     const id = c.req.param('id');
 
     try {
-      const prisma = getPrisma();
       await prisma.playlist.delete({ where: { id } });
 
       return c.json(formatMessage('已删除播放列表'));
@@ -207,7 +201,6 @@ export const playlistApp = new Hono()
     const { id, workId } = c.req.param();
 
     try {
-      const prisma = getPrisma();
       await prisma.playlistWork.delete({
         where: {
           playlistId_workId: {

@@ -3,7 +3,7 @@ import type { WorkInfo } from '~/types/source';
 import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { generateEmbedding } from '~/ai/jina';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
@@ -54,8 +54,6 @@ createApp.post('/create/:id', async c => {
     console.error('保存 cover 图片失败', e);
   }
 
-  const prisma = getPrisma();
-
   try {
     const work = await createWork(data, id);
 
@@ -75,8 +73,6 @@ createApp.post('/create/:id', async c => {
 });
 
 export function createWork(data: WorkInfo, id: string) {
-  const prisma = getPrisma();
-
   return prisma.work.create({
     data: {
       id,

@@ -3,7 +3,7 @@ import type { Prisma } from '~/lib/prisma/client';
 import { Hono } from 'hono';
 import { PlaybackSearchQuerySchema, PlaybackUpsertSchema } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { formatError, formatMessage } from '~/router/utils';
 
@@ -25,8 +25,6 @@ export const playbackApp = new Hono()
     const { page, limit } = c.req.valid('query');
 
     try {
-      const prisma = getPrisma();
-
       const [total, data] = await Promise.all([
         prisma.playback.count(),
         prisma.playback.findMany({
@@ -54,8 +52,6 @@ export const playbackApp = new Hono()
     const id = c.req.param('id');
 
     try {
-      const prisma = getPrisma();
-
       const playback = await prisma.playback.findUnique({
         where: { workId: id },
         include: PLAYBACK_INCLUDE
@@ -79,8 +75,6 @@ export const playbackApp = new Hono()
     const tracks = _ts as unknown as Prisma.InputJsonValue[];
 
     try {
-      const prisma = getPrisma();
-
       await prisma.playback.upsert({
         where: { workId: id },
         create: {
@@ -113,8 +107,6 @@ export const playbackApp = new Hono()
     const id = c.req.param('id');
 
     try {
-      const prisma = getPrisma();
-
       await prisma.playback.delete({
         where: { workId: id }
       });

@@ -28,11 +28,7 @@ import { PrismaClient } from './prisma/client';
 
 const adapterPg = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
-const prisma = new PrismaClient({ adapter: adapterPg });
-
-export function getPrisma() {
-  return prisma;
-}
+export const prisma = new PrismaClient({ adapter: adapterPg });
 EOF
 
 RUN bun build /app/apps/server/src/index.ts --outdir build --target bun

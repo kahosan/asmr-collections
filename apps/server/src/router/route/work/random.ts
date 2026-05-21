@@ -1,13 +1,11 @@
 import { Hono } from 'hono';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { formatError, formatMessage } from '~/router/utils';
 
 export const randomApp = new Hono()
   .get('/random', async c => {
     try {
-      const prisma = getPrisma();
-
       const work = await prisma.$queryRaw<Array<{ id: string }>>`SELECT id FROM "Work" ORDER BY RANDOM() LIMIT 1;`;
 
       if (work.length === 0)

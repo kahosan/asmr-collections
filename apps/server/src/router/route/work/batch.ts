@@ -12,8 +12,8 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { newQueue } from '@henrygd/queue/rl';
 
+import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
-import { getPrisma } from '~/lib/db';
 import { generateEmbedding } from '~/ai/jina';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
@@ -69,7 +69,6 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
     }
 
     isBatchRunning = true;
-    const prisma = getPrisma();
 
     const result: BatchResult = { success: [], failed: [] };
 
@@ -234,7 +233,6 @@ batchApp.get('/batch/update', c => {
     }
 
     isBatchRunning = true;
-    const prisma = getPrisma();
 
     const result: BatchResult = { success: [], failed: [] };
 
@@ -421,8 +419,6 @@ async function fetchValidData(
 }
 
 async function ensureRelations(validData: Array<{ data: WorkInfo }>) {
-  const prisma = getPrisma();
-
   // 步骤 2: 提取所有需要的关联数据
   const circles = new Map<string, string>();
   const series = new Map<string, string>();

@@ -2,7 +2,7 @@ import type { WorkInfo } from '~/types/source';
 
 import { Hono } from 'hono';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { generateEmbedding } from '~/ai/jina';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
@@ -71,7 +71,6 @@ updateApp.put('/update/embedding/:id', async c => {
   }
 
   if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
-  const prisma = getPrisma();
 
   try {
     const embedding = await generateEmbedding(data);
@@ -100,8 +99,6 @@ export async function updateWork(data: WorkInfo, id: string) {
     childWorknos: data.translation_info.child_worknos,
     lang: data.translation_info.lang
   };
-
-  const prisma = getPrisma();
 
   await prisma.work.update({
     where: { id },

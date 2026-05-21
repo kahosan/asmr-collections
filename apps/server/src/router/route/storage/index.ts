@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { StorageConfigBodySchema, StorageParamSchema } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { storage as storageManager } from '~/storage';
 import { formatError, formatMessage } from '~/router/utils';
@@ -9,7 +9,6 @@ import { formatError, formatMessage } from '~/router/utils';
 export const storageApp = new Hono()
   .get('/', async c => {
     try {
-      const prisma = getPrisma();
       const storages = await prisma.storage.findMany({ orderBy: { priority: 'desc' } });
       return c.json(storages);
     } catch (e) {
@@ -21,7 +20,6 @@ export const storageApp = new Hono()
     const { id } = c.req.valid('param');
 
     try {
-      const prisma = getPrisma();
       const storage = await prisma.storage.findUnique({
         where: { id }
       });
@@ -41,8 +39,6 @@ export const storageApp = new Hono()
     try {
       const ok = await storageManager.test(body.type, body.config);
       if (!ok) return c.json(formatMessage('存储配置验证失败，请检查配置项是否正确'), 400);
-
-      const prisma = getPrisma();
 
       const storage = await prisma.storage.create({
         data: body
@@ -65,7 +61,6 @@ export const storageApp = new Hono()
       const ok = await storageManager.test(data.type, data.config);
       if (!ok) return c.json(formatMessage('存储配置验证失败，请检查配置项是否正确'), 400);
 
-      const prisma = getPrisma();
       const storage = await prisma.storage.findUnique({
         where: { id }
       });
@@ -90,7 +85,6 @@ export const storageApp = new Hono()
     const { id } = c.req.valid('param');
 
     try {
-      const prisma = getPrisma();
       const storage = await prisma.storage.findUnique({
         where: { id }
       });

@@ -10,6 +10,7 @@ import { compress } from 'hono/compress';
 import { formatISO } from '@asmr-collections/shared';
 
 import { api } from './router';
+import { prisma } from './lib/db';
 import { mediaApp } from './router/media';
 import { proxyApp } from './router/proxy';
 import { COVERS_PATH, TRANSCODE_CACHE_PATH } from './lib/constant';
@@ -93,7 +94,6 @@ async function shutdown() {
 
   try {
     console.info('Disconnecting from database...');
-    const prisma = (await import('./lib/db')).getPrisma();
     await prisma.$disconnect();
   } catch (error) {
     console.error('\nError during shutdown:', error);

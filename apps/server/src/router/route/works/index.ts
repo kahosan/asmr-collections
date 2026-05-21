@@ -10,7 +10,7 @@ import { match } from 'ts-pattern';
 import { LRUCache } from 'lru-cache';
 import { IndexSearchQuerySchema } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { ttl } from '~/lib/cachified';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
@@ -94,8 +94,6 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
         ]
       };
     }
-
-    const prisma = getPrisma();
 
     if (artistCount) {
       const targetIds = await prisma.$queryRaw<Array<{ id: string }>>`

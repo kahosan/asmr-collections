@@ -2,7 +2,7 @@ import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 
 import { Hono } from 'hono';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { createCachified, ttl } from '~/lib/cachified';
 import { formatError, formatMessage } from '~/router/utils';
@@ -16,8 +16,6 @@ export const infoApp = new Hono();
 export async function processArtists(names: string[]) {
   if (!names.length)
     return [];
-
-  const prisma = getPrisma();
 
   const existing = await prisma.artist.findMany({
     where: { name: { in: names } }
@@ -43,8 +41,6 @@ export async function processArtists(names: string[]) {
 export async function processIllustrators(names: string[]) {
   if (!names.length)
     return [];
-
-  const prisma = getPrisma();
 
   const existing = await prisma.illustrator.findMany({
     where: { name: { in: names } }

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Hono } from 'hono';
 import { readerZipFileSubtitles } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { findwork, formatError, formatMessage } from '~/router/utils';
 
@@ -18,8 +18,6 @@ export const subtitlesApp = new Hono()
     try {
       if (!await findwork(id))
         return c.json(formatMessage('收藏不存在'), 404);
-
-      const prisma = getPrisma();
 
       const subtitlesData = await prisma.subtitlesData.findUnique({
         where: { workId: id },
@@ -58,8 +56,6 @@ export const subtitlesApp = new Hono()
       if (!await findwork(id))
         return c.json(formatMessage('收藏不存在'), 404);
 
-      const prisma = getPrisma();
-
       const newSubtitlesData = Buffer.from(await subtitles.arrayBuffer());
 
       await prisma.work.update({
@@ -87,8 +83,6 @@ export const subtitlesApp = new Hono()
     try {
       if (!await findwork(id))
         return c.json(formatMessage('收藏不存在'), 404);
-
-      const prisma = getPrisma();
 
       await prisma.work.update({
         where: { id },

@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 import * as z from 'zod';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
 import { fetchTags } from '~/provider/asmrone';
@@ -19,7 +19,6 @@ export const genresApp = new Hono()
       const _tags = await fetchTags(api);
       const tags = new Map(_tags.map(t => [t.id, t.name]));
 
-      const prisma = getPrisma();
       const genres = await prisma.genre.findMany({
         where: {
           id: { in: _tags.map(t => t.id) }

@@ -6,16 +6,25 @@ import { IS_WORKERS } from './constant';
 import { PrismaClient as PrismaClientWorkers } from './prisma-workers/client';
 
 const adapterNeon = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
-const adapterPg = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
-const prisma = IS_WORKERS
+const prismaPg = IS_WORKERS
   ? null
-  : await import('./prisma/client')
-    .then(m => new m.PrismaClient({ adapter: adapterPg }));
+  : await (async () => {
+    const adapterPg = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    return import('./prisma/client')
+      .then(m => new m.PrismaClient({ adapter: adapterPg }));
+  })();
 
-export function getPrisma() {
-  if (IS_WORKERS)
-    return new PrismaClientWorkers({ adapter: adapterNeon });
+export const prisma = new Proxy({} as PrismaClientWorkers, {
+  get(_, prop, receiver) {
+    if (IS_WORKERS) {
+      const prismaWorkers = new PrismaClientWorkers({ adapter: adapterNeon });
+      return Reflect.get(prismaWorkers, prop, receiver);
+    }
 
-  return prisma!;
-}
+    if (!prismaPg)
+      throw new Error('Prisma client is not initialized');
+
+    return Reflect.get(prismaPg, prop, receiver);
+  }
+});

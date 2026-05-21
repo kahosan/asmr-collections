@@ -5,11 +5,10 @@ import { join } from 'node:path';
 import { HTTPError } from '@asmr-collections/shared';
 import { exists } from '@asmr-collections/shared/server';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { COVERS_PATH, DATA_PATH, IS_WORKERS } from '~/lib/constant';
 
 export function findwork(id: string) {
-  const prisma = getPrisma();
   return prisma.work.findUnique({ where: { id }, select: { id: true } });
 }
 

@@ -7,7 +7,7 @@ import type { Prisma, PrismaClient } from '~/lib/prisma/client';
 import { createHash } from 'node:crypto';
 
 import { storage } from '~/storage';
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 import { generateEmbedding } from '~/ai/jina';
 
 export type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
@@ -130,7 +130,6 @@ export async function findManyByEmbedding(text: string, include: WorkInclude) {
     throw new Error('无法生成文本向量');
 
   const vectorString = `[${embeddingText.join(',')}]`;
-  const prisma = getPrisma();
 
   const _i = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM "Work"
@@ -156,8 +155,6 @@ export async function findManyByEmbedding(text: string, include: WorkInclude) {
 };
 
 export async function categorizeWorks() {
-  const prisma = getPrisma();
-
   const files = await storage.list();
   const st = new Set(files);
 

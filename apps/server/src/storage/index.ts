@@ -7,7 +7,7 @@ import type { FileResult, StorageAdapter } from '~/types/storage/adapters';
 import { match } from 'ts-pattern';
 import { LocalStorageConfigSchema, STORAGE_TYPES, WebDAVStorageConfigSchema, WORK_ID_EXACT_REGEX } from '@asmr-collections/shared';
 
-import { getPrisma } from '~/lib/db';
+import { prisma } from '~/lib/db';
 
 import { LocalStorageAdapter } from './adapters/local';
 import { WebDAVStorageAdapter } from './adapters/webdav';
@@ -18,7 +18,6 @@ export class StorageManager {
   async getAdapters(): Promise<StorageAdapter[]> {
     if (this.adaptersCache) return this.adaptersCache;
 
-    const prisma = getPrisma();
     const storages = await prisma.storage.findMany({
       orderBy: { priority: 'desc' }
     });
