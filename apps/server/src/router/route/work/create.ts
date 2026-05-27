@@ -3,8 +3,8 @@ import type { WorkInfo } from '~/types/source';
 import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
 
+import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
-import { generateEmbedding } from '~/ai/jina';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
@@ -37,7 +37,7 @@ createApp.post('/create/:id', async c => {
 
   let embeddingError: HTTPError | null = null;
   try {
-    embedding = await generateEmbedding(data);
+    embedding = await ai.vectorizePassage(data);
   } catch (e) {
     if (e instanceof HTTPError)
       embeddingError = e;

@@ -12,9 +12,9 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { newQueue } from '@henrygd/queue/rl';
 
+import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
-import { generateEmbedding } from '~/ai/jina';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
@@ -159,10 +159,9 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
           let embedding: number[] | undefined;
           try {
-            embedding = await generateEmbedding(data);
+            embedding = await ai.vectorizePassage(data);
           } catch (e) {
-            const message = (e instanceof Error) ? e.message : '未知错误';
-            console.error(`${id} 生成向量失败`, message);
+            console.error(`${id} 生成向量失败`, e);
             await sendEvent('log', { type: 'warning', message: `${id} 生成向量失败` });
           }
 

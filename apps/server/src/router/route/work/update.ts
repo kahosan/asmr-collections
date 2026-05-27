@@ -2,8 +2,8 @@ import type { WorkInfo } from '~/types/source';
 
 import { Hono } from 'hono';
 
+import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
-import { generateEmbedding } from '~/ai/jina';
 import { fetchDLsiteInfo } from '~/lib/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
@@ -73,7 +73,7 @@ updateApp.put('/update/embedding/:id', async c => {
   if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
 
   try {
-    const embedding = await generateEmbedding(data);
+    const embedding = await ai.vectorizePassage(data);
     if (embedding) {
       const vectorString = `[${embedding.join(',')}]`;
       await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;

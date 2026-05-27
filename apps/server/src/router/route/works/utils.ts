@@ -6,9 +6,9 @@ import type { Prisma, PrismaClient } from '~/lib/prisma/client';
 
 import { createHash } from 'node:crypto';
 
-import { storage } from '~/storage';
+import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
-import { generateEmbedding } from '~/ai/jina';
+import { storage } from '~/storage';
 
 export type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -125,11 +125,11 @@ export async function findManyByEmbedding(text: string, include: WorkInclude) {
   if (!text)
     throw new Error('缺少查询文本');
 
-  const embeddingText = await generateEmbedding(text);
-  if (embeddingText === undefined || embeddingText.length === 0)
+  const vectorizeQuery = await ai.vectorizeQuery(text);
+  if (vectorizeQuery === undefined || vectorizeQuery.length === 0)
     throw new Error('无法生成文本向量');
 
-  const vectorString = `[${embeddingText.join(',')}]`;
+  const vectorString = `[${vectorizeQuery.join(',')}]`;
 
   const _i = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM "Work"
