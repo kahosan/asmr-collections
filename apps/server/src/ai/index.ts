@@ -20,9 +20,9 @@ class AI {
     const ageCategory = work.age_category === 1 ? '全年龄' : (work.age_category === 2 ? 'R15' : 'R18');
 
     const parts = [
-      work.genres?.length ? `标签: ${work.genres.map(g => g.name).join('、')}` : '',
-      work.intro ? `作品简介: ${work.intro}` : '',
       `作品名称: ${work.name}`,
+      work.intro ? `作品简介: ${work.intro}` : '',
+      work.genres?.length ? `标签: ${work.genres.map(g => g.name).join('、')}` : '',
       work.series?.name ? `所属系列: ${work.series.name}` : '',
       `年龄分级: ${ageCategory}`,
       `制作社团: ${work.maker.name}`,
