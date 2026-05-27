@@ -20,14 +20,14 @@ class AI {
     const ageCategory = work.age_category === 1 ? '全年龄' : (work.age_category === 2 ? 'R15' : 'R18');
 
     const parts = [
-      `作品名称: ${work.name}`,
       work.genres?.length ? `标签: ${work.genres.map(g => g.name).join('、')}` : '',
       work.intro ? `作品简介: ${work.intro}` : '',
-      `制作社团: ${work.maker.name}`,
+      `作品名称: ${work.name}`,
       work.series?.name ? `所属系列: ${work.series.name}` : '',
+      `年龄分级: ${ageCategory}`,
+      `制作社团: ${work.maker.name}`,
       work.artists?.length ? `声优: ${work.artists.join('、')}` : '',
-      work.illustrators?.length ? `画师: ${work.illustrators.join('、')}` : '',
-      `年龄分级: ${ageCategory}`
+      work.illustrators?.length ? `画师: ${work.illustrators.join('、')}` : ''
     ];
 
     const passage = parts.filter(Boolean).join(' ');
