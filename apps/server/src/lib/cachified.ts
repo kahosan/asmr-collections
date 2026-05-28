@@ -72,7 +72,8 @@ type CacheKey =
   | `asmrone-tracks-${string}-${string}`
   | `dlsite-work-info-${string}`
   | `asmrone-similar-work-${string}-${string}`
-  | `similar-work-${string}`;
+  | `similar-work-${string}`
+  | `embedding-${string}`;
 
 interface CachifiedParams<T> {
   cacheKey: CacheKey

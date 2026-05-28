@@ -1,7 +1,10 @@
 import type { WorkInfo } from '~/types/source';
 import type { AIProvider } from '~/types/ai/provider';
 
+import type { WorkPassage } from './utils';
+
 import { Jina } from './providers/jina';
+import { formatPassage, normalizeWorkInfo } from './utils';
 
 class AI {
   readonly #provider: AIProvider;
@@ -17,21 +20,13 @@ class AI {
   }
 
   vectorizePassage(work: WorkInfo) {
-    const ageCategory = work.age_category === 1 ? '全年龄' : (work.age_category === 2 ? 'R15' : 'R18');
-
-    const parts = [
-      `作品名称: ${work.name}`,
-      work.intro ? `作品简介: ${work.intro}` : '',
-      work.genres?.length ? `标签: ${work.genres.map(g => g.name).join('、')}` : '',
-      work.series?.name ? `所属系列: ${work.series.name}` : '',
-      `年龄分级: ${ageCategory}`,
-      `制作社团: ${work.maker.name}`,
-      work.artists?.length ? `声优: ${work.artists.join('、')}` : '',
-      work.illustrators?.length ? `画师: ${work.illustrators.join('、')}` : ''
-    ];
-
-    const passage = parts.filter(Boolean).join(' ');
+    const passage = formatPassage(normalizeWorkInfo(work));
     return this.#provider.vectorizePassage(passage);
+  }
+
+  rerank<T extends WorkPassage>(query: string, items: T[]) {
+    const documents = items.map(formatPassage);
+    return this.#provider.rerank(query, documents, items);
   }
 }
 

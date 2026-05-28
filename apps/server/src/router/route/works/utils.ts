@@ -1,4 +1,5 @@
 import type * as z from 'zod';
+import type { Context } from 'hono';
 import type { IndexSearchQuerySchema } from '@asmr-collections/shared';
 
 import type { WorkInclude } from '~/lib/prisma/models';
@@ -9,6 +10,7 @@ import { createHash } from 'node:crypto';
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
+import { createCachified, ttl } from '~/lib/cachified';
 
 export type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
 
@@ -121,38 +123,67 @@ export function whereBuilder(query: z.infer<typeof IndexSearchQuerySchema>) {
   return where;
 }
 
-export async function findManyByEmbedding(text: string, include: WorkInclude) {
+const [embeddingCache] = createCachified<string[]>({
+  ttl: ttl.hour(1)
+});
+
+export async function findManyByEmbedding(
+  text: string,
+  include: WorkInclude,
+  page: number,
+  limit: number,
+  ctx: Context
+) {
   if (!text)
     throw new Error('缺少查询文本');
 
-  const vectorizeQuery = await ai.vectorizeQuery(text);
-  if (vectorizeQuery === undefined || vectorizeQuery.length === 0)
-    throw new Error('无法生成文本向量');
+  const ids = await embeddingCache({
+    cacheKey: `embedding-${createHash('sha256').update(text).digest('hex')}`,
+    async getFreshValue() {
+      const vectorizeQuery = await ai.vectorizeQuery(text);
+      if (vectorizeQuery === undefined || vectorizeQuery.length === 0)
+        throw new Error('无法生成文本向量');
 
-  const vectorString = `[${vectorizeQuery.join(',')}]`;
+      const vectorString = `[${vectorizeQuery.join(',')}]`;
 
-  const _i = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id FROM "Work"
-    ORDER BY embedding <=> ${vectorString}::vector
-    LIMIT 20;
-  `;
+      const _i = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM "Work"
+        ORDER BY embedding <=> ${vectorString}::vector
+        LIMIT 200;
+      `;
 
-  const ids = _i.map(item => item.id);
+      if (!Array.isArray(_i) || _i.length === 0)
+        return [];
 
-  if (!Array.isArray(_i) || _i.length === 0)
-    return { data: [] };
+      const ids = _i.map(item => item.id);
+      const works = await prisma.work.findMany({
+        where: { id: { in: ids } },
+        include
+      });
 
-  const works = await prisma.work.findMany({
-    where: { id: { in: ids } },
+      works.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+
+      return ai.rerank(text, works).then(r => r.map(w => w.id));
+    },
+    ctx
+  });
+
+  const total = ids.length;
+  const start = (page - 1) * limit;
+  const sliceIds = ids.slice(start, start + limit);
+
+  if (sliceIds.length === 0)
+    return { data: [], total: 0, page, limit };
+
+  const data = await prisma.work.findMany({
+    where: { id: { in: sliceIds } },
     include
   });
 
-  const sortedWorks = works.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  data.sort((a, b) => sliceIds.indexOf(a.id) - sliceIds.indexOf(b.id));
 
-  return {
-    data: sortedWorks
-  };
-};
+  return { data, total, page, limit };
+}
 
 export async function categorizeWorks() {
   const files = await storage.list();

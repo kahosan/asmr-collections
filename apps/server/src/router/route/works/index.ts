@@ -69,7 +69,7 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
 
   try {
     if (embedding)
-      return c.json(await findManyByEmbedding(embedding, include));
+      return c.json(await findManyByEmbedding(embedding, include, page, limit, c));
 
     if (storageFilter) {
       const { stored, orphaned } = await categorizeWorks();
