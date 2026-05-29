@@ -51,7 +51,7 @@ export function SearchBar({ search }: SearchBarProps) {
         name="search"
         placeholder="Search..."
         value={keyword}
-        onChange={e => setKeyword(e.target.value.trim())}
+        onChange={e => setKeyword(e.target.value)}
         onKeyUp={e => e.key === 'Enter' && onSearch()}
       />
       <InputGroupAddon align="inline-end">
