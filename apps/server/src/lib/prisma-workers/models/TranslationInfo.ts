@@ -189,7 +189,7 @@ export type TranslationInfoGroupByOutputType = {
   _max: TranslationInfoMaxAggregateOutputType | null
 }
 
-type GetTranslationInfoGroupByPayload<T extends TranslationInfoGroupByArgs> = Prisma.PrismaPromise<
+export type GetTranslationInfoGroupByPayload<T extends TranslationInfoGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<TranslationInfoGroupByOutputType, T['by']> &
       {
@@ -1243,6 +1243,11 @@ export type TranslationInfoFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` TranslationInfos.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of TranslationInfos.
+   */
   distinct?: Prisma.TranslationInfoScalarFieldEnum | Prisma.TranslationInfoScalarFieldEnum[]
 }
 

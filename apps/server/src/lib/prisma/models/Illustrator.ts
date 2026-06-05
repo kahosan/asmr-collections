@@ -171,7 +171,7 @@ export type IllustratorGroupByOutputType = {
   _max: IllustratorMaxAggregateOutputType | null
 }
 
-type GetIllustratorGroupByPayload<T extends IllustratorGroupByArgs> = Prisma.PrismaPromise<
+export type GetIllustratorGroupByPayload<T extends IllustratorGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<IllustratorGroupByOutputType, T['by']> &
       {
@@ -1078,6 +1078,11 @@ export type IllustratorFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` Illustrators.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Illustrators.
+   */
   distinct?: Prisma.IllustratorScalarFieldEnum | Prisma.IllustratorScalarFieldEnum[]
 }
 

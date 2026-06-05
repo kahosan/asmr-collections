@@ -171,7 +171,7 @@ export type ArtistGroupByOutputType = {
   _max: ArtistMaxAggregateOutputType | null
 }
 
-type GetArtistGroupByPayload<T extends ArtistGroupByArgs> = Prisma.PrismaPromise<
+export type GetArtistGroupByPayload<T extends ArtistGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ArtistGroupByOutputType, T['by']> &
       {
@@ -1078,6 +1078,11 @@ export type ArtistFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Artists.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Artists.
+   */
   distinct?: Prisma.ArtistScalarFieldEnum | Prisma.ArtistScalarFieldEnum[]
 }
 

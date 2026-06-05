@@ -137,7 +137,7 @@ export type SeriesGroupByOutputType = {
   _max: SeriesMaxAggregateOutputType | null
 }
 
-type GetSeriesGroupByPayload<T extends SeriesGroupByArgs> = Prisma.PrismaPromise<
+export type GetSeriesGroupByPayload<T extends SeriesGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SeriesGroupByOutputType, T['by']> &
       {
@@ -994,6 +994,11 @@ export type SeriesFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Series.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Series.
+   */
   distinct?: Prisma.SeriesScalarFieldEnum | Prisma.SeriesScalarFieldEnum[]
 }
 

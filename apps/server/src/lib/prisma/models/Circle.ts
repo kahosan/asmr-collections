@@ -137,7 +137,7 @@ export type CircleGroupByOutputType = {
   _max: CircleMaxAggregateOutputType | null
 }
 
-type GetCircleGroupByPayload<T extends CircleGroupByArgs> = Prisma.PrismaPromise<
+export type GetCircleGroupByPayload<T extends CircleGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CircleGroupByOutputType, T['by']> &
       {
@@ -992,6 +992,11 @@ export type CircleFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Circles.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Circles.
+   */
   distinct?: Prisma.CircleScalarFieldEnum | Prisma.CircleScalarFieldEnum[]
 }
 

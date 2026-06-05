@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const stringToOptionalNumberArray: z.ZodPipe<z.ZodTransform, z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>> =
+export const stringToOptionalNumberArray: z.ZodPreprocess<z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>> =
   z.preprocess(val => {
     if (typeof val === 'string') {
       const r = val.split(',');

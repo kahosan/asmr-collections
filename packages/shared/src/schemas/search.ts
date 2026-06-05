@@ -80,8 +80,8 @@ export const RootSearchQuerySchema: z.ZodObject<{
     and: 'and'
     or: 'or'
   }>>
-  artistId: z.ZodPipe<z.ZodTransform, z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
-  genres: z.ZodPipe<z.ZodTransform, z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
+  artistId: z.ZodPreprocess<z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
+  genres: z.ZodPreprocess<z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
   age: z.ZodOptional<z.ZodCoercedNumber>
   multilingual: z.ZodOptional<z.ZodCoercedBoolean>
   illustratorId: z.ZodOptional<z.ZodCoercedNumber>
@@ -130,8 +130,8 @@ export const IndexSearchQuerySchema: z.ZodObject<{
     and: 'and'
     or: 'or'
   }>>
-  artistId: z.ZodPipe<z.ZodTransform, z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
-  genres: z.ZodPipe<z.ZodTransform, z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
+  artistId: z.ZodPreprocess<z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
+  genres: z.ZodPreprocess<z.ZodOptional<z.ZodArray<z.ZodCoercedNumber>>>
   age: z.ZodOptional<z.ZodCoercedNumber>
   multilingual: z.ZodOptional<z.ZodCoercedBoolean>
   illustratorId: z.ZodOptional<z.ZodCoercedNumber>

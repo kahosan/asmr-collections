@@ -209,7 +209,7 @@ export type PlaybackGroupByOutputType = {
   _max: PlaybackMaxAggregateOutputType | null
 }
 
-type GetPlaybackGroupByPayload<T extends PlaybackGroupByArgs> = Prisma.PrismaPromise<
+export type GetPlaybackGroupByPayload<T extends PlaybackGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PlaybackGroupByOutputType, T['by']> &
       {
@@ -1215,6 +1215,11 @@ export type PlaybackFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Playbacks.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Playbacks.
+   */
   distinct?: Prisma.PlaybackScalarFieldEnum | Prisma.PlaybackScalarFieldEnum[]
 }
 
