@@ -11,7 +11,7 @@ import { mutateTracks } from '~/lib/mutation';
 
 const apiAtom = focusAtom(settingOptionsAtom, optic => optic.prop('asmrone').prop('api'));
 
-export function ClearCacheMenu({ id}: { id: string }) {
+export function ClearCacheMenu({ id }: { id: string }) {
   const [clearTracksAction, m1] = useToastMutation('clear-tracks-cache');
   const api = useAtomValue(apiAtom);
 

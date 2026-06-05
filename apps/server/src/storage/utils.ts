@@ -1,3 +1,4 @@
+/* eslint-disable sukka/react-prefer-destructuring-assignment -- not component */
 import type { BunFile } from 'bun';
 
 import type { AdapterFile } from '~/types/storage/adapters';

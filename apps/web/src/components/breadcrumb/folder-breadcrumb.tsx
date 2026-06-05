@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger
 } from '~/components/ui/dropdown-menu';
 
-export function FolderBreadcrumb({ path}: { path?: string[] }) {
+export function FolderBreadcrumb({ path }: { path?: string[] }) {
   return (
     <Breadcrumb>
       <BreadcrumbList className="flex-nowrap">

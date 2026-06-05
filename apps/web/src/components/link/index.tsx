@@ -10,6 +10,7 @@ interface BaseLinkProps extends React.PropsWithChildren<React.AnchorHTMLAttribut
   ref: React.Ref<HTMLAnchorElement>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- createLink returns a component but static analysis can't detect it
 function BaseLink({
   isExternal,
   underline,

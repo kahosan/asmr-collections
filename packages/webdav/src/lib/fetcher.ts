@@ -1,7 +1,6 @@
 import type { WebDAVClientContext } from '../types';
 
-import { encodePath } from '@asmr-collections/shared';
-import { HTTPError, joinURL } from '@asmr-collections/shared';
+import { encodePath, HTTPError, joinURL } from '@asmr-collections/shared';
 
 export function createRequestOptions(
   context: WebDAVClientContext,

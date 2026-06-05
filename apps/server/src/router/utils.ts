@@ -67,7 +67,7 @@ export async function saveCoverImage(url: string, id: string) {
     return normalizedPath;
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError')
-      throw new Error('下载封面图片超时');
+      throw new Error('下载封面图片超时', { cause: error });
 
     throw error;
   } finally {

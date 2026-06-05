@@ -32,4 +32,5 @@ export function Tabs({ tabs, className, children, ...props }: TabsProps) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- TabsContent is a re-export of a Radix UI component
 export const TabsContent = TabsPrimitive.Content;

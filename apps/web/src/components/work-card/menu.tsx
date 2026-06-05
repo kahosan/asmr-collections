@@ -294,7 +294,7 @@ export function SubtitlesSubMenu({ id, existsSubtitles, onClose }: { id: string,
   );
 }
 
-export function PlaylistSubMenu({ workId}: { workId: string }) {
+export function PlaylistSubMenu({ workId }: { workId: string }) {
   const [pagination, setPagination] = useState({ page: 1, limit: 8 });
 
   const swrKey = withQuery('/api/playlist', {

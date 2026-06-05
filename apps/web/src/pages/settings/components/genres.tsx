@@ -5,7 +5,7 @@ import { SettingItem } from './setting-item';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 import { RefreshCwIcon } from 'lucide-react';
 
-export function GenresSettings({ api}: { api: string }) {
+export function GenresSettings({ api }: { api: string }) {
   const [action, isLoading] = useToastMutation('genres-sync');
 
   const onClick = () => {

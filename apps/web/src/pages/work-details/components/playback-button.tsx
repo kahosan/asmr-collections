@@ -3,8 +3,7 @@ import { Button } from '~/components/ui/button';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
-import type { Playback, Tracks } from '@asmr-collections/shared';
-import type { Track } from '@asmr-collections/shared';
+import type { Playback, Tracks, Track } from '@asmr-collections/shared';
 
 interface PlaybackButtonProps {
   id: string

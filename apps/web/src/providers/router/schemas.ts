@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-import { IndexBaseSearchSchema, PlaybackBaseSearchSchema, PlaylistBaseSearchSchema, RootBaseSearchSchema, WorkDetailsBaseSearchSchema } from '@asmr-collections/shared';
+import { IndexBaseSearchSchema, PlaybackBaseSearchSchema, PlaylistBaseSearchSchema, RootBaseSearchSchema, WorkDetailsBaseSearchSchema, ROOT_DEFAULT_SEARCH_VALUES } from '@asmr-collections/shared';
 
 import { getStoredValue } from './utils';
-import { ROOT_DEFAULT_SEARCH_VALUES } from '@asmr-collections/shared';
 
 export const RootSearchSchema = RootBaseSearchSchema.extend({
   order: z.enum(['asc', 'desc'])

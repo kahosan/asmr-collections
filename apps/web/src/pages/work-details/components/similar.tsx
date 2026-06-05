@@ -22,7 +22,7 @@ interface SimilarWorksProps {
 }
 
 export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
-  const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
+  const pluginsRef = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
   const { data } = useSimilar(work.id, !!exists);
 
   if (!data || data.length === 0)
@@ -36,7 +36,7 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
           align: 'start',
           skipSnaps: true
         }}
-        plugins={[plugin.current]}
+        plugins={[pluginsRef.current]}
       >
         <CarouselContent>
           {

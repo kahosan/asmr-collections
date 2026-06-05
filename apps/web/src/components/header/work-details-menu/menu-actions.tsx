@@ -13,7 +13,7 @@ import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { mutateSimilar, mutateWorkInfo } from '~/lib/mutation';
 
-export function MenuActions({ id}: { id: string }) {
+export function MenuActions({ id }: { id: string }) {
   const [createAction, createIsMutating] = useToastMutation<{ message?: string }>('create');
   const [deleteAction, deleteIsMutating] = useToastMutation('delete');
 

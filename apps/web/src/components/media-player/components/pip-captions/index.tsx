@@ -53,7 +53,7 @@ function DocumentPipCaptions() {
 
           pip.document.body.style.margin = '0';
 
-          // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener -- don't need to remove listener, as pip window will be closed
+          // eslint-disable-next-line @eslint-react/web-api-no-leaked-event-listener -- don't need to remove listener, as pip window will be closed
           pip.addEventListener('pagehide', () => {
             pipWindowRef.current = null;
             setContainer(null);

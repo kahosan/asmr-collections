@@ -40,13 +40,12 @@ const HOUR_VALUES = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 const MINUTE_VALUES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 export function TimePicker({ onConfirm, onCancelTimer, open, setOpen }: TimePickerProps) {
-  const currently = new Date();
   const [hour, setHour] = useState(() => {
-    const currentHour = getHours(currently);
+    const currentHour = getHours(new Date());
     return currentHour % 12 || 12;
   });
-  const [minute, setMinute] = useState(() => getMinutes(currently));
-  const [period, setPeriod] = useState<'AM' | 'PM'>(() => (getHours(currently) >= 12 ? 'PM' : 'AM'));
+  const [minute, setMinute] = useState(() => getMinutes(new Date()));
+  const [period, setPeriod] = useState<'AM' | 'PM'>(() => (getHours(new Date()) >= 12 ? 'PM' : 'AM'));
   const [mode, setMode] = useState<'hour' | 'minute'>('hour');
   const [isDragging, setIsDragging] = useState(false);
   const clockRef = useRef<HTMLDivElement>(null);
@@ -119,9 +118,9 @@ export function TimePicker({ onConfirm, onCancelTimer, open, setOpen }: TimePick
     handleClockClick(e, true); // Pass true to ignore boundary check when dragging
   };
 
-  useEffect(() => {
-    const handleGlobalEnd = () => setIsDragging(false);
+  const handleGlobalEnd = useCallback(() => setIsDragging(false), []);
 
+  useEffect(() => {
     const handleGlobalMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging || !clockRef.current) return;
 
@@ -156,7 +155,7 @@ export function TimePicker({ onConfirm, onCancelTimer, open, setOpen }: TimePick
       window.removeEventListener('touchend', handleGlobalEnd);
       window.removeEventListener('touchmove', handleGlobalMoveListener);
     };
-  }, [isDragging, mode, updateTimeByAngle, calculateAngle]);
+  }, [isDragging, mode, updateTimeByAngle, calculateAngle, handleGlobalEnd]);
 
   const getClockHandPosition = () => {
     const value = mode === 'hour' ? hour : minute;

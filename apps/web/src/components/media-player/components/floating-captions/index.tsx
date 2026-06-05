@@ -25,22 +25,22 @@ export function FloatingCaptions() {
     };
   }, [position.x, position.y]);
 
-  const handleMove = useCallback((e: MouseEvent | TouchEvent) => {
-    if (isDragging) {
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      setPosition({
-        x: clientX - dragRef.current.startX,
-        y: clientY - dragRef.current.startY
-      });
-    }
-  }, [isDragging]);
-
   const handleEnd = () => {
     setIsDragging(false);
   };
 
   useEffect(() => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (isDragging) {
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+        setPosition({
+          x: clientX - dragRef.current.startX,
+          y: clientY - dragRef.current.startY
+        });
+      }
+    };
+
     if (isDragging) {
       window.addEventListener('mousemove', handleMove);
       window.addEventListener('mouseup', handleEnd);
@@ -53,7 +53,7 @@ export function FloatingCaptions() {
         window.removeEventListener('touchend', handleEnd);
       };
     }
-  }, [handleMove, isDragging]);
+  }, [isDragging]);
 
   if (!textTrackState) return null;
 
