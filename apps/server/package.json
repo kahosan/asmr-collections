@@ -41,5 +41,11 @@
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "wrangler": "^4.97.0"
+  },
+  "imports": {
+    "#_db": {
+      "workerd": "./src/lib/_db.worker.ts",
+      "default": "./src/lib/_db.ts"
+    }
   }
 }
