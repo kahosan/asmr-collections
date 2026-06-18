@@ -17,7 +17,7 @@ export const genresApp = new Hono()
 
     try {
       const _tags = await fetchTags(api);
-      const tags = new Map(_tags.map(t => [t.id, t.name]));
+      const tags = new Map(_tags.map(t => [t.id, t.i18n['zh-cn'].name ?? t.name]));
 
       const genres = await prisma.genre.findMany({
         where: {
