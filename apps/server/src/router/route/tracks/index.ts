@@ -35,7 +35,7 @@ const schema = z.discriminatedUnion('provider', [
     api: z.string()
   }),
   z.object({
-    provider: z.undefined()
+    provider: z.undefined().optional()
   })
 ]);
 
