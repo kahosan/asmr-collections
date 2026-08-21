@@ -1,6 +1,6 @@
 FROM node:24-alpine AS build-web
 
-RUN corepack enable pnpm && corepack install -g pnpm@latest-11
+RUN corepack enable && corepack prepare --activate
 RUN apk add --no-cache git
 
 WORKDIR /app
