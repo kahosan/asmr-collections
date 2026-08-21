@@ -26,6 +26,7 @@
     "simple-git-hooks": "^2.13.0",
     "typescript": "~5.9.3"
   },
+  "packageManager": "pnpm@11.22.0",
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged && pnpm typecheck"
   },
