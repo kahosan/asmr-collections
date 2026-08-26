@@ -1,7 +1,7 @@
 FROM node:24-alpine AS build-web
 
-RUN corepack enable && corepack prepare --activate
 RUN apk add --no-cache git
+RUN corepack enable
 
 WORKDIR /app
 
