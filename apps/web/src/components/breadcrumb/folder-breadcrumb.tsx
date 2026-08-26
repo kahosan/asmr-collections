@@ -37,8 +37,9 @@ export function FolderBreadcrumb({ path }: { path?: string[] }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                   {
-                    path.map(item => (
-                      <DropdownMenuItem key={item}>
+                    path.map((item, index) => (
+                      // eslint-disable-next-line @eslint-react/no-array-index-key -- safe here since path items are unique
+                      <DropdownMenuItem key={`${index}-${item}`}>
                         <BreadcrumbLink asChild>
                           <Link
                             from="/work-details/$id"
@@ -58,18 +59,18 @@ export function FolderBreadcrumb({ path }: { path?: string[] }) {
             : path?.map((item, index) => (
               // eslint-disable-next-line @eslint-react/no-array-index-key -- safe here since path items are unique
               <Fragment key={`${index}-${item}`}>
-                <BreadcrumbItem key={item} className="min-w-0">
+                <BreadcrumbItem key={item} className="min-w-0 max-w-[60vw]">
                   <BreadcrumbLink asChild>
                     <Link
                       from="/work-details/$id"
-                      search={{ path: path.slice(0, path.indexOf(item) + 1) }}
+                      search={{ path: path.slice(0, index + 1) }}
                       className="w-full"
                     >
                       <p className="truncate">{item}</p>
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                {path.indexOf(item) !== path.length - 1 && <BreadcrumbSeparator />}
+                {!(index === path.length - 1) && <BreadcrumbSeparator />}
               </Fragment>
             ))
         }
