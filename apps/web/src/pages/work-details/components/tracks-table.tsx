@@ -35,6 +35,29 @@ import 'lightgallery/css/lg-thumbnail.css';
 
 import type { Playback, Work, Tracks, SubtitleInfo, Track } from '@asmr-collections/shared';
 
+const mediaTypeOrder: Record<string, number> = {
+  audio: 0,
+  text: 1
+};
+
+function compareTracks(a: Track, b: Track) {
+  const aBase = a.title.slice(0, -extname(a.title).length);
+  const bBase = b.title.slice(0, -extname(b.title).length);
+
+  const baseCompare = aBase.localeCompare(bBase, undefined, {
+    numeric: true,
+    sensitivity: 'base'
+  });
+
+  if (baseCompare !== 0)
+    return baseCompare;
+
+  return (
+    (mediaTypeOrder[a.type] ?? 99)
+    - (mediaTypeOrder[b.type] ?? 99)
+  );
+}
+
 interface TracksTableProps {
   work: Work
   tracks?: Tracks | null
@@ -58,7 +81,7 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
 
   const groupByType = useMemo(() => {
     if (filterData) {
-      return Object.groupBy(
+      const r = Object.groupBy(
         filterData,
         item => match(item.type)
           .when(type => type === 'audio' || type === 'text', () => 'media')
@@ -66,6 +89,9 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
           .with('image', () => 'image')
           .otherwise(() => 'other')
       );
+
+      r.media?.sort(compareTracks);
+      return r;
     }
   }, [filterData]);
 
