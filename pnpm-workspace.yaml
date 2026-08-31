@@ -16,7 +16,7 @@ catalog:
   '@types/node': ^25.9.1
   date-fns: ^4.4.0
   ts-pattern: ^5.9.0
-  zod: ^4.4.3
+  zod: ^4.5.4
 
 patchedDependencies:
   lightgallery@2.9.0: patches/lightgallery@2.9.0.patch
