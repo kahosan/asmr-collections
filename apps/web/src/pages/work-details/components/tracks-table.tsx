@@ -97,9 +97,7 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
 
   const allSubtitles = useMemo(() => {
     const all = collectSubtitles(tracks, true);
-    if (all.length > 0) return all;
-
-    return externalSubtitles ?? [];
+    return all.concat(externalSubtitles ?? []);
   }, [externalSubtitles, tracks]);
 
   const subtitleMatcher = useMemo(() => {
