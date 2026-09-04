@@ -1,4 +1,5 @@
 import type {
+  DiscoveryExternalWork,
   DiscoveryHotProvider,
   DiscoveryMode,
   DiscoveryRequest,
@@ -59,14 +60,26 @@ const POPULAR_LIMIT = 100;
 
 type DiscoveryWork = Prisma.WorkGetPayload<{ include: typeof DISCOVERY_INCLUDE }>;
 
-interface Candidate {
+interface LibraryCandidate {
+  kind: 'library'
   work: DiscoveryWork
   sourceScore: number
+  rank?: number
 }
 
-interface RankedCandidate extends Candidate {
-  baseScore: number
+interface ExternalCandidate {
+  kind: 'external'
+  work: DiscoveryExternalWork
+  sourceScore: number
+  provider: Exclude<DiscoveryHotProvider, 'personal'>
+  rank: number
 }
+
+type Candidate = LibraryCandidate | ExternalCandidate;
+
+type RankedCandidate = Candidate & {
+  baseScore: number
+};
 
 interface NormalizedRequest {
   scene: DiscoveryScene
@@ -109,33 +122,62 @@ export class DiscoveryEngine {
       : undefined;
 
     const eligible = candidates.filter(candidate => {
-      const work = candidate.work;
-      if (request.excludeIds.has(work.id.toUpperCase())) return false;
+      const workId = candidate.work.id.toUpperCase();
+      if (request.excludeIds.has(workId)) return false;
+
+      // External works do not have local playback or storage metadata. They
+      // are only eligible for the hot scene and are filtered out when the
+      // caller explicitly asks for locally stored works.
+      if (candidate.kind === 'external')
+        return request.scene === 'hot' && !request.rules.storageOnly;
 
       const { recentExcludeDays, storageOnly } = request.rules;
-      if (recentExcludeDays > 0 && work.playback) {
+      if (recentExcludeDays > 0 && candidate.work.playback) {
         const cutoff = context.now - recentExcludeDays * DAY_MS;
-        if (work.playback.lastAt.getTime() >= cutoff) return false;
+        if (candidate.work.playback.lastAt.getTime() >= cutoff) return false;
       }
 
-      return !storageOnly || (storedIds?.has(work.id.toUpperCase()) ?? false);
+      return !storageOnly || (storedIds?.has(workId) ?? false);
     });
-    const ranked = eligible.map(candidate => ({
-      ...candidate,
-      baseScore: this.#scoreCandidate(candidate, context)
-    }));
-    const selected = this.#selectDiverse(ranked, request.count, request.rules, request.seed);
+    const isProviderHot = request.scene === 'hot' && request.provider !== 'personal';
+    const selected: Candidate[] = isProviderHot
+      ? eligible
+        .toSorted((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER))
+        .slice(0, request.count)
+      : this.#selectDiverse(
+        eligible.map(candidate => ({
+          ...candidate,
+          baseScore: this.#scoreCandidate(candidate, context)
+        })),
+        request.count,
+        request.rules,
+        request.seed
+      );
 
     const response = {
       seed: request.seed,
       generatedAt: new Date(context.now).toISOString(),
       data: selected.map(candidate => {
+        if (candidate.kind === 'external') {
+          return {
+            kind: 'external' as const,
+            work: candidate.work,
+            provider: candidate.provider,
+            rank: candidate.rank
+          };
+        }
+
         const { playback, ...work } = candidate.work;
         const reason = playback
           ? `${Math.max(0, Math.floor((context.now - playback.lastAt.getTime()) / DAY_MS))} 天未播放`
           : '从未播放';
 
-        return { work, reason };
+        return {
+          kind: 'library' as const,
+          work,
+          reason,
+          ...(candidate.rank === undefined ? {} : { rank: candidate.rank })
+        };
       })
     };
 
@@ -192,7 +234,7 @@ export class DiscoveryEngine {
         throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
 
       const works = await this.#getPopularWorks(request.provider, request.api);
-      return this.#resolvePopularCandidates(works);
+      return this.#resolvePopularCandidates(works, request.provider, true);
     }
 
     if (request.source === 'personal')
@@ -202,7 +244,7 @@ export class DiscoveryEngine {
       throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
 
     const works = await this.#getPopularWorks('asmrone', request.api);
-    return this.#resolvePopularCandidates(works);
+    return this.#resolvePopularCandidates(works, 'asmrone', false);
   }
 
   async #getPopularWorks(provider: Exclude<DiscoveryHotProvider, 'personal'>, api?: string) {
@@ -239,29 +281,43 @@ export class DiscoveryEngine {
 
   #queryWorks(ids?: string[]) {
     return this.#db.work.findMany({
-      where: ids ? { id: { in: ids } } : undefined,
+      where: ids
+        ? {
+          OR: [
+            { id: { in: ids } },
+            { originalId: { in: ids } }
+          ]
+        }
+        : undefined,
       include: DISCOVERY_INCLUDE
     });
   }
 
-  async #resolvePopularCandidates(popularWorks: PopularWorks): Promise<Candidate[]> {
+  async #resolvePopularCandidates(
+    popularWorks: PopularWorks,
+    provider: Exclude<DiscoveryHotProvider, 'personal'>,
+    includeExternal: boolean
+  ): Promise<Candidate[]> {
     if (popularWorks.length === 0) return [];
 
     const orderedPopularWorks = popularWorks.reduce<Array<{
       item: PopularWorks[number]
       index: number
+      rawId: string
       id: string
       rank: number
     }>>((result, item, index) => {
-      const id = item.id.trim().toUpperCase();
+      const rawId = item.id.trim();
+      const id = rawId.toUpperCase();
       if (id.length === 0 || result.some(existing => existing.id === id))
         return result;
 
       result.push({
         item,
         index,
+        rawId,
         id,
-        rank: Number.isFinite(item.rank) ? item.rank : index
+        rank: Number.isFinite(item.rank) ? item.rank : index + 1
       });
       return result;
     }, []).toSorted((a, b) => a.rank - b.rank || a.index - b.index);
@@ -270,15 +326,57 @@ export class DiscoveryEngine {
     if (ids.length === 0) return [];
 
     const works = await this.#queryWorks(ids);
-    const index = new Map(ids.map((id, position) => [id, position]));
+    const exactWorks = new Map(works.map(work => [work.id.toUpperCase(), work]));
+    const originalWorks = new Map<string, DiscoveryWork>();
+    for (const work of works) {
+      if (work.originalId) {
+        const originalId = work.originalId.toUpperCase();
+        if (!originalWorks.has(originalId))
+          originalWorks.set(originalId, work);
+      }
+    }
 
-    return works
-      .sort((a, b) => (index.get(a.id.toUpperCase()) ?? Number.MAX_SAFE_INTEGER)
-        - (index.get(b.id.toUpperCase()) ?? Number.MAX_SAFE_INTEGER))
-      .map(work => ({
-        work,
-        sourceScore: 1 - ((index.get(work.id.toUpperCase()) ?? ids.length) / Math.max(ids.length, 1))
-      }));
+    const candidates: Candidate[] = [];
+    const matchedWorkIds = new Set<string>();
+    const maxPosition = Math.max(ids.length - 1, 1);
+
+    for (const [position, popular] of orderedPopularWorks.entries()) {
+      const exactWork = exactWorks.get(popular.id);
+      const originalWork = originalWorks.get(popular.id);
+      const work = exactWork ?? originalWork;
+      if (work) {
+        const workId = work.id.toUpperCase();
+        if (matchedWorkIds.has(workId)) continue;
+
+        matchedWorkIds.add(workId);
+        candidates.push({
+          kind: 'library',
+          work,
+          sourceScore: 1 - (position / maxPosition),
+          ...(includeExternal ? { rank: popular.rank } : {})
+        });
+        continue;
+      }
+
+      if (includeExternal) {
+        candidates.push({
+          kind: 'external',
+          work: {
+            id: popular.rawId,
+            name: popular.item.name,
+            cover: popular.item.cover,
+            intro: popular.item.intro,
+            circle: popular.item.circle,
+            genres: popular.item.genres
+          },
+          provider,
+          rank: popular.rank,
+          sourceScore: 1 - (position / maxPosition)
+        });
+      }
+    }
+
+    return candidates;
   }
 
   async #collectPersonalCandidates(context: DiscoveryContext): Promise<Candidate[]> {
@@ -286,6 +384,7 @@ export class DiscoveryEngine {
     const works = await this.#queryWorks();
     if (request.scene === 'random' && request.mode === 'pure') {
       return works.map(work => ({
+        kind: 'library' as const,
         work,
         sourceScore: 0
       }));
@@ -394,7 +493,7 @@ export class DiscoveryEngine {
         ? (maxScore > 0 ? similarity * 0.8 + popularity * 0.2 : popularity)
         : similarity;
 
-      return { work, sourceScore };
+      return { kind: 'library' as const, work, sourceScore };
     });
   }
 
@@ -440,6 +539,12 @@ export class DiscoveryEngine {
     const jitter = this.#seededNumber(`${request.seed}:${candidate.work.id}`);
     if (request.mode === 'pure') return jitter;
 
+    if (candidate.kind === 'external') {
+      // External cards only carry provider metadata. Keep their ranking
+      // recognizable and use a tiny deterministic jitter for stable rotation.
+      return candidate.sourceScore * 3.2 + jitter * 0.08;
+    }
+
     let novelty = 1;
     if (candidate.work.playback) {
       const days = Math.max(0, (now - candidate.work.playback.lastAt.getTime()) / DAY_MS);
@@ -478,7 +583,10 @@ export class DiscoveryEngine {
     const increment = (key: string) => groupCounts.set(key, getCount(key) + 1);
 
     /** Prefer a candidate that has not appeared in an enabled diversity group. */
-    const hasRepeatedGroup = (work: DiscoveryWork) => {
+    const hasRepeatedGroup = (candidate: RankedCandidate) => {
+      if (candidate.kind === 'external') return false;
+
+      const { work } = candidate;
       if (rules.avoidDuplicateCircle
         && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId))
         && getCount(`circle:${work.circleId}`) > 0)
@@ -503,7 +611,10 @@ export class DiscoveryEngine {
         && getCount(`age:${work.ageCategory}`) > 0;
     };
 
-    const diversityAdjustment = (work: DiscoveryWork) => {
+    const diversityAdjustment = (candidate: RankedCandidate) => {
+      if (candidate.kind === 'external') return 0;
+
+      const { work } = candidate;
       let adjustment = 0;
 
       if (rules.avoidDuplicateCircle
@@ -553,7 +664,10 @@ export class DiscoveryEngine {
       return adjustment;
     };
 
-    const updateGroupCounts = (work: DiscoveryWork) => {
+    const updateGroupCounts = (candidate: RankedCandidate) => {
+      if (candidate.kind === 'external') return;
+
+      const { work } = candidate;
       if (rules.avoidDuplicateCircle
         && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId)))
         increment(`circle:${work.circleId}`);
@@ -588,12 +702,12 @@ export class DiscoveryEngine {
     while (remaining.length > 0 && selected.length < count) {
       let bestIndex = 0;
       let bestScore = Number.NEGATIVE_INFINITY;
-      const hasFreshGroup = remaining.some(candidate => !hasRepeatedGroup(candidate.work));
+      const hasFreshGroup = remaining.some(candidate => !hasRepeatedGroup(candidate));
 
       remaining.forEach((candidate, index) => {
-        if (hasFreshGroup && hasRepeatedGroup(candidate.work)) return;
+        if (hasFreshGroup && hasRepeatedGroup(candidate)) return;
 
-        const diversity = diversityAdjustment(candidate.work);
+        const diversity = diversityAdjustment(candidate);
         const tieBreaker = this.#seededNumber(`${seed}:slot-${selected.length}:${candidate.work.id}`) * 0.01;
         const score = candidate.baseScore + diversity + tieBreaker;
 
@@ -607,7 +721,7 @@ export class DiscoveryEngine {
       if (!picked) break;
 
       selected.push(picked);
-      updateGroupCounts(picked.work);
+      updateGroupCounts(picked);
     }
 
     return selected;

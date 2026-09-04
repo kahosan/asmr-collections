@@ -3,6 +3,7 @@ import { RefreshCwIcon } from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { WorkCard } from '~/components/work-card';
+import { ExternalWorkCard } from './external-work-card';
 import { DiscoveryWorksSkeleton } from './skeleton';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '~/components/ui/carousel';
 
@@ -17,6 +18,7 @@ interface DiscoveryWorksProps {
   className?: string
   compact?: boolean
   carousel?: boolean
+  onExternalAdded?: () => void | Promise<void>
 }
 
 const carouselItemClass = [
@@ -32,7 +34,7 @@ export function DiscoveryCarouselItem({ children }: { children: React.ReactNode 
   return <CarouselItem className={cn(...carouselItemClass)}>{children}</CarouselItem>;
 }
 
-export function DiscoveryWorks({ error, data, isLoading, className, compact = false, carousel = false }: DiscoveryWorksProps) {
+export function DiscoveryWorks({ error, data, isLoading, className, compact = false, carousel = false, onExternalAdded }: DiscoveryWorksProps) {
   if (error)
     return <div className="text-center opacity-65 py-6">获取推荐失败</div>;
 
@@ -51,12 +53,32 @@ export function DiscoveryWorks({ error, data, isLoading, className, compact = fa
       >
         <CarouselContent>
           {data.map(item => (
-            <DiscoveryCarouselItem key={item.work.id}>
+            <DiscoveryCarouselItem key={`${item.kind}:${item.work.id}`}>
               <div className="relative h-full">
-                <WorkCard work={item.work} />
-                <Badge variant="info" className="absolute top-2 right-2 dark:text-white font-bold shadow-md">
-                  {item.reason}
-                </Badge>
+                {item.kind === 'external'
+                  ? (
+                    <ExternalWorkCard
+                      work={item.work}
+                      provider={item.provider}
+                      rank={item.rank}
+                      onAdded={onExternalAdded}
+                    />
+                  )
+                  : (
+                    <>
+                      <WorkCard work={item.work} />
+                      <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+                        {item.rank !== undefined && (
+                          <Badge variant="info" className="dark:text-white font-bold shadow-md">
+                            #{item.rank}
+                          </Badge>
+                        )}
+                        <Badge variant="info" className="dark:text-white font-bold shadow-md">
+                          {item.reason}
+                        </Badge>
+                      </div>
+                    </>
+                  )}
               </div>
             </DiscoveryCarouselItem>
           ))}
@@ -79,11 +101,31 @@ export function DiscoveryWorks({ error, data, isLoading, className, compact = fa
     )}
     >
       {data.map(item => (
-        <div className="relative" key={item.work.id}>
-          <WorkCard work={item.work} />
-          <Badge variant="info" className="absolute top-2 right-2 dark:text-white font-bold shadow-md">
-            {item.reason}
-          </Badge>
+        <div className="relative" key={`${item.kind}:${item.work.id}`}>
+          {item.kind === 'external'
+            ? (
+              <ExternalWorkCard
+                work={item.work}
+                provider={item.provider}
+                rank={item.rank}
+                onAdded={onExternalAdded}
+              />
+            )
+            : (
+              <>
+                <WorkCard work={item.work} />
+                <div className="absolute top-2 right-2 flex flex-col items-end gap-2">
+                  {item.rank !== undefined && (
+                    <Badge variant="info" className="dark:text-white font-bold shadow-md">
+                      #{item.rank}
+                    </Badge>
+                  )}
+                  <Badge variant="info" className="dark:text-white font-bold shadow-md">
+                    {item.reason}
+                  </Badge>
+                </div>
+              </>
+            )}
         </div>
       ))}
     </div>
@@ -99,6 +141,7 @@ interface DiscoverySectionProps {
   action?: React.ReactNode
   className?: string
   compact?: boolean
+  onExternalAdded?: () => void | Promise<void>
 }
 
 export function DiscoverySection({
@@ -109,7 +152,8 @@ export function DiscoverySection({
   onRefresh,
   action,
   className,
-  compact = false
+  compact = false,
+  onExternalAdded
 }: DiscoverySectionProps) {
   return (
     <section className={cn('space-y-4', className)}>
@@ -125,7 +169,13 @@ export function DiscoverySection({
           )}
         </div>
       </div>
-      <DiscoveryWorks isLoading={isLoading} error={error} data={data} compact={compact} />
+      <DiscoveryWorks
+        isLoading={isLoading}
+        error={error}
+        data={data}
+        compact={compact}
+        onExternalAdded={onExternalAdded}
+      />
     </section>
   );
 }

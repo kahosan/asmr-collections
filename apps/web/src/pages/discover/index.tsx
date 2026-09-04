@@ -100,6 +100,9 @@ function DiscoverPage() {
             <option value="personal">猜你喜欢</option>
           </NativeSelect>
         )}
+        onExternalAdded={() => {
+          void hot.mutate();
+        }}
       />
     </div>
   );
