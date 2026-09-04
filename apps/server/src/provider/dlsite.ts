@@ -1,5 +1,7 @@
+import type { WorkInfo } from '~/types/source';
 import type { PopularWorks } from '~/types/popular';
-import type { DLsiteResponse, WorkInfo } from '~/types/source';
+
+import { parseDLsiteProductDetailResponse, parseDLsiteProductStatsResponse } from '@asmr-collections/shared';
 
 import * as cheerio from 'cheerio';
 
@@ -29,6 +31,20 @@ interface PopularResponse {
   }
 }
 
+interface ProductDetails {
+  maker: {
+    id: string
+    name: string
+  }
+  artists: string[]
+  illustrators: string[]
+  intro: string
+  tags: Array<{
+    id: number
+    name: string
+  }>
+}
+
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
 
@@ -51,13 +67,11 @@ class DLsiteProvider {
   }
 
   async product(id: string): Promise<WorkInfo | null> {
-    const product = await fetcher<Record<string, DLsiteResponse> | unknown[]>(`${this.#host}/home/product/info/ajax?product_id=${id}&locale=zh_CN`);
+    const response = await fetcher<unknown>(`${this.#host}/home/product/info/ajax?product_id=${encodeURIComponent(id)}&locale=zh_CN`);
+    const data = parseDLsiteProductStatsResponse(response, id);
+    if (!data) return null;
 
-    if (Array.isArray(product))
-      return null;
-
-    const data = product[id];
-    const other = await this.parserProductHTML(id);
+    const other = await this.#productDetails(id);
 
     return {
       id,
@@ -68,30 +82,58 @@ class DLsiteProvider {
       image_main: data.work_image,
       intro: other.intro,
       maker: other.maker,
-      series: {
-        id: data.title_id,
-        name: data.title_name
-      },
+      series: data.title_id && data.title_name
+        ? {
+          id: data.title_id,
+          name: data.title_name
+        }
+        : undefined,
       genres: other.tags,
       release_date: new Date(data.regist_date),
-      price: data.price,
-      sales: data.dl_count,
-      rating: data.rate_average_2dp,
-      rating_count: data.rate_count,
-      review_count: data.review_count,
+      price: data.price ?? undefined,
+      sales: data.dl_count ?? undefined,
+      rating: data.rate_average_2dp ?? undefined,
+      rating_count: data.rate_count ?? undefined,
+      review_count: data.review_count ?? undefined,
       translation_info: data.translation_info,
       language_editions: data.dl_count_items?.map(item => ({
         lang: item.lang,
         work_id: item.workno,
         label: item.display_label
-      })),
-      rating_count_detail: data.rate_count_detail,
-      wishlist_count: data.wishlist_count
+      })) ?? undefined,
+      rating_count_detail: data.rate_count_detail ?? undefined,
+      wishlist_count: data.wishlist_count ?? undefined
     };
   }
 
-  async parserProductHTML(id: string) {
-    const str = await fetcher<string>(`${this.#host}/maniax/work/=/product_id/${id}.html/?locale=zh_CN`, {
+  async #productDetails(id: string): Promise<ProductDetails> {
+    try {
+      const response = await fetcher<unknown>(`${this.#host}/maniax/api/=/product.json?workno=${encodeURIComponent(id)}&locale=zh_CN`);
+      const data = parseDLsiteProductDetailResponse(response, id);
+      if (!data)
+        throw new Error('商品详情接口未返回请求的作品');
+
+      return {
+        maker: {
+          id: data.maker_id,
+          name: data.maker_name
+        },
+        artists: data.creaters?.voice_by?.map(creator => creator.name) ?? [],
+        illustrators: data.creaters?.illust_by?.map(creator => creator.name) ?? [],
+        intro: data.intro_s ?? '',
+        tags: data.genres.map(genre => ({
+          id: genre.id,
+          name: genre.name
+        }))
+      };
+    } catch (error) {
+      console.warn(`获取 ${id} 的 DLsite 商品详情 JSON 失败，回退到 HTML 解析`, error);
+      return this.#parserProductHTML(id);
+    }
+  }
+
+  async #parserProductHTML(id: string): Promise<ProductDetails> {
+    const str = await fetcher<string>(`${this.#host}/maniax/work/=/product_id/${encodeURIComponent(id)}.html/?locale=zh_CN`, {
       headers: {
         Cookie: 'locale=zh-cn'
       }
@@ -128,7 +170,6 @@ class DLsiteProvider {
     const intro = $('meta[name="description"]').attr('content')?.replace(/「DLsite.*/, '').trim() ?? '';
 
     return {
-      id,
       maker: {
         id: makerId,
         name: makerName

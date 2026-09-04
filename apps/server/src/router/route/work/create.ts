@@ -22,6 +22,9 @@ createApp.post('/create/:id', async c => {
     data = await dlsite.product(id);
   } catch (e) {
     console.error(e);
+    if (e instanceof HTTPError)
+      return c.json(formatError(e), e.status);
+
     return c.json(formatError(e), 500);
   }
 

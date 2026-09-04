@@ -1,6 +1,7 @@
 import type { WorkInfo } from '~/types/source';
 
 import { Hono } from 'hono';
+import { HTTPError } from '@asmr-collections/shared';
 
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
@@ -28,6 +29,9 @@ updateApp.put('/update/:id', async c => {
     data = await dlsite.product(id);
   } catch (e) {
     console.error(e);
+    if (e instanceof HTTPError)
+      return c.json(formatError(e), e.status);
+
     return c.json(formatError(e), 500);
   }
 
@@ -66,6 +70,9 @@ updateApp.put('/update/:id', async c => {
       data = await dlsite.product(id);
     } catch (e) {
       console.error(e);
+      if (e instanceof HTTPError)
+        return c.json(formatError(e), e.status);
+
       return c.json(formatError(e), 500);
     }
 

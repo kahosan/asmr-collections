@@ -1,6 +1,7 @@
 import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 
 import { Hono } from 'hono';
+import { HTTPError } from '@asmr-collections/shared';
 
 import { prisma } from '~/lib/db';
 import { dlsite } from '~/provider/dlsite';
@@ -81,6 +82,9 @@ infoApp.get('/info/:id', async c => {
     return c.json(data);
   } catch (e) {
     console.error(e);
+    if (e instanceof HTTPError)
+      return c.json(formatError(e), e.status);
+
     return c.json(formatError(e), 500);
   }
 });
