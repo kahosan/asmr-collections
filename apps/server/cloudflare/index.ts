@@ -23,7 +23,7 @@ app.route('/api', api);
 app.route('/proxy', proxyApp);
 
 // web
-const spaRoutes = ['/work-details', '/settings', '/playback', '/playlist'];
+const spaRoutes = ['/work-details', '/settings', '/playlists', '/playlist', '/playback', '/discover'];
 app.get('*', c => {
   const { pathname } = new URL(c.req.url);
   if (spaRoutes.some(route => pathname.startsWith(route)))

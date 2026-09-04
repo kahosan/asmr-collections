@@ -8,6 +8,7 @@ import { genresApp } from './route/genres';
 import { tracksApp } from './route/tracks';
 import { libraryApp } from './route/library';
 import { storageApp } from './route/storage';
+import { discoverApp } from './route/discover';
 import { playbackApp } from './route/playback';
 import { playlistApp } from './route/playlist';
 import { subtitlesApp } from './route/subtitles';
@@ -23,4 +24,5 @@ export const api = new Hono()
   .route('/storage', storageApp)
   .route('/playback', playbackApp)
   .route('/playlist', playlistApp)
-  .route('/subtitles', subtitlesApp);
+  .route('/subtitles', subtitlesApp)
+  .route('/discover', discoverApp);

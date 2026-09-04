@@ -49,7 +49,7 @@ app.use('/assets/*', serveStatic({
 }));
 
 // spa
-const spaRoutes = ['/work-details', '/settings', '/playback', '/playlist'];
+const spaRoutes = ['/work-details', '/settings', '/playback', '/playlists', '/playlist', '/discover'];
 // static files (png, ico, webmanifest)
 app.use('*', etag());
 app.use('*', serveStatic({

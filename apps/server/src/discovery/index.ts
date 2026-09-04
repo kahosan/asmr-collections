@@ -1,0 +1,623 @@
+import type {
+  DiscoveryHotProvider,
+  DiscoveryMode,
+  DiscoveryRequest,
+  DiscoveryRules,
+  DiscoveryScene,
+  DiscoverySource
+} from '@asmr-collections/shared';
+
+import type { Prisma } from '~/lib/prisma/client';
+import type { PopularWorks } from '~/types/popular';
+
+import { createHash, randomUUID } from 'node:crypto';
+
+import {
+  DiscoveryRequestSchema,
+  DiscoveryRulesSchema,
+  HTTPError
+} from '@asmr-collections/shared';
+
+import { prisma } from '~/lib/db';
+import { storage } from '~/storage';
+import { dlsite } from '~/provider/dlsite';
+import { ASMROneProvider } from '~/provider/asmrone';
+
+const DISCOVERY_INCLUDE = {
+  circle: true,
+  series: true,
+  artists: true,
+  illustrators: true,
+  genres: true,
+  translationInfo: true,
+  // Recommendation scoring only needs these two fields. Do not fetch or
+  // expose the persisted track JSON in a discovery response.
+  playback: {
+    select: {
+      count: true,
+      lastAt: true
+    }
+  }
+} satisfies Prisma.WorkInclude;
+
+interface PopularCacheEntry {
+  works: PopularWorks
+  expiresAt: number
+}
+
+const POPULAR_CACHE_TTL = 30 * 60 * 1000;
+const POPULAR_CACHE_MAX = 8;
+const DAY_MS = 86_400_000;
+
+const MAX_PERSONAL_SEEDS = 12;
+const PERSONAL_CORE_SEEDS = 6;
+const PERSONAL_SEED_POOL_LIMIT = 48;
+const PERSONAL_RECENCY_HALF_LIFE_DAYS = 30;
+const PERSONAL_HOT_EXPLORATION_LIMIT = 24;
+const PERSONAL_NEIGHBOR_LIMIT = 120;
+const POPULAR_LIMIT = 100;
+
+type DiscoveryWork = Prisma.WorkGetPayload<{ include: typeof DISCOVERY_INCLUDE }>;
+
+interface Candidate {
+  work: DiscoveryWork
+  sourceScore: number
+}
+
+interface RankedCandidate extends Candidate {
+  baseScore: number
+}
+
+interface NormalizedRequest {
+  scene: DiscoveryScene
+  source: DiscoverySource
+  provider: DiscoveryHotProvider
+  mode: DiscoveryMode
+  count: number
+  seed: string
+  excludeIds: Set<string>
+  rules: DiscoveryRules
+  api?: string
+}
+
+interface DiscoveryContext {
+  request: NormalizedRequest
+  now: number
+}
+
+export class DiscoveryEngine {
+  readonly #popularCache = new Map<string, PopularCacheEntry>();
+  readonly #defaultRules: DiscoveryRules;
+  readonly #db = prisma;
+  readonly #storage = storage;
+  readonly #dlsite = dlsite;
+
+  constructor() {
+    this.#defaultRules = DiscoveryRulesSchema.parse({});
+  }
+
+  async generate(dr: DiscoveryRequest) {
+    const now = Date.now();
+    const context: DiscoveryContext = {
+      request: this.#normalizeRequest(dr, now),
+      now
+    };
+    const { request } = context;
+    const candidates = await this.#collectCandidates(context);
+    const storedIds = request.rules.storageOnly
+      ? new Set((await this.#storage.list()).map(id => id.toUpperCase()))
+      : undefined;
+
+    const eligible = candidates.filter(candidate => {
+      const work = candidate.work;
+      if (request.excludeIds.has(work.id.toUpperCase())) return false;
+
+      const { recentExcludeDays, storageOnly } = request.rules;
+      if (recentExcludeDays > 0 && work.playback) {
+        const cutoff = context.now - recentExcludeDays * DAY_MS;
+        if (work.playback.lastAt.getTime() >= cutoff) return false;
+      }
+
+      return !storageOnly || (storedIds?.has(work.id.toUpperCase()) ?? false);
+    });
+    const ranked = eligible.map(candidate => ({
+      ...candidate,
+      baseScore: this.#scoreCandidate(candidate, context)
+    }));
+    const selected = this.#selectDiverse(ranked, request.count, request.rules, request.seed);
+
+    const response = {
+      seed: request.seed,
+      generatedAt: new Date(context.now).toISOString(),
+      data: selected.map(candidate => {
+        const { playback, ...work } = candidate.work;
+        const reason = playback
+          ? `${Math.max(0, Math.floor((context.now - playback.lastAt.getTime()) / DAY_MS))} 天未播放`
+          : '从未播放';
+
+        return { work, reason };
+      })
+    };
+
+    if (request.scene === 'hot') {
+      return {
+        ...response,
+        scene: 'hot' as const,
+        provider: request.provider
+      };
+    }
+
+    return {
+      ...response,
+      scene: request.scene,
+      source: request.source
+    };
+  }
+
+  #normalizeRequest(input: DiscoveryRequest, now: number): NormalizedRequest {
+    const parsed = DiscoveryRequestSchema.parse(input);
+    const rules = DiscoveryRulesSchema.parse(parsed.rules);
+    const source = parsed.source ?? 'personal';
+    const provider = parsed.provider ?? (parsed.scene === 'hot' ? 'dlsite' : source);
+    const date = parsed.date ?? new Date(now).toISOString().slice(0, 10);
+
+    const seed = parsed.seed
+      ?? (parsed.scene === 'random'
+        ? randomUUID()
+        : createHash('sha256')
+          .update(`${date}:${parsed.scene}:${source}:${provider}`)
+          .digest('hex')
+          .slice(0, 24));
+
+    return {
+      scene: parsed.scene,
+      source,
+      provider,
+      mode: parsed.mode,
+      count: parsed.count,
+      seed,
+      excludeIds: new Set(parsed.excludeIds.map(id => id.toUpperCase())),
+      rules: { ...this.#defaultRules, ...rules },
+      api: parsed.api
+    };
+  }
+
+  async #collectCandidates(context: DiscoveryContext): Promise<Candidate[]> {
+    const { request } = context;
+    if (request.scene === 'hot') {
+      if (request.provider === 'personal')
+        return this.#collectPersonalCandidates(context);
+
+      if (request.provider === 'asmrone' && !request.api)
+        throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
+
+      const works = await this.#getPopularWorks(request.provider, request.api);
+      return this.#resolvePopularCandidates(works);
+    }
+
+    if (request.source === 'personal')
+      return this.#collectPersonalCandidates(context);
+
+    if (!request.api)
+      throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
+
+    const works = await this.#getPopularWorks('asmrone', request.api);
+    return this.#resolvePopularCandidates(works);
+  }
+
+  async #getPopularWorks(provider: Exclude<DiscoveryHotProvider, 'personal'>, api?: string) {
+    const cacheKey = provider === 'asmrone' ? `asmrone:${api ?? ''}` : 'dlsite:24h';
+    const cached = this.#popularCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      // Refresh insertion order so frequently used providers stay in the small
+      // bounded cache.
+      this.#popularCache.delete(cacheKey);
+      this.#popularCache.set(cacheKey, cached);
+      return cached.works;
+    }
+
+    if (cached)
+      this.#popularCache.delete(cacheKey);
+
+    const asmrone = new ASMROneProvider(api ?? '');
+
+    const works = provider === 'asmrone'
+      ? await asmrone.popular(POPULAR_LIMIT)
+      : await this.#dlsite.popular(POPULAR_LIMIT);
+
+    if (this.#popularCache.size >= POPULAR_CACHE_MAX) {
+      const oldest = this.#popularCache.keys().next().value;
+      if (oldest)
+        this.#popularCache.delete(oldest);
+    }
+    this.#popularCache.set(cacheKey, {
+      works,
+      expiresAt: Date.now() + POPULAR_CACHE_TTL
+    });
+    return works;
+  }
+
+  #queryWorks(ids?: string[]) {
+    return this.#db.work.findMany({
+      where: ids ? { id: { in: ids } } : undefined,
+      include: DISCOVERY_INCLUDE
+    });
+  }
+
+  async #resolvePopularCandidates(popularWorks: PopularWorks): Promise<Candidate[]> {
+    if (popularWorks.length === 0) return [];
+
+    const orderedPopularWorks = popularWorks.reduce<Array<{
+      item: PopularWorks[number]
+      index: number
+      id: string
+      rank: number
+    }>>((result, item, index) => {
+      const id = item.id.trim().toUpperCase();
+      if (id.length === 0 || result.some(existing => existing.id === id))
+        return result;
+
+      result.push({
+        item,
+        index,
+        id,
+        rank: Number.isFinite(item.rank) ? item.rank : index
+      });
+      return result;
+    }, []).toSorted((a, b) => a.rank - b.rank || a.index - b.index);
+    const ids = orderedPopularWorks.map(item => item.id);
+
+    if (ids.length === 0) return [];
+
+    const works = await this.#queryWorks(ids);
+    const index = new Map(ids.map((id, position) => [id, position]));
+
+    return works
+      .sort((a, b) => (index.get(a.id.toUpperCase()) ?? Number.MAX_SAFE_INTEGER)
+        - (index.get(b.id.toUpperCase()) ?? Number.MAX_SAFE_INTEGER))
+      .map(work => ({
+        work,
+        sourceScore: 1 - ((index.get(work.id.toUpperCase()) ?? ids.length) / Math.max(ids.length, 1))
+      }));
+  }
+
+  async #collectPersonalCandidates(context: DiscoveryContext): Promise<Candidate[]> {
+    const { request, now } = context;
+    const works = await this.#queryWorks();
+    if (request.scene === 'random' && request.mode === 'pure') {
+      return works.map(work => ({
+        work,
+        sourceScore: 0
+      }));
+    }
+
+    const played = works.flatMap(work => {
+      if (!work.playback) return [];
+
+      return [{
+        work,
+        count: Math.max(0, work.playback.count),
+        lastAt: work.playback.lastAt
+      }];
+    });
+
+    const maxFrequency = played.reduce(
+      (max, item) => Math.max(max, Math.log1p(item.count)),
+      Number.EPSILON
+    );
+    const seedPool = played
+      .map(item => {
+        const days = Math.max(0, (now - item.lastAt.getTime()) / DAY_MS);
+        const recency = 2 ** (-days / PERSONAL_RECENCY_HALF_LIFE_DAYS);
+        const frequency = Math.log1p(item.count) / maxFrequency;
+
+        return {
+          work: item.work,
+          lastAt: item.lastAt,
+          weight: frequency * 0.45 + recency * 0.55
+        };
+      })
+      .sort((a, b) => b.weight - a.weight || b.lastAt.getTime() - a.lastAt.getTime())
+      .slice(0, PERSONAL_SEED_POOL_LIMIT);
+
+    const coreSeeds = seedPool.slice(0, PERSONAL_CORE_SEEDS);
+    const exploratorySeeds = seedPool
+      .slice(coreSeeds.length)
+      .map(seed => {
+        const random = Math.max(
+          this.#seededNumber(`${request.seed}:personal-seed:${seed.work.id}`),
+          Number.MIN_VALUE
+        );
+
+        // Weighted sampling without replacement. A larger weight gives the
+        // candidate a better chance while the request seed keeps the result
+        // deterministic for a given day or "换一批" rotation.
+        return {
+          seed,
+          key: Math.log(random) / Math.max(seed.weight, Number.EPSILON)
+        };
+      })
+      .sort((a, b) => b.key - a.key)
+      .slice(0, Math.max(0, MAX_PERSONAL_SEEDS - coreSeeds.length))
+      .map(item => item.seed);
+    const selectedSeeds = [...coreSeeds, ...exploratorySeeds];
+
+    const similarityScores = await this.#calculateSimilarityScores(selectedSeeds, context);
+    let maxScore = 0;
+    for (const score of similarityScores.values())
+      maxScore = Math.max(maxScore, score);
+
+    const similarWorks = request.scene === 'random' || maxScore === 0
+      ? works
+      : works.filter(work => similarityScores.has(work.id));
+
+    const isPersonalHot = request.scene === 'hot' && request.provider === 'personal';
+    const popularityScores = new Map<string, number>();
+    if (isPersonalHot) {
+      const maxSales = works.reduce(
+        (max, work) => Math.max(max, Math.log1p(Math.max(0, work.sales))),
+        Number.EPSILON
+      );
+      const maxWishlist = works.reduce(
+        (max, work) => Math.max(max, Math.log1p(Math.max(0, work.wishlistCount))),
+        Number.EPSILON
+      );
+
+      for (const work of works) {
+        const sales = Math.log1p(Math.max(0, work.sales)) / maxSales;
+        const wishlist = Math.log1p(Math.max(0, work.wishlistCount)) / maxWishlist;
+        const rating = Math.min(Math.max(work.rate, 0), 5) / 5;
+        const ratingConfidence = Math.min(Math.max(work.rateCount, 0) / 20, 1);
+
+        popularityScores.set(work.id, sales * 0.45 + wishlist * 0.35 + rating * ratingConfidence * 0.2);
+      }
+    }
+
+    const candidateMap = new Map(similarWorks.map(work => [work.id, work]));
+    if (isPersonalHot && maxScore > 0) {
+      [...works]
+        .sort((a, b) => (popularityScores.get(b.id) ?? 0) - (popularityScores.get(a.id) ?? 0))
+        .slice(0, PERSONAL_HOT_EXPLORATION_LIMIT)
+        .forEach(work => candidateMap.set(work.id, work));
+    }
+
+    const candidateWorks = candidateMap.size >= request.count
+      ? [...candidateMap.values()]
+      : works;
+
+    return candidateWorks.map(work => {
+      const similarity = maxScore > 0
+        ? (similarityScores.get(work.id) ?? 0) / maxScore
+        : 0;
+      const popularity = popularityScores.get(work.id) ?? 0;
+      const sourceScore = isPersonalHot
+        ? (maxScore > 0 ? similarity * 0.8 + popularity * 0.2 : popularity)
+        : similarity;
+
+      return { work, sourceScore };
+    });
+  }
+
+  async #calculateSimilarityScores(
+    seeds: Array<{ work: DiscoveryWork, weight: number }>,
+    context: DiscoveryContext
+  ) {
+    const scores = new Map<string, number>();
+
+    await Promise.all(seeds.map(async ({ work: seed, weight }) => {
+      try {
+        const rows = await this.#db.$queryRaw<Array<{ id: string, distance: number | string }>>`
+          SELECT candidate.id, candidate.embedding <=> seed.embedding AS distance
+          FROM "Work" AS candidate
+          CROSS JOIN "Work" AS seed
+          WHERE seed.id = ${seed.id}
+            AND candidate.embedding IS NOT NULL
+            AND seed.embedding IS NOT NULL
+            AND candidate.id <> ${seed.id}
+          ORDER BY candidate.embedding <=> seed.embedding
+          LIMIT ${PERSONAL_NEIGHBOR_LIMIT};
+        `;
+
+        rows.forEach((row, index) => {
+          if (context.request.excludeIds.has(row.id.toUpperCase())) return;
+
+          const rawDistance = Number(row.distance);
+          const distance = Number.isFinite(rawDistance) ? Math.max(0, rawDistance) : 1;
+          const similarity = Math.max(0, 1 - Math.min(distance, 1));
+          const rankScore = similarity / Math.log2(index + 2);
+          scores.set(row.id, (scores.get(row.id) ?? 0) + rankScore * weight);
+        });
+      } catch (error) {
+        console.warn(`获取 ${seed.id} 的相似作品失败`, error);
+      }
+    }));
+
+    return scores;
+  }
+
+  #scoreCandidate(candidate: Candidate, context: DiscoveryContext) {
+    const { request, now } = context;
+    const jitter = this.#seededNumber(`${request.seed}:${candidate.work.id}`);
+    if (request.mode === 'pure') return jitter;
+
+    let novelty = 1;
+    if (candidate.work.playback) {
+      const days = Math.max(0, (now - candidate.work.playback.lastAt.getTime()) / DAY_MS);
+      const ageScore = Math.min(days / 90, 1);
+      const countScore = 1 / (1 + candidate.work.playback.count);
+      novelty = ageScore * 0.7 + countScore * 0.3;
+    }
+    const lowPlay = candidate.work.playback
+      ? 1 / (1 + candidate.work.playback.count)
+      : 1;
+
+    if (request.scene === 'hot') {
+      // Provider rankings should stay recognizable. Personal similarity gets a
+      // larger deterministic exploration term so “换一批” can escape the same
+      // nearest-neighbour set even when embeddings have not changed.
+      const personal = request.provider === 'personal';
+      return candidate.sourceScore * (personal ? 1.6 : 3.2)
+        + novelty * (personal ? 0.55 : 0.35)
+        + lowPlay * 0.15
+        + jitter * (personal ? 0.65 : 0.08);
+    }
+
+    return candidate.sourceScore * 1.45 + novelty * 1.2 + lowPlay * 0.65 + jitter * 0.65;
+  }
+
+  #selectDiverse(
+    candidates: RankedCandidate[],
+    count: number,
+    rules: DiscoveryRules,
+    seed: string
+  ) {
+    const remaining = [...candidates];
+    const selected: RankedCandidate[] = [];
+    const groupCounts = new Map<string, number>();
+    const getCount = (key: string) => groupCounts.get(key) ?? 0;
+    const increment = (key: string) => groupCounts.set(key, getCount(key) + 1);
+
+    /** Prefer a candidate that has not appeared in an enabled diversity group. */
+    const hasRepeatedGroup = (work: DiscoveryWork) => {
+      if (rules.avoidDuplicateCircle
+        && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId))
+        && getCount(`circle:${work.circleId}`) > 0)
+        return true;
+
+      if (rules.avoidDuplicateArtist) {
+        for (const artist of work.artists) {
+          if (rules.artistIds.length > 0 && !rules.artistIds.includes(artist.id)) continue;
+          if (getCount(`artist:${artist.id}`) > 0) return true;
+        }
+      }
+
+      if (rules.avoidDuplicateSeries && work.seriesId
+        && getCount(`series:${work.seriesId}`) > 0)
+        return true;
+
+      if (rules.avoidDuplicateWorkType
+        && getCount(`type:${work.id.slice(0, 2).toUpperCase()}`) > 0)
+        return true;
+
+      return rules.avoidDuplicateAgeCategory
+        && getCount(`age:${work.ageCategory}`) > 0;
+    };
+
+    const diversityAdjustment = (work: DiscoveryWork) => {
+      let adjustment = 0;
+
+      if (rules.avoidDuplicateCircle
+        && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId)))
+        adjustment -= getCount(`circle:${work.circleId}`) * 1.15;
+
+      if (rules.avoidDuplicateArtist) {
+        let repeated = 0;
+        for (const artist of work.artists) {
+          if (rules.artistIds.length > 0 && !rules.artistIds.includes(artist.id)) continue;
+          repeated = Math.max(repeated, getCount(`artist:${artist.id}`));
+        }
+        adjustment -= repeated * 0.85;
+      }
+
+      if (rules.avoidDuplicateSeries && work.seriesId)
+        adjustment -= getCount(`series:${work.seriesId}`) * 1.05;
+
+      if (rules.avoidDuplicateWorkType) {
+        const type = work.id.slice(0, 2).toUpperCase();
+        adjustment -= getCount(`type:${type}`) * 0.55;
+      }
+
+      if (rules.avoidDuplicateAgeCategory)
+        adjustment -= getCount(`age:${work.ageCategory}`) * 0.55;
+
+      if (rules.forceGenreSpread) {
+        const targetGenres = rules.genreIds.length > 0
+          ? rules.genreIds
+          : work.genres.map(genre => genre.id);
+        let missingCount = 0;
+        for (const id of targetGenres) {
+          if (getCount(`genre:${id}`) === 0
+            && work.genres.some(genre => genre.id === id))
+            missingCount++;
+        }
+        adjustment += missingCount * 0.7;
+
+        let repeated = 0;
+        for (const genre of work.genres) {
+          if (!targetGenres.includes(genre.id)) continue;
+          repeated = Math.max(repeated, getCount(`genre:${genre.id}`));
+        }
+        adjustment -= repeated * 0.35;
+      }
+
+      return adjustment;
+    };
+
+    const updateGroupCounts = (work: DiscoveryWork) => {
+      if (rules.avoidDuplicateCircle
+        && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId)))
+        increment(`circle:${work.circleId}`);
+
+      if (rules.avoidDuplicateArtist) {
+        for (const artist of work.artists) {
+          if (rules.artistIds.length > 0 && !rules.artistIds.includes(artist.id)) continue;
+          increment(`artist:${artist.id}`);
+        }
+      }
+
+      if (rules.avoidDuplicateSeries && work.seriesId)
+        increment(`series:${work.seriesId}`);
+
+      if (rules.avoidDuplicateWorkType)
+        increment(`type:${work.id.slice(0, 2).toUpperCase()}`);
+
+      if (rules.avoidDuplicateAgeCategory)
+        increment(`age:${work.ageCategory}`);
+
+      if (rules.forceGenreSpread) {
+        const targetGenres = rules.genreIds.length > 0
+          ? rules.genreIds
+          : work.genres.map(genre => genre.id);
+        for (const genre of work.genres) {
+          if (targetGenres.includes(genre.id))
+            increment(`genre:${genre.id}`);
+        }
+      }
+    };
+
+    while (remaining.length > 0 && selected.length < count) {
+      let bestIndex = 0;
+      let bestScore = Number.NEGATIVE_INFINITY;
+      const hasFreshGroup = remaining.some(candidate => !hasRepeatedGroup(candidate.work));
+
+      remaining.forEach((candidate, index) => {
+        if (hasFreshGroup && hasRepeatedGroup(candidate.work)) return;
+
+        const diversity = diversityAdjustment(candidate.work);
+        const tieBreaker = this.#seededNumber(`${seed}:slot-${selected.length}:${candidate.work.id}`) * 0.01;
+        const score = candidate.baseScore + diversity + tieBreaker;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = index;
+        }
+      });
+
+      const picked = remaining.splice(bestIndex, 1).pop();
+      if (!picked) break;
+
+      selected.push(picked);
+      updateGroupCounts(picked.work);
+    }
+
+    return selected;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- shared deterministic helper for ranking and selection
+  #seededNumber(seed: string) {
+    const hex = createHash('sha256').update(seed).digest('hex').slice(0, 12);
+    return Number.parseInt(hex, 16) / 0x1_00_00_00_00_00_00;
+  }
+}
+
+export const discover = new DiscoveryEngine();
