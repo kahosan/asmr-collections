@@ -18,6 +18,7 @@ import {
   settingsRoute,
   playbackRoute,
   playlistsRoute,
+  discoverRoute,
   playlistRoute
 } from './route';
 
@@ -46,6 +47,7 @@ const router = createRouter({
       settingsRoute,
       playbackRoute,
       playlistsRoute,
+      discoverRoute,
       playlistRoute
     ]),
     workDetailsRoute

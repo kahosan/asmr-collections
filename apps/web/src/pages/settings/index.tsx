@@ -19,6 +19,7 @@ import { StorageSkeleton } from './components/storage-skeleton';
 import { ASMRONEAPISettings } from './components/asmr-one-server';
 import { SmartPathSettings } from './components/smart-path-settings';
 import { ASMRONEQualitySettings } from './components/asmr-one-quality';
+import { DiscoverySettings } from './components/discovery';
 
 const URLS = [
   { name: 'ASMR.ONE', url: 'https://asmr.one' },
@@ -110,6 +111,8 @@ function Settings() {
           d.smartPath[key] = value;
         })}
       />
+
+      <DiscoverySettings />
 
       <Separator />
 

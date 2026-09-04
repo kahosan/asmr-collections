@@ -4,6 +4,24 @@ import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { focusAtom } from 'jotai-optics';
 
 import { toMerged } from '@asmr-collections/shared';
+import type { DiscoverySource } from '@asmr-collections/shared';
+
+export interface DiscoveryOptions {
+  smartRandom: boolean
+  dailyCount: number
+  recentExcludeDays: number
+  avoidDuplicateCircle: boolean
+  circleIds: string[]
+  avoidDuplicateArtist: boolean
+  artistIds: number[]
+  avoidDuplicateSeries: boolean
+  forceGenreSpread: boolean
+  genreIds: number[]
+  avoidDuplicateWorkType: boolean
+  avoidDuplicateAgeCategory: boolean
+  storageOnly: boolean
+  source: DiscoverySource
+}
 
 export interface SettingOptions {
   showWorkDetail: boolean
@@ -27,6 +45,7 @@ export interface SettingOptions {
     enabled: boolean
     pattern: string[]
   }
+  discovery: DiscoveryOptions
 }
 
 const DEFAULT_SETTINGS: SettingOptions = {
@@ -50,6 +69,22 @@ const DEFAULT_SETTINGS: SettingOptions = {
   smartPath: {
     enabled: true,
     pattern: ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus']
+  },
+  discovery: {
+    smartRandom: true,
+    dailyCount: 6,
+    recentExcludeDays: 7,
+    avoidDuplicateCircle: true,
+    circleIds: [],
+    avoidDuplicateArtist: true,
+    artistIds: [],
+    avoidDuplicateSeries: true,
+    forceGenreSpread: true,
+    genreIds: [],
+    avoidDuplicateWorkType: false,
+    avoidDuplicateAgeCategory: false,
+    storageOnly: false,
+    source: 'personal'
   }
 };
 
