@@ -8,6 +8,19 @@ import { HTTPError } from '@asmr-collections/shared';
 import { fetcher } from '~/lib/fetcher';
 import { processArtists } from '~/router/route/work/info';
 
+interface PopularResponse {
+  works: Array<{
+    source_id: string
+    mainCoverUrl: string
+    title: string
+    circle: {
+      source_id: string
+      name: string
+    }
+    tags: Array<{ id: number, name: string }>
+  }>
+}
+
 export class ASMROneProvider {
   readonly #host: string;
 
@@ -15,9 +28,27 @@ export class ASMROneProvider {
     this.#host = host;
   }
 
-  // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- provider hook is intentionally a placeholder until the endpoint is implemented
-  popular(_limit = 100): Promise<PopularWorks> {
-    throw new Error('ASMR.ONE 热门 provider 尚未实现');
+  async popular(limit = 100): Promise<PopularWorks> {
+    const data = await fetcher<PopularResponse>(`${this.#host}/api/recommender/popular`, {
+      method: 'POST',
+      body: JSON.stringify({ pageSize: limit })
+    });
+
+    return data.works.map((w, i) => ({
+      id: w.source_id,
+      rank: i + 1,
+      cover: w.mainCoverUrl,
+      name: w.title,
+      intro: undefined,
+      circle: {
+        id: w.circle.source_id,
+        name: w.circle.name
+      },
+      genres: w.tags.map(tag => ({
+        id: tag.id,
+        name: tag.name
+      }))
+    }));
   }
 
   async tracks(id: string) {

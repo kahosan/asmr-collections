@@ -100,7 +100,7 @@ export function DiscoverySettings() {
       <div className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold">发现设置</h2>
-          <p className="text-muted-foreground text-xs mt-1">影响今日推荐、热门推荐和智能随机；候选不足时推荐数量可能少于设置值。</p>
+          <p className="text-muted-foreground text-xs mt-1">影响今日推荐、猜你喜欢和智能随机；外部热门来源按来源榜单顺序展示。</p>
         </div>
 
         <SettingItem
@@ -223,7 +223,7 @@ export function DiscoverySettings() {
 
         <SettingItem
           id="discovery-force-genre"
-          description="尽量让不同 Genre 出现在同一批推荐中"
+          description="尽量让不同标签出现在同一批推荐中"
           checked={discovery.forceGenreSpread}
           onCheckedChange={checked => setOptions(d => {
             d.discovery.forceGenreSpread = checked;

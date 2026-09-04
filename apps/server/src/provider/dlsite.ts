@@ -5,12 +5,49 @@ import * as cheerio from 'cheerio';
 
 import { fetcher } from '~/lib/fetcher';
 
+interface PopularResponse {
+  data: {
+    voice: {
+      products: Array<{
+        rank: number
+        id: string
+        name: string
+        maker: {
+          id: string
+          name: string
+        }
+        tags: Array<{
+          id: number
+          label: string
+        }>
+        description: string
+        img: {
+          originalUrl: string
+        }
+      }>
+    }
+  }
+}
+
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
 
-  // eslint-disable-next-line @typescript-eslint/class-methods-use-this -- provider hook is intentionally a placeholder until the endpoint is implemented
-  popular(_limit = 100): Promise<PopularWorks> {
-    throw new Error('DLsite 热门 provider 尚未实现');
+  async popular(limit = 100): Promise<PopularWorks> {
+    const data = await fetcher<PopularResponse>(`${this.#host}/maniax/api/=/globalRanking.json?area=global&category=voice&term=day`);
+    return data.data.voice.products
+      .map(p => ({
+        id: p.id,
+        rank: p.rank,
+        name: p.name,
+        cover: p.img.originalUrl,
+        intro: p.description,
+        circle: p.maker,
+        genres: p.tags.map(tag => ({
+          id: tag.id,
+          name: tag.label
+        }))
+      }))
+      .slice(0, limit);
   }
 
   async product(id: string): Promise<WorkInfo | null> {

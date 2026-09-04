@@ -1,13 +1,14 @@
 /**
  * A normalized item returned by a provider's popular endpoint.
  *
- * Third-party providers expose different response shapes. The discovery
- * engine only needs the work number and its position in the provider ranking,
- * so each adapter should normalize its response to this contract.
+ * Third-party providers expose different response shapes. Each adapter should
+ * normalize the response to the small set of fields needed to render an
+ * external discovery card and to match the item against the local library.
  */
-export interface PopularWork {
-  id: string
-  /** Zero-based position in the provider ranking; lower is more popular. */
+import type { DiscoveryExternalWork } from '@asmr-collections/shared';
+
+export interface PopularWork extends DiscoveryExternalWork {
+  /** One-based position in the provider ranking; lower is more popular. */
   rank: number
 }
 
