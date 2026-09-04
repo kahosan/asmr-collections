@@ -7,8 +7,8 @@ import * as z from 'zod';
 
 import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
+import { ASMROneProvider } from '~/provider/asmrone';
 import { createCachified, ttl } from '~/lib/cachified';
-import { fetchSimilarWorks } from '~/provider/asmrone';
 import { formatError, formatMessage } from '~/router/utils';
 
 const [similarCache, clear] = createCachified<ServerWork[]>();
@@ -25,9 +25,10 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
 
   try {
     if (api) {
+      const asmrone = new ASMROneProvider(api);
       const works = await similarCache({
         cacheKey: `asmrone-similar-work-${id}-${encodeURIComponent(api)}`,
-        getFreshValue: () => fetchSimilarWorks(id, api),
+        getFreshValue: () => asmrone.similar(id),
         ttl: ttl.day(7),
         ctx: c
       });

@@ -5,7 +5,7 @@ import { HTTPError } from '@asmr-collections/shared';
 
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
-import { fetchDLsiteInfo } from '~/lib/dlsite';
+import { dlsite } from '~/provider/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
@@ -19,7 +19,7 @@ createApp.post('/create/:id', async c => {
   let embedding: number[] | undefined;
 
   try {
-    data = await fetchDLsiteInfo(id);
+    data = await dlsite.product(id);
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);
