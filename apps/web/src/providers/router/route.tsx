@@ -73,6 +73,11 @@ export const playlistsRoute = createRoute({
   validateSearch: PlaylistSearchSchema
 }).lazy(() => import('~/pages/playlists').then(d => d.default));
 
+export const discoverRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/discover'
+}).lazy(() => import('~/pages/discover').then(d => d.default));
+
 export const playlistRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/playlists/$id',
