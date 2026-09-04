@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
 import { formatError } from '~/router/utils';
-import { fetchTags } from '~/provider/asmrone';
+import { ASMROneProvider } from '~/provider/asmrone';
 
 const syncSchema = z.object({
   api: z.string()
@@ -16,7 +16,8 @@ export const genresApp = new Hono()
     const { api } = c.req.valid('json');
 
     try {
-      const _tags = await fetchTags(api);
+      const asmrone = new ASMROneProvider(api);
+      const _tags = await asmrone.tags();
       const tags = new Map(_tags.map(t => [t.id, t.i18n['zh-cn'].name ?? t.name]));
 
       const genres = await prisma.genre.findMany({
