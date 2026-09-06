@@ -1,10 +1,9 @@
-import type { WorkInfo } from '~/types/source';
 import type { AIProvider } from '~/types/ai/provider';
 
 import type { WorkPassage } from './utils';
 
 import { Jina } from './providers/jina';
-import { formatPassage, normalizeWorkInfo } from './utils';
+import { formatPassage } from './utils';
 
 class AI {
   readonly #provider: AIProvider;
@@ -19,8 +18,8 @@ class AI {
     return this.#provider.vectorizeQuery(query);
   }
 
-  vectorizePassage(work: WorkInfo) {
-    const passage = formatPassage(normalizeWorkInfo(work));
+  vectorizePassage(work: WorkPassage) {
+    const passage = formatPassage(work);
     return this.#provider.vectorizePassage(passage);
   }
 

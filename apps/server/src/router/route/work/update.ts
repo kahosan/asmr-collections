@@ -1,4 +1,4 @@
-import type { WorkInfo } from '~/types/source';
+import type { SourceWork } from '~/types/source';
 
 import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
@@ -23,7 +23,7 @@ updateApp.put('/update/:id', async c => {
     return c.json(formatError(e), 500);
   }
 
-  let data: WorkInfo | null;
+  let data: SourceWork | null;
 
   try {
     data = await dlsite.product(id);
@@ -38,8 +38,8 @@ updateApp.put('/update/:id', async c => {
   if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
 
   try {
-    const coverPath = await saveCoverImage(data.image_main, id);
-    data.image_main = coverPath ?? data.image_main;
+    const coverPath = await saveCoverImage(data.cover, id);
+    data.cover = coverPath ?? data.cover;
   } catch (e) {
     console.error('保存 cover 图片失败', e);
   }
@@ -64,7 +64,7 @@ updateApp.put('/update/:id', async c => {
       return c.json(formatError(e), 500);
     }
 
-    let data: WorkInfo | null;
+    let data: SourceWork | null;
 
     try {
       data = await dlsite.product(id);
@@ -93,28 +93,16 @@ updateApp.put('/update/:id', async c => {
     }
   });
 
-export async function updateWork(data: WorkInfo, id: string) {
-  const translationInfo = {
-    isVolunteer: data.translation_info.is_volunteer,
-    isOriginal: data.translation_info.is_original,
-    isParent: data.translation_info.is_parent,
-    isChild: data.translation_info.is_child,
-    isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
-    originalWorkno: data.translation_info.original_workno,
-    parentWorkno: data.translation_info.parent_workno,
-    childWorknos: data.translation_info.child_worknos,
-    lang: data.translation_info.lang
-  };
-
+export async function updateWork(data: SourceWork, id: string) {
   await prisma.work.update({
     where: { id },
     data: {
       circle: {
         connectOrCreate: {
-          where: { id: data.maker.id },
+          where: { id: data.circle.id },
           create: {
-            id: data.maker.id,
-            name: data.maker.name
+            id: data.circle.id,
+            name: data.circle.name
           }
         }
       },
@@ -137,10 +125,10 @@ export async function updateWork(data: WorkInfo, id: string) {
     data: {
       id: data.id,
       name: data.name,
-      cover: data.image_main,
+      cover: data.cover,
       intro: data.intro,
       circle: {
-        update: { name: data.maker.name }
+        update: { name: data.circle.name }
       },
       series: data.series?.id
         ? {
@@ -148,24 +136,24 @@ export async function updateWork(data: WorkInfo, id: string) {
         }
         : undefined,
       artists: {
-        connectOrCreate: data.artists?.map(artist => ({
-          where: { name: artist },
+        connectOrCreate: data.artists.map(artist => ({
+          where: { name: artist.name },
           create: {
-            name: artist
+            name: artist.name
           }
         }))
       },
       illustrators: {
-        connectOrCreate: data.illustrators?.map(illustrator => ({
-          where: { name: illustrator },
+        connectOrCreate: data.illustrators.map(illustrator => ({
+          where: { name: illustrator.name },
           create: {
-            name: illustrator
+            name: illustrator.name
           }
         }))
       },
-      ageCategory: data.age_category,
+      ageCategory: data.ageCategory,
       genres: {
-        connectOrCreate: data.genres?.map(genre => ({
+        connectOrCreate: data.genres.map(genre => ({
           where: { id: genre.id },
           create: {
             id: genre.id,
@@ -173,25 +161,21 @@ export async function updateWork(data: WorkInfo, id: string) {
           }
         }))
       },
-      price: data.price ?? 0,
-      sales: data.sales ?? 0,
-      wishlistCount: data.wishlist_count,
-      rate: data.rating ?? 0,
-      rateCount: data.rating_count ?? 0,
-      reviewCount: data.review_count ?? 0,
-      originalId: data.translation_info.original_workno,
+      price: data.price,
+      sales: data.sales,
+      wishlistCount: data.wishlistCount,
+      rate: data.rate,
+      rateCount: data.rateCount,
+      reviewCount: data.reviewCount,
+      originalId: data.originalId,
       translationInfo: {
         upsert: {
-          create: translationInfo,
-          update: translationInfo
+          create: data.translationInfo,
+          update: data.translationInfo
         }
       },
-      languageEditions: data.language_editions?.map(l => ({
-        workId: l.work_id,
-        label: l.label,
-        lang: l.lang
-      })),
-      releaseDate: data.release_date
+      languageEditions: data.languageEditions,
+      releaseDate: data.releaseDate
     },
     include: {
       circle: true,

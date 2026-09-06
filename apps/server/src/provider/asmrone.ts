@@ -6,7 +6,6 @@ import type { Recommender, Tags } from '~/types/provider/asmr-one';
 import { HTTPError } from '@asmr-collections/shared';
 
 import { fetcher } from '~/lib/fetcher';
-import { processArtists } from '~/router/route/work/info';
 
 interface PopularResponse {
   works: Array<{
@@ -78,7 +77,7 @@ export class ASMROneProvider {
         })
       });
 
-      const p = data.works.map(async work => ({
+      return data.works.map<ServerWork>(work => ({
         id: work.source_id,
         name: work.title,
         cover: work.mainCoverUrl,
@@ -90,9 +89,9 @@ export class ASMROneProvider {
         },
         seriesId: null,
         series: null,
-        artists: await processArtists(work.vas.map(va => va.name)),
+        artists: work.vas.map(va => ({ source: 'asmrone', sourceId: va.id, sourceName: va.name })),
         illustrators: [],
-        ageCategory: work.age_category_string === 'adult' ? 3 : (work.age_category_string === 'r15' ? 2 : 1) as (1 | 2 | 3),
+        ageCategory: work.age_category_string === 'adult' ? 3 : (work.age_category_string === 'r15' ? 2 : 1),
         genres: work.tags.map(tag => ({ id: tag.id, name: tag.name })),
         price: work.price,
         sales: work.dl_count,
@@ -125,8 +124,6 @@ export class ASMROneProvider {
           : [],
         subtitles: false
       }));
-
-      return await Promise.all(p);
     } catch (e) {
       if (e instanceof HTTPError && e.status === 404)
         throw new HTTPError(e.data?.detail || '作品不存在于 asmr.one', e.status);

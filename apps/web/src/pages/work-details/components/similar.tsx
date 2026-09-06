@@ -12,6 +12,7 @@ import { useSimilar } from '~/hooks/use-similar';
 import Autoplay from 'embla-carousel-autoplay';
 
 import { cn } from '~/lib/utils';
+import { externalUrl } from '~/utils';
 import { formatISODate } from '@asmr-collections/shared';
 
 import type { Work } from '@asmr-collections/shared';
@@ -110,24 +111,28 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                     <div className="flex flex-wrap gap-2">
                       {similarWork.artists.map(artist => (
                         <MetaButton
-                          key={artist.id}
+                          key={artist.id ?? artist.sourceId}
                           onPointerDown={e => e.preventDefault()}
                           metaType="artists"
                           size="sm"
                           asChild
                         >
-                          <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
+                          {(artist.id && artist.name)
+                            ? <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
+                            : <Link to={externalUrl.dlsiteKeyword(artist.sourceName)} isExternal>{artist.sourceName}</Link>}
                         </MetaButton>
                       ))}
                       {similarWork.illustrators.map(illustrator => (
                         <MetaButton
-                          key={illustrator.id}
+                          key={illustrator.id ?? illustrator.sourceId}
                           onPointerDown={e => e.preventDefault()}
                           metaType="illustrators"
                           size="sm"
                           asChild
                         >
-                          <Link to="/" search={{ illustratorId: illustrator.id }}>{illustrator.name}</Link>
+                          {(illustrator.id && illustrator.name)
+                            ? <Link to="/" search={{ illustratorId: illustrator.id }}>{illustrator.name}</Link>
+                            : <Link to={externalUrl.dlsiteKeyword(illustrator.sourceName)} isExternal>{illustrator.sourceName}</Link>}
                         </MetaButton>
                       ))}
                     </div>

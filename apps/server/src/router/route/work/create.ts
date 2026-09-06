@@ -1,4 +1,4 @@
-import type { WorkInfo } from '~/types/source';
+import type { SourceWork } from '~/types/source';
 
 import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
@@ -15,7 +15,7 @@ export const createApp = new Hono();
 createApp.post('/create/:id', async c => {
   const { id } = c.req.param();
 
-  let data: WorkInfo | null;
+  let data: SourceWork | null;
   let embedding: number[] | undefined;
 
   try {
@@ -51,8 +51,8 @@ createApp.post('/create/:id', async c => {
   }
 
   try {
-    const coverPath = await saveCoverImage(data.image_main, id);
-    data.image_main = coverPath ?? data.image_main;
+    const coverPath = await saveCoverImage(data.cover, id);
+    data.cover = coverPath ?? data.cover;
   } catch (e) {
     console.error('保存 cover 图片失败', e);
   }
@@ -75,19 +75,19 @@ createApp.post('/create/:id', async c => {
   }
 });
 
-export function createWork(data: WorkInfo, id: string) {
+export function createWork(data: SourceWork, id: string) {
   return prisma.work.create({
     data: {
       id,
       name: data.name,
-      cover: data.image_main,
+      cover: data.cover,
       intro: data.intro,
       circle: {
         connectOrCreate: {
-          where: { id: data.maker.id },
+          where: { id: data.circle.id },
           create: {
-            id: data.maker.id,
-            name: data.maker.name
+            id: data.circle.id,
+            name: data.circle.name
           }
         }
       },
@@ -103,24 +103,24 @@ export function createWork(data: WorkInfo, id: string) {
         }
         : undefined,
       artists: {
-        connectOrCreate: data.artists?.map(artist => ({
-          where: { name: artist },
+        connectOrCreate: data.artists.map(artist => ({
+          where: { name: artist.name },
           create: {
-            name: artist
+            name: artist.name
           }
         }))
       },
       illustrators: {
-        connectOrCreate: data.illustrators?.map(illustrator => ({
-          where: { name: illustrator },
+        connectOrCreate: data.illustrators.map(illustrator => ({
+          where: { name: illustrator.name },
           create: {
-            name: illustrator
+            name: illustrator.name
           }
         }))
       },
-      ageCategory: data.age_category,
+      ageCategory: data.ageCategory,
       genres: {
-        connectOrCreate: data.genres?.map(genre => ({
+        connectOrCreate: data.genres.map(genre => ({
           where: { id: genre.id },
           create: {
             id: genre.id,
@@ -128,32 +128,18 @@ export function createWork(data: WorkInfo, id: string) {
           }
         }))
       },
-      price: data.price ?? 0,
-      sales: data.sales ?? 0,
-      wishlistCount: data.wishlist_count ?? 0,
-      rate: data.rating ?? 0,
-      rateCount: data.rating_count ?? 0,
-      originalId: data.translation_info.original_workno,
-      reviewCount: data.review_count ?? 0,
+      price: data.price,
+      sales: data.sales,
+      wishlistCount: data.wishlistCount,
+      rate: data.rate,
+      rateCount: data.rateCount,
+      originalId: data.originalId,
+      reviewCount: data.reviewCount,
       translationInfo: {
-        create: {
-          isVolunteer: data.translation_info.is_volunteer,
-          isOriginal: data.translation_info.is_original,
-          isParent: data.translation_info.is_parent,
-          isChild: data.translation_info.is_child,
-          isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
-          originalWorkno: data.translation_info.original_workno,
-          parentWorkno: data.translation_info.parent_workno,
-          childWorknos: data.translation_info.child_worknos,
-          lang: data.translation_info.lang
-        }
+        create: data.translationInfo
       },
-      languageEditions: data.language_editions?.map(l => ({
-        workId: l.work_id,
-        label: l.label,
-        lang: l.lang
-      })),
-      releaseDate: data.release_date
+      languageEditions: data.languageEditions,
+      releaseDate: data.releaseDate
     },
     include: {
       circle: true,

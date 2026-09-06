@@ -1,4 +1,4 @@
-import type { WorkInfo } from '~/types/source';
+import type { SourceWork } from '~/types/source';
 import type { PopularWorks } from '~/types/popular';
 
 import { parseDLsiteProductDetailResponse, parseDLsiteProductStatsResponse } from '@asmr-collections/shared';
@@ -31,19 +31,7 @@ interface PopularResponse {
   }
 }
 
-interface ProductDetails {
-  maker: {
-    id: string
-    name: string
-  }
-  artists: string[]
-  illustrators: string[]
-  intro: string
-  tags: Array<{
-    id: number
-    name: string
-  }>
-}
+type ProductDetails = Pick<SourceWork, 'circle' | 'artists' | 'illustrators' | 'intro' | 'genres'>;
 
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
@@ -66,43 +54,49 @@ class DLsiteProvider {
       .slice(0, limit);
   }
 
-  async product(id: string): Promise<WorkInfo | null> {
+  async product(id: string): Promise<SourceWork | null> {
     const response = await fetcher<unknown>(`${this.#host}/home/product/info/ajax?product_id=${encodeURIComponent(id)}&locale=zh_CN`);
     const data = parseDLsiteProductStatsResponse(response, id);
     if (!data) return null;
 
-    const other = await this.#productDetails(id);
+    const details = await this.#productDetails(id);
+    const series = data.title_id && data.title_name
+      ? { id: data.title_id, name: data.title_name }
+      : null;
 
     return {
+      ...details,
       id,
       name: data.work_name,
-      age_category: data.age_category,
-      artists: other.artists,
-      illustrators: other.illustrators,
-      image_main: data.work_image,
-      intro: other.intro,
-      maker: other.maker,
-      series: data.title_id && data.title_name
-        ? {
-          id: data.title_id,
-          name: data.title_name
-        }
-        : undefined,
-      genres: other.tags,
-      release_date: new Date(data.regist_date),
-      price: data.price ?? undefined,
-      sales: data.dl_count ?? undefined,
-      rating: data.rate_average_2dp ?? undefined,
-      rating_count: data.rate_count ?? undefined,
-      review_count: data.review_count ?? undefined,
-      translation_info: data.translation_info,
-      language_editions: data.dl_count_items?.map(item => ({
+      cover: data.work_image,
+      circleId: details.circle.id,
+      seriesId: series?.id ?? null,
+      series,
+      ageCategory: data.age_category,
+      releaseDate: new Date(data.regist_date),
+      price: data.price ?? 0,
+      sales: data.dl_count ?? 0,
+      rate: data.rate_average_2dp ?? 0,
+      rateCount: data.rate_count ?? 0,
+      reviewCount: data.review_count ?? 0,
+      wishlistCount: data.wishlist_count ?? 0,
+      originalId: data.translation_info.original_workno,
+      translationInfo: {
+        isVolunteer: data.translation_info.is_volunteer,
+        isOriginal: data.translation_info.is_original,
+        isParent: data.translation_info.is_parent,
+        isChild: data.translation_info.is_child,
+        isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
+        originalWorkno: data.translation_info.original_workno,
+        parentWorkno: data.translation_info.parent_workno,
+        childWorknos: data.translation_info.child_worknos,
+        lang: data.translation_info.lang
+      },
+      languageEditions: data.dl_count_items?.map(item => ({
         lang: item.lang,
-        work_id: item.workno,
+        workId: item.workno,
         label: item.display_label
-      })) ?? undefined,
-      rating_count_detail: data.rate_count_detail ?? undefined,
-      wishlist_count: data.wishlist_count ?? undefined
+      })) ?? []
     };
   }
 
@@ -113,15 +107,17 @@ class DLsiteProvider {
       if (!data)
         throw new Error('商品详情接口未返回请求的作品');
 
+      const creators = Array.isArray(data.creaters) ? undefined : data.creaters;
+
       return {
-        maker: {
+        circle: {
           id: data.maker_id,
           name: data.maker_name
         },
-        artists: data.creaters?.voice_by?.map(creator => creator.name) ?? [],
-        illustrators: data.creaters?.illust_by?.map(creator => creator.name) ?? [],
+        artists: creators?.voice_by ?? [],
+        illustrators: creators?.illust_by ?? [],
         intro: data.intro_s ?? '',
-        tags: data.genres.map(genre => ({
+        genres: data.genres.map(genre => ({
           id: genre.id,
           name: genre.name
         }))
@@ -160,7 +156,7 @@ class DLsiteProvider {
         illustrators = $(el).parent('tr').find('td a').map((_, el) => $(el).text().trim()).toArray();
     });
 
-    const tags = $('div.main_genre > a').map((_, el) => {
+    const genres = $('div.main_genre > a').map((_, el) => {
       return {
         id: Number.parseInt($(el).attr('href')?.match(/\d+/g)?.at(0) ?? '', 10),
         name: $(el).text().trim()
@@ -170,14 +166,14 @@ class DLsiteProvider {
     const intro = $('meta[name="description"]').attr('content')?.replace(/「DLsite.*/, '').trim() ?? '';
 
     return {
-      maker: {
+      circle: {
         id: makerId,
         name: makerName
       },
-      artists,
-      illustrators,
+      artists: artists.map(name => ({ id: 'unknow', name })),
+      illustrators: illustrators.map(name => ({ id: 'unknow', name })),
       intro,
-      tags
+      genres
     };
   }
 }

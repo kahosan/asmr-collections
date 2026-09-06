@@ -140,19 +140,17 @@ export function WorkCard({ work, showMenus = true, showImageBadge = true }: Prop
         <div className="flex flex-wrap gap-2">
           {work.artists.map(artist => (
             <BadgeMenu
-              key={artist.id}
-              text={artist.name}
+              key={artist.id ?? artist.sourceId}
               metaType="artists"
-              metaId={artist.id}
-              isFilter={search.artistId?.includes(artist.id)}
+              creater={artist}
+              isFilter={artist.id !== undefined && search.artistId?.includes(artist.id)}
             />
           ))}
           {work.illustrators.map(illustrator => (
             <BadgeMenu
-              key={illustrator.id}
-              text={illustrator.name}
+              key={illustrator.id ?? illustrator.sourceId}
               metaType="illustrators"
-              metaId={illustrator.id}
+              creater={illustrator}
               isFilter={search.illustratorId === illustrator.id}
             />
           ))}

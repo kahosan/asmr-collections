@@ -61,7 +61,7 @@ export const DLsiteProductDetailSchema: z.ZodType<{
   creaters?: {
     voice_by?: Array<{ id: string, name: string }>
     illust_by?: Array<{ id: string, name: string }>
-  } | null
+  } | [] | null
   genres: Array<{
     id: number
     name: string
@@ -72,10 +72,13 @@ export const DLsiteProductDetailSchema: z.ZodType<{
   maker_id: NonEmptyStringSchema,
   maker_name: NonEmptyStringSchema,
   intro_s: z.string().nullish(),
-  creaters: z.object({
-    voice_by: z.array(CreatorSchema).optional(),
-    illust_by: z.array(CreatorSchema).optional()
-  }).nullish(),
+  creaters: z.union([
+    z.object({
+      voice_by: z.array(CreatorSchema).optional(),
+      illust_by: z.array(CreatorSchema).optional()
+    }),
+    z.tuple([])
+  ]).nullish(),
   genres: z.array(GenreSchema)
 });
 
