@@ -10,15 +10,16 @@ import path from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const devEnv = loadEnv(mode, path.resolve(__dirname, '../..'), '');
+  const dirname = import.meta.dirname;
+  const devEnv = loadEnv(mode, path.resolve(dirname, '../..'), '');
 
   const enableHttps = !!(devEnv.SSL_KEY && devEnv.SSL_CERT);
 
   return {
-    plugins: [react({ babel: { plugins: ['babel-plugin-react-compiler'] } }), tailwindcss(), info()],
+    plugins: [react({ compiler: true }), tailwindcss(), info()],
     resolve: {
       alias: {
-        '~': path.resolve(__dirname, './src')
+        '~': path.resolve(dirname, './src')
       },
       dedupe: ['react', 'react-dom']
     },
