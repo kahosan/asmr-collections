@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
-import { fetchDLsiteInfo } from '~/lib/dlsite';
+import { dlsite } from '~/provider/dlsite';
 import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
@@ -25,7 +25,7 @@ updateApp.put('/update/:id', async c => {
   let data: WorkInfo | null;
 
   try {
-    data = await fetchDLsiteInfo(id);
+    data = await dlsite.product(id);
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);
@@ -48,44 +48,43 @@ updateApp.put('/update/:id', async c => {
     console.error(e);
     return c.json(formatError(e), 500);
   }
-});
+})
+  .put('/update/embedding/:id', async c => {
+    const { id } = c.req.param();
 
-updateApp.put('/update/embedding/:id', async c => {
-  const { id } = c.req.param();
-
-  try {
-    if (!await findwork(id))
-      return c.json(formatMessage('收藏不存在'), 400);
-  } catch (e) {
-    console.error(e);
-    return c.json(formatError(e), 500);
-  }
-
-  let data: WorkInfo | null;
-
-  try {
-    data = await fetchDLsiteInfo(id);
-  } catch (e) {
-    console.error(e);
-    return c.json(formatError(e), 500);
-  }
-
-  if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
-
-  try {
-    const embedding = await ai.vectorizePassage(data);
-    if (embedding) {
-      const vectorString = `[${embedding.join(',')}]`;
-      await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
-      await clearSimilarCache(id);
+    try {
+      if (!await findwork(id))
+        return c.json(formatMessage('收藏不存在'), 400);
+    } catch (e) {
+      console.error(e);
+      return c.json(formatError(e), 500);
     }
 
-    return c.json(formatMessage('向量更新成功'));
-  } catch (e) {
-    console.error(e);
-    return c.json(formatError(e, '生成向量失败'), 500);
-  }
-});
+    let data: WorkInfo | null;
+
+    try {
+      data = await dlsite.product(id);
+    } catch (e) {
+      console.error(e);
+      return c.json(formatError(e), 500);
+    }
+
+    if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
+
+    try {
+      const embedding = await ai.vectorizePassage(data);
+      if (embedding) {
+        const vectorString = `[${embedding.join(',')}]`;
+        await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
+        await clearSimilarCache(id);
+      }
+
+      return c.json(formatMessage('向量更新成功'));
+    } catch (e) {
+      console.error(e);
+      return c.json(formatError(e, '生成向量失败'), 500);
+    }
+  });
 
 export async function updateWork(data: WorkInfo, id: string) {
   const translationInfo = {

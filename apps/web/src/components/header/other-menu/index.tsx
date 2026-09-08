@@ -72,6 +72,9 @@ export function OtherMenu() {
           <MenubarItem onClick={() => navigate({ to: '/playback' })}>
             播放记录
           </MenubarItem>
+          <MenubarItem onClick={() => navigate({ to: '/discover' })}>
+            发现
+          </MenubarItem>
           <MenubarItem onClick={() => navigate({ to: '/playlists' })}>
             播放列表
           </MenubarItem>
