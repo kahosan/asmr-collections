@@ -1,8 +1,8 @@
-import type { ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
+import type { Creater, Data, ServerWork, WorkInfoResponse } from '@asmr-collections/shared';
 
 import { Hono } from 'hono';
+import { HTTPError } from '@asmr-collections/shared';
 
-import { prisma } from '~/lib/db';
 import { dlsite } from '~/provider/dlsite';
 import { createCachified, ttl } from '~/lib/cachified';
 import { formatError, formatMessage } from '~/router/utils';
@@ -13,63 +13,26 @@ const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResponse<ServerW
 
 export const infoApp = new Hono();
 
-export async function processArtists(names: string[]) {
-  if (!names.length)
-    return [];
-
-  const existing = await prisma.artist.findMany({
-    where: { name: { in: names } }
-  });
-
-  const existingNames = new Set(existing.map(a => a.name));
-  const newNames = names.filter(name => !existingNames.has(name));
-
-  if (newNames.length > 0) {
-    await prisma.artist.createMany({
-      data: newNames.map(name => ({ name })),
-      skipDuplicates: true
-    });
-
-    return prisma.artist.findMany({
-      where: { name: { in: names } }
-    });
-  }
-
-  return existing;
-}
-
-export async function processIllustrators(names: string[]) {
-  if (!names.length)
-    return [];
-
-  const existing = await prisma.illustrator.findMany({
-    where: { name: { in: names } }
-  });
-
-  const existingNames = new Set(existing.map(i => i.name));
-  const newNames = names.filter(name => !existingNames.has(name));
-
-  if (newNames.length > 0) {
-    await prisma.illustrator.createMany({
-      data: newNames.map(name => ({ name })),
-      skipDuplicates: true
-    });
-
-    return prisma.illustrator.findMany({
-      where: { name: { in: names } }
-    });
-  }
-
-  return existing;
-}
-
 infoApp.get('/info/:id', async c => {
   const { id } = c.req.param();
 
   try {
     const data = await dlsiteCache({
       cacheKey: `dlsite-work-info-${id}`,
-      getFreshValue: () => getInfo(id),
+      async getFreshValue() {
+        const data = await dlsite.product(id);
+
+        if (!data)
+          return null;
+
+        return {
+          ...data,
+          artists: creater(data.artists),
+          illustrators: creater(data.illustrators),
+          playback: null,
+          subtitles: false
+        };
+      },
       ctx: c
     });
 
@@ -81,59 +44,17 @@ infoApp.get('/info/:id', async c => {
     return c.json(data);
   } catch (e) {
     console.error(e);
+    if (e instanceof HTTPError)
+      return c.json(formatError(e), e.status);
+
     return c.json(formatError(e), 500);
   }
 });
 
-async function getInfo(id: string): Promise<WorkInfoResponse<ServerWork> | null> {
-  const data = await dlsite.product(id);
-
-  if (!data)
-    return null;
-
-  const [artists, illustrators] = await Promise.all([
-    processArtists(data.artists ?? []),
-    processIllustrators(data.illustrators ?? [])
-  ]);
-
-  return {
-    id: data.id,
-    name: data.name,
-    cover: data.image_main,
-    intro: data.intro,
-    circleId: data.maker.id,
-    circle: data.maker,
-    seriesId: data.series?.id ?? null,
-    series: data.series ?? null,
-    artists,
-    illustrators,
-    ageCategory: data.age_category,
-    genres: data.genres ?? [],
-    price: data.price ?? 0,
-    sales: data.sales ?? 0,
-    wishlistCount: data.wishlist_count ?? 0,
-    rate: data.rating ?? 0,
-    rateCount: data.rating_count ?? 0,
-    originalId: data.translation_info.original_workno,
-    playback: null,
-    reviewCount: data.review_count ?? 0,
-    releaseDate: data.release_date,
-    subtitles: false,
-    translationInfo: {
-      isVolunteer: data.translation_info.is_volunteer,
-      isOriginal: data.translation_info.is_original,
-      isParent: data.translation_info.is_parent,
-      isChild: data.translation_info.is_child,
-      isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
-      originalWorkno: data.translation_info.original_workno,
-      parentWorkno: data.translation_info.parent_workno,
-      childWorknos: data.translation_info.child_worknos,
-      lang: data.translation_info.lang
-    },
-    languageEditions: data.language_editions?.map(item => ({
-      workId: item.work_id,
-      label: item.label,
-      lang: item.lang
-    })) ?? []
-  };
+function creater(c: Array<Data<string>>): Creater[] {
+  return c.map(v => ({
+    name: v.name,
+    source: 'dlsite',
+    sourceId: v.id
+  }));
 }

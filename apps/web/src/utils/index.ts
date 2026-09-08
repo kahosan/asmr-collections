@@ -83,7 +83,7 @@ export function findSmartPath(tracks: Tracks, patterns: string[]): string[] | un
 export const externalUrl = {
   dlsite: (id: string) => `https://www.dlsite.com/maniax/work/=/product_id/${id}.html`,
   dlsiteCircle: (id: string) => `https://www.dlsite.com/maniax/circle/profile/=/maker_id/${id}.html`,
-  dlsiteKeyword: (text: string) => `https://www.dlsite.com/maniax/fsr/=/keyword_creater/"${text}"`,
+  dlsiteKeyword: (text: string) => `https://www.dlsite.com/maniax/fsr/=/keyword_creater/${encodeURIComponent(text)}/ana_flg/all`,
   one: (id: string) => `https://asmr.one/work/${id}`
 };
 

@@ -12,6 +12,7 @@ import { useSimilar } from '~/hooks/use-similar';
 import Autoplay from 'embla-carousel-autoplay';
 
 import { cn } from '~/lib/utils';
+import { externalUrl } from '~/utils';
 import { formatISODate } from '@asmr-collections/shared';
 
 import type { Work } from '@asmr-collections/shared';
@@ -44,11 +45,9 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
               <CarouselItem
                 className={cn(
                   'min-w-0 select-none cursor-grab',
-                  'flex-[0_0_20%]',
-                  'max-[440px]:flex-[0_0_100%]',
-                  'max-[650px]:flex-[0_0_50%]',
-                  'max-[780px]:flex-[0_0_33%]',
-                  'md:flex-[0_0_25%]'
+                  'flex-[0_0_clamp(300px,25%,400px)]',
+                  'max-[780px]:flex-[0_0_clamp(300px,50%,400px)]',
+                  'max-[440px]:flex-[0_0_100%]'
                 )}
                 key={similarWork.id}
               >
@@ -110,24 +109,28 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                     <div className="flex flex-wrap gap-2">
                       {similarWork.artists.map(artist => (
                         <MetaButton
-                          key={artist.id}
+                          key={artist.id ?? artist.sourceId}
                           onPointerDown={e => e.preventDefault()}
                           metaType="artists"
                           size="sm"
                           asChild
                         >
-                          <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
+                          {artist.id
+                            ? <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
+                            : <Link to={externalUrl.dlsiteKeyword(artist.name)} isExternal>{artist.name}</Link>}
                         </MetaButton>
                       ))}
                       {similarWork.illustrators.map(illustrator => (
                         <MetaButton
-                          key={illustrator.id}
+                          key={illustrator.id ?? illustrator.sourceId}
                           onPointerDown={e => e.preventDefault()}
                           metaType="illustrators"
                           size="sm"
                           asChild
                         >
-                          <Link to="/" search={{ illustratorId: illustrator.id }}>{illustrator.name}</Link>
+                          {illustrator.id
+                            ? <Link to="/" search={{ illustratorId: illustrator.id }}>{illustrator.name}</Link>
+                            : <Link to={externalUrl.dlsiteKeyword(illustrator.name)} isExternal>{illustrator.name}</Link>}
                         </MetaButton>
                       ))}
                     </div>

@@ -147,10 +147,18 @@ function WorkDetails({ id }: { id: string }) {
                     size="sm"
                     disabled={!artist.id}
                   >
-                    <Link to="/" search={{ artistId: [artist.id] }}>
-                      <MicIcon />
-                      {artist.name}
-                    </Link>
+                    {artist.id
+                      ? (
+                        <Link to="/" search={{ artistId: [artist.id] }}>
+                          <MicIcon />
+                          {artist.name}
+                        </Link>
+                      ) : (
+                        <Link to={externalUrl.dlsiteKeyword(artist.name)} isExternal>
+                          <MicIcon />
+                          {artist.name}
+                        </Link>
+                      )}
                   </MetaButton>
                 ))
               }
@@ -163,10 +171,18 @@ function WorkDetails({ id }: { id: string }) {
                     size="sm"
                     disabled={!illust.id}
                   >
-                    <Link to="/" search={{ illustratorId: illust.id }}>
-                      <ImageIcon />
-                      {illust.name}
-                    </Link>
+                    {illust.id
+                      ? (
+                        <Link to="/" search={{ illustratorId: illust.id }}>
+                          <ImageIcon />
+                          {illust.name}
+                        </Link>
+                      ) : (
+                        <Link to={externalUrl.dlsiteKeyword(illust.name)} isExternal>
+                          <ImageIcon />
+                          {illust.name}
+                        </Link>
+                      )}
                   </MetaButton>
                 ))
               }

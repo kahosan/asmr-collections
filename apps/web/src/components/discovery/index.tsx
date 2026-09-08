@@ -23,11 +23,9 @@ interface DiscoveryWorksProps {
 
 const carouselItemClass = [
   'min-w-0 select-none cursor-grab',
-  'flex-[0_0_25%]',
-  'max-[440px]:flex-[0_0_100%]',
-  'max-[650px]:flex-[0_0_50%]',
-  'max-[780px]:flex-[0_0_33%]',
-  'md:flex-[0_0_25%]'
+  'flex-[0_0_clamp(300px,25%,400px)]',
+  'max-[780px]:flex-[0_0_clamp(300px,50%,400px)]',
+  'max-[440px]:flex-[0_0_100%]'
 ];
 
 export function DiscoveryCarouselItem({ children }: { children: React.ReactNode }) {

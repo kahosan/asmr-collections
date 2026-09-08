@@ -1,5 +1,3 @@
-import type { WorkInfo } from '~/types/source';
-
 export interface WorkPassage {
   name: string
   intro?: string | null
@@ -30,17 +28,4 @@ export function formatPassage(work: WorkPassage) {
   ];
 
   return parts.filter(Boolean).join(' ');
-}
-
-export function normalizeWorkInfo(work: WorkInfo): WorkPassage {
-  return {
-    name: work.name,
-    intro: work.intro,
-    ageCategory: work.age_category,
-    circle: { name: work.maker.name },
-    series: work.series ? { name: work.series.name } : null,
-    artists: work.artists?.map(name => ({ name })),
-    illustrators: work.illustrators?.map(name => ({ name })),
-    genres: work.genres
-  };
 }

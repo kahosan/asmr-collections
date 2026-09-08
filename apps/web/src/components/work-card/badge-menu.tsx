@@ -11,50 +11,50 @@ import { MetaButton } from '../meta-button';
 import { useState } from 'react';
 
 import { externalUrl, writeClipboard } from '~/utils';
+import type { Creater } from '@asmr-collections/shared';
 
 interface Props {
   metaType: 'artists' | 'illustrators'
-  metaId: number
-  text: string
+  creater: Creater
   isFilter?: boolean
 }
 
-export function BadgeMenu({ metaType, metaId, text, isFilter }: Props) {
+export function BadgeMenu({ metaType, creater, isFilter }: Props) {
   const [open, setOpen] = useState(false);
-
-  const search = {
-    artists: { artistId: [metaId] },
-    illustrators: { illustratorId: metaId }
-  }[metaType];
 
   return (
     <DropdownMenu open={open} key={String(open) /** 筛选只是添加了 url search，虽然有设置 open false，但是没用 */}>
       <DropdownMenuTrigger asChild>
         <MetaButton onPointerDown={e => e.preventDefault()} onClick={() => setOpen(p => !p)} metaType={metaType} size="sm">
-          {text}
+          {creater.name}
         </MetaButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" onInteractOutside={() => setOpen(false)}>
-        <DropdownMenuItem asChild disabled={isFilter}>
-          <Link
-            to="/"
-            search={search}
-            onClick={() => setOpen(false)}
-          >
-            筛选
-          </Link>
-        </DropdownMenuItem>
+        {creater.id && (
+          <DropdownMenuItem asChild disabled={isFilter}>
+            <Link
+              to="/"
+              search={{
+                artists: { artistId: [creater.id] },
+                illustrators: { illustratorId: creater.id }
+              }[metaType]}
+              onClick={() => setOpen(false)}
+            >
+              筛选
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => {
-            writeClipboard(text);
+            writeClipboard(creater.name);
             setOpen(false);
           }}
         >
           复制名称
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to={externalUrl.dlsiteKeyword(text)} isExternal showAnchorIcon>
+          <Link to={externalUrl.dlsiteKeyword(creater.name)} isExternal showAnchorIcon>
             在 DLsite 上查看
           </Link>
         </DropdownMenuItem>

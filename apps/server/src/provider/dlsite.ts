@@ -1,5 +1,7 @@
+import type { SourceWork } from '~/types/source';
 import type { PopularWorks } from '~/types/popular';
-import type { DLsiteResponse, WorkInfo } from '~/types/source';
+
+import { parseDLsiteProductDetailResponse, parseDLsiteProductStatsResponse } from '@asmr-collections/shared';
 
 import * as cheerio from 'cheerio';
 
@@ -29,6 +31,8 @@ interface PopularResponse {
   }
 }
 
+type ProductDetails = Pick<SourceWork, 'circle' | 'artists' | 'illustrators' | 'intro' | 'genres'>;
+
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
 
@@ -50,48 +54,82 @@ class DLsiteProvider {
       .slice(0, limit);
   }
 
-  async product(id: string): Promise<WorkInfo | null> {
-    const product = await fetcher<Record<string, DLsiteResponse> | unknown[]>(`${this.#host}/home/product/info/ajax?product_id=${id}&locale=zh_CN`);
+  async product(id: string): Promise<SourceWork | null> {
+    const response = await fetcher<unknown>(`${this.#host}/home/product/info/ajax?product_id=${encodeURIComponent(id)}&locale=zh_CN`);
+    const data = parseDLsiteProductStatsResponse(response, id);
+    if (!data) return null;
 
-    if (Array.isArray(product))
-      return null;
-
-    const data = product[id];
-    const other = await this.parserProductHTML(id);
+    const details = await this.#productDetails(id);
+    const series = data.title_id && data.title_name
+      ? { id: data.title_id, name: data.title_name }
+      : null;
 
     return {
+      ...details,
       id,
       name: data.work_name,
-      age_category: data.age_category,
-      artists: other.artists,
-      illustrators: other.illustrators,
-      image_main: data.work_image,
-      intro: other.intro,
-      maker: other.maker,
-      series: {
-        id: data.title_id,
-        name: data.title_name
+      cover: data.work_image,
+      circleId: details.circle.id,
+      seriesId: series?.id ?? null,
+      series,
+      ageCategory: data.age_category,
+      releaseDate: new Date(data.regist_date),
+      price: data.price ?? 0,
+      sales: data.dl_count ?? 0,
+      rate: data.rate_average_2dp ?? 0,
+      rateCount: data.rate_count ?? 0,
+      reviewCount: data.review_count ?? 0,
+      wishlistCount: data.wishlist_count ?? 0,
+      originalId: data.translation_info.original_workno,
+      translationInfo: {
+        isVolunteer: data.translation_info.is_volunteer,
+        isOriginal: data.translation_info.is_original,
+        isParent: data.translation_info.is_parent,
+        isChild: data.translation_info.is_child,
+        isTranslationBonusChild: data.translation_info.is_translation_bonus_child,
+        originalWorkno: data.translation_info.original_workno,
+        parentWorkno: data.translation_info.parent_workno,
+        childWorknos: data.translation_info.child_worknos,
+        lang: data.translation_info.lang
       },
-      genres: other.tags,
-      release_date: new Date(data.regist_date),
-      price: data.price,
-      sales: data.dl_count,
-      rating: data.rate_average_2dp,
-      rating_count: data.rate_count,
-      review_count: data.review_count,
-      translation_info: data.translation_info,
-      language_editions: data.dl_count_items?.map(item => ({
+      languageEditions: data.dl_count_items?.map(item => ({
         lang: item.lang,
-        work_id: item.workno,
+        workId: item.workno,
         label: item.display_label
-      })),
-      rating_count_detail: data.rate_count_detail,
-      wishlist_count: data.wishlist_count
+      })) ?? []
     };
   }
 
-  async parserProductHTML(id: string) {
-    const str = await fetcher<string>(`${this.#host}/maniax/work/=/product_id/${id}.html/?locale=zh_CN`, {
+  async #productDetails(id: string): Promise<ProductDetails> {
+    try {
+      const response = await fetcher<unknown>(`${this.#host}/maniax/api/=/product.json?workno=${encodeURIComponent(id)}&locale=zh_CN`);
+      const data = parseDLsiteProductDetailResponse(response, id);
+      if (!data)
+        throw new Error('商品详情接口未返回请求的作品');
+
+      const creators = Array.isArray(data.creaters) ? undefined : data.creaters;
+
+      return {
+        circle: {
+          id: data.maker_id,
+          name: data.maker_name
+        },
+        artists: creators?.voice_by ?? [],
+        illustrators: creators?.illust_by ?? [],
+        intro: data.intro_s ?? '',
+        genres: data.genres.map(genre => ({
+          id: genre.id,
+          name: genre.name
+        }))
+      };
+    } catch (error) {
+      console.warn(`获取 ${id} 的 DLsite 商品详情 JSON 失败，回退到 HTML 解析`, error);
+      return this.#parserProductHTML(id);
+    }
+  }
+
+  async #parserProductHTML(id: string): Promise<ProductDetails> {
+    const str = await fetcher<string>(`${this.#host}/maniax/work/=/product_id/${encodeURIComponent(id)}.html/?locale=zh_CN`, {
       headers: {
         Cookie: 'locale=zh-cn'
       }
@@ -118,7 +156,7 @@ class DLsiteProvider {
         illustrators = $(el).parent('tr').find('td a').map((_, el) => $(el).text().trim()).toArray();
     });
 
-    const tags = $('div.main_genre > a').map((_, el) => {
+    const genres = $('div.main_genre > a').map((_, el) => {
       return {
         id: Number.parseInt($(el).attr('href')?.match(/\d+/g)?.at(0) ?? '', 10),
         name: $(el).text().trim()
@@ -128,15 +166,14 @@ class DLsiteProvider {
     const intro = $('meta[name="description"]').attr('content')?.replace(/「DLsite.*/, '').trim() ?? '';
 
     return {
-      id,
-      maker: {
+      circle: {
         id: makerId,
         name: makerName
       },
-      artists,
-      illustrators,
+      artists: artists.map(name => ({ id: 'unknow', name })),
+      illustrators: illustrators.map(name => ({ id: 'unknow', name })),
       intro,
-      tags
+      genres
     };
   }
 }

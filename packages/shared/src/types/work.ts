@@ -3,6 +3,13 @@ import type { Playback } from './playback';
 
 export interface Data<T extends string | number> { id: T, name: string }
 
+export interface Creater {
+  id?: number
+  name: string
+  source: 'dlsite' | 'asmrone'
+  sourceId: string
+}
+
 export interface ServerWork {
   id: string
   name: string
@@ -15,9 +22,9 @@ export interface ServerWork {
   seriesId: string | null
   series: Data<string> | null
   // 声优
-  artists: Array<Data<number>>
+  artists: Creater[]
   // 画师
-  illustrators: Array<Data<number>>
+  illustrators: Creater[]
   ageCategory: 1 | 2 | 3 // 1: 全年齢, 2: R15, 3: R18
   // tags
   genres: Array<Data<number>>

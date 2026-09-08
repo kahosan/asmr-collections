@@ -4,7 +4,8 @@ import { readerZipFileSubtitles } from '@asmr-collections/shared';
 
 import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
-import { findwork, formatError, formatMessage } from '~/router/utils';
+import { workRepo } from '~/repository/work';
+import { formatError, formatMessage } from '~/router/utils';
 
 const schema = z.object({
   action: z.enum(['download']).optional()
@@ -16,7 +17,7 @@ export const subtitlesApp = new Hono()
     const { action } = c.req.valid('query');
 
     try {
-      if (!await findwork(id))
+      if (!await workRepo.exists(id))
         return c.json(formatMessage('收藏不存在'), 404);
 
       const subtitlesData = await prisma.subtitlesData.findUnique({
@@ -53,7 +54,7 @@ export const subtitlesApp = new Hono()
       return c.json(formatMessage('文件格式不正确'), 400);
 
     try {
-      if (!await findwork(id))
+      if (!await workRepo.exists(id))
         return c.json(formatMessage('收藏不存在'), 404);
 
       const newSubtitlesData = Buffer.from(await subtitles.arrayBuffer());
@@ -81,7 +82,7 @@ export const subtitlesApp = new Hono()
     const { id } = c.req.param();
 
     try {
-      if (!await findwork(id))
+      if (!await workRepo.exists(id))
         return c.json(formatMessage('收藏不存在'), 404);
 
       await prisma.work.update({

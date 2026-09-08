@@ -4,7 +4,7 @@
 import type { SSEStreamingApi } from 'hono/streaming';
 import type { BatchResult, BatchSendEventFn, BatchSSEEvent, BatchSSEEvents } from '@asmr-collections/shared';
 
-import type { WorkInfo } from '~/types/source';
+import type { SourceWork } from '~/types/source';
 
 import { randomUUID } from 'node:crypto';
 
@@ -16,10 +16,8 @@ import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
 import { dlsite } from '~/provider/dlsite';
+import { workRepo } from '~/repository/work';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
-
-import { createWork } from './create';
-import { updateWork } from './update';
 
 const createQueue = newQueue(10);
 const updateQueue = newQueue(10);
@@ -166,15 +164,15 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           }
 
           try {
-            const coverPath = await saveCoverImage(data.image_main, id);
-            if (coverPath) data.image_main = coverPath;
+            const coverPath = await saveCoverImage(data.cover, id);
+            if (coverPath) data.cover = coverPath;
           } catch (e) {
             console.error('保存 cover 图片失败', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
           }
 
           try {
-            await createWork(data, id);
+            await workRepo.create(data, id);
             if (embedding) {
               const vectorString = `[${embedding.join(',')}]`;
               await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
@@ -299,15 +297,15 @@ batchApp.get('/batch/update', c => {
 
         const updateTasks = validData.map(({ id, data }) => async () => {
           try {
-            const coverPath = await saveCoverImage(data.image_main, id);
-            if (coverPath) data.image_main = coverPath;
+            const coverPath = await saveCoverImage(data.cover, id);
+            if (coverPath) data.cover = coverPath;
           } catch (e) {
             console.error('保存 cover 图片失败', e);
             await sendEvent('log', { type: 'warning', message: `${id} 封面保存失败` });
           }
 
           try {
-            await updateWork(data, id);
+            await workRepo.update(data, id);
             result.success.push(id);
 
             currentStep += 1;
@@ -378,7 +376,7 @@ async function fetchValidData(
   sendProgress: () => Promise<void>,
   changeCurrentStep: () => void
 ) {
-  const validData: Array<{ id: string, data: WorkInfo }> = [];
+  const validData: Array<{ id: string, data: SourceWork }> = [];
   const failed: Array<{ id: string, error: string }> = [];
 
   const fetchTasks = ids.map(id => async () => {
@@ -417,7 +415,7 @@ async function fetchValidData(
   return { validData, failed };
 }
 
-async function ensureRelations(validData: Array<{ data: WorkInfo }>) {
+async function ensureRelations(validData: Array<{ data: SourceWork }>) {
   // 步骤 2: 提取所有需要的关联数据
   const circles = new Map<string, string>();
   const series = new Map<string, string>();
@@ -426,11 +424,11 @@ async function ensureRelations(validData: Array<{ data: WorkInfo }>) {
   const genres = new Map<number, string>();
 
   for (const { data } of validData) {
-    circles.set(data.maker.id, data.maker.name);
+    circles.set(data.circle.id, data.circle.name);
     if (data.series?.id) series.set(data.series.id, data.series.name);
-    data.artists?.forEach(name => artists.set(name, name));
-    data.illustrators?.forEach(name => illustrators.set(name, name));
-    data.genres?.forEach(g => genres.set(g.id, g.name));
+    data.artists.forEach(({ name }) => artists.set(name, name));
+    data.illustrators.forEach(({ name }) => illustrators.set(name, name));
+    data.genres.forEach(g => genres.set(g.id, g.name));
   }
 
   // 步骤 3: 批量预创建可能缺失的关联数据
