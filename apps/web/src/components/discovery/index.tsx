@@ -2,6 +2,7 @@ import { RefreshCwIcon } from 'lucide-react';
 
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
+import { NativeSelect } from '~/components/ui/native-select';
 import { WorkCard } from '~/components/work-card';
 import { ExternalWorkCard } from './external-work-card';
 import { DiscoveryWorksSkeleton } from './skeleton';
@@ -9,7 +10,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 
 import { cn } from '~/lib/utils';
 
-import type { DiscoveryItem } from '@asmr-collections/shared';
+import type { DiscoveryItem, DLsiteRankPeriod } from '@asmr-collections/shared';
 
 interface DiscoveryWorksProps {
   error: unknown
@@ -137,6 +138,8 @@ interface DiscoverySectionProps {
   error?: unknown
   onRefresh?: () => void
   action?: React.ReactNode
+  period?: DLsiteRankPeriod
+  onPeriodChange?: (period: DLsiteRankPeriod) => void
   className?: string
   compact?: boolean
   onExternalAdded?: () => void | Promise<void>
@@ -149,16 +152,34 @@ export function DiscoverySection({
   error,
   onRefresh,
   action,
+  period,
+  onPeriodChange,
   className,
   compact = false,
   onExternalAdded
 }: DiscoverySectionProps) {
   return (
     <section className={cn('space-y-4', className)}>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-medium">{title}</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {action}
+          {period && onPeriodChange && (
+            <NativeSelect
+              value={period}
+              onChange={event => {
+                const value = event.target.value;
+                if (value !== 'day' && value !== 'week' && value !== 'month' && value !== 'total') return;
+                onPeriodChange(value);
+              }}
+              aria-label="DLsite 榜单周期"
+            >
+              <option value="day">24 小时</option>
+              <option value="week">周榜</option>
+              <option value="month">月榜</option>
+              <option value="total">总榜</option>
+            </NativeSelect>
+          )}
           {onRefresh && (
             <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
               <RefreshCwIcon />

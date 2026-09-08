@@ -5,7 +5,8 @@ import type {
   DiscoveryRequest,
   DiscoveryRules,
   DiscoveryScene,
-  DiscoverySource
+  DiscoverySource,
+  DLsiteRankPeriod
 } from '@asmr-collections/shared';
 
 import type { Prisma } from '~/lib/prisma/client';
@@ -85,6 +86,7 @@ interface NormalizedRequest {
   scene: DiscoveryScene
   source: DiscoverySource
   provider: DiscoveryHotProvider
+  period: DLsiteRankPeriod
   mode: DiscoveryMode
   count: number
   seed: string
@@ -215,6 +217,7 @@ export class DiscoveryEngine {
       scene: parsed.scene,
       source,
       provider,
+      period: parsed.period,
       mode: parsed.mode,
       count: parsed.count,
       seed,
@@ -233,7 +236,7 @@ export class DiscoveryEngine {
       if (request.provider === 'asmrone' && !request.api)
         throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
 
-      const works = await this.#getPopularWorks(request.provider, request.api);
+      const works = await this.#getPopularWorks(request.provider, request.api, request.period);
       return this.#resolvePopularCandidates(works, request.provider, true);
     }
 
@@ -247,8 +250,8 @@ export class DiscoveryEngine {
     return this.#resolvePopularCandidates(works, 'asmrone', false);
   }
 
-  async #getPopularWorks(provider: Exclude<DiscoveryHotProvider, 'personal'>, api?: string) {
-    const cacheKey = provider === 'asmrone' ? `asmrone:${api ?? ''}` : 'dlsite:24h';
+  async #getPopularWorks(provider: Exclude<DiscoveryHotProvider, 'personal'>, api?: string, period: DLsiteRankPeriod = 'day') {
+    const cacheKey = provider === 'asmrone' ? `asmrone:${api ?? ''}` : `dlsite:${period}`;
     const cached = this.#popularCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       // Refresh insertion order so frequently used providers stay in the small
@@ -265,7 +268,7 @@ export class DiscoveryEngine {
 
     const works = provider === 'asmrone'
       ? await asmrone.popular(POPULAR_LIMIT)
-      : await this.#dlsite.popular(POPULAR_LIMIT);
+      : await this.#dlsite.popular(period, POPULAR_LIMIT);
 
     if (this.#popularCache.size >= POPULAR_CACHE_MAX) {
       const oldest = this.#popularCache.keys().next().value;

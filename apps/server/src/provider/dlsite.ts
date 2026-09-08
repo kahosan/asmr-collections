@@ -1,3 +1,5 @@
+import type { DLsiteRankPeriod } from '@asmr-collections/shared';
+
 import type { SourceWork } from '~/types/source';
 import type { PopularWorks } from '~/types/popular';
 
@@ -36,8 +38,8 @@ type ProductDetails = Pick<SourceWork, 'circle' | 'artists' | 'illustrators' | '
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
 
-  async popular(limit = 100): Promise<PopularWorks> {
-    const data = await fetcher<PopularResponse>(`${this.#host}/maniax/api/=/globalRanking.json?area=global&category=voice&term=day`);
+  async popular(period: DLsiteRankPeriod, limit = 100): Promise<PopularWorks> {
+    const data = await fetcher<PopularResponse>(`${this.#host}/maniax/api/=/globalRanking.json?area=global&category=voice&term=${period}`);
     return data.data.voice.products
       .map(p => ({
         id: p.id,

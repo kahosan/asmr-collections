@@ -5,7 +5,8 @@ import { useAtomValue } from 'jotai';
 
 import type {
   DiscoveryHotProvider,
-  DiscoveryRequest
+  DiscoveryRequest,
+  DLsiteRankPeriod
 } from '@asmr-collections/shared';
 
 import { DiscoverySection } from '~/components/discovery';
@@ -19,6 +20,7 @@ function DiscoverPage() {
   const [dailyRotation, setDailyRotation] = useState(0);
   const [hotRotation, setHotRotation] = useState(0);
   const [hotProvider, setHotProvider] = useState<DiscoveryHotProvider>('dlsite');
+  const [hotPeriod, setHotPeriod] = useState<DLsiteRankPeriod>('day');
   const [dailyExcludedIds, setDailyExcludedIds] = useState<string[]>([]);
   const [hotExcludedIds, setHotExcludedIds] = useState<string[]>([]);
 
@@ -40,6 +42,7 @@ function DiscoverPage() {
   const hotRequest: DiscoveryRequest = {
     scene: 'hot',
     provider: hotProvider,
+    ...(hotProvider === 'dlsite' ? { period: hotPeriod } : {}),
     ...(hotProvider === 'asmrone' ? { api: options.asmrone.api } : {}),
     mode: 'smart',
     count: Math.max(options.discovery.dailyCount, 6),
@@ -95,11 +98,17 @@ function DiscoverPage() {
             }}
             aria-label="热门推荐来源"
           >
-            <option value="dlsite">DLsite 24 小时热门</option>
+            <option value="dlsite">DLsite 热门</option>
             <option value="asmrone">ASMR.ONE 热门</option>
             <option value="personal">猜你喜欢</option>
           </NativeSelect>
         )}
+        period={hotProvider === 'dlsite' ? hotPeriod : undefined}
+        onPeriodChange={period => {
+          setHotPeriod(period);
+          setHotExcludedIds([]);
+          setHotRotation(0);
+        }}
         onExternalAdded={() => {
           hot.mutate();
         }}

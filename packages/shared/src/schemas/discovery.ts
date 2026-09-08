@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { DLsiteRankPeriodSchema } from './dlsite';
+
 export const DiscoverySourceSchema: z.ZodEnum<{
   personal: 'personal'
   asmrone: 'asmrone'
@@ -80,6 +82,7 @@ export const DiscoveryRequestSchema: z.ZodObject<{
     asmrone: 'asmrone'
     dlsite: 'dlsite'
   }>>
+  period: z.ZodDefault<typeof DLsiteRankPeriodSchema>
   api: z.ZodOptional<z.ZodURL>
   mode: z.ZodDefault<z.ZodEnum<{
     pure: 'pure'
@@ -106,6 +109,7 @@ export const DiscoveryRequestSchema: z.ZodObject<{
   scene: DiscoverySceneSchema,
   source: DiscoverySourceSchema.optional(),
   provider: DiscoveryHotProviderSchema.optional(),
+  period: DLsiteRankPeriodSchema.default('day'),
   api: z.url().optional(),
   mode: DiscoveryModeSchema.default('smart'),
   count: z.number().int().min(1).max(50).default(6),

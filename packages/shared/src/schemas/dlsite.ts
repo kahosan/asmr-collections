@@ -189,3 +189,12 @@ export function parseDLsiteProductStatsResponse(input: unknown, id: string): DLs
 
   return product.data;
 }
+
+export const DLsiteRankPeriodSchema: z.ZodEnum<{
+  day: 'day'
+  month: 'month'
+  total: 'total'
+  week: 'week'
+}> = z.enum(['day', 'week', 'month', 'total']);
+
+export type DLsiteRankPeriod = z.infer<typeof DLsiteRankPeriodSchema>;
