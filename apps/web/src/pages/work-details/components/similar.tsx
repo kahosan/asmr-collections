@@ -45,11 +45,9 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
               <CarouselItem
                 className={cn(
                   'min-w-0 select-none cursor-grab',
-                  'flex-[0_0_20%]',
-                  'max-[440px]:flex-[0_0_100%]',
-                  'max-[650px]:flex-[0_0_50%]',
-                  'max-[780px]:flex-[0_0_33%]',
-                  'md:flex-[0_0_25%]'
+                  'flex-[0_0_clamp(300px,25%,400px)]',
+                  'max-[780px]:flex-[0_0_clamp(300px,50%,400px)]',
+                  'max-[440px]:flex-[0_0_100%]'
                 )}
                 key={similarWork.id}
               >
