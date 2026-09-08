@@ -23,15 +23,8 @@ interface Props {
 export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
   const [createAction, isMutating] = useToastMutation<{ message?: string }>('create');
 
-  const sourceName = provider === 'dlsite' ? 'DLsite' : 'ASMR.ONE';
-  const sourceHref = provider === 'dlsite'
-    ? externalUrl.dlsite(work.id)
-    : externalUrl.one(work.id);
-  const circleHref = provider === 'dlsite'
-    ? externalUrl.dlsiteCircle(work.circle.id)
-    : undefined;
-  const visibleGenres = work.genres.slice(0, 5);
-  const hiddenGenreCount = Math.max(0, work.genres.length - visibleGenres.length);
+  const source = provider === 'dlsite' ? 'DLsite' : 'ASMR.ONE';
+  const circleHref = externalUrl.dlsiteCircle(work.circle.id);
 
   const handleCreate = () => {
     createAction({
@@ -52,7 +45,7 @@ export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
   return (
     <Card className="bg-zinc-100 dark:bg-zinc-900 overflow-hidden grid grid-rows-[auto_auto_1fr_auto] h-full py-0 gap-2">
       <div className="pb-[65%] relative">
-        <Link to={sourceHref} isExternal title={work.name}>
+        <Link to="/work-details/$id" params={{ id: work.id }} isExternal title={work.name}>
           <Image
             src={work.cover}
             alt={work.name}
@@ -69,7 +62,7 @@ export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
           {work.id}
         </Badge>
         <Badge className="absolute top-10 left-2 bg-[#795548] dark:text-white font-bold shadow-md">
-          {sourceName}
+          {source}
         </Badge>
 
         <Badge variant="info" className="absolute top-2 right-2 dark:text-white font-bold shadow-md">
@@ -79,7 +72,7 @@ export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
 
       <div className="px-2 flex flex-col gap-2">
         <CardTitle className="line-clamp-2 leading-6 mb-2 min-h-12">
-          <Link to={sourceHref} isExternal title={work.name}>
+          <Link to="/work-details/$id" params={{ id: work.id }} isExternal title={work.name}>
             {work.name}
           </Link>
         </CardTitle>
@@ -110,16 +103,11 @@ export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          {visibleGenres.map(genre => (
+          {work.genres.map(genre => (
             <Badge variant="outline" key={`${genre.id}:${genre.name}`}>
               {genre.name}
             </Badge>
           ))}
-          {hiddenGenreCount > 0 && (
-            <Badge variant="outline" title={work.genres.slice(visibleGenres.length).map(genre => genre.name).join('、')}>
-              +{hiddenGenreCount}
-            </Badge>
-          )}
           {work.genres.length === 0 && (
             <span className="text-sm text-muted-foreground">暂无标签</span>
           )}
@@ -137,7 +125,7 @@ export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
           <span className="text-sm">收藏到本库</span>
         </Button>
         <Button asChild variant="outline" size="lg">
-          <Link to={sourceHref} isExternal showAnchorIcon>
+          <Link to={provider === 'dlsite' ? externalUrl.dlsite(work.id) : externalUrl.one(work.id)} isExternal showAnchorIcon>
             打开来源
           </Link>
         </Button>
