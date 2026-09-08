@@ -93,10 +93,14 @@ updateApp.put('/update/:id', async c => {
     }
   });
 
-export async function updateWork(data: SourceWork, id: string) {
-  await prisma.work.update({
+export function updateWork(data: SourceWork, id: string) {
+  return prisma.work.update({
     where: { id },
     data: {
+      id: data.id,
+      name: data.name,
+      cover: data.cover,
+      intro: data.intro,
       circle: {
         connectOrCreate: {
           where: { id: data.circle.id },
@@ -104,7 +108,8 @@ export async function updateWork(data: SourceWork, id: string) {
             id: data.circle.id,
             name: data.circle.name
           }
-        }
+        },
+        update: { name: data.circle.name }
       },
       series: data.series?.id
         ? {
@@ -114,28 +119,12 @@ export async function updateWork(data: SourceWork, id: string) {
               id: data.series.id,
               name: data.series.name
             }
-          }
-        }
-        : undefined
-    }
-  });
-
-  return prisma.work.update({
-    where: { id },
-    data: {
-      id: data.id,
-      name: data.name,
-      cover: data.cover,
-      intro: data.intro,
-      circle: {
-        update: { name: data.circle.name }
-      },
-      series: data.series?.id
-        ? {
+          },
           update: { name: data.series.name }
         }
-        : undefined,
+        : { disconnect: true },
       artists: {
+        set: [],
         connectOrCreate: data.artists.map(artist => ({
           where: { name: artist.name },
           create: {
@@ -144,6 +133,7 @@ export async function updateWork(data: SourceWork, id: string) {
         }))
       },
       illustrators: {
+        set: [],
         connectOrCreate: data.illustrators.map(illustrator => ({
           where: { name: illustrator.name },
           create: {
@@ -153,6 +143,7 @@ export async function updateWork(data: SourceWork, id: string) {
       },
       ageCategory: data.ageCategory,
       genres: {
+        set: [],
         connectOrCreate: data.genres.map(genre => ({
           where: { id: genre.id },
           create: {

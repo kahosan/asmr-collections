@@ -38,15 +38,12 @@ createApp.post('/create/:id', async c => {
     return c.json(formatError(e), 500);
   }
 
-  let embeddingError: HTTPError | null = null;
+  const warnings: string[] = [];
   try {
     embedding = await ai.vectorizePassage(data);
   } catch (e) {
-    if (e instanceof HTTPError)
-      embeddingError = e;
-    else if (e instanceof Error)
-      embeddingError = new HTTPError(e.message, 500);
-
+    const error = formatError(e);
+    warnings.push(`向量生成失败：${error.data?.detail ?? error.message}`);
     console.error(`${id} 生成向量失败`, e);
   }
 
@@ -55,6 +52,7 @@ createApp.post('/create/:id', async c => {
     data.cover = coverPath ?? data.cover;
   } catch (e) {
     console.error('保存 cover 图片失败', e);
+    warnings.push(`封面保存失败：${formatError(e).message}`);
   }
 
   try {
@@ -66,9 +64,7 @@ createApp.post('/create/:id', async c => {
       await clearSimilarCache(id);
     }
 
-    const errorText = embeddingError ? `Jina API 生成向量失败: ${embeddingError.data?.detail ?? embeddingError.message}` : '';
-
-    return c.json(formatMessage(errorText, work));
+    return c.json({ message: warnings.join('\n') || undefined, data: work });
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);
