@@ -1,4 +1,5 @@
 import { mutate } from 'swr';
+import { DISCOVERY_ENDPOINT } from './discovery';
 
 function mutateKey(prefix: string): (key: unknown) => boolean {
   return (key: unknown): boolean => {
@@ -35,5 +36,5 @@ export function mutatePlaylist(id: string) {
 }
 
 export function mutateDiscover() {
-  return mutate(mutateKey('/api/discover'));
+  return mutate(mutateKey(DISCOVERY_ENDPOINT));
 }

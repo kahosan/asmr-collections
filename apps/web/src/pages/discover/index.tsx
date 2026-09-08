@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 
 import { createLazyRoute } from '@tanstack/react-router';
 import { useAtomValue } from 'jotai';
+import { DEFAULT_DLSITE_RANK_PERIOD } from '@asmr-collections/shared';
 
 import type {
   DiscoveryHotProvider,
-  DiscoveryRequest,
   DLsiteRankPeriod
 } from '@asmr-collections/shared';
 
@@ -13,47 +13,23 @@ import { DiscoverySection } from '~/components/discovery';
 import { NativeSelect } from '~/components/ui/native-select';
 import { Separator } from '~/components/ui/separator';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
-import { getDiscoveryDate, getDiscoveryRules, useDiscovery } from '~/hooks/use-discovery';
+import { useDiscovery, useDiscoveryRotation } from '~/hooks/use-discovery';
+import { createDiscoveryRequest, getDiscoveryDate } from '~/lib/discovery';
 
 function DiscoverPage() {
   const options = useAtomValue(settingOptionsAtom);
-  const [dailyRotation, setDailyRotation] = useState(0);
-  const [hotRotation, setHotRotation] = useState(0);
+  const dailyRotation = useDiscoveryRotation();
+  const hotRotation = useDiscoveryRotation();
   const [hotProvider, setHotProvider] = useState<DiscoveryHotProvider>('dlsite');
-  const [hotPeriod, setHotPeriod] = useState<DLsiteRankPeriod>('day');
-  const [dailyExcludedIds, setDailyExcludedIds] = useState<string[]>([]);
-  const [hotExcludedIds, setHotExcludedIds] = useState<string[]>([]);
+  const [hotPeriod, setHotPeriod] = useState<DLsiteRankPeriod>(DEFAULT_DLSITE_RANK_PERIOD);
 
   const date = useMemo(() => getDiscoveryDate(), []);
-  const rules = useMemo(() => getDiscoveryRules(options.discovery), [options.discovery]);
-
-  const dailyRequest: DiscoveryRequest = {
-    scene: 'daily',
-    source: options.discovery.source,
-    ...(options.discovery.source === 'asmrone' ? { api: options.asmrone.api } : {}),
-    mode: 'smart',
-    count: options.discovery.dailyCount,
-    date,
-    seed: `${date}:daily:${dailyRotation}`,
-    excludeIds: dailyExcludedIds,
-    rules
-  };
-
-  const hotRequest: DiscoveryRequest = {
-    scene: 'hot',
-    provider: hotProvider,
-    ...(hotProvider === 'dlsite' ? { period: hotPeriod } : {}),
-    ...(hotProvider === 'asmrone' ? { api: options.asmrone.api } : {}),
-    mode: 'smart',
-    count: Math.max(options.discovery.dailyCount, 6),
-    date,
-    seed: `${date}:hot:${hotProvider}:${hotRotation}`,
-    excludeIds: hotExcludedIds,
-    rules
-  };
-
-  const daily = useDiscovery(dailyRequest, '获取今日推荐失败');
-  const hot = useDiscovery(hotRequest, '获取热门推荐失败');
+  const daily = useDiscovery(createDiscoveryRequest(options, {
+    scene: 'daily', date, ...dailyRotation.state
+  }), '获取今日推荐失败');
+  const hot = useDiscovery(createDiscoveryRequest(options, {
+    scene: 'hot', provider: hotProvider, period: hotPeriod, date, ...hotRotation.state
+  }), '获取热门推荐失败');
 
   return (
     <div className="max-w-7xl mx-auto mt-4 space-y-8">
@@ -67,11 +43,7 @@ function DiscoverPage() {
         data={daily.data?.data}
         isLoading={daily.isLoading}
         error={daily.error}
-        onRefresh={() => {
-          const ids = daily.data?.data.map(item => item.work.id) ?? [];
-          setDailyExcludedIds(current => [...new Set([...current, ...ids])].slice(-400));
-          setDailyRotation(value => value + 1);
-        }}
+        onRefresh={() => dailyRotation.refresh(daily.data?.data)}
       />
 
       <Separator />
@@ -81,11 +53,7 @@ function DiscoverPage() {
         data={hot.data?.data}
         isLoading={hot.isLoading}
         error={hot.error}
-        onRefresh={() => {
-          const ids = hot.data?.data.map(item => item.work.id) ?? [];
-          setHotExcludedIds(current => [...new Set([...current, ...ids])].slice(-400));
-          setHotRotation(value => value + 1);
-        }}
+        onRefresh={() => hotRotation.refresh(hot.data?.data)}
         action={(
           <NativeSelect
             value={hotProvider}
@@ -93,8 +61,7 @@ function DiscoverPage() {
               const value = event.target.value;
               if (value !== 'dlsite' && value !== 'asmrone' && value !== 'personal') return;
               setHotProvider(value);
-              setHotExcludedIds([]);
-              setHotRotation(0);
+              hotRotation.reset();
             }}
             aria-label="热门推荐来源"
           >
@@ -106,8 +73,7 @@ function DiscoverPage() {
         period={hotProvider === 'dlsite' ? hotPeriod : undefined}
         onPeriodChange={period => {
           setHotPeriod(period);
-          setHotExcludedIds([]);
-          setHotRotation(0);
+          hotRotation.reset();
         }}
         onExternalAdded={() => {
           hot.mutate();

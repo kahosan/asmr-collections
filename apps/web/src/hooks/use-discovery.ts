@@ -1,55 +1,49 @@
+import { useState } from 'react';
+
 import type {
-  DiscoveryRequest,
-  DiscoveryResponse,
-  DiscoveryRules
+  DiscoveryItem,
+  DiscoveryRequestInput,
+  DiscoveryResponse
 } from '@asmr-collections/shared';
 
 import useSWRImmutable from 'swr/immutable';
-import type { DiscoveryOptions } from './use-setting-options';
-
 import { notifyError } from '~/utils';
 import { fetcher } from '~/lib/fetcher';
+import { DISCOVERY_ENDPOINT, getDiscoveryFetchOptions } from '~/lib/discovery';
 
-export type DiscoveryRequestRules = Partial<DiscoveryRules>;
-export type DiscoveryKey = readonly [string, DiscoveryRequest];
-
-export function getDiscoveryDate() {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
-}
-
-export function getDiscoveryRules(options: DiscoveryOptions) {
-  return {
-    recentExcludeDays: options.recentExcludeDays,
-    avoidDuplicateCircle: options.avoidDuplicateCircle,
-    circleIds: options.circleIds,
-    avoidDuplicateArtist: options.avoidDuplicateArtist,
-    artistIds: options.artistIds,
-    avoidDuplicateSeries: options.avoidDuplicateSeries,
-    forceGenreSpread: options.forceGenreSpread,
-    genreIds: options.genreIds,
-    avoidDuplicateWorkType: options.avoidDuplicateWorkType,
-    avoidDuplicateAgeCategory: options.avoidDuplicateAgeCategory,
-    storageOnly: options.storageOnly
-  };
-}
+export type DiscoveryKey = readonly [string, DiscoveryRequestInput];
 
 export async function discoveryFetcher([url, request]: DiscoveryKey) {
-  return fetcher<DiscoveryResponse>(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(request)
-  });
+  return fetcher<DiscoveryResponse>(url, getDiscoveryFetchOptions(request));
 }
 
-export function useDiscovery(request: DiscoveryRequest | null, errorText: string) {
-  const key = request ? ['/api/discover', request] as const : null;
+export function useDiscovery(request: DiscoveryRequestInput | null, errorText: string) {
+  const key = request ? [DISCOVERY_ENDPOINT, request] as const : null;
 
   return useSWRImmutable<DiscoveryResponse, Error, DiscoveryKey | null>(key, discoveryFetcher, {
     onError: error => notifyError(error, errorText),
     keepPreviousData: true
   });
+}
+
+interface DiscoveryRotationState {
+  rotation: number
+  excludeIds: string[]
+}
+
+export function useDiscoveryRotation() {
+  const [state, setState] = useState<DiscoveryRotationState>({ rotation: 0, excludeIds: [] });
+
+  function refresh(items: DiscoveryItem[] = []) {
+    setState(current => ({
+      rotation: current.rotation + 1,
+      excludeIds: [...new Set([...current.excludeIds, ...items.map(item => item.work.id)])].slice(-400)
+    }));
+  }
+
+  function reset() {
+    setState({ rotation: 0, excludeIds: [] });
+  }
+
+  return { state, refresh, reset };
 }

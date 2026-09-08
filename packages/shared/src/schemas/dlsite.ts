@@ -198,3 +198,5 @@ export const DLsiteRankPeriodSchema: z.ZodEnum<{
 }> = z.enum(['day', 'week', 'month', 'total']);
 
 export type DLsiteRankPeriod = z.infer<typeof DLsiteRankPeriodSchema>;
+
+export const DEFAULT_DLSITE_RANK_PERIOD: DLsiteRankPeriod = 'day';

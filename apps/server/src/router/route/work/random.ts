@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { DiscoveryModeSchema } from '@asmr-collections/shared';
+import { DiscoveryModeSchema, DiscoveryRequestSchema } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
@@ -27,12 +27,13 @@ export const randomApp = new Hono()
         return c.json(work);
       }
 
-      const data = await discover.generate({
+      const request = DiscoveryRequestSchema.parse({
         scene: 'random',
         source: 'personal',
         mode,
         count: 1
       });
+      const data = await discover.generate(request);
 
       const work = data.data.at(0)?.work;
       if (!work)

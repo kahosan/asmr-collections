@@ -6,8 +6,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useAtomValue } from 'jotai';
 
 import { useToastMutation } from '~/hooks/use-toast-fetch';
-import { getDiscoveryRules } from '~/hooks/use-discovery';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
+import { createDiscoveryRequest, DISCOVERY_ENDPOINT, getDiscoveryFetchOptions } from '~/lib/discovery';
 
 import type { DiscoveryResponse } from '@asmr-collections/shared';
 
@@ -22,18 +22,8 @@ export function RandomWork() {
   const handleClick = () => {
     const request = options.discovery.smartRandom
       ? {
-        key: '/api/discover',
-        fetchOps: {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            scene: 'random',
-            source: 'personal',
-            mode: 'smart',
-            count: 1,
-            rules: getDiscoveryRules(options.discovery)
-          })
-        }
+        key: DISCOVERY_ENDPOINT,
+        fetchOps: getDiscoveryFetchOptions(createDiscoveryRequest(options, { scene: 'random' }))
       }
       : { key: '/api/work/random' };
 

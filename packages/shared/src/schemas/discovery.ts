@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { DLsiteRankPeriodSchema } from './dlsite';
+import { DEFAULT_DLSITE_RANK_PERIOD, DLsiteRankPeriodSchema } from './dlsite';
 
 export const DiscoverySourceSchema: z.ZodEnum<{
   personal: 'personal'
@@ -64,60 +64,84 @@ export const DiscoveryRulesSchema: z.ZodObject<{
 });
 
 export type DiscoveryRulesInput = z.input<typeof DiscoveryRulesSchema>;
-export type DiscoveryRulesOutput = z.output<typeof DiscoveryRulesSchema>;
-export type DiscoveryRules = DiscoveryRulesOutput;
+export type DiscoveryRules = z.output<typeof DiscoveryRulesSchema>;
 
-export const DiscoveryRequestSchema: z.ZodObject<{
-  scene: z.ZodEnum<{
-    daily: 'daily'
-    hot: 'hot'
-    random: 'random'
-  }>
-  source: z.ZodOptional<z.ZodEnum<{
-    personal: 'personal'
-    asmrone: 'asmrone'
-  }>>
-  provider: z.ZodOptional<z.ZodEnum<{
-    personal: 'personal'
-    asmrone: 'asmrone'
-    dlsite: 'dlsite'
-  }>>
-  period: z.ZodDefault<typeof DLsiteRankPeriodSchema>
-  api: z.ZodOptional<z.ZodURL>
-  mode: z.ZodDefault<z.ZodEnum<{
-    pure: 'pure'
-    smart: 'smart'
-  }>>
+export const DEFAULT_DISCOVERY_RULES: DiscoveryRules = DiscoveryRulesSchema.parse({});
+export const DEFAULT_DISCOVERY_COUNT = 6;
+
+const RequestBaseSchema: z.ZodObject<{
+  mode: z.ZodDefault<typeof DiscoveryModeSchema>
   count: z.ZodDefault<z.ZodNumber>
   seed: z.ZodOptional<z.ZodString>
   date: z.ZodOptional<z.ZodString>
   excludeIds: z.ZodDefault<z.ZodArray<z.ZodString>>
-  rules: z.ZodDefault<z.ZodObject<{
-    recentExcludeDays: z.ZodOptional<z.ZodDefault<z.ZodNumber>>
-    avoidDuplicateCircle: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-    circleIds: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodString>>>
-    avoidDuplicateArtist: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-    artistIds: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodNumber>>>
-    avoidDuplicateSeries: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-    forceGenreSpread: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-    genreIds: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodNumber>>>
-    avoidDuplicateWorkType: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-    avoidDuplicateAgeCategory: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-    storageOnly: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-  }>>
+  rules: z.ZodPrefault<typeof DiscoveryRulesSchema>
 }> = z.object({
-  scene: DiscoverySceneSchema,
-  source: DiscoverySourceSchema.optional(),
-  provider: DiscoveryHotProviderSchema.optional(),
-  period: DLsiteRankPeriodSchema.default('day'),
-  api: z.url().optional(),
   mode: DiscoveryModeSchema.default('smart'),
-  count: z.number().int().min(1).max(50).default(6),
+  count: z.number().int().min(1).max(50).default(DEFAULT_DISCOVERY_COUNT),
   seed: z.string().min(1).max(128).optional(),
   /** The client-local date is used so server timezone does not change a daily list. */
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   excludeIds: z.array(z.string().min(1)).max(500).default([]),
-  rules: DiscoveryRulesSchema.partial().default({})
+  rules: DiscoveryRulesSchema.prefault({})
 });
 
-export type DiscoveryRequest = z.input<typeof DiscoveryRequestSchema>;
+const LibraryRequestBaseSchema: z.ZodObject<typeof RequestBaseSchema.shape & {
+  scene: z.ZodEnum<{ daily: 'daily', random: 'random' }>
+}> = RequestBaseSchema.extend({
+  scene: DiscoverySceneSchema.exclude(['hot'])
+});
+
+/** Daily and random recommendations draw from the library. */
+const LibraryRequestSchema: z.ZodDiscriminatedUnion<[
+  z.ZodObject<typeof LibraryRequestBaseSchema.shape & {
+    source: z.ZodDefault<z.ZodLiteral<'personal'>>
+  }, z.core.$strict>,
+  z.ZodObject<typeof LibraryRequestBaseSchema.shape & {
+    source: z.ZodLiteral<'asmrone'>
+    api: z.ZodURL
+  }, z.core.$strict>
+], 'source'> = z.discriminatedUnion('source', [
+  LibraryRequestBaseSchema.extend({
+    source: z.literal('personal').default('personal')
+  }).strict(),
+  LibraryRequestBaseSchema.extend({
+    source: z.literal('asmrone'),
+    api: z.url()
+  }).strict()
+]);
+
+const HotRequestBaseSchema: z.ZodObject<typeof RequestBaseSchema.shape & {
+  scene: z.ZodLiteral<'hot'>
+}> = RequestBaseSchema.extend({ scene: z.literal('hot') });
+
+/** Only DLsite has a ranking period; ASMR.ONE requires an API address. */
+const HotRequestSchema: z.ZodDiscriminatedUnion<[
+  z.ZodObject<typeof HotRequestBaseSchema.shape & {
+    provider: z.ZodDefault<z.ZodLiteral<'dlsite'>>
+    period: z.ZodDefault<typeof DLsiteRankPeriodSchema>
+  }, z.core.$strict>,
+  z.ZodObject<typeof HotRequestBaseSchema.shape & {
+    provider: z.ZodLiteral<'personal'>
+  }, z.core.$strict>,
+  z.ZodObject<typeof HotRequestBaseSchema.shape & {
+    provider: z.ZodLiteral<'asmrone'>
+    api: z.ZodURL
+  }, z.core.$strict>
+], 'provider'> = z.discriminatedUnion('provider', [
+  HotRequestBaseSchema.extend({
+    provider: z.literal('dlsite').default('dlsite'),
+    period: DLsiteRankPeriodSchema.default(DEFAULT_DLSITE_RANK_PERIOD)
+  }).strict(),
+  HotRequestBaseSchema.extend({ provider: z.literal('personal') }).strict(),
+  HotRequestBaseSchema.extend({ provider: z.literal('asmrone'), api: z.url() }).strict()
+]);
+
+export const DiscoveryRequestSchema: z.ZodDiscriminatedUnion<[
+  typeof LibraryRequestSchema,
+  typeof HotRequestSchema
+], 'scene'> = z.discriminatedUnion('scene', [LibraryRequestSchema, HotRequestSchema]);
+
+/** Callers may omit defaults; the engine receives only the parsed request. */
+export type DiscoveryRequestInput = z.input<typeof DiscoveryRequestSchema>;
+export type DiscoveryRequest = z.output<typeof DiscoveryRequestSchema>;

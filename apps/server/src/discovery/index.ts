@@ -1,11 +1,8 @@
 import type {
   DiscoveryExternalWork,
   DiscoveryHotProvider,
-  DiscoveryMode,
   DiscoveryRequest,
   DiscoveryRules,
-  DiscoveryScene,
-  DiscoverySource,
   DLsiteRankPeriod
 } from '@asmr-collections/shared';
 
@@ -13,12 +10,6 @@ import type { Prisma } from '~/lib/prisma/client';
 import type { PopularWorks } from '~/types/popular';
 
 import { createHash, randomUUID } from 'node:crypto';
-
-import {
-  DiscoveryRequestSchema,
-  DiscoveryRulesSchema,
-  HTTPError
-} from '@asmr-collections/shared';
 
 import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
@@ -47,6 +38,10 @@ interface PopularCacheEntry {
   expiresAt: number
 }
 
+type PopularSource =
+  | { provider: 'dlsite', period: DLsiteRankPeriod }
+  | { provider: 'asmrone', api: string };
+
 const POPULAR_CACHE_TTL = 30 * 60 * 1000;
 const POPULAR_CACHE_MAX = 8;
 const DAY_MS = 86_400_000;
@@ -71,53 +66,51 @@ interface LibraryCandidate {
 interface ExternalCandidate {
   kind: 'external'
   work: DiscoveryExternalWork
-  sourceScore: number
   provider: Exclude<DiscoveryHotProvider, 'personal'>
   rank: number
 }
 
 type Candidate = LibraryCandidate | ExternalCandidate;
 
-type RankedCandidate = Candidate & {
+type RankedCandidate = LibraryCandidate & {
   baseScore: number
 };
 
-interface NormalizedRequest {
-  scene: DiscoveryScene
-  source: DiscoverySource
-  provider: DiscoveryHotProvider
-  period: DLsiteRankPeriod
-  mode: DiscoveryMode
-  count: number
+interface DiscoveryContext {
+  request: DiscoveryRequest
   seed: string
   excludeIds: Set<string>
-  rules: DiscoveryRules
-  api?: string
+  now: number
 }
 
-interface DiscoveryContext {
-  request: NormalizedRequest
-  now: number
+function createDiscoveryContext(request: DiscoveryRequest, now: number): DiscoveryContext {
+  const source = request.scene === 'hot' ? 'personal' : request.source;
+  const provider = request.scene === 'hot' ? request.provider : source;
+  const date = request.date ?? new Date(now).toISOString().slice(0, 10);
+  const seed = request.seed
+    ?? (request.scene === 'random'
+      ? randomUUID()
+      : createHash('sha256')
+        .update(`${date}:${request.scene}:${source}:${provider}`)
+        .digest('hex')
+        .slice(0, 24));
+
+  return {
+    request,
+    seed,
+    excludeIds: new Set(request.excludeIds.map(id => id.toUpperCase())),
+    now
+  };
 }
 
 export class DiscoveryEngine {
   readonly #popularCache = new Map<string, PopularCacheEntry>();
-  readonly #defaultRules: DiscoveryRules;
   readonly #db = prisma;
   readonly #storage = storage;
   readonly #dlsite = dlsite;
 
-  constructor() {
-    this.#defaultRules = DiscoveryRulesSchema.parse({});
-  }
-
-  async generate(dr: DiscoveryRequest) {
-    const now = Date.now();
-    const context: DiscoveryContext = {
-      request: this.#normalizeRequest(dr, now),
-      now
-    };
-    const { request } = context;
+  async generate(request: DiscoveryRequest) {
+    const context = createDiscoveryContext(request, Date.now());
     const candidates = await this.#collectCandidates(context);
     const storedIds = request.rules.storageOnly
       ? new Set((await this.#storage.list()).map(id => id.toUpperCase()))
@@ -125,7 +118,7 @@ export class DiscoveryEngine {
 
     const eligible = candidates.filter(candidate => {
       const workId = candidate.work.id.toUpperCase();
-      if (request.excludeIds.has(workId)) return false;
+      if (context.excludeIds.has(workId)) return false;
 
       // External works do not have local playback or storage metadata. They
       // are only eligible for the hot scene and are filtered out when the
@@ -147,17 +140,17 @@ export class DiscoveryEngine {
         .toSorted((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER))
         .slice(0, request.count)
       : this.#selectDiverse(
-        eligible.map(candidate => ({
-          ...candidate,
-          baseScore: this.#scoreCandidate(candidate, context)
-        })),
+        eligible.flatMap(candidate => {
+          if (candidate.kind !== 'library') return [];
+          return [{ ...candidate, baseScore: this.#scoreCandidate(candidate, context) }];
+        }),
         request.count,
         request.rules,
-        request.seed
+        context.seed
       );
 
     const response = {
-      seed: request.seed,
+      seed: context.seed,
       generatedAt: new Date(context.now).toISOString(),
       data: selected.map(candidate => {
         if (candidate.kind === 'external') {
@@ -198,60 +191,25 @@ export class DiscoveryEngine {
     };
   }
 
-  #normalizeRequest(input: DiscoveryRequest, now: number): NormalizedRequest {
-    const parsed = DiscoveryRequestSchema.parse(input);
-    const rules = DiscoveryRulesSchema.parse(parsed.rules);
-    const source = parsed.source ?? 'personal';
-    const provider = parsed.provider ?? (parsed.scene === 'hot' ? 'dlsite' : source);
-    const date = parsed.date ?? new Date(now).toISOString().slice(0, 10);
-
-    const seed = parsed.seed
-      ?? (parsed.scene === 'random'
-        ? randomUUID()
-        : createHash('sha256')
-          .update(`${date}:${parsed.scene}:${source}:${provider}`)
-          .digest('hex')
-          .slice(0, 24));
-
-    return {
-      scene: parsed.scene,
-      source,
-      provider,
-      period: parsed.period,
-      mode: parsed.mode,
-      count: parsed.count,
-      seed,
-      excludeIds: new Set(parsed.excludeIds.map(id => id.toUpperCase())),
-      rules: { ...this.#defaultRules, ...rules },
-      api: parsed.api
-    };
-  }
-
   async #collectCandidates(context: DiscoveryContext): Promise<Candidate[]> {
     const { request } = context;
     if (request.scene === 'hot') {
       if (request.provider === 'personal')
         return this.#collectPersonalCandidates(context);
 
-      if (request.provider === 'asmrone' && !request.api)
-        throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
-
-      const works = await this.#getPopularWorks(request.provider, request.api, request.period);
+      const works = await this.#getPopularWorks(request);
       return this.#resolvePopularCandidates(works, request.provider, true);
     }
 
     if (request.source === 'personal')
       return this.#collectPersonalCandidates(context);
 
-    if (!request.api)
-      throw new HTTPError('未配置 ASMR.ONE API 地址', 400);
-
-    const works = await this.#getPopularWorks('asmrone', request.api);
+    const works = await this.#getPopularWorks({ provider: 'asmrone', api: request.api });
     return this.#resolvePopularCandidates(works, 'asmrone', false);
   }
 
-  async #getPopularWorks(provider: Exclude<DiscoveryHotProvider, 'personal'>, api?: string, period: DLsiteRankPeriod = 'day') {
-    const cacheKey = provider === 'asmrone' ? `asmrone:${api ?? ''}` : `dlsite:${period}`;
+  async #getPopularWorks(source: PopularSource) {
+    const cacheKey = source.provider === 'asmrone' ? `asmrone:${source.api}` : `dlsite:${source.period}`;
     const cached = this.#popularCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       // Refresh insertion order so frequently used providers stay in the small
@@ -264,11 +222,9 @@ export class DiscoveryEngine {
     if (cached)
       this.#popularCache.delete(cacheKey);
 
-    const asmrone = new ASMROneProvider(api ?? '');
-
-    const works = provider === 'asmrone'
-      ? await asmrone.popular(POPULAR_LIMIT)
-      : await this.#dlsite.popular(period, POPULAR_LIMIT);
+    const works = source.provider === 'asmrone'
+      ? await new ASMROneProvider(source.api).popular(POPULAR_LIMIT)
+      : await this.#dlsite.popular(source.period, POPULAR_LIMIT);
 
     if (this.#popularCache.size >= POPULAR_CACHE_MAX) {
       const oldest = this.#popularCache.keys().next().value;
@@ -373,8 +329,7 @@ export class DiscoveryEngine {
             genres: popular.item.genres
           },
           provider,
-          rank: popular.rank,
-          sourceScore: 1 - (position / maxPosition)
+          rank: popular.rank
         });
       }
     }
@@ -382,7 +337,7 @@ export class DiscoveryEngine {
     return candidates;
   }
 
-  async #collectPersonalCandidates(context: DiscoveryContext): Promise<Candidate[]> {
+  async #collectPersonalCandidates(context: DiscoveryContext): Promise<LibraryCandidate[]> {
     const { request, now } = context;
     const works = await this.#queryWorks();
     if (request.scene === 'random' && request.mode === 'pure') {
@@ -427,7 +382,7 @@ export class DiscoveryEngine {
       .slice(coreSeeds.length)
       .map(seed => {
         const random = Math.max(
-          this.#seededNumber(`${request.seed}:personal-seed:${seed.work.id}`),
+          this.#seededNumber(`${context.seed}:personal-seed:${seed.work.id}`),
           Number.MIN_VALUE
         );
 
@@ -521,7 +476,7 @@ export class DiscoveryEngine {
         `;
 
         rows.forEach((row, index) => {
-          if (context.request.excludeIds.has(row.id.toUpperCase())) return;
+          if (context.excludeIds.has(row.id.toUpperCase())) return;
 
           const rawDistance = Number(row.distance);
           const distance = Number.isFinite(rawDistance) ? Math.max(0, rawDistance) : 1;
@@ -537,16 +492,10 @@ export class DiscoveryEngine {
     return scores;
   }
 
-  #scoreCandidate(candidate: Candidate, context: DiscoveryContext) {
-    const { request, now } = context;
-    const jitter = this.#seededNumber(`${request.seed}:${candidate.work.id}`);
+  #scoreCandidate(candidate: LibraryCandidate, context: DiscoveryContext) {
+    const { request, now, seed } = context;
+    const jitter = this.#seededNumber(`${seed}:${candidate.work.id}`);
     if (request.mode === 'pure') return jitter;
-
-    if (candidate.kind === 'external') {
-      // External cards only carry provider metadata. Keep their ranking
-      // recognizable and use a tiny deterministic jitter for stable rotation.
-      return candidate.sourceScore * 3.2 + jitter * 0.08;
-    }
 
     let novelty = 1;
     if (candidate.work.playback) {
@@ -560,14 +509,12 @@ export class DiscoveryEngine {
       : 1;
 
     if (request.scene === 'hot') {
-      // Provider rankings should stay recognizable. Personal similarity gets a
-      // larger deterministic exploration term so “换一批” can escape the same
-      // nearest-neighbour set even when embeddings have not changed.
-      const personal = request.provider === 'personal';
-      return candidate.sourceScore * (personal ? 1.6 : 3.2)
-        + novelty * (personal ? 0.55 : 0.35)
+      // Personal hot recommendations use more exploration so “换一批” can
+      // escape the same nearest-neighbour set when embeddings have not changed.
+      return candidate.sourceScore * 1.6
+        + novelty * 0.55
         + lowPlay * 0.15
-        + jitter * (personal ? 0.65 : 0.08);
+        + jitter * 0.65;
     }
 
     return candidate.sourceScore * 1.45 + novelty * 1.2 + lowPlay * 0.65 + jitter * 0.65;
@@ -587,8 +534,6 @@ export class DiscoveryEngine {
 
     /** Prefer a candidate that has not appeared in an enabled diversity group. */
     const hasRepeatedGroup = (candidate: RankedCandidate) => {
-      if (candidate.kind === 'external') return false;
-
       const { work } = candidate;
       if (rules.avoidDuplicateCircle
         && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId))
@@ -615,8 +560,6 @@ export class DiscoveryEngine {
     };
 
     const diversityAdjustment = (candidate: RankedCandidate) => {
-      if (candidate.kind === 'external') return 0;
-
       const { work } = candidate;
       let adjustment = 0;
 
@@ -668,8 +611,6 @@ export class DiscoveryEngine {
     };
 
     const updateGroupCounts = (candidate: RankedCandidate) => {
-      if (candidate.kind === 'external') return;
-
       const { work } = candidate;
       if (rules.avoidDuplicateCircle
         && (rules.circleIds.length === 0 || rules.circleIds.includes(work.circleId)))

@@ -3,23 +3,12 @@ import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 
 import { focusAtom } from 'jotai-optics';
 
-import { toMerged } from '@asmr-collections/shared';
-import type { DiscoverySource } from '@asmr-collections/shared';
+import { DEFAULT_DISCOVERY_COUNT, DEFAULT_DISCOVERY_RULES, toMerged } from '@asmr-collections/shared';
+import type { DiscoveryRules, DiscoverySource } from '@asmr-collections/shared';
 
-export interface DiscoveryOptions {
+export interface DiscoveryOptions extends DiscoveryRules {
   smartRandom: boolean
   dailyCount: number
-  recentExcludeDays: number
-  avoidDuplicateCircle: boolean
-  circleIds: string[]
-  avoidDuplicateArtist: boolean
-  artistIds: number[]
-  avoidDuplicateSeries: boolean
-  forceGenreSpread: boolean
-  genreIds: number[]
-  avoidDuplicateWorkType: boolean
-  avoidDuplicateAgeCategory: boolean
-  storageOnly: boolean
   source: DiscoverySource
 }
 
@@ -71,19 +60,9 @@ const DEFAULT_SETTINGS: SettingOptions = {
     pattern: ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus']
   },
   discovery: {
+    ...DEFAULT_DISCOVERY_RULES,
     smartRandom: true,
-    dailyCount: 6,
-    recentExcludeDays: 7,
-    avoidDuplicateCircle: true,
-    circleIds: [],
-    avoidDuplicateArtist: true,
-    artistIds: [],
-    avoidDuplicateSeries: true,
-    forceGenreSpread: true,
-    genreIds: [],
-    avoidDuplicateWorkType: false,
-    avoidDuplicateAgeCategory: false,
-    storageOnly: false,
+    dailyCount: DEFAULT_DISCOVERY_COUNT,
     source: 'personal'
   }
 };

@@ -5,11 +5,10 @@ import { Link } from '~/components/link';
 import { useAtomValue } from 'jotai';
 import { motion } from 'framer-motion';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
-import { getDiscoveryDate, getDiscoveryRules, useDiscovery } from '~/hooks/use-discovery';
+import { useDiscovery } from '~/hooks/use-discovery';
+import { createDiscoveryRequest, getDiscoveryDate } from '~/lib/discovery';
 
 import { DiscoveryWorks } from '.';
-
-import type { DiscoveryRequest } from '@asmr-collections/shared';
 
 export function DailyDiscoveryPreview() {
   return (
@@ -34,20 +33,9 @@ export function DailyDiscoveryPreview() {
 function DailyPreview() {
   const options = useAtomValue(settingOptionsAtom);
   const date = useMemo(() => getDiscoveryDate(), []);
-  const rules = useMemo(() => getDiscoveryRules(options.discovery), [options.discovery]);
-
-  const request: DiscoveryRequest = {
-    scene: 'daily',
-    source: options.discovery.source,
-    ...(options.discovery.source === 'asmrone' ? { api: options.asmrone.api } : {}),
-    mode: 'smart',
-    count: options.discovery.dailyCount,
-    date,
-    seed: `${date}:daily:0`,
-    rules
-  };
-
-  const { data, error, isLoading } = useDiscovery(request, '获取今日推荐失败');
+  const { data, error, isLoading } = useDiscovery(createDiscoveryRequest(options, {
+    scene: 'daily', date
+  }), '获取今日推荐失败');
 
   return (
     <DiscoveryWorks error={error} isLoading={isLoading} data={data?.data} compact carousel />
