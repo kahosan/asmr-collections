@@ -6,7 +6,8 @@ import { HTTPError } from '@asmr-collections/shared';
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { dlsite } from '~/provider/dlsite';
-import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
+import { workRepo } from '~/repository/work';
+import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
 
@@ -16,7 +17,7 @@ updateApp.put('/update/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await findwork(id))
+    if (!await workRepo.exists(id))
       return c.json(formatMessage('收藏不存在'), 400);
   } catch (e) {
     console.error(e);
@@ -45,7 +46,7 @@ updateApp.put('/update/:id', async c => {
   }
 
   try {
-    const work = await updateWork(data, id);
+    const work = await workRepo.update(data, id);
 
     return c.json(work);
   } catch (e) {
@@ -57,7 +58,7 @@ updateApp.put('/update/:id', async c => {
     const { id } = c.req.param();
 
     try {
-      if (!await findwork(id))
+      if (!await workRepo.exists(id))
         return c.json(formatMessage('收藏不存在'), 400);
     } catch (e) {
       console.error(e);
@@ -92,89 +93,3 @@ updateApp.put('/update/:id', async c => {
       return c.json(formatError(e, '生成向量失败'), 500);
     }
   });
-
-export function updateWork(data: SourceWork, id: string) {
-  return prisma.work.update({
-    where: { id },
-    data: {
-      id: data.id,
-      name: data.name,
-      cover: data.cover,
-      intro: data.intro,
-      circle: {
-        connectOrCreate: {
-          where: { id: data.circle.id },
-          create: {
-            id: data.circle.id,
-            name: data.circle.name
-          }
-        },
-        update: { name: data.circle.name }
-      },
-      series: data.series?.id
-        ? {
-          connectOrCreate: {
-            where: { id: data.series.id },
-            create: {
-              id: data.series.id,
-              name: data.series.name
-            }
-          },
-          update: { name: data.series.name }
-        }
-        : { disconnect: true },
-      artists: {
-        set: [],
-        connectOrCreate: data.artists.map(artist => ({
-          where: { name: artist.name },
-          create: {
-            name: artist.name
-          }
-        }))
-      },
-      illustrators: {
-        set: [],
-        connectOrCreate: data.illustrators.map(illustrator => ({
-          where: { name: illustrator.name },
-          create: {
-            name: illustrator.name
-          }
-        }))
-      },
-      ageCategory: data.ageCategory,
-      genres: {
-        set: [],
-        connectOrCreate: data.genres.map(genre => ({
-          where: { id: genre.id },
-          create: {
-            id: genre.id,
-            name: genre.name
-          }
-        }))
-      },
-      price: data.price,
-      sales: data.sales,
-      wishlistCount: data.wishlistCount,
-      rate: data.rate,
-      rateCount: data.rateCount,
-      reviewCount: data.reviewCount,
-      originalId: data.originalId,
-      translationInfo: {
-        upsert: {
-          create: data.translationInfo,
-          update: data.translationInfo
-        }
-      },
-      languageEditions: data.languageEditions,
-      releaseDate: data.releaseDate
-    },
-    include: {
-      circle: true,
-      series: true,
-      artists: true,
-      illustrators: true,
-      genres: true,
-      translationInfo: true
-    }
-  });
-}

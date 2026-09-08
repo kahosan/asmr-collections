@@ -16,10 +16,8 @@ import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
 import { dlsite } from '~/provider/dlsite';
+import { workRepo } from '~/repository/work';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
-
-import { createWork } from './create';
-import { updateWork } from './update';
 
 const createQueue = newQueue(10);
 const updateQueue = newQueue(10);
@@ -174,7 +172,7 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
           }
 
           try {
-            await createWork(data, id);
+            await workRepo.create(data, id);
             if (embedding) {
               const vectorString = `[${embedding.join(',')}]`;
               await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
@@ -307,7 +305,7 @@ batchApp.get('/batch/update', c => {
           }
 
           try {
-            await updateWork(data, id);
+            await workRepo.update(data, id);
             result.success.push(id);
 
             currentStep += 1;

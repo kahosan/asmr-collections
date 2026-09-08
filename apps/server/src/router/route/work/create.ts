@@ -6,7 +6,8 @@ import { HTTPError } from '@asmr-collections/shared';
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { dlsite } from '~/provider/dlsite';
-import { findwork, formatError, formatMessage, saveCoverImage } from '~/router/utils';
+import { workRepo } from '~/repository/work';
+import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
 
 import { clearSimilarCache } from './similar';
 
@@ -31,7 +32,7 @@ createApp.post('/create/:id', async c => {
   if (!data) return c.json(formatMessage('DLsite 不存在此作品'), 404);
 
   try {
-    if (await findwork(id))
+    if (await workRepo.exists(id))
       return c.json(formatMessage('作品已收藏'), 400);
   } catch (e) {
     console.error(e);
@@ -56,7 +57,7 @@ createApp.post('/create/:id', async c => {
   }
 
   try {
-    const work = await createWork(data, id);
+    const work = await workRepo.create(data, id);
 
     if (embedding) {
       const vectorString = `[${embedding.join(',')}]`;
@@ -70,80 +71,3 @@ createApp.post('/create/:id', async c => {
     return c.json(formatError(e), 500);
   }
 });
-
-export function createWork(data: SourceWork, id: string) {
-  return prisma.work.create({
-    data: {
-      id,
-      name: data.name,
-      cover: data.cover,
-      intro: data.intro,
-      circle: {
-        connectOrCreate: {
-          where: { id: data.circle.id },
-          create: {
-            id: data.circle.id,
-            name: data.circle.name
-          }
-        }
-      },
-      series: data.series?.id
-        ? {
-          connectOrCreate: {
-            where: { id: data.series.id },
-            create: {
-              id: data.series.id,
-              name: data.series.name
-            }
-          }
-        }
-        : undefined,
-      artists: {
-        connectOrCreate: data.artists.map(artist => ({
-          where: { name: artist.name },
-          create: {
-            name: artist.name
-          }
-        }))
-      },
-      illustrators: {
-        connectOrCreate: data.illustrators.map(illustrator => ({
-          where: { name: illustrator.name },
-          create: {
-            name: illustrator.name
-          }
-        }))
-      },
-      ageCategory: data.ageCategory,
-      genres: {
-        connectOrCreate: data.genres.map(genre => ({
-          where: { id: genre.id },
-          create: {
-            id: genre.id,
-            name: genre.name
-          }
-        }))
-      },
-      price: data.price,
-      sales: data.sales,
-      wishlistCount: data.wishlistCount,
-      rate: data.rate,
-      rateCount: data.rateCount,
-      originalId: data.originalId,
-      reviewCount: data.reviewCount,
-      translationInfo: {
-        create: data.translationInfo
-      },
-      languageEditions: data.languageEditions,
-      releaseDate: data.releaseDate
-    },
-    include: {
-      circle: true,
-      series: true,
-      artists: true,
-      illustrators: true,
-      genres: true,
-      translationInfo: true
-    }
-  });
-}

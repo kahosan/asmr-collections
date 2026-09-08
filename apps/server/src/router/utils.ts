@@ -5,12 +5,7 @@ import { join } from 'node:path';
 import { HTTPError } from '@asmr-collections/shared';
 import { exists } from '@asmr-collections/shared/server';
 
-import { prisma } from '~/lib/db';
 import { COVERS_PATH, DATA_PATH, IS_WORKERS } from '~/lib/constant';
-
-export function findwork(id: string) {
-  return prisma.work.findUnique({ where: { id }, select: { id: true } });
-}
 
 export function formatError(e: unknown, text?: string): { message: string, data?: ErrorData } {
   if (e instanceof HTTPError)

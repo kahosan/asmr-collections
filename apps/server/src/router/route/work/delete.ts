@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 
 import { prisma } from '~/lib/db';
-import { findwork, formatError, formatMessage } from '~/router/utils';
+import { workRepo } from '~/repository/work';
+import { formatError, formatMessage } from '~/router/utils';
 
 export const deleteApp = new Hono();
 
@@ -9,7 +10,7 @@ deleteApp.delete('/delete/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    if (!await findwork(id))
+    if (!await workRepo.exists(id))
       return c.json(formatMessage('收藏不存在'), 404);
 
     await prisma.work.delete({ where: { id } });
