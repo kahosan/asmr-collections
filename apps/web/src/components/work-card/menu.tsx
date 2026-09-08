@@ -18,7 +18,7 @@ import { memo, useState } from 'react';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { externalUrl } from '~/utils';
-import { mutatePlaylist, mutateWorkInfo, mutateWorks } from '~/lib/mutation';
+import { mutateDiscover, mutatePlaylist, mutateWorkInfo, mutateWorks } from '~/lib/mutation';
 
 import { fetcher } from '~/lib/fetcher';
 
@@ -68,6 +68,7 @@ export const Menu = memo(({ work }: Props) => {
         finally() {
           setOpen(false);
           mutateWorks();
+          mutateDiscover();
         }
       }
     });

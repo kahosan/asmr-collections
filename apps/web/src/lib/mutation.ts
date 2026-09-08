@@ -33,3 +33,7 @@ export function mutatePlaylists() {
 export function mutatePlaylist(id: string) {
   return mutate(mutateKey(`/api/playlist/${id}`));
 }
+
+export function mutateDiscover() {
+  return mutate(mutateKey('/api/discover'));
+}

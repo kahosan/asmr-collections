@@ -1,14 +1,14 @@
-import useSWR from 'swr';
-
 import type {
   DiscoveryRequest,
   DiscoveryResponse,
   DiscoveryRules
 } from '@asmr-collections/shared';
 
-import { fetcher } from '~/lib/fetcher';
-import { notifyError } from '~/utils';
+import useSWRImmutable from 'swr/immutable';
 import type { DiscoveryOptions } from './use-setting-options';
+
+import { notifyError } from '~/utils';
+import { fetcher } from '~/lib/fetcher';
 
 export type DiscoveryRequestRules = Partial<DiscoveryRules>;
 export type DiscoveryKey = readonly [string, DiscoveryRequest];
@@ -48,7 +48,7 @@ export async function discoveryFetcher([url, request]: DiscoveryKey) {
 export function useDiscovery(request: DiscoveryRequest | null, errorText: string) {
   const key = request ? ['/api/discover', request] as const : null;
 
-  return useSWR<DiscoveryResponse, Error, DiscoveryKey | null>(key, discoveryFetcher, {
+  return useSWRImmutable<DiscoveryResponse, Error, DiscoveryKey | null>(key, discoveryFetcher, {
     onError: error => notifyError(error, errorText),
     keepPreviousData: true
   });
