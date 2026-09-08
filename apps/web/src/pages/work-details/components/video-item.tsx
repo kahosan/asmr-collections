@@ -37,7 +37,7 @@ export function VideoItem({ track, tracks, work }: VideoItemProps) {
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: currentTrack.title,
-      artist: work.artists.map(artist => artist.name ?? artist.sourceName).join(', '),
+      artist: work.artists.map(artist => artist.name).join(', '),
       album: work.name,
       artwork: [
         { src: work.cover, sizes: '512x512', type: 'image/jpeg' }

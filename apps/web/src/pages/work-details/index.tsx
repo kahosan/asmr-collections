@@ -141,22 +141,22 @@ function WorkDetails({ id }: { id: string }) {
               {
                 data.artists.map(artist => (
                   <MetaButton
-                    key={artist.name ?? artist.sourceName}
+                    key={artist.name}
                     asChild
                     metaType="artists"
                     size="sm"
                     disabled={!artist.id}
                   >
-                    {(artist.id && artist.name)
+                    {artist.id
                       ? (
                         <Link to="/" search={{ artistId: [artist.id] }}>
                           <MicIcon />
                           {artist.name}
                         </Link>
                       ) : (
-                        <Link to={externalUrl.dlsiteKeyword(artist.sourceName)} isExternal>
+                        <Link to={externalUrl.dlsiteKeyword(artist.name)} isExternal>
                           <MicIcon />
-                          {artist.sourceName}
+                          {artist.name}
                         </Link>
                       )}
                   </MetaButton>
@@ -165,22 +165,22 @@ function WorkDetails({ id }: { id: string }) {
               {
                 data.illustrators.map(illust => (
                   <MetaButton
-                    key={illust.name ?? illust.sourceName}
+                    key={illust.name}
                     asChild
                     metaType="illustrators"
                     size="sm"
                     disabled={!illust.id}
                   >
-                    {(illust.id && illust.name)
+                    {illust.id
                       ? (
                         <Link to="/" search={{ illustratorId: illust.id }}>
                           <ImageIcon />
                           {illust.name}
                         </Link>
                       ) : (
-                        <Link to={externalUrl.dlsiteKeyword(illust.sourceName)} isExternal>
+                        <Link to={externalUrl.dlsiteKeyword(illust.name)} isExternal>
                           <ImageIcon />
-                          {illust.sourceName}
+                          {illust.name}
                         </Link>
                       )}
                   </MetaButton>

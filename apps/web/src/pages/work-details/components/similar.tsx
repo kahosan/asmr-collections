@@ -117,9 +117,9 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                           size="sm"
                           asChild
                         >
-                          {(artist.id && artist.name)
+                          {artist.id
                             ? <Link to="/" search={{ artistId: [artist.id] }}>{artist.name}</Link>
-                            : <Link to={externalUrl.dlsiteKeyword(artist.sourceName)} isExternal>{artist.sourceName}</Link>}
+                            : <Link to={externalUrl.dlsiteKeyword(artist.name)} isExternal>{artist.name}</Link>}
                         </MetaButton>
                       ))}
                       {similarWork.illustrators.map(illustrator => (
@@ -130,9 +130,9 @@ export const SimilarWorks = memo(({ work, exists }: SimilarWorksProps) => {
                           size="sm"
                           asChild
                         >
-                          {(illustrator.id && illustrator.name)
+                          {illustrator.id
                             ? <Link to="/" search={{ illustratorId: illustrator.id }}>{illustrator.name}</Link>
-                            : <Link to={externalUrl.dlsiteKeyword(illustrator.sourceName)} isExternal>{illustrator.sourceName}</Link>}
+                            : <Link to={externalUrl.dlsiteKeyword(illustrator.name)} isExternal>{illustrator.name}</Link>}
                         </MetaButton>
                       ))}
                     </div>

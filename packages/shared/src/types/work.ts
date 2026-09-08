@@ -3,10 +3,11 @@ import type { Playback } from './playback';
 
 export interface Data<T extends string | number> { id: T, name: string }
 
-export interface Creater extends Partial<Data<number>> {
+export interface Creater {
+  id?: number
+  name: string
   source: 'dlsite' | 'asmrone'
   sourceId: string
-  sourceName: string
 }
 
 export interface ServerWork {

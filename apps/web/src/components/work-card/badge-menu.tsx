@@ -22,17 +22,15 @@ interface Props {
 export function BadgeMenu({ metaType, creater, isFilter }: Props) {
   const [open, setOpen] = useState(false);
 
-  const createrName = creater.name ?? creater.sourceName;
-
   return (
     <DropdownMenu open={open} key={String(open) /** 筛选只是添加了 url search，虽然有设置 open false，但是没用 */}>
       <DropdownMenuTrigger asChild>
         <MetaButton onPointerDown={e => e.preventDefault()} onClick={() => setOpen(p => !p)} metaType={metaType} size="sm">
-          {createrName}
+          {creater.name}
         </MetaButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40" onInteractOutside={() => setOpen(false)}>
-        {(creater.id && creater.name) && (
+        {creater.id && (
           <DropdownMenuItem asChild disabled={isFilter}>
             <Link
               to="/"
@@ -49,14 +47,14 @@ export function BadgeMenu({ metaType, creater, isFilter }: Props) {
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => {
-            writeClipboard(createrName);
+            writeClipboard(creater.name);
             setOpen(false);
           }}
         >
           复制名称
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to={externalUrl.dlsiteKeyword(createrName)} isExternal showAnchorIcon>
+          <Link to={externalUrl.dlsiteKeyword(creater.name)} isExternal showAnchorIcon>
             在 DLsite 上查看
           </Link>
         </DropdownMenuItem>

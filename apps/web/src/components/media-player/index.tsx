@@ -150,7 +150,7 @@ function MediaPlayerInstance() {
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: currentTrack.title,
-      artist: mediaState.work.artists.map(artist => artist.name ?? artist.sourceName).join(', '),
+      artist: mediaState.work.artists.map(artist => artist.name).join(', '),
       album: mediaState.work.name,
       artwork: [
         { src: mediaState.work.cover, sizes: '512x512', type: 'image/jpeg' }

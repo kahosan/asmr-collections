@@ -53,8 +53,8 @@ infoApp.get('/info/:id', async c => {
 
 function creater(c: Array<Data<string>>): Creater[] {
   return c.map(v => ({
+    name: v.name,
     source: 'dlsite',
-    sourceId: v.id,
-    sourceName: v.name
+    sourceId: v.id
   }));
 }

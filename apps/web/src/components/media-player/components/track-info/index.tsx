@@ -30,7 +30,7 @@ export function TrackInfo({ mainExpand }: MiddleControlsProps) {
           {title || '未知曲目'}
         </div>
         <div id="track-artist" className="opacity-60 text-xs max-sm:w-42 w-30 truncate">
-          {mediaState.work?.artists.map(artist => artist.name ?? artist.sourceName).join('、') || '未知艺术家'}
+          {mediaState.work?.artists.map(artist => artist.name).join('、') || '未知艺术家'}
         </div>
       </div>
     </div>

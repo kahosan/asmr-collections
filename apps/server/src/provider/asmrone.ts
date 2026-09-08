@@ -89,7 +89,7 @@ export class ASMROneProvider {
         },
         seriesId: null,
         series: null,
-        artists: work.vas.map(va => ({ source: 'asmrone', sourceId: va.id, sourceName: va.name })),
+        artists: work.vas.map(va => ({ name: va.name, source: 'asmrone', sourceId: va.id })),
         illustrators: [],
         ageCategory: work.age_category_string === 'adult' ? 3 : (work.age_category_string === 'r15' ? 2 : 1),
         genres: work.tags.map(tag => ({ id: tag.id, name: tag.name })),
