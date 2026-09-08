@@ -25,7 +25,7 @@ function DiscoverPage() {
   const date = useMemo(() => getDiscoveryDate(), []);
   const rules = useMemo(() => getDiscoveryRules(options.discovery), [options.discovery]);
 
-  const dailyRequest = useMemo<DiscoveryRequest>(() => ({
+  const dailyRequest: DiscoveryRequest = {
     scene: 'daily',
     source: options.discovery.source,
     ...(options.discovery.source === 'asmrone' ? { api: options.asmrone.api } : {}),
@@ -35,9 +35,9 @@ function DiscoverPage() {
     seed: `${date}:daily:${dailyRotation}`,
     excludeIds: dailyExcludedIds,
     rules
-  }), [date, dailyExcludedIds, dailyRotation, options.asmrone.api, options.discovery.dailyCount, options.discovery.source, rules]);
+  };
 
-  const hotRequest = useMemo<DiscoveryRequest>(() => ({
+  const hotRequest: DiscoveryRequest = {
     scene: 'hot',
     provider: hotProvider,
     ...(hotProvider === 'asmrone' ? { api: options.asmrone.api } : {}),
@@ -47,7 +47,7 @@ function DiscoverPage() {
     seed: `${date}:hot:${hotProvider}:${hotRotation}`,
     excludeIds: hotExcludedIds,
     rules
-  }), [date, hotExcludedIds, hotProvider, hotRotation, options.asmrone.api, options.discovery.dailyCount, rules]);
+  };
 
   const daily = useDiscovery(dailyRequest, '获取今日推荐失败');
   const hot = useDiscovery(hotRequest, '获取热门推荐失败');
@@ -101,7 +101,7 @@ function DiscoverPage() {
           </NativeSelect>
         )}
         onExternalAdded={() => {
-          void hot.mutate();
+          hot.mutate();
         }}
       />
     </div>

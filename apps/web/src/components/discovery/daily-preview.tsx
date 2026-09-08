@@ -36,7 +36,7 @@ function DailyPreview() {
   const date = useMemo(() => getDiscoveryDate(), []);
   const rules = useMemo(() => getDiscoveryRules(options.discovery), [options.discovery]);
 
-  const request = useMemo<DiscoveryRequest>(() => ({
+  const request: DiscoveryRequest = {
     scene: 'daily',
     source: options.discovery.source,
     ...(options.discovery.source === 'asmrone' ? { api: options.asmrone.api } : {}),
@@ -45,7 +45,7 @@ function DailyPreview() {
     date,
     seed: `${date}:daily:0`,
     rules
-  }), [date, options.asmrone.api, options.discovery.dailyCount, options.discovery.source, rules]);
+  };
 
   const { data, error, isLoading } = useDiscovery(request, '获取今日推荐失败');
 
