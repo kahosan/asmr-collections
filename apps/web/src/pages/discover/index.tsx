@@ -22,7 +22,7 @@ function DiscoverPage() {
     <div className="max-w-7xl mx-auto mt-4 space-y-8">
       <div>
         <h1 className="text-3xl font-medium">发现</h1>
-        <p className="text-sm text-muted-foreground mt-1">根据播放习惯和热门来源挑选下一部作品</p>
+        <p className="text-sm text-muted-foreground mt-3 p-2 rounded-md bg-accent">「今日推荐」适合探索库内作品，而「猜你喜欢」会推荐常听作品</p>
       </div>
 
       <DiscoverySection
@@ -36,7 +36,7 @@ function DiscoverPage() {
       <Separator />
 
       <DiscoverySection
-        title={view === 'personal' ? '猜你喜欢' : '热门榜单'}
+        title="热门推荐"
         data={recommendations.data?.data}
         isLoading={recommendations.isLoading}
         error={recommendations.error}
