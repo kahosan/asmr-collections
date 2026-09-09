@@ -17,7 +17,8 @@ interface DiscoveryRotationOptions {
 }
 
 export type DiscoverySelection =
-  | { scene: 'daily' | 'personal' }
+  | { scene: 'daily' }
+  | { scene: 'personal' }
   | {
     scene: 'hot'
     provider: DiscoveryProvider
@@ -31,7 +32,7 @@ export function getDiscoveryDate() {
   return local.toISOString().slice(0, 10);
 }
 
-function getDiscoveryRules({ smartRandom, dailyCount, ...rules }: DiscoveryOptions): DiscoveryRules {
+function getDiscoveryRules({ smartRandom, dailyCount, personal, ...rules }: DiscoveryOptions): DiscoveryRules {
   return rules;
 }
 
@@ -42,20 +43,25 @@ export function createDiscoveryRequest(options: Pick<SettingOptions, 'discovery'
     return { scene: 'random', count: 1, rules };
 
   const { date = getDiscoveryDate(), rotation = 0, excludeIds = [] } = selection;
+  const seedTarget = scene === 'hot' ? `hot:${selection.provider}` : scene;
   const common = {
     count: scene === 'daily'
       ? options.discovery.dailyCount
       : Math.max(options.discovery.dailyCount, DEFAULT_DISCOVERY_COUNT),
     date,
+    seed: `${date}:${seedTarget}:${rotation}`,
     excludeIds,
     rules
   };
 
-  if (scene !== 'hot') {
+  if (scene === 'daily')
+    return { ...common, scene };
+
+  if (scene === 'personal') {
     return {
       ...common,
       scene,
-      seed: `${date}:${scene}:${rotation}`
+      blockedGenreIds: [...new Set(options.discovery.personal.blockedGenreIds)].toSorted((a, b) => a - b)
     };
   }
 
@@ -67,7 +73,6 @@ export function createDiscoveryRequest(options: Pick<SettingOptions, 'discovery'
   return {
     ...common,
     scene: 'hot',
-    seed: `${date}:hot:${provider}:${rotation}`,
     ...target
   };
 }

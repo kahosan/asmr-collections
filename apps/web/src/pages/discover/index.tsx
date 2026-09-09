@@ -41,6 +41,7 @@ function DiscoverPage() {
         isLoading={recommendations.isLoading}
         error={recommendations.error}
         navigation={recommendations.navigation}
+        personal={view === 'personal'}
         action={(
           <NativeSelect
             value={view}

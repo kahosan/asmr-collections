@@ -1,93 +1,12 @@
-import { useCallback } from 'react';
-
-import useSWR from 'swr';
 import { useImmerAtom } from 'jotai-immer';
 
-import { Button } from '~/components/ui/button';
-import { FilterPanel } from '~/components/header/filter-menu/filter-panel';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { EntityPicker } from '~/components/discovery/entity-picker';
 import { Separator } from '~/components/ui/separator';
 
 import { SettingInput } from './setting-input';
 import { SettingItem } from './setting-item';
 
-import { fetcher } from '~/lib/fetcher';
-import { notifyError } from '~/utils';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
-
-import type { Data } from '@asmr-collections/shared';
-
-interface EntityPickerProps<T extends string | number> {
-  endpoint: string
-  label: string
-  placeholder: string
-  selected: T[]
-  onChange: (ids: T[]) => void
-  errorText: string
-  description?: string
-}
-
-function EntityPicker<T extends string | number>({
-  endpoint,
-  label,
-  placeholder,
-  selected,
-  onChange,
-  errorText,
-  description
-}: EntityPickerProps<T>) {
-  const { data, error, isLoading } = useSWR<Array<Data<T>>>(endpoint, fetcher, {
-    onError: value => notifyError(value, errorText)
-  });
-
-  const handleSelect = useCallback((id: T) => {
-    onChange(selected.includes(id)
-      ? selected.filter(value => value !== id)
-      : [...selected, id]);
-  }, [onChange, selected]);
-
-  const isChecked = useCallback(({ id }: Data<T>) => selected.includes(id), [selected]);
-
-  return (
-    <div className="space-y-1.5">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-between font-normal">
-            <span className="truncate">{label}</span>
-            <span className="text-muted-foreground text-xs">{selected.length ? `${selected.length} 项` : '全部适用'}</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80 p-2" align="start">
-          <div className="flex items-center justify-between gap-2 px-1 pb-2">
-            <span className="text-muted-foreground text-xs">
-              {selected.length ? `已选 ${selected.length} 项` : '全部适用'}
-            </span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              onClick={() => onChange([])}
-              disabled={selected.length === 0}
-            >
-              清空选择
-            </Button>
-          </div>
-          <FilterPanel
-            placeholder={placeholder}
-            isLoading={isLoading}
-            error={error}
-            errorText={errorText}
-            data={data}
-            handleSelect={handleSelect}
-            selectedData={selected}
-            isCheck={isChecked}
-          />
-        </PopoverContent>
-      </Popover>
-      {description && <p className="text-muted-foreground text-xs">{description}</p>}
-    </div>
-  );
-}
 
 export function DiscoverySettings() {
   const [options, setOptions] = useImmerAtom(settingOptionsAtom);
@@ -162,6 +81,7 @@ export function DiscoverySettings() {
           selected={discovery.circleIds}
           onChange={ids => setOptions(d => { d.discovery.circleIds = ids; })}
           errorText="获取社团列表失败"
+          emptyLabel="全部适用"
           description="未选择时默认对全部社团应用去重规则"
         />
 
@@ -181,6 +101,7 @@ export function DiscoverySettings() {
           selected={discovery.artistIds}
           onChange={ids => setOptions(d => { d.discovery.artistIds = ids; })}
           errorText="获取声优列表失败"
+          emptyLabel="全部适用"
           description="未选择时默认对全部声优应用去重规则"
         />
 
@@ -210,6 +131,7 @@ export function DiscoverySettings() {
           placeholder="搜索 标签..."
           selected={discovery.genreIds}
           onChange={ids => setOptions(d => { d.discovery.genreIds = ids; })}
+          emptyLabel="全部适用"
           errorText="获取标签列表失败"
         />
 

@@ -225,16 +225,9 @@ export class DiscoveryEngine {
     return works;
   }
 
-  #queryWorks(ids?: string[]) {
+  #queryWorks(where?: Prisma.WorkWhereInput) {
     return this.#db.work.findMany({
-      where: ids
-        ? {
-          OR: [
-            { id: { in: ids } },
-            { originalId: { in: ids } }
-          ]
-        }
-        : undefined,
+      where,
       include: DISCOVERY_INCLUDE
     });
   }
@@ -270,7 +263,12 @@ export class DiscoveryEngine {
 
     if (ids.length === 0) return [];
 
-    const works = await this.#queryWorks(ids);
+    const works = await this.#queryWorks({
+      OR: [
+        { id: { in: ids } },
+        { originalId: { in: ids } }
+      ]
+    });
     const exactWorks = new Map(works.map(work => [work.id.toUpperCase(), work]));
     const originalWorks = new Map<string, DiscoveryWork>();
     for (const work of works) {
@@ -321,7 +319,11 @@ export class DiscoveryEngine {
 
   async #collectLibraryCandidates(context: DiscoveryContext): Promise<LibraryCandidate[]> {
     const { request, now } = context;
-    const works = await this.#queryWorks();
+    // Filter before building preference seeds and candidates, so blocked
+    // works cannot return through similarity selection or the library fallback.
+    const works = await this.#queryWorks(request.scene === 'personal' && request.blockedGenreIds.length > 0
+      ? { genres: { none: { id: { in: request.blockedGenreIds } } } }
+      : undefined);
     if (request.scene === 'random' && request.mode === 'pure') {
       return works.map(work => ({
         kind: 'library' as const,

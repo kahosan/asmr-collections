@@ -80,11 +80,19 @@ const RequestBaseSchema: z.ZodObject<{
   rules: DiscoveryRulesSchema.prefault({})
 });
 
-/** Both recommendation scenes draw from the library without a provider. */
-const LibraryRequestSchema: z.ZodObject<typeof RequestBaseSchema.shape & {
-  scene: z.ZodEnum<{ daily: 'daily', personal: 'personal' }>
+const DailyRequestSchema: z.ZodObject<typeof RequestBaseSchema.shape & {
+  scene: z.ZodLiteral<'daily'>
 }, z.core.$strict> = RequestBaseSchema.extend({
-  scene: DiscoverySceneSchema.extract(['daily', 'personal'])
+  scene: z.literal('daily')
+}).strict();
+
+/** Blocked genres are a personal preference, separate from shared diversity rules. */
+const PersonalRequestSchema: z.ZodObject<typeof RequestBaseSchema.shape & {
+  scene: z.ZodLiteral<'personal'>
+  blockedGenreIds: z.ZodDefault<z.ZodArray<z.ZodNumber>>
+}, z.core.$strict> = RequestBaseSchema.extend({
+  scene: z.literal('personal'),
+  blockedGenreIds: z.array(z.number().int().positive()).default([])
 }).strict();
 
 const RandomRequestSchema: z.ZodObject<typeof RequestBaseSchema.shape & {
@@ -118,10 +126,11 @@ const HotRequestSchema: z.ZodDiscriminatedUnion<[
 ]);
 
 export const DiscoveryRequestSchema: z.ZodDiscriminatedUnion<[
-  typeof LibraryRequestSchema,
+  typeof DailyRequestSchema,
+  typeof PersonalRequestSchema,
   typeof RandomRequestSchema,
   typeof HotRequestSchema
-], 'scene'> = z.discriminatedUnion('scene', [LibraryRequestSchema, RandomRequestSchema, HotRequestSchema]);
+], 'scene'> = z.discriminatedUnion('scene', [DailyRequestSchema, PersonalRequestSchema, RandomRequestSchema, HotRequestSchema]);
 
 /** Callers may omit defaults; the engine receives only the parsed request. */
 export type DiscoveryRequestInput = z.input<typeof DiscoveryRequestSchema>;

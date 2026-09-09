@@ -9,6 +9,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 
 import { DiscoveryWorksSkeleton } from './skeleton';
 import { ExternalWorkCard } from './external-work-card';
+import { PersonalGenreFilter } from './personal-genre-filter';
 
 import { cn } from '~/lib/utils';
 import { DLsiteRankPeriodSchema } from '@asmr-collections/shared';
@@ -149,6 +150,7 @@ interface DiscoverySectionProps {
   error?: unknown
   navigation?: DiscoveryNavigation
   action?: React.ReactNode
+  personal?: boolean
   period?: DLsiteRankPeriod
   onPeriodChange?: (period: DLsiteRankPeriod) => void
   className?: string
@@ -163,6 +165,7 @@ export function DiscoverySection({
   error,
   navigation,
   action,
+  personal = false,
   period,
   onPeriodChange,
   className,
@@ -173,8 +176,9 @@ export function DiscoverySection({
     <section className={cn('space-y-4', className)}>
       <div className="flex flex-wrap items-center gap-4">
         <h2 className="text-2xl font-medium">{title}</h2>
-        <div className="flex items-center gap-2 flex-auto justify-end">
+        <div className="flex flex-wrap items-center gap-2 flex-auto justify-end">
           {action}
+          {personal && <PersonalGenreFilter />}
           {period && onPeriodChange && (
             <NativeSelect
               value={period}
