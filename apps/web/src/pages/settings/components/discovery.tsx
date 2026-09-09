@@ -6,7 +6,6 @@ import { useImmerAtom } from 'jotai-immer';
 import { Button } from '~/components/ui/button';
 import { FilterPanel } from '~/components/header/filter-menu/filter-panel';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { Separator } from '~/components/ui/separator';
 
 import { SettingInput } from './setting-input';
@@ -100,7 +99,7 @@ export function DiscoverySettings() {
       <div className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold">发现设置</h2>
-          <p className="text-muted-foreground text-xs mt-1">影响今日推荐、猜你喜欢和智能随机；外部热门来源按来源榜单顺序展示。</p>
+          <p className="text-muted-foreground text-xs mt-1">去重和分散规则影响今日推荐与智能随机；猜你喜欢侧重播放偏好，外部榜单保留来源排名。</p>
         </div>
 
         <SettingItem
@@ -112,32 +111,6 @@ export function DiscoverySettings() {
           })}
         >
           使用智能随机
-        </SettingItem>
-
-        <SettingItem
-          id="discovery-source"
-          description="ASMR.ONE 来源会读取其热门作品，并只展示本库中已有的作品"
-          action={(
-            <Select
-              value={discovery.source}
-              onValueChange={value => {
-                if (value !== 'personal' && value !== 'asmrone') return;
-                setOptions(d => {
-                  d.discovery.source = value;
-                });
-              }}
-            >
-              <SelectTrigger id="discovery-source" className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="personal">猜你喜欢</SelectItem>
-                <SelectItem value="asmrone">ASMR.ONE</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        >
-          每日推荐来源
         </SettingItem>
 
         <div className="grid grid-cols-2 gap-4">

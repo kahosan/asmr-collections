@@ -1,6 +1,6 @@
 import type {
   DiscoveryExternalWork,
-  DiscoveryHotProvider
+  DiscoveryProvider
 } from '@asmr-collections/shared';
 
 import { Badge } from '~/components/ui/badge';
@@ -15,7 +15,7 @@ import { externalUrl, writeClipboard } from '~/utils';
 
 interface Props {
   work: DiscoveryExternalWork
-  provider: Exclude<DiscoveryHotProvider, 'personal'>
+  provider: DiscoveryProvider
   rank: number
   onAdded?: () => void | Promise<void>
 }

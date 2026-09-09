@@ -1,8 +1,7 @@
 import type { Data, Work } from './work';
 import type {
-  DiscoveryHotProvider,
-  DiscoveryScene,
-  DiscoverySource
+  DiscoveryProvider,
+  DiscoveryScene
 } from '../schemas/discovery';
 
 export interface DiscoveryExternalWork {
@@ -29,7 +28,7 @@ export interface DiscoveryExternalItem {
   kind: 'external'
   /** Metadata supplied by the selected popular provider; not persisted locally. */
   work: DiscoveryExternalWork
-  provider: Exclude<DiscoveryHotProvider, 'personal'>
+  provider: DiscoveryProvider
   /** One-based position in the provider ranking. */
   rank: number
 }
@@ -39,17 +38,15 @@ export type DiscoveryItem = DiscoveryLibraryItem | DiscoveryExternalItem;
 interface DiscoveryResponseBase {
   seed: string
   generatedAt: string
-  data: DiscoveryItem[]
 }
 
 export type DiscoveryResponse =
   | (DiscoveryResponseBase & {
     scene: 'hot'
-    provider: DiscoveryHotProvider
-    source?: never
+    provider: DiscoveryProvider
+    data: DiscoveryItem[]
   })
   | (DiscoveryResponseBase & {
     scene: Exclude<DiscoveryScene, 'hot'>
-    source: DiscoverySource
-    provider?: never
+    data: DiscoveryLibraryItem[]
   });

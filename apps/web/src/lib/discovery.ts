@@ -1,6 +1,6 @@
 import { DEFAULT_DISCOVERY_COUNT, DEFAULT_DLSITE_RANK_PERIOD } from '@asmr-collections/shared';
 import type {
-  DiscoveryHotProvider,
+  DiscoveryProvider,
   DiscoveryRequestInput,
   DiscoveryRules,
   DLsiteRankPeriod
@@ -17,10 +17,10 @@ interface DiscoveryRotationOptions {
 }
 
 type DiscoverySelection =
-  | (DiscoveryRotationOptions & { scene: 'daily' })
+  | (DiscoveryRotationOptions & { scene: 'daily' | 'personal' })
   | (DiscoveryRotationOptions & {
     scene: 'hot'
-    provider: DiscoveryHotProvider
+    provider: DiscoveryProvider
     period?: DLsiteRankPeriod
   })
   | { scene: 'random' };
@@ -31,7 +31,7 @@ export function getDiscoveryDate() {
   return local.toISOString().slice(0, 10);
 }
 
-function getDiscoveryRules({ smartRandom, dailyCount, source, ...rules }: DiscoveryOptions): DiscoveryRules {
+function getDiscoveryRules({ smartRandom, dailyCount, ...rules }: DiscoveryOptions): DiscoveryRules {
   return rules;
 }
 
@@ -39,7 +39,7 @@ export function createDiscoveryRequest(options: Pick<SettingOptions, 'discovery'
   const { scene } = selection;
   const rules = getDiscoveryRules(options.discovery);
   if (scene === 'random')
-    return { scene: 'random', source: 'personal', count: 1, rules };
+    return { scene: 'random', count: 1, rules };
 
   const { date = getDiscoveryDate(), rotation = 0, excludeIds = [] } = selection;
   const common = {
@@ -51,22 +51,18 @@ export function createDiscoveryRequest(options: Pick<SettingOptions, 'discovery'
     rules
   };
 
-  if (scene === 'daily') {
-    const source = options.discovery.source;
+  if (scene !== 'hot') {
     return {
       ...common,
-      scene: 'daily',
-      seed: `${date}:daily:${rotation}`,
-      ...(source === 'asmrone' ? { source, api: options.asmrone.api } : { source })
+      scene,
+      seed: `${date}:${scene}:${rotation}`
     };
   }
 
   const { provider, period = DEFAULT_DLSITE_RANK_PERIOD } = selection;
   const target = provider === 'dlsite'
     ? { provider, period }
-    : (provider === 'asmrone'
-      ? { provider, api: options.asmrone.api }
-      : { provider });
+    : { provider, api: options.asmrone.api };
 
   return {
     ...common,

@@ -1,9 +1,8 @@
 import type {
   DiscoveryExternalWork,
-  DiscoveryHotProvider,
+  DiscoveryProvider,
   DiscoveryRequest,
-  DiscoveryRules,
-  DLsiteRankPeriod
+  DiscoveryRules
 } from '@asmr-collections/shared';
 
 import type { Prisma } from '~/lib/prisma/client';
@@ -38,10 +37,6 @@ interface PopularCacheEntry {
   expiresAt: number
 }
 
-type PopularSource =
-  | { provider: 'dlsite', period: DLsiteRankPeriod }
-  | { provider: 'asmrone', api: string };
-
 const POPULAR_CACHE_TTL = 30 * 60 * 1000;
 const POPULAR_CACHE_MAX = 8;
 const DAY_MS = 86_400_000;
@@ -50,7 +45,6 @@ const MAX_PERSONAL_SEEDS = 12;
 const PERSONAL_CORE_SEEDS = 6;
 const PERSONAL_SEED_POOL_LIMIT = 48;
 const PERSONAL_RECENCY_HALF_LIFE_DAYS = 30;
-const PERSONAL_HOT_EXPLORATION_LIMIT = 24;
 const PERSONAL_NEIGHBOR_LIMIT = 120;
 const POPULAR_LIMIT = 100;
 
@@ -59,14 +53,14 @@ type DiscoveryWork = Prisma.WorkGetPayload<{ include: typeof DISCOVERY_INCLUDE }
 interface LibraryCandidate {
   kind: 'library'
   work: DiscoveryWork
-  sourceScore: number
+  similarityScore: number
   rank?: number
 }
 
 interface ExternalCandidate {
   kind: 'external'
   work: DiscoveryExternalWork
-  provider: Exclude<DiscoveryHotProvider, 'personal'>
+  provider: DiscoveryProvider
   rank: number
 }
 
@@ -84,14 +78,13 @@ interface DiscoveryContext {
 }
 
 function createDiscoveryContext(request: DiscoveryRequest, now: number): DiscoveryContext {
-  const source = request.scene === 'hot' ? 'personal' : request.source;
-  const provider = request.scene === 'hot' ? request.provider : source;
+  const target = request.scene === 'hot' ? `${request.scene}:${request.provider}` : request.scene;
   const date = request.date ?? new Date(now).toISOString().slice(0, 10);
   const seed = request.seed
     ?? (request.scene === 'random'
       ? randomUUID()
       : createHash('sha256')
-        .update(`${date}:${request.scene}:${source}:${provider}`)
+        .update(`${date}:${target}`)
         .digest('hex')
         .slice(0, 24));
 
@@ -134,20 +127,22 @@ export class DiscoveryEngine {
 
       return !storageOnly || (storedIds?.has(workId) ?? false);
     });
-    const isProviderHot = request.scene === 'hot' && request.provider !== 'personal';
-    const selected: Candidate[] = isProviderHot
-      ? eligible
+    let selected: Candidate[];
+    if (request.scene === 'hot') {
+      selected = eligible
         .toSorted((a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER))
-        .slice(0, request.count)
-      : this.#selectDiverse(
-        eligible.flatMap(candidate => {
-          if (candidate.kind !== 'library') return [];
-          return [{ ...candidate, baseScore: this.#scoreCandidate(candidate, context) }];
-        }),
-        request.count,
-        request.rules,
-        context.seed
-      );
+        .slice(0, request.count);
+    } else {
+      const ranked = eligible.flatMap(candidate => {
+        if (candidate.kind !== 'library') return [];
+        return [{ ...candidate, baseScore: this.#scoreCandidate(candidate, context) }];
+      });
+      // Personal recommendations may stay within a favorite circle, artist
+      // or genre. Daily recommendations and smart random spread the selection.
+      selected = request.scene === 'personal'
+        ? ranked.toSorted((a, b) => b.baseScore - a.baseScore).slice(0, request.count)
+        : this.#selectDiverse(ranked, request.count, request.rules, context.seed);
+    }
 
     const response = {
       seed: context.seed,
@@ -186,30 +181,22 @@ export class DiscoveryEngine {
 
     return {
       ...response,
-      scene: request.scene,
-      source: request.source
+      scene: request.scene
     };
   }
 
   async #collectCandidates(context: DiscoveryContext): Promise<Candidate[]> {
     const { request } = context;
     if (request.scene === 'hot') {
-      if (request.provider === 'personal')
-        return this.#collectPersonalCandidates(context);
-
       const works = await this.#getPopularWorks(request);
-      return this.#resolvePopularCandidates(works, request.provider, true);
+      return this.#resolvePopularCandidates(works, request.provider);
     }
 
-    if (request.source === 'personal')
-      return this.#collectPersonalCandidates(context);
-
-    const works = await this.#getPopularWorks({ provider: 'asmrone', api: request.api });
-    return this.#resolvePopularCandidates(works, 'asmrone', false);
+    return this.#collectLibraryCandidates(context);
   }
 
-  async #getPopularWorks(source: PopularSource) {
-    const cacheKey = source.provider === 'asmrone' ? `asmrone:${source.api}` : `dlsite:${source.period}`;
+  async #getPopularWorks(request: Extract<DiscoveryRequest, { scene: 'hot' }>) {
+    const cacheKey = request.provider === 'asmrone' ? `asmrone:${request.api}` : `dlsite:${request.period}`;
     const cached = this.#popularCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       // Refresh insertion order so frequently used providers stay in the small
@@ -222,9 +209,9 @@ export class DiscoveryEngine {
     if (cached)
       this.#popularCache.delete(cacheKey);
 
-    const works = source.provider === 'asmrone'
-      ? await new ASMROneProvider(source.api).popular(POPULAR_LIMIT)
-      : await this.#dlsite.popular(source.period, POPULAR_LIMIT);
+    const works = request.provider === 'asmrone'
+      ? await new ASMROneProvider(request.api).popular(POPULAR_LIMIT)
+      : await this.#dlsite.popular(request.period, POPULAR_LIMIT);
 
     if (this.#popularCache.size >= POPULAR_CACHE_MAX) {
       const oldest = this.#popularCache.keys().next().value;
@@ -254,8 +241,7 @@ export class DiscoveryEngine {
 
   async #resolvePopularCandidates(
     popularWorks: PopularWorks,
-    provider: Exclude<DiscoveryHotProvider, 'personal'>,
-    includeExternal: boolean
+    provider: DiscoveryProvider
   ): Promise<Candidate[]> {
     if (popularWorks.length === 0) return [];
 
@@ -297,9 +283,7 @@ export class DiscoveryEngine {
 
     const candidates: Candidate[] = [];
     const matchedWorkIds = new Set<string>();
-    const maxPosition = Math.max(ids.length - 1, 1);
-
-    for (const [position, popular] of orderedPopularWorks.entries()) {
+    for (const popular of orderedPopularWorks) {
       const exactWork = exactWorks.get(popular.id);
       const originalWork = originalWorks.get(popular.id);
       const work = exactWork ?? originalWork;
@@ -311,40 +295,38 @@ export class DiscoveryEngine {
         candidates.push({
           kind: 'library',
           work,
-          sourceScore: 1 - (position / maxPosition),
-          ...(includeExternal ? { rank: popular.rank } : {})
+          similarityScore: 0,
+          rank: popular.rank
         });
         continue;
       }
 
-      if (includeExternal) {
-        candidates.push({
-          kind: 'external',
-          work: {
-            id: popular.rawId,
-            name: popular.item.name,
-            cover: popular.item.cover,
-            intro: popular.item.intro,
-            circle: popular.item.circle,
-            genres: popular.item.genres
-          },
-          provider,
-          rank: popular.rank
-        });
-      }
+      candidates.push({
+        kind: 'external',
+        work: {
+          id: popular.rawId,
+          name: popular.item.name,
+          cover: popular.item.cover,
+          intro: popular.item.intro,
+          circle: popular.item.circle,
+          genres: popular.item.genres
+        },
+        provider,
+        rank: popular.rank
+      });
     }
 
     return candidates;
   }
 
-  async #collectPersonalCandidates(context: DiscoveryContext): Promise<LibraryCandidate[]> {
+  async #collectLibraryCandidates(context: DiscoveryContext): Promise<LibraryCandidate[]> {
     const { request, now } = context;
     const works = await this.#queryWorks();
     if (request.scene === 'random' && request.mode === 'pure') {
       return works.map(work => ({
         kind: 'library' as const,
         work,
-        sourceScore: 0
+        similarityScore: 0
       }));
     }
 
@@ -404,55 +386,21 @@ export class DiscoveryEngine {
     for (const score of similarityScores.values())
       maxScore = Math.max(maxScore, score);
 
-    const similarWorks = request.scene === 'random' || maxScore === 0
-      ? works
-      : works.filter(work => similarityScores.has(work.id));
-
-    const isPersonalHot = request.scene === 'hot' && request.provider === 'personal';
-    const popularityScores = new Map<string, number>();
-    if (isPersonalHot) {
-      const maxSales = works.reduce(
-        (max, work) => Math.max(max, Math.log1p(Math.max(0, work.sales))),
-        Number.EPSILON
-      );
-      const maxWishlist = works.reduce(
-        (max, work) => Math.max(max, Math.log1p(Math.max(0, work.wishlistCount))),
-        Number.EPSILON
-      );
-
-      for (const work of works) {
-        const sales = Math.log1p(Math.max(0, work.sales)) / maxSales;
-        const wishlist = Math.log1p(Math.max(0, work.wishlistCount)) / maxWishlist;
-        const rating = Math.min(Math.max(work.rate, 0), 5) / 5;
-        const ratingConfidence = Math.min(Math.max(work.rateCount, 0) / 20, 1);
-
-        popularityScores.set(work.id, sales * 0.45 + wishlist * 0.35 + rating * ratingConfidence * 0.2);
-      }
-    }
-
-    const candidateMap = new Map(similarWorks.map(work => [work.id, work]));
-    if (isPersonalHot && maxScore > 0) {
-      [...works]
-        .sort((a, b) => (popularityScores.get(b.id) ?? 0) - (popularityScores.get(a.id) ?? 0))
-        .slice(0, PERSONAL_HOT_EXPLORATION_LIMIT)
-        .forEach(work => candidateMap.set(work.id, work));
-    }
-
-    const candidateWorks = candidateMap.size >= request.count
-      ? [...candidateMap.values()]
+    // Daily recommendations cover the whole library, including works outside
+    // the current preference neighborhood. Only personal recommendations
+    // start from similar works; missing history or embeddings fall back to all.
+    const similarWorks = request.scene === 'personal' && maxScore > 0
+      ? works.filter(work => similarityScores.has(work.id))
       : works;
+    const candidateWorks = similarWorks.length >= request.count ? similarWorks : works;
 
-    return candidateWorks.map(work => {
-      const similarity = maxScore > 0
+    return candidateWorks.map(work => ({
+      kind: 'library',
+      work,
+      similarityScore: maxScore > 0
         ? (similarityScores.get(work.id) ?? 0) / maxScore
-        : 0;
-      const popularity = popularityScores.get(work.id) ?? 0;
-      const sourceScore = isPersonalHot
-        ? (maxScore > 0 ? similarity * 0.8 + popularity * 0.2 : popularity)
-        : similarity;
-
-      return { kind: 'library' as const, work, sourceScore };
-    });
+        : 0
+    }));
   }
 
   async #calculateSimilarityScores(
@@ -495,7 +443,7 @@ export class DiscoveryEngine {
   #scoreCandidate(candidate: LibraryCandidate, context: DiscoveryContext) {
     const { request, now, seed } = context;
     const jitter = this.#seededNumber(`${seed}:${candidate.work.id}`);
-    if (request.mode === 'pure') return jitter;
+    if (request.scene === 'random' && request.mode === 'pure') return jitter;
 
     let novelty = 1;
     if (candidate.work.playback) {
@@ -508,16 +456,17 @@ export class DiscoveryEngine {
       ? 1 / (1 + candidate.work.playback.count)
       : 1;
 
-    if (request.scene === 'hot') {
-      // Personal hot recommendations use more exploration so “换一批” can
-      // escape the same nearest-neighbour set when embeddings have not changed.
-      return candidate.sourceScore * 1.6
+    if (request.scene === 'personal') {
+      return candidate.similarityScore * 1.6
         + novelty * 0.55
         + lowPlay * 0.15
         + jitter * 0.65;
     }
 
-    return candidate.sourceScore * 1.45 + novelty * 1.2 + lowPlay * 0.65 + jitter * 0.65;
+    // Daily discovery prioritizes unheard or less-played works. Similarity
+    // helps choose among them without restricting the library coverage.
+    const similarityWeight = request.scene === 'daily' ? 0.45 : 1.45;
+    return candidate.similarityScore * similarityWeight + novelty * 1.2 + lowPlay * 0.65 + jitter * 0.65;
   }
 
   #selectDiverse(

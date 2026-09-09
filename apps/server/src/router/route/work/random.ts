@@ -29,7 +29,6 @@ export const randomApp = new Hono()
 
       const request = DiscoveryRequestSchema.parse({
         scene: 'random',
-        source: 'personal',
         mode,
         count: 1
       });

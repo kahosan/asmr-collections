@@ -4,12 +4,11 @@ import { atomWithStorage, createJSONStorage } from 'jotai/utils';
 import { focusAtom } from 'jotai-optics';
 
 import { DEFAULT_DISCOVERY_COUNT, DEFAULT_DISCOVERY_RULES, toMerged } from '@asmr-collections/shared';
-import type { DiscoveryRules, DiscoverySource } from '@asmr-collections/shared';
+import type { DiscoveryRules } from '@asmr-collections/shared';
 
 export interface DiscoveryOptions extends DiscoveryRules {
   smartRandom: boolean
   dailyCount: number
-  source: DiscoverySource
 }
 
 export interface SettingOptions {
@@ -62,8 +61,7 @@ const DEFAULT_SETTINGS: SettingOptions = {
   discovery: {
     ...DEFAULT_DISCOVERY_RULES,
     smartRandom: true,
-    dailyCount: DEFAULT_DISCOVERY_COUNT,
-    source: 'personal'
+    dailyCount: DEFAULT_DISCOVERY_COUNT
   }
 };
 
