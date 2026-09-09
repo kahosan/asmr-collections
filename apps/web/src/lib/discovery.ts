@@ -16,13 +16,13 @@ interface DiscoveryRotationOptions {
   excludeIds?: string[]
 }
 
-type DiscoverySelection =
-  | (DiscoveryRotationOptions & { scene: 'daily' | 'personal' })
-  | (DiscoveryRotationOptions & {
+export type DiscoverySelection =
+  | { scene: 'daily' | 'personal' }
+  | {
     scene: 'hot'
     provider: DiscoveryProvider
     period?: DLsiteRankPeriod
-  })
+  }
   | { scene: 'random' };
 
 export function getDiscoveryDate() {
@@ -35,7 +35,7 @@ function getDiscoveryRules({ smartRandom, dailyCount, ...rules }: DiscoveryOptio
   return rules;
 }
 
-export function createDiscoveryRequest(options: Pick<SettingOptions, 'discovery' | 'asmrone'>, selection: DiscoverySelection): DiscoveryRequestInput {
+export function createDiscoveryRequest(options: Pick<SettingOptions, 'discovery' | 'asmrone'>, selection: DiscoverySelection & DiscoveryRotationOptions): DiscoveryRequestInput {
   const { scene } = selection;
   const rules = getDiscoveryRules(options.discovery);
   if (scene === 'random')

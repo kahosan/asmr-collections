@@ -1,15 +1,19 @@
-import { RefreshCwIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { NativeSelect } from '~/components/ui/native-select';
 import { WorkCard } from '~/components/work-card';
-import { ExternalWorkCard } from './external-work-card';
-import { DiscoveryWorksSkeleton } from './skeleton';
+import { NativeSelect } from '~/components/ui/native-select';
+import { ButtonGroup, ButtonGroupSeparator } from '~/components/ui/button-group';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '~/components/ui/carousel';
 
-import { cn } from '~/lib/utils';
+import { DiscoveryWorksSkeleton } from './skeleton';
+import { ExternalWorkCard } from './external-work-card';
 
+import { cn } from '~/lib/utils';
+import { DLsiteRankPeriodSchema } from '@asmr-collections/shared';
+
+import type { DiscoveryNavigation } from '~/hooks/use-discovery';
 import type { DiscoveryItem, DLsiteRankPeriod } from '@asmr-collections/shared';
 
 interface DiscoveryWorksProps {
@@ -19,6 +23,7 @@ interface DiscoveryWorksProps {
   className?: string
   compact?: boolean
   carousel?: boolean
+  onRetry?: () => void
   onExternalAdded?: () => void | Promise<void>
 }
 
@@ -33,9 +38,15 @@ export function DiscoveryCarouselItem({ children }: { children: React.ReactNode 
   return <CarouselItem className={cn(...carouselItemClass)}>{children}</CarouselItem>;
 }
 
-export function DiscoveryWorks({ error, data, isLoading, className, compact = false, carousel = false, onExternalAdded }: DiscoveryWorksProps) {
-  if (error)
-    return <div className="text-center opacity-65 py-6">获取推荐失败</div>;
+export function DiscoveryWorks({ error, data, isLoading, className, compact = false, carousel = false, onRetry, onExternalAdded }: DiscoveryWorksProps) {
+  if (error) {
+    return (
+      <div className="text-center py-6 space-y-2" role="alert">
+        <p className="opacity-65">获取推荐失败</p>
+        {onRetry && <Button variant="outline" size="sm" onClick={onRetry} disabled={isLoading}>重试</Button>}
+      </div>
+    );
+  }
 
   if (isLoading || !data)
     return <DiscoveryWorksSkeleton compact={compact} carousel={carousel} />;
@@ -136,7 +147,7 @@ interface DiscoverySectionProps {
   data?: DiscoveryItem[]
   isLoading?: boolean
   error?: unknown
-  onRefresh?: () => void
+  navigation?: DiscoveryNavigation
   action?: React.ReactNode
   period?: DLsiteRankPeriod
   onPeriodChange?: (period: DLsiteRankPeriod) => void
@@ -150,7 +161,7 @@ export function DiscoverySection({
   data,
   isLoading = false,
   error,
-  onRefresh,
+  navigation,
   action,
   period,
   onPeriodChange,
@@ -160,17 +171,17 @@ export function DiscoverySection({
 }: DiscoverySectionProps) {
   return (
     <section className={cn('space-y-4', className)}>
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <h2 className="text-2xl font-medium">{title}</h2>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 flex-auto justify-end">
           {action}
           {period && onPeriodChange && (
             <NativeSelect
               value={period}
-              onChange={event => {
-                const value = event.target.value;
-                if (value !== 'day' && value !== 'week' && value !== 'month' && value !== 'total') return;
-                onPeriodChange(value);
+              onChange={e => {
+                const valid = DLsiteRankPeriodSchema.safeParse(e.target.value);
+                if (!valid.data) return;
+                onPeriodChange(valid.data);
               }}
               aria-label="DLsite 榜单周期"
             >
@@ -180,11 +191,31 @@ export function DiscoverySection({
               <option value="total">总榜</option>
             </NativeSelect>
           )}
-          {onRefresh && (
-            <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
-              <RefreshCwIcon />
-              换一批
-            </Button>
+          {navigation && (
+            <div className="flex items-center gap-2 max-sm:ml-auto" role="group" aria-label={`${title}批次切换`}>
+              <ButtonGroup>
+                <Button
+                  variant="outline"
+                  onClick={navigation.previous}
+                  disabled={!navigation.hasPrevious || navigation.isLoading}
+                >
+                  <ChevronLeftIcon />
+                </Button>
+                <ButtonGroupSeparator />
+                <Button
+                  variant="outline"
+                  onClick={navigation.next}
+                  disabled={!navigation.hasNext || navigation.isLoading}
+                  title={navigation.hasNext ? undefined : '暂无更多推荐作品'}
+                  className="relative"
+                >
+                  <ChevronRightIcon />
+                  <Badge className="absolute -top-2 -right-2 size-5 rounded-full" variant="secondary">
+                    {navigation.page}
+                  </Badge>
+                </Button>
+              </ButtonGroup>
+            </div>
           )}
         </div>
       </div>
@@ -193,6 +224,7 @@ export function DiscoverySection({
         error={error}
         data={data}
         compact={compact}
+        onRetry={navigation?.next}
         onExternalAdded={onExternalAdded}
       />
     </section>

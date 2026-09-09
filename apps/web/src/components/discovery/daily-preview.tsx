@@ -1,12 +1,7 @@
-import { useMemo } from 'react';
-
 import { Link } from '~/components/link';
 
-import { useAtomValue } from 'jotai';
 import { motion } from 'framer-motion';
-import { settingOptionsAtom } from '~/hooks/use-setting-options';
-import { useDiscovery } from '~/hooks/use-discovery';
-import { createDiscoveryRequest, getDiscoveryDate } from '~/lib/discovery';
+import { useDiscoveryRotation } from '~/hooks/use-discovery';
 
 import { DiscoveryWorks } from '.';
 
@@ -31,13 +26,9 @@ export function DailyDiscoveryPreview() {
 }
 
 function DailyPreview() {
-  const options = useAtomValue(settingOptionsAtom);
-  const date = useMemo(() => getDiscoveryDate(), []);
-  const { data, error, isLoading } = useDiscovery(createDiscoveryRequest(options, {
-    scene: 'daily', date
-  }), '获取今日推荐失败');
+  const { data, error, isLoading, navigation } = useDiscoveryRotation({ scene: 'daily' }, '获取今日推荐失败');
 
   return (
-    <DiscoveryWorks error={error} isLoading={isLoading} data={data?.data} compact carousel />
+    <DiscoveryWorks error={error} isLoading={isLoading} data={data?.data} onRetry={navigation.next} compact carousel />
   );
 }

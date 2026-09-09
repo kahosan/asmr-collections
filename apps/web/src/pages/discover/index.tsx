@@ -1,41 +1,22 @@
-import { useMemo, useState } from 'react';
-
 import { createLazyRoute } from '@tanstack/react-router';
-import { useAtomValue } from 'jotai';
-import { DEFAULT_DLSITE_RANK_PERIOD } from '@asmr-collections/shared';
-
-import type {
-  DiscoveryProvider,
-  DLsiteRankPeriod
-} from '@asmr-collections/shared';
+import { useAtom } from 'jotai';
 
 import { DiscoverySection } from '~/components/discovery';
 import { NativeSelect } from '~/components/ui/native-select';
 import { Separator } from '~/components/ui/separator';
-import { settingOptionsAtom } from '~/hooks/use-setting-options';
-import { useDiscovery, useDiscoveryRotation } from '~/hooks/use-discovery';
-import { createDiscoveryRequest, getDiscoveryDate } from '~/lib/discovery';
-
-type DiscoveryView = 'personal' | DiscoveryProvider;
+import { discoveryPeriodAtom, discoveryViewAtom, useDiscoveryRotation } from '~/hooks/use-discovery';
 
 function DiscoverPage() {
-  const options = useAtomValue(settingOptionsAtom);
-  const dailyRotation = useDiscoveryRotation();
-  const viewRotation = useDiscoveryRotation();
-  const [view, setView] = useState<DiscoveryView>('dlsite');
-  const [hotPeriod, setHotPeriod] = useState<DLsiteRankPeriod>(DEFAULT_DLSITE_RANK_PERIOD);
+  const [view, setView] = useAtom(discoveryViewAtom);
+  const [hotPeriod, setHotPeriod] = useAtom(discoveryPeriodAtom);
 
-  const date = useMemo(() => getDiscoveryDate(), []);
-  const daily = useDiscovery(createDiscoveryRequest(options, {
-    scene: 'daily', date, ...dailyRotation.state
-  }), '获取今日推荐失败');
-  const recommendations = useDiscovery(createDiscoveryRequest(options, {
-    ...(view === 'personal'
+  const daily = useDiscoveryRotation({ scene: 'daily' }, '获取今日推荐失败');
+  const recommendations = useDiscoveryRotation(
+    view === 'personal'
       ? { scene: 'personal' }
-      : { scene: 'hot', provider: view, period: hotPeriod }),
-    date,
-    ...viewRotation.state
-  }), view === 'personal' ? '获取猜你喜欢失败' : '获取热门榜单失败');
+      : { scene: 'hot', provider: view, period: hotPeriod },
+    view === 'personal' ? '获取猜你喜欢失败' : '获取热门榜单失败'
+  );
 
   return (
     <div className="max-w-7xl mx-auto mt-4 space-y-8">
@@ -49,7 +30,7 @@ function DiscoverPage() {
         data={daily.data?.data}
         isLoading={daily.isLoading}
         error={daily.error}
-        onRefresh={() => dailyRotation.refresh(daily.data?.data)}
+        navigation={daily.navigation}
       />
 
       <Separator />
@@ -59,7 +40,7 @@ function DiscoverPage() {
         data={recommendations.data?.data}
         isLoading={recommendations.isLoading}
         error={recommendations.error}
-        onRefresh={() => viewRotation.refresh(recommendations.data?.data)}
+        navigation={recommendations.navigation}
         action={(
           <NativeSelect
             value={view}
@@ -67,7 +48,6 @@ function DiscoverPage() {
               const value = event.target.value;
               if (value !== 'dlsite' && value !== 'asmrone' && value !== 'personal') return;
               setView(value);
-              viewRotation.reset();
             }}
             aria-label="推荐内容"
           >
@@ -77,10 +57,7 @@ function DiscoverPage() {
           </NativeSelect>
         )}
         period={view === 'dlsite' ? hotPeriod : undefined}
-        onPeriodChange={period => {
-          setHotPeriod(period);
-          viewRotation.reset();
-        }}
+        onPeriodChange={setHotPeriod}
         onExternalAdded={() => {
           recommendations.mutate();
         }}
