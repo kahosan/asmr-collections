@@ -175,7 +175,7 @@ export function DiscoverySection({
   return (
     <section className={cn('space-y-4', className)}>
       <div className="flex flex-wrap items-center gap-4">
-        <h2 className="text-2xl font-medium">{title}</h2>
+        <h2 className={`text-2xl font-medium ${title === '热门推荐' && 'max-sm:basis-full'}`}>{title}</h2>
         <div className="flex flex-wrap items-center gap-2 flex-auto justify-end">
           {action}
           {personal && <PersonalGenreFilter />}

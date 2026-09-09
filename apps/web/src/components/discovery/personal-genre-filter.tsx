@@ -16,7 +16,7 @@ export function PersonalGenreFilter() {
         d.discovery.personal.blockedGenreIds = ids;
       })}
       errorText="获取标签列表失败"
-      emptyLabel="未屏蔽"
+      emptyLabel="0 项"
       description="仅用于猜你喜欢。包含任一所选标签的作品会被排除，刷新后仍保留此设置。"
       inline
     />
