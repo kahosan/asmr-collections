@@ -1,5 +1,4 @@
-import { unstable_serialize } from 'swr';
-import useSWRImmutable from 'swr/immutable';
+import useSWR, { unstable_serialize } from 'swr';
 import { useCallback, useEffect } from 'react';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 
@@ -85,7 +84,7 @@ export function useDiscoveryRotation(selection: Exclude<DiscoverySelection, { sc
   }, [historyKey, setHistories]);
 
   const snapshot = history.pending ? undefined : entry?.response;
-  const { data, error, isLoading, isValidating, mutate } = useSWRImmutable<DiscoveryResponse, Error, DiscoveryKey>(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<DiscoveryResponse, Error, DiscoveryKey>(
     [DISCOVERY_ENDPOINT, request], discoveryFetcher, {
       onError(error) {
         notifyError(error, errorText);
