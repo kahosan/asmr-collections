@@ -31,7 +31,7 @@ function checkFdkSupport(): boolean {
 const clearCache = throttle(async () => {
   try {
     const files = await readdir(TRANSCODE_CACHE_PATH)
-      .then(names => names.filter(name => !name.endsWith('.tmp')));
+      .then(names => names.filter(name => /^[\da-f]{32}\.m4a$/.test(name)));
 
     if (files.length >= 200) {
       const results = await Promise.allSettled(
