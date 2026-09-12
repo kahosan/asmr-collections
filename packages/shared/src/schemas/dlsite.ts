@@ -140,9 +140,26 @@ const DLsiteProductStatsResponseSchema = z.union([
   z.array(z.unknown()).max(0),
   z.record(z.string(), z.unknown())
 ]);
+export const DLsiteProductHTMLSchema: z.ZodType<{
+  circle: { id: string, name: string }
+  artists: Array<{ id: string, name: string }>
+  illustrators: Array<{ id: string, name: string }>
+  intro: string
+  genres: Array<{ id: number, name: string }>
+}> = z.object({
+  circle: z.object({
+    id: NonEmptyStringSchema,
+    name: NonEmptyStringSchema
+  }),
+  artists: z.array(CreatorSchema),
+  illustrators: z.array(CreatorSchema),
+  intro: z.string(),
+  genres: z.array(GenreSchema.omit({ name_base: true }))
+});
 
 export type DLsiteProductDetail = z.infer<typeof DLsiteProductDetailSchema>;
 export type DLsiteProductStats = z.infer<typeof DLsiteProductStatsSchema>;
+export type DLsiteProductHTML = z.infer<typeof DLsiteProductHTMLSchema>;
 
 function formatIssues(error: z.ZodError) {
   return error.issues
@@ -188,6 +205,14 @@ export function parseDLsiteProductStatsResponse(input: unknown, id: string): DLs
     throw responseError('商品统计接口', id, formatIssues(product.error));
 
   return product.data;
+}
+
+export function parseDLsiteProductHTMLResponse(input: unknown, id: string): DLsiteProductHTML {
+  const result = DLsiteProductHTMLSchema.safeParse(input);
+  if (!result.success)
+    throw responseError('商品详情页面', id, formatIssues(result.error));
+
+  return result.data;
 }
 
 export const DLsiteRankPeriodSchema: z.ZodEnum<{

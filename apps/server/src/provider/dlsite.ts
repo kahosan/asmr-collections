@@ -3,7 +3,7 @@ import type { DLsiteRankPeriod } from '@asmr-collections/shared';
 import type { SourceWork } from '~/types/source';
 import type { PopularWorks } from '~/types/popular';
 
-import { parseDLsiteProductDetailResponse, parseDLsiteProductStatsResponse } from '@asmr-collections/shared';
+import { parseDLsiteProductDetailResponse, parseDLsiteProductHTMLResponse, parseDLsiteProductStatsResponse } from '@asmr-collections/shared';
 
 import * as cheerio from 'cheerio';
 
@@ -66,8 +66,7 @@ class DLsiteProvider {
       ? { id: data.title_id, name: data.title_name }
       : null;
 
-    return {
-      ...details,
+    return Object.assign(details, {
       id,
       name: data.work_name,
       cover: data.work_image,
@@ -99,22 +98,25 @@ class DLsiteProvider {
         workId: item.workno,
         label: item.display_label
       })) ?? []
-    };
+    });
   }
 
   async #productDetails(id: string): Promise<ProductDetails> {
     try {
-      const response = await fetcher<unknown>(`${this.#host}/maniax/api/=/product.json?workno=${encodeURIComponent(id)}&locale=zh_CN`);
+      const [response, _data] = await Promise.all([
+        fetcher<unknown>(`${this.#host}/maniax/api/=/product.json?workno=${encodeURIComponent(id)}&locale=zh_CN`),
+        this.#parserProductHTML(id)
+      ]);
+
       const data = parseDLsiteProductDetailResponse(response, id);
-      if (!data)
-        throw new Error('商品详情接口未返回请求的作品');
+      if (!data) throw new Error('商品详情接口未返回请求的作品');
 
       const creators = Array.isArray(data.creaters) ? undefined : data.creaters;
 
       return {
         circle: {
-          id: data.maker_id,
-          name: data.maker_name
+          id: _data.circle.id,
+          name: _data.circle.name
         },
         artists: creators?.voice_by ?? [],
         illustrators: creators?.illust_by ?? [],
@@ -140,11 +142,8 @@ class DLsiteProvider {
     const $ = cheerio.load(str);
 
     const maker = $('table#work_maker').find('span.maker_name > a');
-    const makerId = maker.attr('href')?.split('/').pop()?.replaceAll('.html', '');
+    const makerId = maker.attr('href')?.split('/').pop()?.replaceAll('.html', '') ?? '';
     const makerName = maker.text().trim();
-
-    if (!makerId || !makerName)
-      throw new Error('解析社团信息时未能找到社团 ID 或名称');
 
     let artists: string[] = [];
     let illustrators: string[] = [];
@@ -167,16 +166,13 @@ class DLsiteProvider {
 
     const intro = $('meta[name="description"]').attr('content')?.replace(/「DLsite.*/, '').trim() ?? '';
 
-    return {
-      circle: {
-        id: makerId,
-        name: makerName
-      },
-      artists: artists.map(name => ({ id: 'unknow', name })),
-      illustrators: illustrators.map(name => ({ id: 'unknow', name })),
+    return parseDLsiteProductHTMLResponse({
+      circle: { id: makerId, name: makerName },
+      artists: artists.map(name => ({ id: 'unknown', name })),
+      illustrators: illustrators.map(name => ({ id: 'unknown', name })),
       intro,
       genres
-    };
+    }, id);
   }
 }
 
