@@ -25,7 +25,6 @@ interface DiscoveryWorksProps {
   compact?: boolean
   carousel?: boolean
   onRetry?: () => void
-  onExternalAdded?: () => void | Promise<void>
 }
 
 const carouselItemClass = [
@@ -39,7 +38,7 @@ export function DiscoveryCarouselItem({ children }: { children: React.ReactNode 
   return <CarouselItem className={cn(...carouselItemClass)}>{children}</CarouselItem>;
 }
 
-export function DiscoveryWorks({ error, data, isLoading, className, compact = false, carousel = false, onRetry, onExternalAdded }: DiscoveryWorksProps) {
+export function DiscoveryWorks({ error, data, isLoading, className, compact = false, carousel = false, onRetry }: DiscoveryWorksProps) {
   if (error) {
     return (
       <div className="text-center py-6 space-y-2" role="alert">
@@ -72,7 +71,6 @@ export function DiscoveryWorks({ error, data, isLoading, className, compact = fa
                       work={item.work}
                       provider={item.provider}
                       rank={item.rank}
-                      onAdded={onExternalAdded}
                     />
                   )
                   : (
@@ -119,7 +117,6 @@ export function DiscoveryWorks({ error, data, isLoading, className, compact = fa
                 work={item.work}
                 provider={item.provider}
                 rank={item.rank}
-                onAdded={onExternalAdded}
               />
             )
             : (
@@ -155,7 +152,6 @@ interface DiscoverySectionProps {
   onPeriodChange?: (period: DLsiteRankPeriod) => void
   className?: string
   compact?: boolean
-  onExternalAdded?: () => void | Promise<void>
 }
 
 export function DiscoverySection({
@@ -169,8 +165,7 @@ export function DiscoverySection({
   period,
   onPeriodChange,
   className,
-  compact = false,
-  onExternalAdded
+  compact = false
 }: DiscoverySectionProps) {
   return (
     <section className={cn('space-y-4', className)}>
@@ -229,7 +224,6 @@ export function DiscoverySection({
         data={data}
         compact={compact}
         onRetry={navigation?.next}
-        onExternalAdded={onExternalAdded}
       />
     </section>
   );

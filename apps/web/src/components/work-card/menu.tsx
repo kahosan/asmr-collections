@@ -15,10 +15,11 @@ import useSWR from 'swr';
 import { toast } from 'sonner';
 import { memo, useState } from 'react';
 
+import { useWorkAction } from '~/hooks/use-work-action';
 import { useToastMutation } from '~/hooks/use-toast-fetch';
 
 import { externalUrl } from '~/utils';
-import { mutateDiscover, mutatePlaylist, mutateWorkInfo, mutateWorks } from '~/lib/mutation';
+import { mutatePlaylist, mutateWorkInfo } from '~/lib/mutation';
 
 import { fetcher } from '~/lib/fetcher';
 
@@ -31,25 +32,17 @@ interface Props {
 export const Menu = memo(({ work }: Props) => {
   const [open, setOpen] = useState(false);
 
-  const [updateAction, updateIsMutating] = useToastMutation('update');
+  const [updateAction, updateIsMutating] = useWorkAction('update');
 
   const handleUpdate = () => {
-    updateAction({
-      key: `/api/work/update/${work.id}`,
-      fetchOps: { method: 'PUT' },
-      toastOps: {
-        loading: `${work.id} 数据更新中...`,
-        success: `${work.id} 数据更新成功`,
-        error: `${work.id} 数据更新失败`,
-        finally() {
-          setOpen(false);
-          mutateWorks();
-        }
+    updateAction(work.id, {
+      finally() {
+        setOpen(false);
       }
     });
   };
 
-  const [deleteAction, deleteIsMutating] = useToastMutation('delete');
+  const [deleteAction, deleteIsMutating] = useWorkAction('delete');
 
   const handleDelete = async () => {
     const yes = await confirm({
@@ -58,18 +51,9 @@ export const Menu = memo(({ work }: Props) => {
     });
     if (!yes) return;
 
-    deleteAction({
-      key: `/api/work/delete/${work.id}`,
-      fetchOps: { method: 'DELETE' },
-      toastOps: {
-        loading: `${work.id} 删除中...`,
-        success: `${work.id} 删除成功`,
-        error: `${work.id} 删除失败`,
-        finally() {
-          setOpen(false);
-          mutateWorks();
-          mutateDiscover();
-        }
+    deleteAction(work.id, {
+      finally() {
+        setOpen(false);
       }
     });
   };

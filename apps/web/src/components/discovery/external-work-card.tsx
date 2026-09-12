@@ -9,37 +9,23 @@ import { Card, CardTitle } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
 import { Image } from '~/components/image';
 import { Link } from '~/components/link';
-import { useToastMutation } from '~/hooks/use-toast-fetch';
-import { mutateWorks } from '~/lib/mutation';
+import { useWorkAction } from '~/hooks/use-work-action';
 import { externalUrl, writeClipboard } from '~/utils';
 
 interface Props {
   work: DiscoveryExternalWork
   provider: DiscoveryProvider
   rank: number
-  onAdded?: () => void | Promise<void>
 }
 
-export function ExternalWorkCard({ work, provider, rank, onAdded }: Props) {
-  const [createAction, isMutating] = useToastMutation<{ message?: string }>('create');
+export function ExternalWorkCard({ work, provider, rank }: Props) {
+  const [createAction, isMutating] = useWorkAction('create');
 
   const source = provider === 'dlsite' ? 'DLsite' : 'ASMR.ONE';
   const circleHref = externalUrl.dlsiteCircle(work.circle.id);
 
   const handleCreate = () => {
-    createAction({
-      key: `/api/work/create/${work.id}`,
-      fetchOps: { method: 'POST' },
-      toastOps: {
-        loading: `${work.id} 添加中...`,
-        success(data) {
-          mutateWorks();
-          onAdded?.();
-          return data.message ?? `${work.id} 添加成功`;
-        },
-        error: `${work.id} 添加失败`
-      }
-    });
+    createAction(work.id);
   };
 
   return (

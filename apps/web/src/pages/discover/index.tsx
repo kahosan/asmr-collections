@@ -59,9 +59,6 @@ function DiscoverPage() {
         )}
         period={view === 'dlsite' ? hotPeriod : undefined}
         onPeriodChange={setHotPeriod}
-        onExternalAdded={() => {
-          recommendations.mutate();
-        }}
       />
     </div>
   );

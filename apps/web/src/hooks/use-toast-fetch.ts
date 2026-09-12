@@ -12,7 +12,7 @@ interface Arg {
   fetchOps?: RequestInit
 }
 
-interface ToastOps<T> {
+export interface ToastOps<T> {
   loading?: string | React.ReactNode
   success?: string | React.ReactNode | ((data: T) => React.ReactNode | string)
   error?: string | React.ReactNode | ((error: Error) => React.ReactNode | string)
@@ -37,6 +37,7 @@ type ToastMutationKeys =
   | 'delete'
   | 'create'
   | 'update'
+  | 'update-embedding'
   | 'upload'
   | 'subtitles'
   | 'random'

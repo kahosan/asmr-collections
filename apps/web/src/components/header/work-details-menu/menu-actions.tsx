@@ -9,13 +9,11 @@ import { ClearCacheMenu } from './clear-cache';
 import { match } from 'ts-pattern';
 
 import { useWorkInfo } from '~/hooks/use-work-info';
-import { useToastMutation } from '~/hooks/use-toast-fetch';
-
-import { mutateSimilar, mutateWorkInfo } from '~/lib/mutation';
+import { useWorkAction } from '~/hooks/use-work-action';
 
 export function MenuActions({ id }: { id: string }) {
-  const [createAction, createIsMutating] = useToastMutation<{ message?: string }>('create');
-  const [deleteAction, deleteIsMutating] = useToastMutation('delete');
+  const [createAction, createIsMutating] = useWorkAction('create');
+  const [deleteAction, deleteIsMutating] = useWorkAction('delete');
 
   const { data } = useWorkInfo(id, { suspense: true });
 
@@ -26,39 +24,11 @@ export function MenuActions({ id }: { id: string }) {
     });
     if (!yes) return;
 
-    deleteAction({
-      key: `/api/work/delete/${id}`,
-      fetchOps: { method: 'DELETE' },
-      toastOps: {
-        loading: `${id} 删除中...`,
-        success: `${id} 删除成功`,
-        error: `${id} 删除失败`,
-        finally() {
-          mutateWorkInfo(id);
-        }
-      }
-    });
+    deleteAction(id);
   };
 
   const handleCreate = () => {
-    createAction({
-      key: `/api/work/create/${id}`,
-      fetchOps: { method: 'POST' },
-      toastOps: {
-        loading: `${id} 添加中...`,
-        success() {
-          return `${id} 添加成功`;
-        },
-        description(data) {
-          return data.message;
-        },
-        error: `${id} 添加失败`,
-        finally() {
-          mutateWorkInfo(id);
-          mutateSimilar(id);
-        }
-      }
-    });
+    createAction(id);
   };
   return (
     <DropdownMenuGroup>

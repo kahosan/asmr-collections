@@ -6,41 +6,21 @@ import { WorkInput } from '~/components/work-input';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
-import { useToastMutation } from '~/hooks/use-toast-fetch';
+import { useWorkAction } from '~/hooks/use-work-action';
 
 import { parseWorkInput } from '@asmr-collections/shared';
-import { mutateSimilar, mutateWorks } from '~/lib/mutation';
 
 export function AddWorkDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
   const [id, setId] = useState<string>('');
 
-  const [createAction, isMutating] = useToastMutation<{ message?: string }>('create');
+  const [createAction, isMutating] = useWorkAction('create');
 
   const { validIds, isEmpty, isValid } = parseWorkInput(id);
 
   const buttonDisabled = isMutating || isEmpty || !isValid;
 
   const handleCreate = () => {
-    createAction({
-      key: `/api/work/create/${validIds[0]}`,
-      fetchOps: { method: 'POST' },
-      toastOps: {
-        loading: `${id} 添加中...`,
-        success() {
-          return `${id} 添加成功`;
-        },
-        description(data) {
-          return data.message;
-        },
-        error() {
-          return `${id} 添加失败`;
-        },
-        finally() {
-          mutateWorks();
-          mutateSimilar(validIds[0]);
-        }
-      }
-    });
+    createAction(validIds[0], { label: id });
   };
 
   return (
