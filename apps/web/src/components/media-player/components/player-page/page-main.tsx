@@ -22,7 +22,7 @@ export function PlayerPageMain() {
         <div id="track-title" className="font-semibold sm:text-sm line-clamp-2">
           {title}
         </div>
-        <div id="work-title" className="mt-2 text-xs opacity-60 line-clamp-2">
+        <div id="work-title" className="mt-2 text-xs opacity-60 break-all line-clamp-2">
           {workTitle}
         </div>
       </div>

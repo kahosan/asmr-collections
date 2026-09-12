@@ -118,7 +118,7 @@ export function WorkCard({ work, showMenus = true, showImageBadge = true }: Prop
         }
       </div>
       <div className="px-2 flex flex-col gap-2">
-        <CardTitle className="line-clamp-2 leading-6 mb-2 min-h-12">
+        <CardTitle className="line-clamp-2 break-all leading-6 mb-2 min-h-12">
           <Link to="/work-details/$id" params={{ id: work.id }} title={work.name}>
             {work.name}
           </Link>

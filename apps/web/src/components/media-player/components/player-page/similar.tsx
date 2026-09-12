@@ -30,7 +30,7 @@ export function Similar() {
             />
           </ItemHeader>
           <ItemContent className="gap-4 p-2">
-            <ItemTitle className="">
+            <ItemTitle className="break-all">
               {item.name}
             </ItemTitle>
             <Button variant="secondary" asChild>

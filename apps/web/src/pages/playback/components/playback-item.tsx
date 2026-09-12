@@ -123,7 +123,7 @@ export function PlaybackItem({ playback, mutate }: Props) {
         />
       </ItemHeader>
       <ItemContent className="gap-2 max-sm:gap-4 max-sm:p-4 max-sm:pt-0">
-        <ItemTitle className="text-base block sm:line-clamp-1">
+        <ItemTitle className="text-base block break-all sm:line-clamp-1">
           {playback.work.name}
         </ItemTitle>
         <ItemDescription className="sm:w-[90%] sm:line-clamp-1">

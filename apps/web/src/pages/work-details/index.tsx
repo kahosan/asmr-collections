@@ -114,7 +114,7 @@ function WorkDetails({ id }: { id: string }) {
           </div>
 
           <div className="flex flex-col gap-3 p-2 w-full">
-            <h2 className="sm:text-xl text-[20px] pt-2" title={data.name}>{data.name}</h2>
+            <h2 className="sm:text-xl text-[20px] pt-2 break-all" title={data.name}>{data.name}</h2>
             <div className="text-muted-foreground">
               <Link to="/" search={{ circleId: data.circleId }} underline="hover">{data.circle.name}</Link>
               {data.seriesId ? <Link to="/" search={{ seriesId: data.seriesId }} className="ml-2" underline="hover">「{data.series?.name}」系列</Link> : null}
