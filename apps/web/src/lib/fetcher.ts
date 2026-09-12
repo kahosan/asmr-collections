@@ -2,9 +2,7 @@ import { match, P } from 'ts-pattern';
 import { logger } from './logger';
 import { HTTPError } from '@asmr-collections/shared';
 
-import type { FetcherKey } from '~/types/fetcher';
-
-export async function fetcher<T>(key: FetcherKey, options?: RequestInit): Promise<T> {
+export async function fetcher<T>(key: string, options?: RequestInit): Promise<T> {
   try {
     const res = await fetch(new URL(key, window.document.baseURI), {
       ...options,

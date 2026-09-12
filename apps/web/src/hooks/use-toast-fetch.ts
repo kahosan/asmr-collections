@@ -7,10 +7,8 @@ import useSWRMutation from 'swr/mutation';
 import { fetcher } from '~/lib/fetcher';
 import { HTTPError } from '@asmr-collections/shared';
 
-import type { FetcherKey } from '~/types/fetcher';
-
 interface Arg {
-  key: FetcherKey
+  key: string
   fetchOps?: RequestInit
 }
 
@@ -24,7 +22,7 @@ interface ToastOps<T> {
 }
 
 interface ToastcherOptions<T> {
-  key: FetcherKey
+  key: string
   /**
    * Fetch options for the request
    */
