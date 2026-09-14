@@ -191,8 +191,9 @@ export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
               onClick={() => handleCueClick(cue.startTime)}
               className={cn(
                 'hover:bg-accent',
+                !isActive && 'opacity-25',
                 isActive && 'bg-[#7b1fa2] text-white hover:bg-[#7b1fa2]',
-                'rounded-sm px-2 py-1 transition-colors cursor-pointer'
+                'rounded-sm px-2 py-1 transition-[opacity,background-color,color] cursor-pointer'
               )}
             >
               <small className="opacity-60">[{formatTime(cue.startTime)}]</small>
