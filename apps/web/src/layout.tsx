@@ -1,6 +1,7 @@
 import { Header } from './components/header';
 import { MediaPlayer } from './components/media-player';
 import { ErrorBoundary } from './components/error-boundary';
+import { SleepTimerRunner } from './components/time-picker/sleep-timer-runner';
 
 import { Confirmer } from './components/ui/confirmer';
 
@@ -15,6 +16,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
       </main>
       <Confirmer />
       <MediaPlayer />
+      <SleepTimerRunner />
     </ErrorBoundary>
   );
 }
