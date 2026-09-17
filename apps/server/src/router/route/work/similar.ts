@@ -5,8 +5,8 @@ import { HTTPError } from '@asmr-collections/shared';
 
 import * as z from 'zod';
 
-import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
+import { workRepo } from '~/repository/work';
 import { ASMROneProvider } from '~/provider/asmrone';
 import { createCachified, ttl } from '~/lib/cachified';
 import { formatError, formatMessage } from '~/router/utils';
@@ -40,7 +40,7 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
 
     const similarWorks = await similarCache({
       cacheKey: `similar-work-${id}`,
-      getFreshValue: () => getSimilar(id),
+      getFreshValue: () => workRepo.similar(id, 10),
       ttl: ttl.hour(1),
       ctx: c
     });
@@ -61,39 +61,4 @@ similarApp.get('/similar/:id', zValidator('query', schema), async c => {
 
 export function clearSimilarCache(id: string) {
   return clear(`similar-work-${id}`, false);
-}
-
-async function getSimilar(id: string) {
-  const similarIds = await prisma.$queryRaw<Array<{ id: string }>>`
-    WITH target AS (
-      SELECT embedding FROM "Work" WHERE id = ${id}
-    )
-    SELECT w.id
-    FROM "Work" w, target
-    WHERE w.embedding IS NOT NULL
-      AND w.id != ${id}
-      AND target.embedding IS NOT NULL
-    ORDER BY w.embedding <=> target.embedding
-    LIMIT 10
-  `;
-
-  if (similarIds.length === 0) return [];
-
-  const targetIds = similarIds.map(item => item.id);
-
-  const works = await prisma.work.findMany({
-    where: {
-      id: { in: targetIds }
-    },
-    include: {
-      circle: true,
-      series: true,
-      artists: true,
-      illustrators: true,
-      genres: true,
-      translationInfo: true
-    }
-  });
-
-  return works.sort((a, b) => targetIds.indexOf(a.id) - targetIds.indexOf(b.id)) as unknown as ServerWork[];
 }

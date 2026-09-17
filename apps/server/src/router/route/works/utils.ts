@@ -10,6 +10,7 @@ import { createHash } from 'node:crypto';
 import { ai } from '~/ai';
 import { prisma } from '~/lib/db';
 import { storage } from '~/storage';
+import { workRepo } from '~/repository/work';
 import { createCachified, ttl } from '~/lib/cachified';
 
 export type FindManyWorksQuery = Parameters<PrismaClient['work']['findMany']>[0];
@@ -144,18 +145,11 @@ export async function findManyByEmbedding(
       if (vectorizeQuery === undefined || vectorizeQuery.length === 0)
         throw new Error('无法生成文本向量');
 
-      const vectorString = `[${vectorizeQuery.join(',')}]`;
+      const ids = await workRepo.getIdsByEmbedding(vectorizeQuery, 200);
 
-      const _i = await prisma.$queryRaw<Array<{ id: string }>>`
-        SELECT id FROM "Work"
-        ORDER BY embedding <=> ${vectorString}::vector
-        LIMIT 200;
-      `;
-
-      if (!Array.isArray(_i) || _i.length === 0)
+      if (ids.length === 0)
         return [];
 
-      const ids = _i.map(item => item.id);
       const works = await prisma.work.findMany({
         where: { id: { in: ids } },
         include
