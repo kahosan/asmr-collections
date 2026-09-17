@@ -3,6 +3,7 @@ import { PlaylistSearchQuerySchema, PlaylistUpsertSchema } from '@asmr-collectio
 
 import { prisma } from '~/lib/db';
 import { zValidator } from '~/lib/validator';
+import { playlistRepo } from '~/repository/playlist';
 import { formatError, formatMessage } from '~/router/utils';
 
 export const playlistApp = new Hono()
@@ -105,15 +106,7 @@ export const playlistApp = new Hono()
         data: { name, cover, description }
       });
 
-      if (works.validIds.length > 0) {
-        await prisma.playlistWork.createMany({
-          data: works.validIds.map(workId => ({
-            playlistId: playlist.id,
-            workId
-          })),
-          skipDuplicates: true
-        });
-      }
+      await playlistRepo.addWorks(playlist.id, works.validIds);
 
       return c.json(playlist);
     } catch (e) {
@@ -131,15 +124,7 @@ export const playlistApp = new Hono()
         data: { name, cover, description }
       });
 
-      if (works.validIds.length > 0) {
-        await prisma.playlistWork.createMany({
-          data: works.validIds.map(workId => ({
-            playlistId: playlist.id,
-            workId
-          })),
-          skipDuplicates: true
-        });
-      }
+      await playlistRepo.addWorks(playlist.id, works.validIds);
 
       return c.json(playlist);
     } catch (e) {

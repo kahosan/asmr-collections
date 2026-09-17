@@ -166,6 +166,50 @@ export const workRepo = {
       }
     });
   },
+  async ensureRelations(works: SourceWork[]) {
+    const circles = new Map<string, string>();
+    const series = new Map<string, string>();
+    const artists = new Map<string, string>();
+    const illustrators = new Map<string, string>();
+    const genres = new Map<number, string>();
+
+    for (const data of works) {
+      circles.set(data.circle.id, data.circle.name);
+      if (data.series?.id) series.set(data.series.id, data.series.name);
+      data.artists.forEach(({ name }) => artists.set(name, name));
+      data.illustrators.forEach(({ name }) => illustrators.set(name, name));
+      data.genres.forEach(genre => genres.set(genre.id, genre.name));
+    }
+
+    const result = await Promise.allSettled([
+      circles.size > 0 && prisma.circle.createMany({
+        data: Array.from(circles, ([id, name]) => ({ id, name })),
+        skipDuplicates: true
+      }),
+      series.size > 0 && prisma.series.createMany({
+        data: Array.from(series, ([id, name]) => ({ id, name })),
+        skipDuplicates: true
+      }),
+      artists.size > 0 && prisma.artist.createMany({
+        data: Array.from(artists, ([name]) => ({ name })),
+        skipDuplicates: true
+      }),
+      illustrators.size > 0 && prisma.illustrator.createMany({
+        data: Array.from(illustrators, ([name]) => ({ name })),
+        skipDuplicates: true
+      }),
+      genres.size > 0 && prisma.genre.createMany({
+        data: Array.from(genres, ([id, name]) => ({ id, name })),
+        skipDuplicates: true
+      })
+    ]);
+
+    const rejected = result.filter(item => item.status === 'rejected');
+    if (rejected.length > 0) {
+      console.error('批量创建关联数据部分失败：', rejected.map(item => item.reason));
+      throw new Error('批量创建关联数据失败');
+    }
+  },
   updateEmbedding(workId: string, embedding: number[]) {
     const vectorString = `[${embedding.join(',')}]`;
     return prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${workId}`;
