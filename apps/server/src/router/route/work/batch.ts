@@ -173,10 +173,8 @@ batchApp.on(['GET', 'POST'], '/batch/create', async c => {
 
           try {
             await workRepo.create(data, id);
-            if (embedding) {
-              const vectorString = `[${embedding.join(',')}]`;
-              await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
-            }
+            if (embedding)
+              await workRepo.updateEmbedding(id, embedding);
 
             result.success.push(id);
 

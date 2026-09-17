@@ -4,7 +4,6 @@ import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
 
 import { ai } from '~/ai';
-import { prisma } from '~/lib/db';
 import { dlsite } from '~/provider/dlsite';
 import { workRepo } from '~/repository/work';
 import { formatError, formatMessage, saveCoverImage } from '~/router/utils';
@@ -82,8 +81,7 @@ updateApp.put('/update/:id', async c => {
     try {
       const embedding = await ai.vectorizePassage(data);
       if (embedding) {
-        const vectorString = `[${embedding.join(',')}]`;
-        await prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${id}`;
+        await workRepo.updateEmbedding(id, embedding);
         await clearSimilarCache(id);
       }
 

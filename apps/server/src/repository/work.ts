@@ -164,6 +164,10 @@ export const workRepo = {
       }
     });
   },
+  updateEmbedding(workId: string, embedding: number[]) {
+    const vectorString = `[${embedding.join(',')}]`;
+    return prisma.$executeRaw`UPDATE "Work" SET embedding = ${vectorString}::vector WHERE id = ${workId}`;
+  },
   exists(id: string) {
     return prisma.work.findUnique({ where: { id }, select: { id: true } }).then(d => d !== null);
   }
