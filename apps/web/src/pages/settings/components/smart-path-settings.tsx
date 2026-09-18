@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 import { SettingItem } from './setting-item';
 import { SettingInput } from './setting-input';

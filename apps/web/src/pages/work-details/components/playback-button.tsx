@@ -1,7 +1,7 @@
 import { ListVideoIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 
 import type { Playback, Tracks, Track } from '@asmr-collections/shared';
 

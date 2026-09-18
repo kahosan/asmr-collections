@@ -2,7 +2,7 @@ import { GripVerticalIcon, X } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 
 import { useAtom } from 'jotai';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { arrayMove } from '@dnd-kit/helpers';

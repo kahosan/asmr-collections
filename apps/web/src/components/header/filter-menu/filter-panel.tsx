@@ -4,7 +4,7 @@ import { CheckIcon, MinusIcon } from 'lucide-react';
 import { Virtualized, VirtualizedVirtualizer } from '~/components/ui/virtualized';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 
 import { Loading } from '~/components/loading';
 

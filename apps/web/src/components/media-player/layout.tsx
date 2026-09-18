@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 import { useShortcut } from '~/hooks/use-shortcut';
 import { usePlayerExpand } from './hooks/use-player-expand';

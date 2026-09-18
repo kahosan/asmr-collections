@@ -7,7 +7,7 @@ import { Link } from '../link';
 import { CheckIcon, MinusIcon, Tag } from 'lucide-react';
 
 import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 import type { Data } from '@asmr-collections/shared';
 

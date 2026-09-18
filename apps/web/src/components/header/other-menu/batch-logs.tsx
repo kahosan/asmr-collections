@@ -1,5 +1,5 @@
 import { match } from 'ts-pattern';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 import { Button } from '~/components/ui/button';
 import { VirtualizerScrollArea, VirtualizedVirtualizer } from '~/components/ui/virtualized';

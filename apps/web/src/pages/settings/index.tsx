@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useImmerAtom, useSetImmerAtom } from 'jotai-immer';
 import { createLazyRoute } from '@tanstack/react-router';
 

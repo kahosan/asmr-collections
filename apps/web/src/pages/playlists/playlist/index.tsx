@@ -10,7 +10,7 @@ import { PlaylistDelete } from '../components/playlist-delete';
 
 import useSWR from 'swr';
 import { Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { createLazyRoute } from '@tanstack/react-router';
 
 import { notifyError } from '~/utils';

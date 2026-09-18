@@ -1,6 +1,6 @@
 import { createLazyRoute, useMatchRoute } from '@tanstack/react-router';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Activity, Suspense, useCallback } from 'react';
 
 import { formatChineseDate } from '@asmr-collections/shared';

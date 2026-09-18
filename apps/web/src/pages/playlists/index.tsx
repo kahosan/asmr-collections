@@ -7,7 +7,7 @@ import { PlaylistDialog } from './components/playlist-dialog';
 
 import useSWR from 'swr';
 import { Suspense } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { createLazyRoute } from '@tanstack/react-router';
 
 import { notifyError } from '~/utils';

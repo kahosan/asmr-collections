@@ -1,6 +1,6 @@
-import { useBlocker } from '@tanstack/react-router';
 import { useState } from 'react';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import { useBlocker } from '@tanstack/react-router';
+import { motion, AnimatePresence, useDragControls } from 'motion/react';
 
 import { useIsMobile } from '~/hooks/use-is-mobile';
 import { usePlayerExpand } from '../../hooks/use-player-expand';

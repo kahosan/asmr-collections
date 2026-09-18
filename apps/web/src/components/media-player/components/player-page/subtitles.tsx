@@ -4,7 +4,7 @@ import { useEffect, useEffectEvent, useState } from 'react';
 
 import { focusAtom } from 'jotai-optics';
 import { useAtom, useAtomValue } from 'jotai/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
 import { useActiveCue } from '../../hooks/use-active-cue';

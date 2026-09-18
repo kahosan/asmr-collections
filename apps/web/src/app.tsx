@@ -5,7 +5,7 @@ import { WorkSkeletons } from './components/works/skeleton';
 import { DailyDiscoveryPreview } from './components/discovery/daily-preview';
 
 import useSWR from 'swr';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { withQuery } from '@asmr-collections/shared';
 
 import { notifyError } from '~/utils';

@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { Suspense } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { createLazyRoute } from '@tanstack/react-router';
 
 import { ItemGroup } from '~/components/ui/item';

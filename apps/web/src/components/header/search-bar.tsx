@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '../ui/input-group';
 import { Search, Zap, ZapOff } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface SearchBarProps {
   search: {

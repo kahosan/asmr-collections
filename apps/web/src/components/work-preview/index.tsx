@@ -3,7 +3,7 @@ import { useState } from 'react'; // Activity 可能不再需要，因为我们�
 import { fetchJsonp } from 'foxact/fetch-jsonp';
 import { withQuery } from '@asmr-collections/shared';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 import { Spinner } from '../ui/spinner';
 import { cn } from '~/lib/utils';

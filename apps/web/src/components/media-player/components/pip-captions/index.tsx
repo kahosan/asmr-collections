@@ -2,7 +2,7 @@ import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 
 import { useVideoPip } from './use-video-pip';
 import { useActiveCue } from '../../hooks/use-active-cue';
