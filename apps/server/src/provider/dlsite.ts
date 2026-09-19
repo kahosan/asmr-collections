@@ -23,7 +23,7 @@ interface PopularResponse {
         tags: Array<{
           id: number
           label: string
-        }>
+        }> | null
         description: string
         img: {
           originalUrl: string
@@ -48,10 +48,10 @@ class DLsiteProvider {
         cover: p.img.originalUrl,
         intro: p.description,
         circle: p.maker,
-        genres: p.tags.map(tag => ({
+        genres: p.tags?.map(tag => ({
           id: tag.id,
           name: tag.label
-        }))
+        })) ?? []
       }))
       .slice(0, limit);
   }
