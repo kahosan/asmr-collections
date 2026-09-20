@@ -35,6 +35,26 @@ interface PopularResponse {
 
 type ProductDetails = Pick<SourceWork, 'circle' | 'artists' | 'illustrators' | 'intro' | 'genres'>;
 
+/**
+ * 推导日文原版 id。
+ *
+ * DLsite 有两套翻译体系：
+ * - 「大家一起来翻译」：译版的 translation_info.original_workno 指向原版
+ * - 官方翻译：社团自己发布的各语言版，所有成员都是 is_original，没有任何父子指针，
+ *   只能靠共享的 dl_count_items 里的日语条目找到原版
+ *
+ * lang 可能是逗号分隔的列表（作品本身包含多种语言），按拆分后匹配 JPN
+ */
+export function resolveOriginalId(
+  id: string,
+  originalWorkno: string | null | undefined,
+  editions: Array<{ workId: string, lang: string }>
+): string {
+  return originalWorkno
+    ?? editions.find(e => e.lang.split(',').includes('JPN'))?.workId
+    ?? id;
+}
+
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
 
@@ -65,6 +85,11 @@ class DLsiteProvider {
     const series = data.title_id && data.title_name
       ? { id: data.title_id, name: data.title_name }
       : null;
+    const languageEditions = data.dl_count_items?.map(item => ({
+      lang: item.lang,
+      workId: item.workno,
+      label: item.display_label
+    })) ?? [];
 
     return Object.assign(details, {
       id,
@@ -81,7 +106,7 @@ class DLsiteProvider {
       rateCount: data.rate_count ?? 0,
       reviewCount: data.review_count ?? 0,
       wishlistCount: data.wishlist_count ?? 0,
-      originalId: data.translation_info.original_workno ?? id,
+      originalId: resolveOriginalId(id, data.translation_info.original_workno, languageEditions),
       translationInfo: {
         isVolunteer: data.translation_info.is_volunteer,
         isOriginal: data.translation_info.is_original,
@@ -93,11 +118,7 @@ class DLsiteProvider {
         childWorknos: data.translation_info.child_worknos,
         lang: data.translation_info.lang
       },
-      languageEditions: data.dl_count_items?.map(item => ({
-        lang: item.lang,
-        workId: item.workno,
-        label: item.display_label
-      })) ?? []
+      languageEditions
     });
   }
 
