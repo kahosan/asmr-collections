@@ -218,29 +218,17 @@ function WorkDetails({ id }: { id: string }) {
                 </Link>
               </Button>
 
-              {
-                data.languageEditions.map(edition => (
-                  edition.workId === data.id
-                    ? null
-                    : (
-                      <Button key={edition.workId} asChild variant="link" size="sm" className="w-max hover:opacity-90">
-                        <Link to="/work-details/$id" params={{ id: edition.workId }}>
-                          {edition.label}
-                        </Link>
-                      </Button>
-                    )
-                ))
-              }
-
-              {
-                data.translationInfo.childWorknos.map(childId => (
-                  <Button key={childId} asChild variant="link" size="sm" className="w-max hover:opacity-90">
-                    <Link to="/work-details/$id" params={{ id: childId }}>
-                      译者版
-                    </Link>
-                  </Button>
-                ))
-              }
+              {data.editions?.map(edition => (
+                edition.workId === data.id
+                  ? null
+                  : (
+                    <Button key={edition.workId} asChild variant="link" size="sm" className={cn('w-max hover:opacity-90')}>
+                      <Link to="/work-details/$id" params={{ id: edition.workId }}>
+                        {edition.label}
+                      </Link>
+                    </Button>
+                  )
+              ))}
             </div>
           </div>
         </Card>
