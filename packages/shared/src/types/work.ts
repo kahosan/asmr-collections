@@ -84,6 +84,8 @@ export interface WorkEdition {
   label: string
   // 是否为日文原版
   original: boolean
+  // 译者版才有，指向所属的语言版
+  parentId?: string
   // 是否已入库
   library: boolean
   // 已入库时才有

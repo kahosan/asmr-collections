@@ -1,5 +1,3 @@
-import type { SourceWork } from '~/types/source';
-
 import { Hono } from 'hono';
 
 import { prisma } from '~/lib/db';
@@ -13,8 +11,6 @@ import { deleteApp } from './delete';
 import { randomApp } from './random';
 import { updateApp } from './update';
 import { similarApp } from './similar';
-
-type LanguageEdition = SourceWork['languageEditions'][number];
 
 export const workApp = new Hono()
   .route('/', createApp)
@@ -34,7 +30,7 @@ workApp.get('/:id', async c => {
     if (!work)
       return c.json(formatMessage('收藏不存在'), 404);
 
-    const editions = await workRepo.editions(work.originalId, work.languageEditions as LanguageEdition[]);
+    const editions = await workRepo.editions(work);
 
     return c.json({ ...work, requestedId: id, editions });
   } catch (e) {
