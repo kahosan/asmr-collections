@@ -33,7 +33,7 @@ export interface ServerWork {
   wishlistCount: number
   rate: number
   rateCount: number
-  originalId: string | null
+  originalId: string
   playback: Playback | null
   reviewCount: number
   releaseDate: Date
@@ -72,4 +72,23 @@ export interface ServerWork {
 export type Work = Jsonify<ServerWork> & {
   // 以下都为非数据库字段
   favorited?: boolean // 是否已收藏
+  // 请求时使用的 ID。当请求的是译者版时，返回的是其语言版数据，此字段记录原始请求 ID
+  requestedId?: string
+  // 翻译家族里的各语言版本（含原版和自己），并标记是否已入库
+  editions?: WorkEdition[]
 };
+
+export interface WorkEdition {
+  workId: string
+  lang: string
+  label: string
+  // 是否为日文原版
+  original: boolean
+  // 译者版才有，指向所属的语言版
+  parentId?: string
+  // 是否已入库
+  library: boolean
+  // 已入库时才有
+  name?: string
+  cover?: string
+}

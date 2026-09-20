@@ -272,11 +272,9 @@ export class DiscoveryEngine {
     const exactWorks = new Map(works.map(work => [work.id.toUpperCase(), work]));
     const originalWorks = new Map<string, DiscoveryWork>();
     for (const work of works) {
-      if (work.originalId) {
-        const originalId = work.originalId.toUpperCase();
-        if (!originalWorks.has(originalId))
-          originalWorks.set(originalId, work);
-      }
+      const originalId = work.originalId.toUpperCase();
+      if (!originalWorks.has(originalId))
+        originalWorks.set(originalId, work);
     }
 
     const candidates: Candidate[] = [];

@@ -4,10 +4,13 @@ import { Hono } from 'hono';
 import { HTTPError } from '@asmr-collections/shared';
 
 import { dlsite } from '~/provider/dlsite';
+import { workRepo } from '~/repository/work';
 import { createCachified, ttl } from '~/lib/cachified';
 import { formatError, formatMessage } from '~/router/utils';
 
-const [dlsiteCache, clearDLsiteCache] = createCachified<WorkInfoResponse<ServerWork> | null>({
+type CachedInfo = WorkInfoResponse<ServerWork> & { requestedId: string };
+
+const [dlsiteCache, clearDLsiteCache] = createCachified<CachedInfo | null>({
   ttl: ttl.day(1)
 });
 
@@ -20,13 +23,16 @@ infoApp.get('/info/:id', async c => {
     const data = await dlsiteCache({
       cacheKey: `dlsite-work-info-${id}`,
       async getFreshValue() {
-        const data = await dlsite.product(id);
+        const resolved = await dlsite.resolve(id);
 
-        if (!data)
+        if (!resolved)
           return null;
+
+        const { data, requestedId } = resolved;
 
         return {
           ...data,
+          requestedId,
           artists: creater(data.artists),
           illustrators: creater(data.illustrators),
           playback: null,
@@ -41,7 +47,9 @@ infoApp.get('/info/:id', async c => {
       return c.json(formatMessage('DLsite 不存在此作品'), 404);
     }
 
-    return c.json(data);
+    const editions = await workRepo.editions(data);
+
+    return c.json({ ...data, editions });
   } catch (e) {
     console.error(e);
     if (e instanceof HTTPError)

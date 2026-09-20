@@ -12,7 +12,7 @@ import { WorkPreview } from '../work-preview';
 
 import { useState } from 'react';
 
-export function AuditionDrawer({ workId, originalId }: { workId: string, originalId?: string | null }) {
+export function AuditionDrawer({ originalId }: { originalId: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ export function AuditionDrawer({ workId, originalId }: { workId: string, origina
           <DrawerTitle>试听</DrawerTitle>
           <DrawerDescription>试听DLsite作品音频</DrawerDescription>
         </DrawerHeader>
-        {open && <WorkPreview workId={workId} originalId={originalId} className="min-h-64" />}
+        {open && <WorkPreview originalId={originalId} className="min-h-64" />}
       </DrawerContent>
     </Drawer>
   );

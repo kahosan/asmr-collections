@@ -19,7 +19,7 @@ export function FolderItem({ searchPath, track, enqueueTracks, disabled }: Folde
       <ContextMenuTrigger title={track.title} asChild>
         <Link
           from="/work-details/$id"
-          search={{ path: (searchPath ?? []).concat(track.title) }}
+          search={p => ({ ...p, path: (searchPath ?? []).concat(track.title) })}
           className="flex items-center py-1"
         >
           <FolderClosed className="shrink-0 size-8 mx-4" color="#56CBFC" />

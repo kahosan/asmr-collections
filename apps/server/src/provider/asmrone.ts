@@ -6,6 +6,7 @@ import type { Recommender, Tags } from '~/types/provider/asmr-one';
 import { HTTPError } from '@asmr-collections/shared';
 
 import { fetcher } from '~/lib/fetcher';
+import { resolveOriginalId } from '~/provider/dlsite';
 
 interface PopularResponse {
   works: Array<{
@@ -77,53 +78,57 @@ export class ASMROneProvider {
         })
       });
 
-      return data.works.map<ServerWork>(work => ({
-        id: work.source_id,
-        name: work.title,
-        cover: work.mainCoverUrl,
-        intro: work.title,
-        circleId: work.circle.source_id,
-        circle: {
-          id: work.circle.source_id,
-          name: work.circle.name
-        },
-        seriesId: null,
-        series: null,
-        artists: work.vas.map(va => ({ name: va.name, source: 'asmrone', sourceId: va.id })),
-        illustrators: [],
-        ageCategory: work.age_category_string === 'adult' ? 3 : (work.age_category_string === 'r15' ? 2 : 1),
-        genres: work.tags.map(tag => ({ id: tag.id, name: tag.name })),
-        price: work.price,
-        sales: work.dl_count,
-        wishlistCount: 0,
-        rate: work.rate_average_2dp,
-        rateCount: work.rate_count,
-        originalId: work.original_workno,
-        playback: null,
-        reviewCount: work.review_count,
-        releaseDate: new Date(work.release),
-        translationInfo: {
-          isVolunteer: work.translation_info.is_volunteer,
-          isOriginal: work.translation_info.is_original,
-          isParent: work.translation_info.is_parent,
-          isChild: work.translation_info.is_child,
-          isTranslationBonusChild: work.translation_info.is_translation_bonus_child,
-          originalWorkno: work.translation_info.original_workno,
-          parentWorkno: work.translation_info.parent_workno,
-          childWorknos: work.translation_info.child_worknos,
-          lang: work.translation_info.lang
-        },
-        createdAt: new Date(work.create_date),
-        updatedAt: new Date(work.create_date),
-        languageEditions: Array.isArray(work.language_editions)
+      return data.works.map<ServerWork>(work => {
+        const languageEditions = Array.isArray(work.language_editions)
           ? work.language_editions.map(edition => ({
             workId: edition.workno,
             label: edition.label,
             lang: edition.lang
           }))
-          : [],
-        subtitles: false
-      }));
+          : [];
+
+        return {
+          id: work.source_id,
+          name: work.title,
+          cover: work.mainCoverUrl,
+          intro: work.title,
+          circleId: work.circle.source_id,
+          circle: {
+            id: work.circle.source_id,
+            name: work.circle.name
+          },
+          seriesId: null,
+          series: null,
+          artists: work.vas.map(va => ({ name: va.name, source: 'asmrone', sourceId: va.id })),
+          illustrators: [],
+          ageCategory: work.age_category_string === 'adult' ? 3 : (work.age_category_string === 'r15' ? 2 : 1),
+          genres: work.tags.map(tag => ({ id: tag.id, name: tag.name })),
+          price: work.price,
+          sales: work.dl_count,
+          wishlistCount: 0,
+          rate: work.rate_average_2dp,
+          rateCount: work.rate_count,
+          originalId: resolveOriginalId(work.source_id, work.original_workno, languageEditions),
+          playback: null,
+          reviewCount: work.review_count,
+          releaseDate: new Date(work.release),
+          translationInfo: {
+            isVolunteer: work.translation_info.is_volunteer,
+            isOriginal: work.translation_info.is_original,
+            isParent: work.translation_info.is_parent,
+            isChild: work.translation_info.is_child,
+            isTranslationBonusChild: work.translation_info.is_translation_bonus_child,
+            originalWorkno: work.translation_info.original_workno,
+            parentWorkno: work.translation_info.parent_workno,
+            childWorknos: work.translation_info.child_worknos,
+            lang: work.translation_info.lang
+          },
+          createdAt: new Date(work.create_date),
+          updatedAt: new Date(work.create_date),
+          languageEditions,
+          subtitles: false
+        };
+      });
     } catch (e) {
       if (e instanceof HTTPError && e.status === 404)
         throw new HTTPError(e.data?.detail || '作品不存在于 asmr.one', e.status);

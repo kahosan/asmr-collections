@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 
 import { prisma } from '~/lib/db';
+import { workRepo } from '~/repository/work';
 import { formatError, formatMessage } from '~/router/utils';
 
 import { infoApp } from './info';
@@ -24,23 +25,14 @@ workApp.get('/:id', async c => {
   const { id } = c.req.param();
 
   try {
-    const work = await prisma.work.findUnique({
-      where: { id },
-      include: {
-        circle: true,
-        series: true,
-        artists: true,
-        illustrators: true,
-        genres: true,
-        translationInfo: true,
-        playback: true
-      }
-    });
+    const work = await workRepo.resolve(id);
 
     if (!work)
       return c.json(formatMessage('收藏不存在'), 404);
 
-    return c.json(work);
+    const editions = await workRepo.editions(work);
+
+    return c.json({ ...work, requestedId: id, editions });
   } catch (e) {
     console.error(e);
     return c.json(formatError(e), 500);

@@ -160,7 +160,7 @@ export function WorkCard({ work, showMenus = true, showImageBadge = true }: Prop
         <GenresPopover genres={work.genres} searchGenres={search.genres} key={search.genres?.join('')} />
         {showMenus && (
           <>
-            <AuditionDrawer workId={work.id} originalId={work.originalId} />
+            <AuditionDrawer originalId={work.originalId} />
             <Menu work={work} />
           </>
         )}

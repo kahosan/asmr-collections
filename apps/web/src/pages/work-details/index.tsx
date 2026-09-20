@@ -5,7 +5,7 @@ import { Activity, Suspense, useCallback } from 'react';
 
 import { formatChineseDate } from '@asmr-collections/shared';
 
-import { ImageIcon, MicIcon, TagIcon } from 'lucide-react';
+import { ChevronRightIcon, ImageIcon, MicIcon, TagIcon } from 'lucide-react';
 
 import { Link } from '~/components/link';
 import { Image } from '~/components/image';
@@ -15,6 +15,7 @@ import { Card } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '~/components/ui/item';
 
 import { SimilarWorks } from './components/similar';
 import { MetaButton } from '~/components/meta-button';
@@ -39,21 +40,25 @@ const { useNavigate, useSearch, useParams } = workDetailsRoute;
 
 function WorkDetails({ id }: { id: string }) {
   const navigate = useNavigate();
-  const searchPath = useSearch({ select: ({ path }) => path });
+  const { searchPath, t } = useSearch({ select: ({ path, t }) => ({ searchPath: path, t }) });
   const matchRoute = useMatchRoute();
 
   const settings = useAtomValue(settingOptionsAtom);
 
   const { data } = useWorkInfo(id, { suspense: true });
 
+  const fe = data?.editions?.filter(e => e.library);
+  const hiddenEditions = fe?.length === 0
+    || (fe?.length === 1 && fe.at(0)?.workId === id);
+
   const smartNavigate = useCallback((path: string[]) => {
     // 当不处于 work-details 路由时，不进行导航
     if (!matchRoute({ to: '/work-details/$id' })) return;
 
-    navigate({ params: { id }, search: { path }, replace: true });
+    navigate({ params: { id }, search: p => ({ ...p, path }), replace: true });
   }, [id, matchRoute, navigate]);
 
-  const { data: tracks, isLoading } = useWorkDetailsTracks(id, smartNavigate, data?.subtitles, searchPath);
+  const { data: tracks, isLoading } = useWorkDetailsTracks(t ?? id, smartNavigate, data?.subtitles, searchPath);
 
   if (!data)
     throw new Error('作品数据请求失败，详情请查看控制台');
@@ -218,35 +223,70 @@ function WorkDetails({ id }: { id: string }) {
                 </Link>
               </Button>
 
-              {
-                data.languageEditions.map(edition => (
-                  edition.workId === data.id
-                    ? null
-                    : (
-                      <Button key={edition.workId} asChild variant="link" size="sm" className="w-max hover:opacity-90">
-                        <Link to="/work-details/$id" params={{ id: edition.workId }}>
-                          {edition.label}
-                        </Link>
-                      </Button>
-                    )
-                ))
-              }
-
-              {
-                data.translationInfo.childWorknos.map(childId => (
-                  <Button key={childId} asChild variant="link" size="sm" className="w-max hover:opacity-90">
-                    <Link to="/work-details/$id" params={{ id: childId }}>
-                      译者版
-                    </Link>
-                  </Button>
-                ))
-              }
+              {data.editions?.map(edition => (
+                edition.workId === data.id || edition.workId === (t ?? id)
+                  ? null
+                  : (
+                    <Button key={edition.workId} asChild variant="link" size="sm" className="w-max hover:opacity-90">
+                      <Link to="/work-details/$id" params={{ id: edition.workId }}>
+                        {edition.parentId ? `${edition.label}（译者版）` : edition.label}
+                      </Link>
+                    </Button>
+                  )
+              ))}
             </div>
           </div>
         </Card>
         <div className="bg-current/8 p-2 rounded-md text-sm my-4">
           {data.intro}
         </div>
+        <Activity mode={hiddenEditions ? 'hidden' : 'visible'}>
+          <ItemGroup className="my-4 divide-y divide-border rounded-md border p-1 gap-1">
+            {data.editions?.map(edition => {
+              if (!edition.library) return null;
+
+              const isCurrent = edition.workId === id;
+
+              return (
+                <Item
+                  key={edition.workId}
+                  size="xs"
+                  className={cn(
+                    'p-2 py-1 rounded-sm',
+                    isCurrent ? '[a]:hover:bg-transparent cursor-not-allowed!' : '[a]:hover:bg-current/8'
+                  )}
+                  asChild
+                >
+                  <Link to="/work-details/$id" params={{ id: edition.workId }} disabled={isCurrent}>
+                    <ItemContent
+                      className={cn(
+                        'gap-2!',
+                        'border-l-2 pl-3 transition-colors',
+                        isCurrent ? 'border-l-primary' : 'border-l-transparent'
+                      )}
+                    >
+                      <ItemTitle className="flex items-center gap-2">
+                        {edition.workId}
+                        <span
+                          className={cn(
+                            'rounded px-1.5 py-0.5 text-xs font-normal',
+                            'bg-muted text-muted-foreground'
+                          )}
+                        >
+                          {edition.parentId ? `${edition.label}（译者版）` : edition.label}
+                        </span>
+                      </ItemTitle>
+                      <ItemDescription>{edition.name}</ItemDescription>
+                    </ItemContent>
+                    <ItemActions>
+                      <ChevronRightIcon className="text-muted-foreground size-4" />
+                    </ItemActions>
+                  </Link>
+                </Item>
+              );
+            })}
+          </ItemGroup>
+        </Activity>
       </Activity>
 
       {isLoading && <TracksSkeleton />}
@@ -274,7 +314,7 @@ function WorkDetails({ id }: { id: string }) {
       )}
 
       {!isLoading && !tracks?.data && (
-        <WorkPreview workId={data.id} originalId={data.originalId} className="block" />
+        <WorkPreview originalId={data.originalId} className="block" />
       )}
 
       <SimilarWorks work={data} exists={data.favorited} />
