@@ -262,7 +262,7 @@ function WorkDetails({ id }: { id: string }) {
       )}
 
       {!isLoading && !tracks?.data && (
-        <WorkPreview workId={data.id} originalId={data.originalId} className="block" />
+        <WorkPreview originalId={data.originalId} className="block" />
       )}
 
       <SimilarWorks work={data} exists={data.favorited} />

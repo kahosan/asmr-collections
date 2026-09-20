@@ -98,7 +98,7 @@ export class ASMROneProvider {
         wishlistCount: 0,
         rate: work.rate_average_2dp,
         rateCount: work.rate_count,
-        originalId: work.original_workno,
+        originalId: work.original_workno ?? work.source_id,
         playback: null,
         reviewCount: work.review_count,
         releaseDate: new Date(work.release),

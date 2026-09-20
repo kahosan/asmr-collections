@@ -17,12 +17,11 @@ interface Embed {
 }
 
 interface WorkPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
-  workId: string
-  originalId?: string | null
+  originalId: string
 }
 
-export function WorkPreview({ workId, originalId, ...props }: WorkPreviewProps) {
-  const key = withQuery('https://chobit.cc/api/v1/dlsite/embed', { workno: originalId ?? workId });
+export function WorkPreview({ originalId, ...props }: WorkPreviewProps) {
+  const key = withQuery('https://chobit.cc/api/v1/dlsite/embed', { workno: originalId });
   const [iframeLoading, setIframeLoading] = useState(true);
 
   const { data, isLoading } = useSWR<Embed>(key, fetcher, {

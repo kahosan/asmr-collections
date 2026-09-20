@@ -33,7 +33,7 @@ export interface ServerWork {
   wishlistCount: number
   rate: number
   rateCount: number
-  originalId: string | null
+  originalId: string
   playback: Playback | null
   reviewCount: number
   releaseDate: Date

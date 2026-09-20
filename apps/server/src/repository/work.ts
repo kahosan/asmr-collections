@@ -38,13 +38,7 @@ export const workRepo = {
    */
   async editions(originalId: string, base: LanguageEdition[]): Promise<WorkEdition[]> {
     const family = await prisma.work.findMany({
-      where: {
-        OR: [
-          { id: originalId },
-          { originalId },
-          { id: { in: base.map(e => e.workId) } }
-        ]
-      },
+      where: { originalId },
       select: { id: true, name: true, cover: true, languageEditions: true }
     });
 

@@ -34,7 +34,7 @@ workApp.get('/:id', async c => {
     if (!work)
       return c.json(formatMessage('收藏不存在'), 404);
 
-    const editions = await workRepo.editions(work.originalId ?? work.id, work.languageEditions as LanguageEdition[]);
+    const editions = await workRepo.editions(work.originalId, work.languageEditions as LanguageEdition[]);
 
     return c.json({ ...work, requestedId: id, editions });
   } catch (e) {

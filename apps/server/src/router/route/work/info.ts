@@ -47,7 +47,7 @@ infoApp.get('/info/:id', async c => {
       return c.json(formatMessage('DLsite 不存在此作品'), 404);
     }
 
-    const editions = await workRepo.editions(data.originalId ?? data.id, data.languageEditions);
+    const editions = await workRepo.editions(data.originalId, data.languageEditions);
 
     return c.json({ ...data, editions });
   } catch (e) {

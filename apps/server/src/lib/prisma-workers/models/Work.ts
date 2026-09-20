@@ -297,7 +297,7 @@ export type WorkGroupByOutputType = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId: string | null
+  originalId: string
   languageEditions: runtime.JsonValue[]
   subtitles: boolean
   releaseDate: Date
@@ -342,7 +342,7 @@ export type WorkWhereInput = {
   rate?: Prisma.FloatFilter<"Work"> | number
   rateCount?: Prisma.IntFilter<"Work"> | number
   reviewCount?: Prisma.IntFilter<"Work"> | number
-  originalId?: Prisma.StringNullableFilter<"Work"> | string | null
+  originalId?: Prisma.StringFilter<"Work"> | string
   languageEditions?: Prisma.JsonNullableListFilter<"Work">
   subtitles?: Prisma.BoolFilter<"Work"> | boolean
   releaseDate?: Prisma.DateTimeFilter<"Work"> | Date | string
@@ -373,7 +373,7 @@ export type WorkOrderByWithRelationInput = {
   rate?: Prisma.SortOrder
   rateCount?: Prisma.SortOrder
   reviewCount?: Prisma.SortOrder
-  originalId?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalId?: Prisma.SortOrder
   languageEditions?: Prisma.SortOrder
   subtitles?: Prisma.SortOrder
   releaseDate?: Prisma.SortOrder
@@ -407,7 +407,7 @@ export type WorkWhereUniqueInput = Prisma.AtLeast<{
   rate?: Prisma.FloatFilter<"Work"> | number
   rateCount?: Prisma.IntFilter<"Work"> | number
   reviewCount?: Prisma.IntFilter<"Work"> | number
-  originalId?: Prisma.StringNullableFilter<"Work"> | string | null
+  originalId?: Prisma.StringFilter<"Work"> | string
   languageEditions?: Prisma.JsonNullableListFilter<"Work">
   subtitles?: Prisma.BoolFilter<"Work"> | boolean
   releaseDate?: Prisma.DateTimeFilter<"Work"> | Date | string
@@ -438,7 +438,7 @@ export type WorkOrderByWithAggregationInput = {
   rate?: Prisma.SortOrder
   rateCount?: Prisma.SortOrder
   reviewCount?: Prisma.SortOrder
-  originalId?: Prisma.SortOrderInput | Prisma.SortOrder
+  originalId?: Prisma.SortOrder
   languageEditions?: Prisma.SortOrder
   subtitles?: Prisma.SortOrder
   releaseDate?: Prisma.SortOrder
@@ -468,7 +468,7 @@ export type WorkScalarWhereWithAggregatesInput = {
   rate?: Prisma.FloatWithAggregatesFilter<"Work"> | number
   rateCount?: Prisma.IntWithAggregatesFilter<"Work"> | number
   reviewCount?: Prisma.IntWithAggregatesFilter<"Work"> | number
-  originalId?: Prisma.StringNullableWithAggregatesFilter<"Work"> | string | null
+  originalId?: Prisma.StringWithAggregatesFilter<"Work"> | string
   languageEditions?: Prisma.JsonNullableListFilter<"Work">
   subtitles?: Prisma.BoolWithAggregatesFilter<"Work"> | boolean
   releaseDate?: Prisma.DateTimeWithAggregatesFilter<"Work"> | Date | string
@@ -488,7 +488,7 @@ export type WorkCreateInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -519,7 +519,7 @@ export type WorkUncheckedCreateInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -546,7 +546,7 @@ export type WorkUpdateInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -577,7 +577,7 @@ export type WorkUncheckedUpdateInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -606,7 +606,7 @@ export type WorkCreateManyInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -626,7 +626,7 @@ export type WorkUpdateManyMutationInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -648,7 +648,7 @@ export type WorkUncheckedUpdateManyInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -794,10 +794,6 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type WorkUpdatelanguageEditionsInput = {
   set?: runtime.InputJsonValue[]
   push?: runtime.InputJsonValue | runtime.InputJsonValue[]
@@ -809,6 +805,10 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type WorkCreateNestedManyWithoutCircleInput = {
@@ -1077,7 +1077,7 @@ export type WorkCreateWithoutCircleInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1106,7 +1106,7 @@ export type WorkUncheckedCreateWithoutCircleInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1164,7 +1164,7 @@ export type WorkScalarWhereInput = {
   rate?: Prisma.FloatFilter<"Work"> | number
   rateCount?: Prisma.IntFilter<"Work"> | number
   reviewCount?: Prisma.IntFilter<"Work"> | number
-  originalId?: Prisma.StringNullableFilter<"Work"> | string | null
+  originalId?: Prisma.StringFilter<"Work"> | string
   languageEditions?: Prisma.JsonNullableListFilter<"Work">
   subtitles?: Prisma.BoolFilter<"Work"> | boolean
   releaseDate?: Prisma.DateTimeFilter<"Work"> | Date | string
@@ -1184,7 +1184,7 @@ export type WorkCreateWithoutSeriesInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1213,7 +1213,7 @@ export type WorkUncheckedCreateWithoutSeriesInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1266,7 +1266,7 @@ export type WorkCreateWithoutArtistsInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1296,7 +1296,7 @@ export type WorkUncheckedCreateWithoutArtistsInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1343,7 +1343,7 @@ export type WorkCreateWithoutIllustratorsInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1373,7 +1373,7 @@ export type WorkUncheckedCreateWithoutIllustratorsInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1420,7 +1420,7 @@ export type WorkCreateWithoutGenresInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1450,7 +1450,7 @@ export type WorkUncheckedCreateWithoutGenresInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1497,7 +1497,7 @@ export type WorkCreateWithoutSubtitlesDataInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1527,7 +1527,7 @@ export type WorkUncheckedCreateWithoutSubtitlesDataInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1569,7 +1569,7 @@ export type WorkUpdateWithoutSubtitlesDataInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1599,7 +1599,7 @@ export type WorkUncheckedUpdateWithoutSubtitlesDataInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1625,7 +1625,7 @@ export type WorkCreateWithoutTranslationInfoInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1655,7 +1655,7 @@ export type WorkUncheckedCreateWithoutTranslationInfoInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1697,7 +1697,7 @@ export type WorkUpdateWithoutTranslationInfoInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1727,7 +1727,7 @@ export type WorkUncheckedUpdateWithoutTranslationInfoInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1753,7 +1753,7 @@ export type WorkCreateWithoutPlaybackInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1783,7 +1783,7 @@ export type WorkUncheckedCreateWithoutPlaybackInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1825,7 +1825,7 @@ export type WorkUpdateWithoutPlaybackInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1855,7 +1855,7 @@ export type WorkUncheckedUpdateWithoutPlaybackInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1881,7 +1881,7 @@ export type WorkCreateWithoutPlaylistWorksInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1911,7 +1911,7 @@ export type WorkUncheckedCreateWithoutPlaylistWorksInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -1953,7 +1953,7 @@ export type WorkUpdateWithoutPlaylistWorksInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1983,7 +1983,7 @@ export type WorkUncheckedUpdateWithoutPlaylistWorksInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2010,7 +2010,7 @@ export type WorkCreateManyCircleInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -2030,7 +2030,7 @@ export type WorkUpdateWithoutCircleInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2059,7 +2059,7 @@ export type WorkUncheckedUpdateWithoutCircleInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2087,7 +2087,7 @@ export type WorkUncheckedUpdateManyWithoutCircleInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2108,7 +2108,7 @@ export type WorkCreateManySeriesInput = {
   rate: number
   rateCount: number
   reviewCount: number
-  originalId?: string | null
+  originalId: string
   languageEditions?: Prisma.WorkCreatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: boolean
   releaseDate: Date | string
@@ -2128,7 +2128,7 @@ export type WorkUpdateWithoutSeriesInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2157,7 +2157,7 @@ export type WorkUncheckedUpdateWithoutSeriesInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2185,7 +2185,7 @@ export type WorkUncheckedUpdateManyWithoutSeriesInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2205,7 +2205,7 @@ export type WorkUpdateWithoutArtistsInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2235,7 +2235,7 @@ export type WorkUncheckedUpdateWithoutArtistsInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2263,7 +2263,7 @@ export type WorkUncheckedUpdateManyWithoutArtistsInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2283,7 +2283,7 @@ export type WorkUpdateWithoutIllustratorsInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2313,7 +2313,7 @@ export type WorkUncheckedUpdateWithoutIllustratorsInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2341,7 +2341,7 @@ export type WorkUncheckedUpdateManyWithoutIllustratorsInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2361,7 +2361,7 @@ export type WorkUpdateWithoutGenresInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2391,7 +2391,7 @@ export type WorkUncheckedUpdateWithoutGenresInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2419,7 +2419,7 @@ export type WorkUncheckedUpdateManyWithoutGenresInput = {
   rate?: Prisma.FloatFieldUpdateOperationsInput | number
   rateCount?: Prisma.IntFieldUpdateOperationsInput | number
   reviewCount?: Prisma.IntFieldUpdateOperationsInput | number
-  originalId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalId?: Prisma.StringFieldUpdateOperationsInput | string
   languageEditions?: Prisma.WorkUpdatelanguageEditionsInput | runtime.InputJsonValue[]
   subtitles?: Prisma.BoolFieldUpdateOperationsInput | boolean
   releaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2636,7 +2636,7 @@ export type $WorkPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     rate: number
     rateCount: number
     reviewCount: number
-    originalId: string | null
+    originalId: string
     languageEditions: runtime.JsonValue[]
     subtitles: boolean
     releaseDate: Date

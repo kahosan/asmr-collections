@@ -81,7 +81,7 @@ class DLsiteProvider {
       rateCount: data.rate_count ?? 0,
       reviewCount: data.review_count ?? 0,
       wishlistCount: data.wishlist_count ?? 0,
-      originalId: data.translation_info.original_workno,
+      originalId: data.translation_info.original_workno ?? id,
       translationInfo: {
         isVolunteer: data.translation_info.is_volunteer,
         isOriginal: data.translation_info.is_original,

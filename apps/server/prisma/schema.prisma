@@ -38,7 +38,7 @@ model Work {
   rate             Float
   rateCount        Int
   reviewCount      Int
-  originalId       String?
+  originalId       String
   playback         Playback?
   translationInfo  TranslationInfo?
   languageEditions Json[]
@@ -49,6 +49,8 @@ model Work {
   createdAt        DateTime                     @default(now())
   updatedAt        DateTime                     @updatedAt
   playlistWorks    PlaylistWork[]
+
+  @@index([originalId])
 }
 
 model Circle {
