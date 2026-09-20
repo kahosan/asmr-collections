@@ -16,6 +16,7 @@ import {
 interface ConfirmOptions {
   title?: React.ReactNode;
   description?: React.ReactNode;
+  content?: React.ReactNode;
   cancelText?: React.ReactNode;
   actionText?: React.ReactNode;
   CancelProps?: React.ComponentProps<typeof AlertDialogCancel>;
@@ -46,6 +47,7 @@ const CallableConfirm = createCallable<ConfirmOptions, ConfirmResponse>(
             <AlertDialogTitle>{options.title}</AlertDialogTitle>
             <AlertDialogDescription>{options.description}</AlertDialogDescription>
           </AlertDialogHeader>
+          {options.content}
           <AlertDialogFooter className="p-2.5">
             <AlertDialogCancel {...options.CancelProps}>
               {options.cancelText}
