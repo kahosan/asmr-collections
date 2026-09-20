@@ -1,5 +1,6 @@
 import {
   createRoute,
+  redirect,
   stripSearchParams
 } from '@tanstack/react-router';
 import type { InferFullSearchSchema } from '@tanstack/react-router';
@@ -49,9 +50,15 @@ export const workDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/work-details/$id',
   staleTime: Infinity,
-  loader({ params, cause }) {
+  async loader({ params, cause }) {
     const id = params.id;
-    preloadWorkDetails(id, cause);
+    const data = await preloadWorkDetails(id, cause);
+
+    if (data !== null) {
+      const resolvedId = data.id;
+      // eslint-disable-next-line @typescript-eslint/only-throw-error -- redirect
+      if (resolvedId !== id) throw redirect({ to: '/work-details/$id', params: { id: resolvedId }, search: p => ({ ...p, t: id }), replace: true });
+    }
   },
   validateSearch: WorkDetailsSearchSchema
 }).lazy(() => import('~/pages/work-details').then(d => d.default));

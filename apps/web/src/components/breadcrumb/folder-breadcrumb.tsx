@@ -23,7 +23,7 @@ export function FolderBreadcrumb({ path }: { path?: string[] }) {
       <BreadcrumbList className="flex-nowrap">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link from="/work-details/$id" search={{ path: undefined }}>/</Link>
+            <Link from="/work-details/$id" search={p => ({ ...p, path: undefined })}>/</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -43,7 +43,7 @@ export function FolderBreadcrumb({ path }: { path?: string[] }) {
                         <BreadcrumbLink asChild>
                           <Link
                             from="/work-details/$id"
-                            search={{ path: path.slice(0, path.indexOf(item) + 1) }}
+                            search={p => ({ ...p, path: path.slice(0, path.indexOf(item) + 1) })}
                             className="w-full"
                           >
                             <p className="max-w-86 max-[400px]:max-w-64 line-clamp-2">{item}</p>
@@ -63,7 +63,7 @@ export function FolderBreadcrumb({ path }: { path?: string[] }) {
                   <BreadcrumbLink asChild>
                     <Link
                       from="/work-details/$id"
-                      search={{ path: path.slice(0, index + 1) }}
+                      search={p => ({ ...p, path: path.slice(0, index + 1) })}
                       className="w-full"
                     >
                       <p className="truncate">{item}</p>

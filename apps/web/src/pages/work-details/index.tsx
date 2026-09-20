@@ -39,7 +39,7 @@ const { useNavigate, useSearch, useParams } = workDetailsRoute;
 
 function WorkDetails({ id }: { id: string }) {
   const navigate = useNavigate();
-  const searchPath = useSearch({ select: ({ path }) => path });
+  const { searchPath, t } = useSearch({ select: ({ path, t }) => ({ searchPath: path, t }) });
   const matchRoute = useMatchRoute();
 
   const settings = useAtomValue(settingOptionsAtom);
@@ -50,10 +50,10 @@ function WorkDetails({ id }: { id: string }) {
     // 当不处于 work-details 路由时，不进行导航
     if (!matchRoute({ to: '/work-details/$id' })) return;
 
-    navigate({ params: { id }, search: { path }, replace: true });
+    navigate({ params: { id }, search: p => ({ ...p, path }), replace: true });
   }, [id, matchRoute, navigate]);
 
-  const { data: tracks, isLoading } = useWorkDetailsTracks(id, smartNavigate, data?.subtitles, searchPath);
+  const { data: tracks, isLoading } = useWorkDetailsTracks(t ?? id, smartNavigate, data?.subtitles, searchPath);
 
   if (!data)
     throw new Error('作品数据请求失败，详情请查看控制台');
