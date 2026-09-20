@@ -148,8 +148,10 @@ export const IndexSearchQuerySchema: z.ZodObject<{
 // 这个仅在前端使用，没有传到后端
 export const WorkDetailsBaseSearchSchema: z.ZodObject<{
   path: z.ZodOptional<z.ZodArray<z.ZodString>>
+  t: z.ZodOptional<z.ZodString>
 }> = z.object({
-  path: z.array(z.string()).optional()
+  path: z.array(z.string()).optional(),
+  t: z.string().optional()
 });
 
 export const PlaybackBaseSearchSchema: z.ZodObject<{
