@@ -101,6 +101,23 @@ class DLsiteProvider {
     });
   }
 
+  /**
+   * 解析作品：若 id 是译者版，则返回其所属语言版的数据。
+   * requestedId 始终为传入的 id，便于调用方判断是否发生了跳转。
+   */
+  async resolve(id: string): Promise<{ data: SourceWork, requestedId: string } | null> {
+    const data = await this.product(id);
+    if (!data) return null;
+
+    const parentId = data.translationInfo.parentWorkno;
+    if (!data.translationInfo.isChild || !parentId || parentId === id)
+      return { data, requestedId: id };
+
+    // 语言版理论上可能已下架，此时回退为译者版自身
+    const parent = await this.product(parentId);
+    return { data: parent ?? data, requestedId: id };
+  }
+
   async #productDetails(id: string): Promise<ProductDetails> {
     try {
       const [response, _data] = await Promise.all([

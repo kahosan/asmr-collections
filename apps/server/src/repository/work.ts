@@ -1,10 +1,73 @@
-import type { ServerWork } from '@asmr-collections/shared';
+import type { ServerWork, WorkEdition } from '@asmr-collections/shared';
 
 import type { SourceWork } from '~/types/source';
+import type { Prisma } from '~/lib/prisma/client';
 
 import { prisma } from '~/lib/db';
 
+const WORK_INCLUDE = {
+  circle: true,
+  series: true,
+  artists: true,
+  illustrators: true,
+  genres: true,
+  translationInfo: true
+} satisfies Prisma.WorkInclude;
+
+type LanguageEdition = SourceWork['languageEditions'][number];
+
 export const workRepo = {
+  /**
+   * 按任意 RJ 号解析库内作品：精确命中优先，其次是“它是某个已入库语言版的译者版”
+   */
+  resolve(id: string) {
+    return prisma.work.findMany({
+      where: {
+        OR: [
+          { id },
+          { translationInfo: { childWorknos: { has: id } } }
+        ]
+      },
+      include: { ...WORK_INCLUDE, playback: true }
+    }).then(works => works.find(w => w.id === id) ?? works.at(0) ?? null);
+  },
+  /**
+   * 生成家族各语言版列表并标记是否已入库。
+   * 以传入的列表为底，并上库内同家族各成员的 languageEditions 快照：
+   * 只要任一成员的快照是新的，全家读到的就是新的，不需要写入时同步
+   */
+  async editions(originalId: string, base: LanguageEdition[]): Promise<WorkEdition[]> {
+    const family = await prisma.work.findMany({
+      where: {
+        OR: [
+          { id: originalId },
+          { originalId },
+          { id: { in: base.map(e => e.workId) } }
+        ]
+      },
+      select: { id: true, name: true, cover: true, languageEditions: true }
+    });
+
+    const merged = new Map(base.map(e => [e.workId, e]));
+    for (const member of family) {
+      for (const e of member.languageEditions as LanguageEdition[])
+        merged.set(e.workId, e);
+    }
+
+    const library = new Map(family.map(w => [w.id, w]));
+    return Array.from(merged.values(), e => {
+      const work = library.get(e.workId);
+      return {
+        workId: e.workId,
+        lang: e.lang,
+        label: e.label,
+        original: e.workId === originalId,
+        library: work !== undefined,
+        name: work?.name,
+        cover: work?.cover
+      };
+    });
+  },
   create(data: SourceWork, id: string) {
     return prisma.work.create({
       data: {
@@ -71,14 +134,7 @@ export const workRepo = {
         languageEditions: data.languageEditions,
         releaseDate: data.releaseDate
       },
-      include: {
-        circle: true,
-        series: true,
-        artists: true,
-        illustrators: true,
-        genres: true,
-        translationInfo: true
-      }
+      include: WORK_INCLUDE
     });
   },
   update(data: SourceWork, id: string) {
@@ -156,14 +212,7 @@ export const workRepo = {
         languageEditions: data.languageEditions,
         releaseDate: data.releaseDate
       },
-      include: {
-        circle: true,
-        series: true,
-        artists: true,
-        illustrators: true,
-        genres: true,
-        translationInfo: true
-      }
+      include: WORK_INCLUDE
     });
   },
   async ensureRelations(works: SourceWork[]) {
@@ -236,14 +285,7 @@ export const workRepo = {
       where: {
         id: { in: targetIds }
       },
-      include: {
-        circle: true,
-        series: true,
-        artists: true,
-        illustrators: true,
-        genres: true,
-        translationInfo: true
-      }
+      include: WORK_INCLUDE
     });
 
     return works.sort((left, right) => targetIds.indexOf(left.id) - targetIds.indexOf(right.id)) as unknown as ServerWork[];
