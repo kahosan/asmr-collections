@@ -17,6 +17,7 @@ import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '~/components/ui/item';
 
+import { Edition } from './components/edition';
 import { SimilarWorks } from './components/similar';
 import { MetaButton } from '~/components/meta-button';
 import { TracksTabale } from './components/tracks-table';
@@ -221,17 +222,7 @@ function WorkDetails({ id, data }: { id: string, data: Work | null }) {
                 </Link>
               </Button>
 
-              {data.editions?.map(edition => (
-                edition.workId === data.id || edition.workId === (t ?? id)
-                  ? null
-                  : (
-                    <Button key={edition.workId} asChild variant="link" size="sm" className="w-max hover:opacity-90">
-                      <Link to="/work-details/$id" params={{ id: edition.workId }}>
-                        {edition.parentId ? `${edition.label}（译者版）` : edition.label}
-                      </Link>
-                    </Button>
-                  )
-              ))}
+              <Edition editions={data.editions} t={t} activeId={id} />
             </div>
           </div>
         </Card>
