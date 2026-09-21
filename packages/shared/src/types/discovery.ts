@@ -14,6 +14,7 @@ export interface DiscoveryExternalWork {
   circle: Data<string>
   /** Normalized provider tags; IDs are retained for future filtering. */
   genres: Array<Data<number>>
+  artists: Array<Data<string>> | null
 }
 
 export interface DiscoveryLibraryItem {

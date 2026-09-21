@@ -5,11 +5,17 @@ import type {
 
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { Card, CardTitle } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
-import { Image } from '~/components/image';
+import { Card, CardTitle } from '~/components/ui/card';
+
+import { MicIcon } from 'lucide-react';
+
 import { Link } from '~/components/link';
+import { Image } from '~/components/image';
+import { MetaButton } from '~/components/meta-button';
+
 import { useWorkAction } from '~/hooks/use-work-action';
+
 import { externalUrl, writeClipboard } from '~/utils';
 
 interface Props {
@@ -88,6 +94,23 @@ export function ExternalWorkCard({ work, provider, rank }: Props) {
             {work.intro || '暂无简介'}
           </div>
         </div>
+
+        <div className="text-sm inline-flex items-center flex-wrap gap-2">
+          {work.artists?.map(artist => (
+            <MetaButton
+              key={artist.name}
+              asChild
+              metaType="artists"
+              size="sm"
+            >
+              <Link to={externalUrl.dlsiteKeyword(artist.name)} isExternal>
+                <MicIcon />
+                {artist.name}
+              </Link>
+            </MetaButton>
+          ))}
+        </div>
+
         <div className="flex flex-wrap gap-2">
           {work.genres.map(genre => (
             <Badge variant="outline" key={`${genre.id}:${genre.name}`}>

@@ -305,7 +305,8 @@ export class DiscoveryEngine {
           cover: popular.item.cover,
           intro: popular.item.intro,
           circle: popular.item.circle,
-          genres: popular.item.genres
+          genres: popular.item.genres,
+          artists: popular.item.artists
         },
         provider,
         rank: popular.rank

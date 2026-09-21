@@ -1,4 +1,4 @@
-import type { ServerWork, Tracks } from '@asmr-collections/shared';
+import type { Data, ServerWork, Tracks } from '@asmr-collections/shared';
 
 import type { PopularWorks } from '~/types/popular';
 import type { Recommender, Tags } from '~/types/provider/asmr-one';
@@ -17,7 +17,8 @@ interface PopularResponse {
       source_id: string
       name: string
     }
-    tags: Array<{ id: number, name: string }>
+    vas: Array<Data<string>> | null
+    tags: Array<Data<number>>
   }>
 }
 
@@ -44,6 +45,7 @@ export class ASMROneProvider {
         id: w.circle.source_id,
         name: w.circle.name
       },
+      artists: w.vas,
       genres: w.tags.map(tag => ({
         id: tag.id,
         name: tag.name

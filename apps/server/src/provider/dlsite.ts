@@ -1,7 +1,7 @@
-import type { DLsiteRankPeriod } from '@asmr-collections/shared';
+import type { Data, DLsiteRankPeriod } from '@asmr-collections/shared';
 
 import type { SourceWork } from '~/types/source';
-import type { PopularWorks } from '~/types/popular';
+import type { PopularWork, PopularWorks } from '~/types/popular';
 
 import { parseDLsiteProductDetailResponse, parseDLsiteProductHTMLResponse, parseDLsiteProductStatsResponse } from '@asmr-collections/shared';
 
@@ -24,6 +24,7 @@ interface PopularResponse {
           id: number
           label: string
         }> | null
+        voiceBys: Array<Data<string>> | null
         description: string
         img: {
           originalUrl: string
@@ -61,12 +62,13 @@ class DLsiteProvider {
   async popular(period: DLsiteRankPeriod, limit = 100): Promise<PopularWorks> {
     const data = await fetcher<PopularResponse>(`${this.#host}/maniax/api/=/globalRanking.json?area=global&category=voice&term=${period}`);
     return data.data.voice.products
-      .map(p => ({
+      .map<PopularWork>(p => ({
         id: p.id,
         rank: p.rank,
         name: p.name,
         cover: p.img.originalUrl,
         intro: p.description,
+        artists: p.voiceBys,
         circle: p.maker,
         genres: p.tags?.map(tag => ({
           id: tag.id,
