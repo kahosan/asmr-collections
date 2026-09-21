@@ -39,7 +39,7 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
   const { page, limit, seed } = query;
 
   // filter
-  const { artistCount, storageFilter } = query;
+  const { artistCount, storageFilter, multilingual } = query;
 
   // sort
   const { order, sort } = query;
@@ -107,6 +107,20 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
         AND: [
           queryArgs.where || {},
           { id: { in: targetIds.map(item => item.id) } }
+        ]
+      };
+    }
+
+    if (multilingual) {
+      const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT "id" FROM "Work"
+        WHERE array_length("languageEditions", 1) > 1
+      `;
+
+      queryArgs.where = {
+        AND: [
+          queryArgs.where || {},
+          { id: { in: rows.map(r => r.id) } }
         ]
       };
     }

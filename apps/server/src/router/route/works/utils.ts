@@ -28,7 +28,7 @@ export function sortIdsBySeed(ids: string[], seed: string) {
 export function whereBuilder(query: z.infer<typeof IndexSearchQuerySchema>) {
   const {
     circleId, seriesId, illustratorId, artistId, genres, workType,
-    subtitles, multilingual, age, keyword, embedding, filterOp
+    subtitles, age, keyword, embedding, filterOp
   } = query;
 
   const AND: Prisma.WorkWhereInput[] = [];
@@ -96,7 +96,6 @@ export function whereBuilder(query: z.infer<typeof IndexSearchQuerySchema>) {
   if (workType) pushCondition({ id: { startsWith: workType } });
 
   if (subtitles) pushCondition({ subtitles: { equals: true } });
-  if (multilingual) pushCondition({ languageEditions: { isEmpty: false } });
 
   let where: Prisma.WorkWhereInput = {};
 
