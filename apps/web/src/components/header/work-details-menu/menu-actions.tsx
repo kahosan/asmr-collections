@@ -14,17 +14,18 @@ import { useWorkAction } from '~/hooks/use-work-action';
 
 import { workDetailsRoute } from '~/providers/router/route';
 
-const { useSearch, useNavigate } = workDetailsRoute;
+const { useSearch, useNavigate, useLoaderData } = workDetailsRoute;
 
 export function MenuActions({ id }: { id: string }) {
   const [createAction, createIsMutating] = useWorkAction('create');
   const [deleteAction, deleteIsMutating] = useWorkAction('delete');
 
-  // 译者版 id。访问译者版时会跳转到其语言版页面并把译者版 id 放在这里
   const t = useSearch({ select: s => s.t });
   const navigate = useNavigate();
 
-  const { data } = useWorkInfo(id, { suspense: true });
+  const { data: prefetchedData } = useLoaderData();
+
+  const { data } = useWorkInfo(id, { fallbackData: prefetchedData });
 
   const handleDelete = async () => {
     const yes = await confirm({

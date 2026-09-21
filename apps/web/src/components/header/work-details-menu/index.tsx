@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '~/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '~/components/ui/dropdown-menu';
@@ -34,9 +34,7 @@ export function WorkDetailsMenu() {
             <GoToDetail />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <Suspense fallback={<DropdownMenuItem disabled>菜单项加载中...</DropdownMenuItem>}>
-            <MenuActions id={id} />
-          </Suspense>
+          <MenuActions id={id} />
           <DropdownMenuSeparator />
           <HiddenImage menuType="dropdown" />
           <DropdownMenuSeparator />

@@ -27,6 +27,7 @@ import { TracksSkeleton } from './components/tracks-skeleton';
 import { match } from 'ts-pattern';
 import { useAtomValue } from 'jotai';
 
+import { useWorkInfo } from '~/hooks/use-work-info';
 import { useWorkDetailsTracks } from '~/hooks/use-work-details';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
@@ -39,12 +40,14 @@ import type { Work } from '@asmr-collections/shared';
 
 const { useNavigate, useSearch, useLoaderData } = workDetailsRoute;
 
-function WorkDetails({ id, data }: { id: string, data: Work | null }) {
+function WorkDetails({ id, prefetchedData }: { id: string, prefetchedData: Work | null }) {
   const navigate = useNavigate();
   const { searchPath, t } = useSearch({ select: ({ path, t }) => ({ searchPath: path, t }) });
   const matchRoute = useMatchRoute();
 
   const settings = useAtomValue(settingOptionsAtom);
+
+  const { data } = useWorkInfo(id, { fallbackData: prefetchedData });
 
   const fe = data?.editions?.filter(e => e.library);
   const hiddenEditions = fe?.length === 0
@@ -316,7 +319,7 @@ function WorkDetailsWrapper() {
 
   return (
     <ErrorBoundary key={id}>
-      <WorkDetails id={id} data={data} />
+      <WorkDetails id={id} prefetchedData={data} />
     </ErrorBoundary>
   );
 }
