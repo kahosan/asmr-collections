@@ -1,7 +1,7 @@
 import { createLazyRoute, useMatchRoute } from '@tanstack/react-router';
 
 import { motion } from 'motion/react';
-import { Activity, Suspense, useCallback } from 'react';
+import { Activity, useCallback } from 'react';
 
 import { formatChineseDate } from '@asmr-collections/shared';
 
@@ -21,13 +21,11 @@ import { SimilarWorks } from './components/similar';
 import { MetaButton } from '~/components/meta-button';
 import { TracksTabale } from './components/tracks-table';
 import { ErrorBoundary } from '~/components/error-boundary';
-import { WorkDetailsSkeleton } from './components/skeleton';
 import { TracksSkeleton } from './components/tracks-skeleton';
 
 import { match } from 'ts-pattern';
 import { useAtomValue } from 'jotai';
 
-import { useWorkInfo } from '~/hooks/use-work-info';
 import { useWorkDetailsTracks } from '~/hooks/use-work-details';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
 
@@ -36,16 +34,16 @@ import { externalUrl, writeClipboard } from '~/utils';
 import { cn } from '~/lib/utils';
 import { workDetailsRoute } from '~/providers/router/route';
 
-const { useNavigate, useSearch, useParams } = workDetailsRoute;
+import type { Work } from '@asmr-collections/shared';
 
-function WorkDetails({ id }: { id: string }) {
+const { useNavigate, useSearch, useLoaderData } = workDetailsRoute;
+
+function WorkDetails({ id, data }: { id: string, data: Work | null }) {
   const navigate = useNavigate();
   const { searchPath, t } = useSearch({ select: ({ path, t }) => ({ searchPath: path, t }) });
   const matchRoute = useMatchRoute();
 
   const settings = useAtomValue(settingOptionsAtom);
-
-  const { data } = useWorkInfo(id, { suspense: true });
 
   const fe = data?.editions?.filter(e => e.library);
   const hiddenEditions = fe?.length === 0
@@ -323,13 +321,11 @@ function WorkDetails({ id }: { id: string }) {
 }
 
 function WorkDetailsWrapper() {
-  const { id } = useParams();
+  const { id, data } = useLoaderData();
 
   return (
     <ErrorBoundary key={id}>
-      <Suspense fallback={<WorkDetailsSkeleton />}>
-        <WorkDetails id={id} />
-      </Suspense>
+      <WorkDetails id={id} data={data} />
     </ErrorBoundary>
   );
 }

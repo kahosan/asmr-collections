@@ -7,6 +7,8 @@ import type { InferFullSearchSchema } from '@tanstack/react-router';
 
 import App from '~/app';
 
+import { WorkDetailsSkeleton } from '~/pages/work-details/components/skeleton';
+
 import { rootRoute } from '.';
 
 import { preloadWorkDetails } from './preload';
@@ -54,12 +56,22 @@ export const workDetailsRoute = createRoute({
     const id = params.id;
     const data = await preloadWorkDetails(id, cause);
 
-    if (data !== null) {
+    if (data !== null && data.id !== id) {
       const resolvedId = data.id;
       // eslint-disable-next-line @typescript-eslint/only-throw-error -- redirect
-      if (resolvedId !== id) throw redirect({ to: '/work-details/$id', params: { id: resolvedId }, search: p => ({ ...p, t: id }), replace: true });
+      throw redirect({
+        to: '/work-details/$id',
+        params: { id: resolvedId },
+        search: p => ({ ...p, t: params.id }),
+        replace: true
+      });
     }
+
+    return { id, data };
   },
+  pendingComponent: () => <WorkDetailsSkeleton />,
+  pendingMs: 0,
+  pendingMinMs: 150,
   validateSearch: WorkDetailsSearchSchema
 }).lazy(() => import('~/pages/work-details').then(d => d.default));
 
