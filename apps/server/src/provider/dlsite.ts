@@ -59,8 +59,16 @@ export function resolveOriginalId(
 class DLsiteProvider {
   readonly #host = 'https://www.dlsite.com';
 
+  readonly #client = <T>(endpoint: string) => {
+    return fetcher<T>(new URL(endpoint, this.#host), {
+      headers: {
+        Cookie: 'locale=zh-cn'
+      }
+    });
+  };
+
   async popular(period: DLsiteRankPeriod, limit = 100): Promise<PopularWorks> {
-    const data = await fetcher<PopularResponse>(`${this.#host}/maniax/api/=/globalRanking.json?area=global&category=voice&term=${period}`);
+    const data = await this.#client<PopularResponse>(`/maniax/api/=/globalRanking.json?area=global&category=voice&term=${period}`);
     return data.data.voice.products
       .map<PopularWork>(p => ({
         id: p.id,
@@ -79,7 +87,7 @@ class DLsiteProvider {
   }
 
   async product(id: string): Promise<SourceWork | null> {
-    const response = await fetcher<unknown>(`${this.#host}/home/product/info/ajax?product_id=${encodeURIComponent(id)}&locale=zh_CN`);
+    const response = await this.#client<unknown>(`/home/product/info/ajax?product_id=${encodeURIComponent(id)}&locale=zh_CN`);
     const data = parseDLsiteProductStatsResponse(response, id);
     if (!data) return null;
 
@@ -144,7 +152,7 @@ class DLsiteProvider {
   async #productDetails(id: string): Promise<ProductDetails> {
     try {
       const [response, _data] = await Promise.all([
-        fetcher<unknown>(`${this.#host}/maniax/api/=/product.json?workno=${encodeURIComponent(id)}&locale=zh_CN`),
+        this.#client<unknown>(`/maniax/api/=/product.json?workno=${encodeURIComponent(id)}&locale=zh_CN`),
         this.#parserProductHTML(id)
       ]);
 
@@ -173,11 +181,7 @@ class DLsiteProvider {
   }
 
   async #parserProductHTML(id: string): Promise<ProductDetails> {
-    const str = await fetcher<string>(`${this.#host}/maniax/work/=/product_id/${encodeURIComponent(id)}.html/?locale=zh_CN`, {
-      headers: {
-        Cookie: 'locale=zh-cn'
-      }
-    });
+    const str = await this.#client<string>(`/maniax/work/=/product_id/${encodeURIComponent(id)}.html/?locale=zh_CN`);
 
     const $ = cheerio.load(str);
 

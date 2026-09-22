@@ -1,7 +1,7 @@
 import { match, P } from 'ts-pattern';
 import { HTTPError } from '@asmr-collections/shared';
 
-export async function fetcher<T>(url: string, options?: RequestInit) {
+export async function fetcher<T>(url: string | URL, options?: RequestInit) {
   const headers = new Headers();
   headers.set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
