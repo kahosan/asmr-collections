@@ -30,6 +30,10 @@ export function Edition({ editions, activeId, t }: EditionProps) {
     }, {})
   );
 
+  // only JPN
+  if (groups.length === 1 && groups.at(0)?.at(0)?.workId === activeId)
+    return null;
+
   return (
     <div className="flex flex-wrap items-center gap-2 *:px-1">
       {groups.map(items => {
