@@ -14,7 +14,7 @@ import { useWorkAction } from '~/hooks/use-work-action';
 
 import { workDetailsRoute } from '~/providers/router/route';
 
-const { useSearch, useNavigate, useLoaderData } = workDetailsRoute;
+const { useSearch, useNavigate, useMatch } = workDetailsRoute;
 
 export function MenuActions({ id }: { id: string }) {
   const [createAction, createIsMutating] = useWorkAction('create');
@@ -23,9 +23,8 @@ export function MenuActions({ id }: { id: string }) {
   const t = useSearch({ select: s => s.t });
   const navigate = useNavigate();
 
-  const { data: prefetchedData } = useLoaderData();
-
-  const { data } = useWorkInfo(id, { fallbackData: prefetchedData });
+  const prefetchedData = useMatch({ select: m => m.loaderData?.data });
+  const { data, isLoading } = useWorkInfo(id, { fallbackData: prefetchedData });
 
   const handleDelete = async () => {
     const yes = await confirm({
@@ -73,6 +72,10 @@ export function MenuActions({ id }: { id: string }) {
       })
     });
   };
+
+  if (isLoading)
+    return <DropdownMenuItem disabled>菜单项加载中...</DropdownMenuItem>;
+
   return (
     <DropdownMenuGroup>
       {

@@ -23,7 +23,7 @@ export function WorkDetailsMenu() {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu key={id}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
             菜单
