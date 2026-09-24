@@ -8,7 +8,7 @@ const ENDPOINTS = {
 
 const MODELS = {
   embeddings: 'jina-embeddings-v4',
-  rerank: 'jina-reranker-v3'
+  rerank: 'jina-reranker-v3.5'
 } as const;
 
 type JinaOperation = keyof typeof ENDPOINTS;
