@@ -184,13 +184,13 @@ export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
             <div
               ref={el => {
                 if (!el || !isActive || !autoScroll) return;
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
               data-active={isActive}
               key={cue.text + cue.startTime}
               onClick={() => handleCueClick(cue.startTime)}
               className={cn(
-                'hover:bg-accent',
+                'hover:bg-accent md:scroll-mt-30 scroll-mt-45',
                 !isActive && 'opacity-25',
                 isActive && 'bg-[#7b1fa2] text-white hover:bg-[#7b1fa2]',
                 'rounded-sm px-2 py-1 transition-[opacity,background-color,color] cursor-pointer'
