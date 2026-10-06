@@ -59,11 +59,16 @@ worksApp.get('/', zValidator('query', IndexSearchQuerySchema), async c => {
   const where = whereBuilder(query);
 
   const queryArgs: FindManyWorksQuery = {
-    where,
-    orderBy: match(sort)
-      .returnType<Prisma.WorkOrderByWithRelationInput>()
-      .with('playCount', () => ({ playback: { count: order } }))
-      .otherwise(() => ({ [sort]: order })),
+    where: sort === 'playCount'
+      ? { AND: [where, { playback: { isNot: null } }] }
+      : where,
+    orderBy: [
+      match(sort)
+        .returnType<Prisma.WorkOrderByWithRelationInput>()
+        .with('playCount', () => ({ playback: { count: order } }))
+        .otherwise(() => ({ [sort]: order })),
+      { id: 'asc' }
+    ],
     include
   };
 
