@@ -27,6 +27,9 @@
     "typescript": "~5.9.3"
   },
   "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=24.22.1"
+  },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged && pnpm typecheck"
   },
