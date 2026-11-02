@@ -5,8 +5,11 @@ import { useAtom, useAtomValue } from 'jotai';
 import { throttle } from '@asmr-collections/shared';
 
 import { AudioMedia } from './audio';
+import { VideoMedia } from './video';
 
 import { useSubtitleSource } from './hooks/use-subtitle-source';
+
+import { isVideoTrack } from './utils';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
 import { prepareTracks, usePlayback } from '~/hooks/use-playback';
@@ -123,5 +126,7 @@ function MediaPlayerInstance() {
     onSeeked
   };
 
-  return <AudioMedia {...mediaProps} />;
+  return isVideoTrack(currentTrack?.title)
+    ? <VideoMedia {...mediaProps} />
+    : <AudioMedia {...mediaProps} />;
 }

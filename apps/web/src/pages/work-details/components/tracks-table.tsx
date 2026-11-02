@@ -5,8 +5,7 @@ import { FileImage, FileText } from 'lucide-react';
 import { Link } from '~/components/link';
 import { FolderBreadcrumb } from '~/components/breadcrumb/folder-breadcrumb';
 
-import { VideoItem } from './video-item';
-import { AudioItem } from './audio-item';
+import { MediaItem } from './media-item';
 import { FolderItem } from './folder-item';
 import { PlaybackButton } from './playback-button';
 
@@ -17,6 +16,7 @@ import { useMemo, useRef } from 'react';
 import { match } from 'ts-pattern';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
+import { isVideoTrack } from '~/components/media-player/utils';
 import { usePlayback, prepareTracks } from '~/hooks/use-playback';
 
 import LightGallery from 'lightgallery/react';
@@ -106,10 +106,16 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
     return new SubtitleMatcher([currentDirSubtitles, allSubtitles]);
   }, [groupByType?.media, allSubtitles]);
 
-  const filterTracks = useMemo(
-    () => groupByType?.media?.filter(track => track.type === 'audio'),
-    [groupByType?.media]
-  );
+  // 音频和视频分开组成播放列表，上一首 / 下一首只在同类型中切换
+  const { audioTracks, videoTracks } = useMemo(() => {
+    const media = groupByType?.media?.filter(track => track.type === 'audio') ?? [];
+    return {
+      audioTracks: media.filter(track => !isVideoTrack(track.title)),
+      videoTracks: media.filter(track => isVideoTrack(track.title))
+    };
+  }, [groupByType?.media]);
+
+  const isCurrentVideo = isVideoTrack(mediaState.currentTrack?.title);
 
   const handlePlay = (track: Track, externalData?: { tracks: Tracks, position: number }) => {
     const currentSubtitle = subtitleMatcher.find(track.title);
@@ -120,7 +126,9 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
       position: externalData?.position
     };
 
-    const tracks = externalData?.tracks ?? filterTracks?.map(item => {
+    const sameTypeTracks = isVideoTrack(track.title) ? videoTracks : audioTracks;
+
+    const tracks = externalData?.tracks ?? sameTypeTracks.map(item => {
       const subtitles = subtitleMatcher.find(item.title);
       return {
         ...item,
@@ -151,6 +159,8 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
 
   const enqueueTrack = (track: Track) => {
     if (mediaState.tracks?.some(item => item.title === track.title)) return;
+    // 只能加入同类型的播放列表
+    if (isVideoTrack(track.title) !== isCurrentVideo) return;
 
     const subtitles = subtitleMatcher.find(track.title);
     setMediaState(state => produce(state, draft => {
@@ -161,12 +171,16 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
     }));
   };
 
-  // 添加目录中的音频至播放列表
+  // 添加目录中与当前播放列表同类型的媒体
   const enqueueTracks = (target: Tracks | undefined) => {
     if (!target) return;
 
     const newTracks = target.reduce<Tracks>((acc, item) => {
-      if (item.type === 'audio' && !mediaState.tracks?.some(track => track.title === item.title)) {
+      if (
+        item.type === 'audio'
+        && isVideoTrack(item.title) === isCurrentVideo
+        && !mediaState.tracks?.some(track => track.title === item.title)
+      ) {
         const subtitles = subtitleMatcher.find(item.title);
         acc.push({ ...item, subtitles });
       }
@@ -243,15 +257,15 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
             {
               groupByType?.media?.map(item => {
                 const isActive = mediaState.currentTrack?.hash === item.hash;
-                const videoFt = ['mp4', 'mkv', 'avi', 'mov'];
-                const isVideo = videoFt.includes(extname(item.title).toLowerCase());
+                const isVideo = isVideoTrack(item.title);
 
                 const textUrl = item.mediaStreamUrl;
 
                 const mediaType = item.type === 'text' ? 'text' : (isVideo ? 'video' : 'audio');
 
-                const disableEnqueue = !mediaState.currentTrack || !!mediaState.tracks
-                  ?.find(track => track.hash === item.hash);
+                const disableEnqueue = !mediaState.currentTrack
+                  || isVideo !== isCurrentVideo
+                  || !!mediaState.tracks?.find(track => track.hash === item.hash);
 
                 return (
                   <TableRow
@@ -272,15 +286,9 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
                               <p className="line-clamp-2">{item.title}</p>
                             </Link>
                           ))
-                          .with('video', () => (
-                            <VideoItem
-                              track={item}
-                              tracks={filterTracks}
-                              work={work}
-                            />
-                          ))
-                          .with('audio', () => (
-                            <AudioItem
+                          .with('video', 'audio', type => (
+                            <MediaItem
+                              isVideo={type === 'video'}
                               track={item}
                               onPlay={() => handlePlay(item)}
                               enqueueTrack={() => enqueueTrack(item)}

@@ -1,23 +1,26 @@
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuTrigger } from '~/components/ui/context-menu';
 
-import { FileMusic } from 'lucide-react';
+import { FileMusic, FileVideo } from 'lucide-react';
 
 import { formatDuration } from '@asmr-collections/shared';
 
 import type { Track } from '@asmr-collections/shared';
 
-interface AudioItemProps {
+interface MediaItemProps {
   track: Track
   onPlay: () => void
   enqueueTrack: (track: Track) => void
   disableEnqueue: boolean
+  isVideo?: boolean
 }
 
-export function AudioItem({ disableEnqueue, track, onPlay, enqueueTrack }: AudioItemProps) {
+export function MediaItem({ disableEnqueue, track, onPlay, enqueueTrack, isVideo }: MediaItemProps) {
   return (
     <ContextMenu>
       <ContextMenuTrigger className="flex items-center py-1 w-full cursor-pointer select-none" onClick={onPlay} title={track.title}>
-        <FileMusic className="min-size-8 mx-4" color="#4083e7" />
+        {isVideo
+          ? <FileVideo className="min-size-8 mx-4" color="#4B60D7" />
+          : <FileMusic className="min-size-8 mx-4" color="#4083e7" />}
         <div>
           <p className="line-clamp-2">{track.title}</p>
           {track.duration ? <small className="opacity-70">{formatDuration(track.duration)}</small> : null}

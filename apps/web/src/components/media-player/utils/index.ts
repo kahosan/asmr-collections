@@ -3,6 +3,13 @@ import { decodeText, extname, lrcToVtt } from '@asmr-collections/shared';
 import { fetcher } from '~/lib/fetcher';
 import { logger } from '~/lib/logger';
 
+const VIDEO_EXTENSIONS = new Set(['mp4', 'mkv', 'avi', 'mov']);
+
+export function isVideoTrack(title: string | undefined) {
+  if (!title) return false;
+  return VIDEO_EXTENSIONS.has(extname(title).toLowerCase());
+}
+
 // 浏览器原生字幕只支持 WebVTT
 export function srtToVtt(text: string): string {
   const body = text
