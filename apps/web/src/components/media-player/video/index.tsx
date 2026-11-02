@@ -61,7 +61,6 @@ export function VideoMedia({ track, subtitleSrc, prev, next, ...events }: MediaP
               {subtitleSrc && (
                 <track
                   key={subtitleSrc}
-                  default
                   kind="subtitles"
                   label="Chinese"
                   srcLang="zh"

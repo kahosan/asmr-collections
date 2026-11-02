@@ -5,9 +5,7 @@ import { usePlayerMedia } from '../player';
 interface CueSnapshot {
   textTrack: TextTrack | null
   cues: VTTCue[]
-  // 原生 activeCues 中的第一条，用于判断快照是否变化
   currentCue: VTTCue | undefined
-  // 实际展示的 cue，没有正在显示的 cue 时回退到上一条或第一条
   activeCue: VTTCue | undefined
 }
 
@@ -45,7 +43,6 @@ function getCueSnapshot(media: unknown): CueSnapshot {
   return snapshot;
 }
 
-// 播放器 state 只有轨道信息不含 cue，原生 TextTrack 作为外部数据源订阅
 export function useActiveCue() {
   const media = usePlayerMedia();
 

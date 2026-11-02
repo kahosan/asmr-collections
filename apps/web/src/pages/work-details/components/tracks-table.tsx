@@ -159,7 +159,6 @@ export function TracksTabale({ work, tracks, searchPath, externalSubtitles, play
 
   const enqueueTrack = (track: Track) => {
     if (mediaState.tracks?.some(item => item.title === track.title)) return;
-    // 只能加入同类型的播放列表
     if (isVideoTrack(track.title) !== isCurrentVideo) return;
 
     const subtitles = subtitleMatcher.find(track.title);

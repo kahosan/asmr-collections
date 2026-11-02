@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { throttle } from '@asmr-collections/shared';
+import { I18nProvider } from '@videojs/react/i18n';
 
 import { AudioMedia } from './audio';
 import { VideoMedia } from './video';
@@ -126,7 +127,11 @@ function MediaPlayerInstance() {
     onSeeked
   };
 
-  return isVideoTrack(currentTrack?.title)
-    ? <VideoMedia {...mediaProps} />
-    : <AudioMedia {...mediaProps} />;
+  return (
+    <I18nProvider>
+      {isVideoTrack(currentTrack?.title)
+        ? <VideoMedia {...mediaProps} />
+        : <AudioMedia {...mediaProps} />}
+    </I18nProvider>
+  );
 }

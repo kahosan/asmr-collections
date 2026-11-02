@@ -1,5 +1,4 @@
 /*
- * 字幕由浏览器渲染，无法用组件样式控制
  * Chromium / WebKit 的字号以内联样式写在 ::-webkit-media-text-track-display（cue 盒子）上，
  * 只设置 ::cue 无效，需要 !important 覆盖该伪元素；Firefox 只支持 ::cue
  * 两种选择器必须分开写：不认识 -webkit- 伪元素的浏览器会丢弃整条规则
