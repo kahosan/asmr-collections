@@ -69,8 +69,8 @@ export default defineConfig(({ mode }) => {
                 name: 'tanstack'
               },
               {
-                test: /node_modules[/\\]?@vidstack/,
-                name: 'vidstack'
+                test: /node_modules[/\\]@videojs/,
+                name: 'videojs'
               },
               {
                 test: /node_modules[/\\]@dnd-kit/,

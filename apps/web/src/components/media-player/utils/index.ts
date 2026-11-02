@@ -3,7 +3,24 @@ import { decodeText, extname, lrcToVtt } from '@asmr-collections/shared';
 import { fetcher } from '~/lib/fetcher';
 import { logger } from '~/lib/logger';
 
-export async function fetchTextTrackContent(src: string | undefined) {
+const VIDEO_EXTENSIONS = new Set(['mp4', 'mkv', 'avi', 'mov']);
+
+export function isVideoTrack(title: string | undefined) {
+  if (!title) return false;
+  return VIDEO_EXTENSIONS.has(extname(title).toLowerCase());
+}
+
+// 浏览器原生字幕只支持 WebVTT
+export function srtToVtt(text: string): string {
+  const body = text
+    .replace(/^\uFEFF/, '')
+    .replaceAll(/\r\n?/g, '\n')
+    .replaceAll(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+
+  return `WEBVTT\n\n${body}`;
+}
+
+export async function fetchTextTrackContent(src: string | undefined, type?: 'vtt' | 'srt') {
   if (!src) return;
 
   const fileType = extname(src).toLowerCase();
@@ -12,10 +29,13 @@ export async function fetchTextTrackContent(src: string | undefined) {
     const data = await fetcher<string | ArrayBuffer>(src);
     const text = typeof data === 'string' ? data : decodeText(data);
 
-    if (fileType !== 'lrc')
-      return text;
+    if (fileType === 'lrc')
+      return lrcToVtt(text);
 
-    return lrcToVtt(text);
+    if (fileType === 'srt' || type === 'srt')
+      return srtToVtt(text);
+
+    return text;
   } catch (e) {
     logger.error(e, `获取字幕文本失败: ${src}`);
   }

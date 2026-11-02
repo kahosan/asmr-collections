@@ -2,9 +2,11 @@ import { createContextState } from 'foxact/context-state';
 
 export interface MediaContext {
   isTranscoded: boolean
+  loop: boolean
   actions: {
     nextTrack: () => void
     prevTrack: () => void
+    toggleLoop: () => void
   }
 }
 

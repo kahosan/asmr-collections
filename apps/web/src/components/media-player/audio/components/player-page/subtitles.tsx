@@ -1,5 +1,3 @@
-import { useMediaContext, useMediaRemote } from '@vidstack/react';
-
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { focusAtom } from 'jotai-optics';
@@ -7,6 +5,7 @@ import { useAtom, useAtomValue } from 'jotai/react';
 import { motion, AnimatePresence } from 'motion/react';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
+import { usePlayer } from '../../player';
 import { useActiveCue } from '../../hooks/use-active-cue';
 import { pipCaptionsOpenAtom } from '../../hooks/use-pip-open';
 import { settingOptionsAtom } from '~/hooks/use-setting-options';
@@ -43,10 +42,9 @@ interface SubtitlesProps {
 }
 
 export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
-  const remote = useMediaRemote();
-  const media = useMediaContext();
+  const player = usePlayer();
 
-  const { activeCue, textTrackState } = useActiveCue();
+  const { activeCue, cues } = useActiveCue();
 
   const [autoScroll, setAutoScroll] = useState(true);
 
@@ -54,10 +52,11 @@ export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
   const keepScreenOn = useAtomValue(keepScreenOnAtom);
   const [openPipCaptions, setOpenPipCaptions] = useAtom(pipCaptionsOpenAtom);
 
-  const currentTime = media.$state.currentTime();
+  // 不订阅，与原先行为一致，仅在渲染时读取
+  const currentTime = player.currentTime;
 
   const handleCueClick = (startTime: number) => {
-    remote.seek(startTime + 0.5);
+    player.seek(startTime + 0.5);
   };
 
   const handleAutoScrollChange = () => {
@@ -167,7 +166,7 @@ export function Subtitles({ scrollAreaRef }: SubtitlesProps) {
         animate={{ opacity: 1 }}
         className="pt-4 space-y-2"
       >
-        {textTrackState?.cues.map((cue, index, arr) => {
+        {cues.map((cue, index, arr) => {
           let isActive = false;
           if (activeCue) {
             isActive = cue.startTime === activeCue.startTime;

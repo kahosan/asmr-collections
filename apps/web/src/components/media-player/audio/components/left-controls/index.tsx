@@ -1,25 +1,27 @@
 import { Loader2Icon, PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { Time, useMediaRemote, useMediaState } from '@vidstack/react';
+import { Time } from '@videojs/react';
+
+import { usePlayer } from '../../player';
 
 import { useMedia } from '../../context/media';
 
 export function LeftControls() {
   const { actions } = useMedia();
-  const playing = useMediaState('playing');
-  const canPlay = useMediaState('canPlay');
-  const waiting = useMediaState('waiting');
+  const playing = usePlayer(s => !s.paused);
+  const canPlay = usePlayer(s => s.canPlay);
+  const waiting = usePlayer(s => s.waiting);
 
-  const remote = useMediaRemote();
+  const player = usePlayer();
 
   const handlePlayPause = () => {
     if (!canPlay) return;
 
     if (playing)
-      remote.pause();
+      player.pause();
     else
-      remote.play();
+      player.play();
   };
 
   return (
@@ -51,9 +53,9 @@ export function LeftControls() {
         <SkipForwardIcon className="min-max-size-6 cursor-pointer" fill="currentColor" onClick={() => actions.nextTrack()} />
       </div>
       <div className="flex items-center text-xs font-medium opacity-60">
-        <Time className="time" type="current" />
+        <Time.Value className="time" type="current" />
         <div className="mx-1">/</div>
-        <Time className="time" type="duration" />
+        <Time.Value className="time" type="duration" />
       </div>
     </div>
   );

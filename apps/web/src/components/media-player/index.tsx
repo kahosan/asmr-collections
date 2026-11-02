@@ -1,26 +1,23 @@
-import { MediaPlayer as VidstackPlayer, MediaProvider, MEDIA_KEY_SHORTCUTS, TextTrack } from '@vidstack/react';
-import type { MediaLoadedDataEvent, MediaPauseEvent, MediaPlayingEvent, MediaTimeUpdateEventDetail } from '@vidstack/react';
-
-import { AudioPlayerLayout } from './layout';
-
 import { focusAtom } from 'jotai-optics';
-import { createPortal } from 'react-dom';
 import { useCallback, useMemo } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { throttle } from '@asmr-collections/shared';
+import { I18nProvider } from '@videojs/react/i18n';
 
-import { useMediaSrc } from './hooks/use-media-src';
-import { usePrefetchNext } from './hooks/use-prefetch-next';
+import { AudioMedia } from './audio';
+import { VideoMedia } from './video';
+
+import { useSubtitleSource } from './hooks/use-subtitle-source';
+
+import { isVideoTrack } from './utils';
 
 import { mediaStateAtom } from '~/hooks/use-media-state';
-import { settingOptionsAtom } from '~/hooks/use-setting-options';
 import { prepareTracks, usePlayback } from '~/hooks/use-playback';
 
-import { fetchTextTrackContent } from './utils';
+import type { MediaProps } from './types';
 
 const openAtom = focusAtom(mediaStateAtom, optic => optic.prop('open'));
-const qualityAtom = focusAtom(settingOptionsAtom, optic => optic.prop('asmrone').prop('quality'));
 
 export function MediaPlayer() {
   const open = useAtomValue(openAtom);
@@ -30,28 +27,16 @@ export function MediaPlayer() {
   return <MediaPlayerInstance />;
 }
 
+/**
+ * 播放列表、播放进度同步、Media Session、字幕等与具体播放器无关的逻辑
+ */
 function MediaPlayerInstance() {
   const [mediaState, setMediaState] = useAtom(mediaStateAtom);
   const { trigger: updatePlayback } = usePlayback();
 
   const currentTrack = mediaState.currentTrack;
 
-  const quality = useAtomValue(qualityAtom);
-  const url = quality === 'high'
-    ? currentTrack?.mediaStreamUrl
-    : (currentTrack?.streamLowQualityUrl || currentTrack?.mediaStreamUrl);
-
-  const { mediaSrc, isTranscoded } = useMediaSrc(url);
-
-  const nextTrack = useMemo(() => {
-    const currentIndex = mediaState.tracks?.findIndex(track => track.title === currentTrack?.title);
-    if (currentIndex === undefined || currentIndex === -1) return null;
-
-    const nextIndex = currentIndex + 1;
-    return mediaState.tracks?.at(nextIndex) || null;
-  }, [currentTrack?.title, mediaState.tracks]);
-
-  const { triggerPrefetch } = usePrefetchNext(nextTrack?.mediaStreamUrl);
+  const subtitleSrc = useSubtitleSource(currentTrack?.subtitles);
 
   const changeTrack = useCallback((next = false) => {
     const currentIndex = mediaState.tracks?.findIndex(track => track.title === currentTrack?.title);
@@ -65,35 +50,9 @@ function MediaPlayerInstance() {
     setMediaState(prev => ({ ...prev, currentTrack: nextTrack }));
   }, [currentTrack?.title, mediaState.tracks, setMediaState]);
 
-  const onLoadStart = useCallback(async (e: MediaPlayingEvent) => {
-    // 清理已存在的字幕轨道
-    e.target.textTracks.clear();
-
-    const subtitles = currentTrack?.subtitles;
-
-    const src = subtitles?.url;
-    const stateContent = subtitles?.content;
-
-    const content = await fetchTextTrackContent(src);
-
-    if (!content && !stateContent && !src) return;
-
-    const track = new TextTrack({
-      content: content || stateContent,
-      id: currentTrack?.title,
-      kind: 'subtitles',
-      label: 'Chinese',
-      default: true,
-      type: subtitles?.type
-    });
-
-    e.target.textTracks.add(track);
-    track.setMode('showing');
-  }, [currentTrack]);
-
-  const onLoadedData = useCallback((e: MediaLoadedDataEvent) => {
+  const onLoadedData = useCallback((e: React.SyntheticEvent<HTMLMediaElement>) => {
     if (currentTrack?.position)
-      e.target.currentTime = currentTrack.position;
+      e.currentTarget.currentTime = currentTrack.position;
   }, [currentTrack]);
 
   const updatePlaybackFn = useCallback((currentTime: number, force = false) => {
@@ -123,22 +82,16 @@ function MediaPlayerInstance() {
     updatePlaybackFn(0, true);
   }, [changeTrack, updatePlaybackFn]);
 
-  const onTimeUpdate = useCallback((detail: MediaTimeUpdateEventDetail) => {
-    const currentTime = detail.currentTime;
+  const onTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLMediaElement>) => {
+    throttledUpdatePlayback(e.currentTarget.currentTime);
+  }, [throttledUpdatePlayback]);
 
-    if (currentTime > 30)
-      triggerPrefetch();
-
-    throttledUpdatePlayback(currentTime);
-  }, [triggerPrefetch, throttledUpdatePlayback]);
-
-  const onPause = useCallback((e: MediaPauseEvent) => {
-    const currentTime = e.target.currentTime;
-    updatePlaybackFn(currentTime);
+  const onPause = useCallback((e: React.SyntheticEvent<HTMLMediaElement>) => {
+    updatePlaybackFn(e.currentTarget.currentTime);
   }, [updatePlaybackFn]);
 
-  const onSeeked = useCallback((detail: number) => {
-    updatePlaybackFn(detail, true);
+  const onSeeked = useCallback((e: React.SyntheticEvent<HTMLMediaElement>) => {
+    updatePlaybackFn(e.currentTarget.currentTime, true);
   }, [updatePlaybackFn]);
 
   const updateMediaMetadata = useCallback(() => {
@@ -161,31 +114,24 @@ function MediaPlayerInstance() {
     navigator.mediaSession.setActionHandler('nexttrack', () => changeTrack(true));
   }, [changeTrack, currentTrack, mediaState.work]);
 
-  return createPortal(
-    <div className="relative h-15 max-sm:z-10">
-      <div className="fixed bottom-0 w-full">
-        <VidstackPlayer
-          autoPlay
-          src={mediaSrc}
-          onLoadStart={onLoadStart}
-          onLoadedData={onLoadedData}
-          onTimeUpdate={onTimeUpdate}
-          onCanPlay={updateMediaMetadata}
-          onEnded={onEnded}
-          onPause={onPause}
-          onSeeked={onSeeked}
-          keyTarget="document"
-          keyShortcuts={MEDIA_KEY_SHORTCUTS}
-        >
-          <MediaProvider />
-          <AudioPlayerLayout
-            isTranscoded={isTranscoded}
-            prev={() => changeTrack()}
-            next={() => changeTrack(true)}
-          />
-        </VidstackPlayer>
-      </div>
-    </div>,
-    document.body
+  const mediaProps: MediaProps = {
+    track: currentTrack,
+    subtitleSrc,
+    prev: () => changeTrack(),
+    next: () => changeTrack(true),
+    onLoadedData,
+    onTimeUpdate,
+    onCanPlay: updateMediaMetadata,
+    onEnded,
+    onPause,
+    onSeeked
+  };
+
+  return (
+    <I18nProvider>
+      {isVideoTrack(currentTrack?.title)
+        ? <VideoMedia {...mediaProps} />
+        : <AudioMedia {...mediaProps} />}
+    </I18nProvider>
   );
 }

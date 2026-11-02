@@ -1,0 +1,38 @@
+/*
+ * Chromium / WebKit 的字号以内联样式写在 ::-webkit-media-text-track-display（cue 盒子）上，
+ * 只设置 ::cue 无效，需要 !important 覆盖该伪元素；Firefox 只支持 ::cue
+ * 两种选择器必须分开写：不认识 -webkit- 伪元素的浏览器会丢弃整条规则
+ * 字号使用相对播放器宽度的 cqw（skin 的 Container 是 media-root 容器），随播放器尺寸缩放
+ */
+
+.video-media[data-caption-size="sm"] video::-webkit-media-text-track-display {
+  font-size: 1.6cqw !important;
+}
+
+.video-media[data-caption-size="sm"] video::cue {
+  font-size: 1.6cqw !important;
+}
+
+.video-media[data-caption-size="md"] video::-webkit-media-text-track-display {
+  font-size: 2cqw !important;
+}
+
+.video-media[data-caption-size="md"] video::cue {
+  font-size: 2cqw !important;
+}
+
+.video-media[data-caption-size="lg"] video::-webkit-media-text-track-display {
+  font-size: 2.5cqw !important;
+}
+
+.video-media[data-caption-size="lg"] video::cue {
+  font-size: 2.5cqw !important;
+}
+
+.video-media[data-caption-size="xl"] video::-webkit-media-text-track-display {
+  font-size: 3cqw !important;
+}
+
+.video-media[data-caption-size="xl"] video::cue {
+  font-size: 3cqw !important;
+}

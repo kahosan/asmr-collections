@@ -9,7 +9,7 @@ import { cn } from '~/lib/utils';
 export function FloatingCaptions() {
   const open = useAtomValue(floatingCaptionsOpenAtom);
 
-  const { activeCue, textTrackState } = useActiveCue();
+  const { activeCue, textTrack } = useActiveCue();
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -55,7 +55,7 @@ export function FloatingCaptions() {
     }
   }, [isDragging]);
 
-  if (!textTrackState) return null;
+  if (!textTrack) return null;
 
   return (
     <Activity mode={open ? 'visible' : 'hidden'}>
