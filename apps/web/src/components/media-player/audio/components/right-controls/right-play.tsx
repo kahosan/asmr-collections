@@ -1,7 +1,8 @@
 import { Loader2Icon, PauseIcon, PlayIcon, SkipForwardIcon } from 'lucide-react';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { useMediaRemote, useMediaState } from '@vidstack/react';
+
+import { usePlayer } from '../../player';
 
 import { useMedia } from '../../context/media';
 
@@ -11,19 +12,19 @@ interface RightPlayControlsProps {
 
 export function RightPlayControls({ mainExpand }: RightPlayControlsProps) {
   const { actions } = useMedia();
-  const playing = useMediaState('playing');
-  const canPlay = useMediaState('canPlay');
-  const waiting = useMediaState('waiting');
+  const playing = usePlayer(s => !s.paused);
+  const canPlay = usePlayer(s => s.canPlay);
+  const waiting = usePlayer(s => s.waiting);
 
-  const remote = useMediaRemote();
+  const player = usePlayer();
 
   const handlePlayPause = () => {
     if (!canPlay) return;
 
     if (playing)
-      remote.pause();
+      player.pause();
     else
-      remote.play();
+      player.play();
   };
 
   return (

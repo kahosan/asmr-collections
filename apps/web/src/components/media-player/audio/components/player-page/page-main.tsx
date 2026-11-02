@@ -1,0 +1,64 @@
+import { useAtomValue } from 'jotai';
+import { mediaStateAtom } from '~/hooks/use-media-state';
+
+import { PlayerPageActions } from './actions';
+
+import { Volume1Icon, Volume2 } from 'lucide-react';
+import { Time, TimeSlider, VolumeSlider } from '@videojs/react';
+
+import { isIOSSafari } from '../../../utils';
+
+export function PlayerPageMain() {
+  const mediaState = useAtomValue(mediaStateAtom);
+
+  const title = mediaState.currentTrack?.title || '未知曲目';
+  const workTitle = mediaState.work?.name || '未知作品';
+
+  const showVolumeSlider = !isIOSSafari();
+
+  return (
+    <div className="w-full flex flex-col sm:gap-2 gap-6">
+      <div id="track-info" className="text-center">
+        <div id="track-title" className="font-semibold sm:text-sm line-clamp-2">
+          {title}
+        </div>
+        <div id="work-title" className="mt-2 text-xs opacity-60 break-all line-clamp-2">
+          {workTitle}
+        </div>
+      </div>
+      <div id="progress-bar" onPointerDown={e => e.stopPropagation()} className="touch-auto sm:mt-4">
+        <TimeSlider.Root className="group relative w-full cursor-pointer touch-none select-none items-center outline-none before:absolute before:inset-0 before:-top-2 before:-bottom-2 before:content-['']">
+          <TimeSlider.Preview className="bottom-full mb-1.5 opacity-0 transition-opacity duration-150 group-data-pointing:opacity-100 group-data-dragging:opacity-100">
+            <TimeSlider.Value type="pointer" className="block px-2 py-1 bg-background/80 backdrop-blur-sm text-xs rounded-md border border-border/50" />
+          </TimeSlider.Preview>
+          <TimeSlider.Track className="relative z-0 h-1 w-full rounded-full bg-foreground/20 transition-colors group-data-interactive:bg-foreground/25 group-hover:bg-foreground/25">
+            <TimeSlider.Buffer className="absolute h-full w-(--media-slider-buffer) rounded-sm bg-white/30 will-change-[width]" />
+            <TimeSlider.Fill className="absolute h-full w-(--media-slider-fill) rounded-full bg-[linear-gradient(to_right,#f03_80%,#ff2791_100%)] will-change-[width]" />
+          </TimeSlider.Track>
+          <TimeSlider.Thumb className="absolute left-(--media-slider-fill) top-1/2 z-20 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[linear-gradient(to_right,#f03_80%,#ff2791_100%)] shadow-lg transition-opacity duration-150 group-data-dragging:scale-125 group-data-dragging:shadow-xl will-change-[left,transform,opacity]" />
+        </TimeSlider.Root>
+        <div className="flex items-center justify-between text-sm font-medium opacity-60 mt-2">
+          <Time.Value className="time" type="current" />
+          <Time.Value className="time" type="duration" />
+        </div>
+      </div>
+      <div id="actions" className="flex justify-center items-center">
+        <PlayerPageActions />
+      </div>
+      {showVolumeSlider && (
+        <div id="volume-slider" className="w-full flex justify-center items-center gap-2 touch-auto" onPointerDown={e => e.stopPropagation()}>
+          <div className="w-[95%] flex items-center gap-1">
+            <Volume1Icon className="min-max-size-6" />
+            <VolumeSlider.Root className="group relative mr-3 h-1 w-full cursor-pointer touch-none select-none items-center outline-none">
+              <VolumeSlider.Track className="relative ring-white z-0 h-1 w-full rounded-sm bg-foreground/20 group-has-focus-visible:ring-[1px]">
+                <VolumeSlider.Fill className="bg-blue-400 absolute h-full w-(--media-slider-fill) rounded-sm will-change-[width]" />
+              </VolumeSlider.Track>
+              <VolumeSlider.Thumb className="absolute left-(--media-slider-fill) top-1/2 z-20 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#cacaca] bg-white transition-opacity will-change-[left]" />
+            </VolumeSlider.Root>
+            <Volume2 className="min-max-size-6" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

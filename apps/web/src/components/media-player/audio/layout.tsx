@@ -7,6 +7,7 @@ import { usePlayerExpand } from './hooks/use-player-expand';
 import { MediaContext } from './context/media';
 
 import { TrackInfo } from './components/track-info';
+import { MediaContainer } from './components/media-container';
 import { PlayerPage } from './components/player-page';
 import { PipCaptions } from './components/pip-captions';
 import { LeftControls } from './components/left-controls';
@@ -17,18 +18,23 @@ import { RightPlayControls } from './components/right-controls/right-play';
 
 interface PlayerLayoutProps {
   isTranscoded: boolean
+  loop: boolean
+  toggleLoop: () => void
   prev: () => void
   next: () => void
+  children: React.ReactNode
 }
 
-export function AudioPlayerLayout({ prev, next, isTranscoded }: PlayerLayoutProps) {
+export function AudioPlayerLayout({ prev, next, isTranscoded, loop, toggleLoop, children }: PlayerLayoutProps) {
   const initialValue: MediaContext = useMemo(() => ({
     isTranscoded,
+    loop,
     actions: {
       nextTrack: next,
-      prevTrack: prev
+      prevTrack: prev,
+      toggleLoop
     }
-  }), [isTranscoded, next, prev]);
+  }), [isTranscoded, loop, next, prev, toggleLoop]);
 
   const [expand, setExpand] = usePlayerExpand();
 
@@ -42,6 +48,10 @@ export function AudioPlayerLayout({ prev, next, isTranscoded }: PlayerLayoutProp
 
   return (
     <MediaContext value={initialValue}>
+      <MediaContainer>
+        {children}
+      </MediaContainer>
+
       <PlayerPage />
       <FloatingCaptions />
       <PipCaptions />

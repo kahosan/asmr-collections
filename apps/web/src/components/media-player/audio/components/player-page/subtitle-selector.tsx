@@ -1,13 +1,9 @@
-import { useMediaPlayer, TextTrack } from '@vidstack/react';
-
 import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { focusAtom } from 'jotai-optics';
 import { mediaStateAtom } from '~/hooks/use-media-state';
 
 import { NativeSelect, NativeSelectOption } from '~/components/ui/native-select';
-
-import { fetchTextTrackContent } from '../../utils';
 
 import type { SubtitleInfo } from '@asmr-collections/shared';
 
@@ -20,8 +16,6 @@ interface Props {
 export function SubtitleSelector({ allSubtitles }: Props) {
   const [currentTrack, setCurrentTrack] = useAtom(currentTrackAtom);
 
-  const player = useMediaPlayer();
-
   const currentSubtitle = currentTrack?.subtitles;
 
   // 去重字幕名称一致的，然后排序
@@ -30,27 +24,15 @@ export function SubtitleSelector({ allSubtitles }: Props) {
       .sort((a, b) => a.title.localeCompare(b.title));
   }, [allSubtitles]);
 
-  const handleChange = async (title: string) => {
+  // 播放器根据 currentTrack.subtitles 重新生成 <track>
+  const handleChange = (title: string) => {
     const subtitles = allSubtitles.find(subtitle => subtitle.title === title);
 
-    if (subtitles && currentTrack && player) {
+    if (subtitles && currentTrack) {
       setCurrentTrack({
         ...currentTrack,
         subtitles
       });
-
-      const content = await fetchTextTrackContent(subtitles.url);
-      const textTrack = new TextTrack({
-        content: content || subtitles.content,
-        id: currentTrack.title,
-        kind: 'subtitles',
-        label: 'Chinese',
-        default: true,
-        type: subtitles.type
-      });
-
-      player.textTracks.add(textTrack);
-      textTrack.setMode('showing');
     }
   };
 
