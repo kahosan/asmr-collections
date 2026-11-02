@@ -40,7 +40,7 @@ export function VideoMedia({ track, subtitleSrc, prev, next, ...events }: MediaP
     <>
       <motion.div
         ref={lockBodyScroll}
-        className="fixed inset-0 z-40 bg-black/70 backdrop-blur-md"
+        className="fixed inset-x-0 top-0 z-40 h-lvh bg-black/70 backdrop-blur-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: closing ? 0 : 1 }}
         transition={transition}
