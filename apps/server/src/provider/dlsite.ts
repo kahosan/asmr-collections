@@ -185,25 +185,25 @@ class DLsiteProvider {
 
     const $ = cheerio.load(str);
 
-    const maker = $('table#work_maker').find('span.maker_name > a');
+    const maker = $('a.c-productInfo__makerName').first();
     const makerId = maker.attr('href')?.split('/').pop()?.replaceAll('.html', '') ?? '';
     const makerName = maker.text().trim();
 
     let artists: string[] = [];
     let illustrators: string[] = [];
-    $('table#work_outline').find('th').each((_, el) => {
+    $('.c-productInfo__item').find('dt.c-productInfo__key').each((_, el) => {
       const text = $(el).text().trim();
 
       if (text === '声优')
-        artists = $(el).parent('tr').find('td a').map((_, el) => $(el).text().trim()).toArray();
+        artists = $(el).siblings('dd.c-productInfo__value').find('a').map((_, el) => $(el).text().trim()).toArray();
 
       else if (text === '插画')
-        illustrators = $(el).parent('tr').find('td a').map((_, el) => $(el).text().trim()).toArray();
+        illustrators = $(el).siblings('dd.c-productInfo__value').find('a').map((_, el) => $(el).text().trim()).toArray();
     });
 
-    const genres = $('div.main_genre > a').map((_, el) => {
+    const genres = $('dd.c-productInfo__value a[href*="/genre/"]').map((_, el) => {
       return {
-        id: Number.parseInt($(el).attr('href')?.match(/\d+/g)?.at(0) ?? '', 10),
+        id: Number.parseInt($(el).attr('href')?.match(/\/genre\/(\d+)/)?.at(1) ?? '', 10),
         name: $(el).text().trim()
       };
     }).toArray();
